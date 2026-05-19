@@ -1,0 +1,95 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ------------------------------------------------------------
+    // GLOBAL HELPERS
+    // ------------------------------------------------------------
+    function isValidId(id) { return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); }
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+    function isSignedIn() { return request.auth != null; }
+    function isVerified() { return isSignedIn(); } // Simplified for dev
+    function isOwner(userId) { return isSignedIn() && request.auth.uid == userId; }
+    function isAdmin() { 
+      return isSignedIn() && 
+        (exists(/databases/$(database)/documents/admins/$(request.auth.uid)) || 
+         (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin')); 
+    }
+
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // ------------------------------------------------------------
+    // USERS COLLECTION
+    // ------------------------------------------------------------
+    function isValidUser(data) {
+      return data.keys().hasAll(['userId', 'email', 'role', 'createdAt']) &&
+             data.userId == request.auth.uid &&
+             data.email is string &&
+             data.role in ['user', 'admin'] &&
+             data.createdAt is string;
+    }
+
+    match /users/{userId} {
+      allow get: if isSignedIn();
+      allow create: if isSignedIn() && isValidUser(incoming()) && (incoming().role == 'user' || isAdmin());
+      allow update: if isOwner(userId) || isAdmin();
+      allow delete: if isAdmin();
+      
+      // Sub-collections
+      match /cart/{cartId} {
+        allow read, write: if isOwner(userId);
+      }
+      match /wishlist/{wishlistId} {
+        allow read, write: if isOwner(userId);
+      }
+    }
+
+    // ------------------------------------------------------------
+    // PRODUCTS COLLECTION
+    // ------------------------------------------------------------
+    function isValidProduct(data) {
+      return data.name is string && data.name.size() > 0 &&
+             data.price is number && data.price >= 0 &&
+             data.category in ['Luxury', 'Sport', 'Smart', 'Classic'];
+    }
+
+    match /products/{productId} {
+      allow list, get: if true; // Publicly viewable
+      allow create: if isAdmin() && isValidProduct(incoming());
+      allow update: if isAdmin() && isValidProduct(incoming());
+      allow delete: if isAdmin();
+    }
+
+    // ------------------------------------------------------------
+    // ORDERS COLLECTION
+    // ------------------------------------------------------------
+    match /orders/{orderId} {
+      allow get: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && (isAdmin() || request.query.limit <= 100); // Allow list for members and limited list for others (or just use admin check)
+      allow create: if isSignedIn() && incoming().userId == request.auth.uid && 
+                    incoming().status == 'pending';
+      allow update: if isAdmin() || (isOwner(resource.data.userId) && incoming().status == 'cancelled');
+    }
+
+    // ------------------------------------------------------------
+    // REVIEWS COLLECTION
+    // ------------------------------------------------------------
+    match /reviews/{reviewId} {
+      allow list, get: if true;
+      allow create: if isVerified() && incoming().userId == request.auth.uid;
+      allow update, delete: if isVerified() && (existing().userId == request.auth.uid || isAdmin());
+    }
+
+    // ------------------------------------------------------------
+    // ADMINS COLLECTION (Whitelist)
+    // ------------------------------------------------------------
+    match /admins/{adminId} {
+      allow read: if isSignedIn(); // Need to check if user is admin
+      allow write: if false; // Only manageable via Firebase Console or special script
+    }
+  }
+}

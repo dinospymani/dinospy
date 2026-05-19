@@ -1,0 +1,120 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "User profile data including preferences and role.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "role": { "type": "string", "enum": ["user", "admin"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "email", "role"]
+    },
+    "Product": {
+      "title": "Watch Product",
+      "description": "Details about a luxury watch.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "brand": { "type": "string" },
+        "price": { "type": "number" },
+        "category": { "type": "string", "enum": ["Luxury", "Sport", "Smart", "Classic"] },
+        "description": { "type": "string" },
+        "images": { "type": "array" },
+        "videoUrl": { "type": "string" },
+        "specs": { "type": "object" },
+        "stock": { "type": "number" },
+        "rating": { "type": "number" },
+        "reviewCount": { "type": "number" },
+        "isTrending": { "type": "boolean" },
+        "isLimited": { "type": "boolean" },
+        "isNewArrival": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "brand", "price", "category", "images", "stock"]
+    },
+    "Order": {
+      "title": "Customer Order",
+      "description": "Information about a watch purchase.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "items": { "type": "array" },
+        "totalAmount": { "type": "number" },
+        "status": { "type": "string", "enum": ["pending", "processing", "shipped", "delivered", "cancelled"] },
+        "paymentStatus": { "type": "string" },
+        "shippingAddress": { "type": "object" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "items", "totalAmount", "status", "shippingAddress"]
+    },
+    "CartItem": {
+      "title": "Cart Item",
+      "description": "A product in a user's cart.",
+      "type": "object",
+      "properties": {
+        "productId": { "type": "string" },
+        "quantity": { "type": "number" },
+        "addedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["productId", "quantity"]
+    },
+    "Review": {
+      "title": "Product Review",
+      "description": "Customer feedback on a watch.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "productId": { "type": "string" },
+        "userId": { "type": "string" },
+        "userName": { "type": "string" },
+        "rating": { "type": "number" },
+        "comment": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["productId", "userId", "rating", "comment"]
+    },
+    "WishlistItem": {
+      "title": "Wishlist Item",
+      "description": "A saved watch for later.",
+      "type": "object",
+      "properties": {
+        "productId": { "type": "string" },
+        "addedAt": { "type": "string", "format": "date-time" }
+      }
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Individual user profiles."
+    },
+    "/products/{productId}": {
+      "schema": "Product",
+      "description": "Watch product directory."
+    },
+    "/orders/{orderId}": {
+      "schema": "Order",
+      "description": "Customer orders."
+    },
+    "/users/{userId}/cart/{cartId}": {
+      "schema": "CartItem",
+      "description": "User shopping cart items."
+    },
+    "/users/{userId}/wishlist/{wishlistId}": {
+      "schema": "WishlistItem",
+      "description": "User wishlist."
+    },
+    "/reviews/{reviewId}": {
+      "schema": "Review",
+      "description": "Product reviews."
+    }
+  }
+}
