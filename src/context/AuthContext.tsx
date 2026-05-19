@@ -2,8 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { initializeApp } from 'firebase/app';
 import { getAuth, onAuthStateChanged, User, GoogleAuthProvider, signInWithPopup, signOut as firebaseSignOut } from 'firebase/auth';
 import { getFirestore, doc, getDoc, setDoc } from 'firebase/firestore';
-// @ts-ignore
-import config from '../../firebase-applet-config.json' with { type: 'json' };
+import config from '../../firebase-applet-config.json';
 
 const app = initializeApp(config || {});
 export const auth = getAuth(app);
@@ -27,36 +26,60 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      setUser(user);
-      if (user) {
-        const userRef = doc(db, 'users', user.uid);
-        const userSnap = await getDoc(userRef);
-        if (userSnap.exists()) {
-          setProfile(userSnap.data());
+      try {
+        setLoading(true); // Restart loading if state change happens
+        setUser(user);
+        if (user) {
+          const userRef = doc(db, 'users', user.uid);
+          const userSnap = await getDoc(userRef);
+          if (userSnap.exists()) {
+            setProfile(userSnap.data());
+          } else {
+            // Create default profile
+            const newProfile = {
+              userId: user.uid,
+              email: user.email,
+              displayName: user.displayName,
+              role: 'user',
+              createdAt: new Date().toISOString(),
+            };
+            await setDoc(userRef, newProfile);
+            setProfile(newProfile);
+          }
         } else {
-          // Create default profile
-          const newProfile = {
-            userId: user.uid,
-            email: user.email,
-            displayName: user.displayName,
-            role: 'user',
-            createdAt: new Date().toISOString(),
-          };
-          await setDoc(userRef, newProfile);
-          setProfile(newProfile);
+          setProfile(null);
         }
-      } else {
-        setProfile(null);
+      } catch (error) {
+        console.error('Auth State Change Error:', error);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     });
 
     return unsubscribe;
   }, []);
 
   const signInWithGoogle = async () => {
-    const provider = new GoogleAuthProvider();
-    await signInWithPopup(auth, provider);
+    try {
+      const provider = new GoogleAuthProvider();
+      // Add custom parameters to handle common iframe issues if possible
+      provider.setCustomParameters({
+        prompt: 'select_account'
+      });
+      await signInWithPopup(auth, provider);
+    } catch (error: any) {
+      console.error('Sign In Error:', error);
+      // Fallback for common deployment issues
+      if (error.code === 'auth/popup-blocked') {
+        alert('The sign-in popup was blocked by your browser. Please allow popups for this site.');
+      } else if (error.code === 'auth/operation-not-allowed') {
+        alert('Google Sign-In is not enabled for this project. Please check Firebase console.');
+      } else if (error.code === 'auth/unauthorized-domain') {
+        alert(`This domain (${window.location.hostname}) is not authorized in Firebase Console.`);
+      } else {
+        alert('Sign-in failed. Please check the console for details.');
+      }
+    }
   };
 
   const signOut = async () => {
