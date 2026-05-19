@@ -1,4 +1,4 @@
-# Security Specification - AUREUM Luxury Watches
+# Security Specification - DINOSPY Luxury Watches
 
 ## User Roles
 - **Guest**: Can view products and reviews.

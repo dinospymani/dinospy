@@ -73,11 +73,11 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       if (error.code === 'auth/popup-blocked') {
         alert('The sign-in popup was blocked by your browser. Please allow popups for this site.');
       } else if (error.code === 'auth/operation-not-allowed') {
-        alert('Google Sign-In is not enabled for this project. Please check Firebase console.');
-      } else if (error.code === 'auth/unauthorized-domain') {
-        alert(`This domain (${window.location.hostname}) is not authorized in Firebase Console.`);
+        alert('Google Sign-In is not enabled for this project. Please go to Firebase Console > Authentication > Settings and enable Google protocol.');
+      } else if (error.code === 'auth/unauthorized-domain' || error.code === 'auth/network-request-failed') {
+        alert(`CRITICAL SETUP REQUIRED:\n\n1. Copy this domain: ${window.location.hostname}\n2. Go to Firebase Console > Authentication > Settings > Authorized Domains\n3. Click "Add Domain" and paste your domain there.\n\nLogin will only work after this step.`);
       } else {
-        alert('Sign-in failed. Please check the console for details.');
+        alert(`Sign-in failed (${error.code}). Please check if your Firebase Authorized Domains include ${window.location.hostname}`);
       }
     }
   };

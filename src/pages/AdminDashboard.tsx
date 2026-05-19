@@ -204,12 +204,12 @@ export default function AdminDashboard() {
                     <label className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block">Category</label>
                     <select 
                       value={category} onChange={e => setCategory(e.target.value)}
-                      className="w-full bg-[#1A1A1A] text-white border border-white/10 rounded-xl px-4 py-3 focus:border-gold outline-none cursor-pointer"
+                      className="w-full bg-[#1A1A1A] text-white border border-white/20 rounded-xl px-4 py-3 focus:border-gold outline-none cursor-pointer focus:ring-1 focus:ring-gold"
                     >
-                      <option value="Luxury" className="bg-[#1A1A1A] text-white">Luxury</option>
-                      <option value="Sport" className="bg-[#1A1A1A] text-white">Sport</option>
-                      <option value="Smart" className="bg-[#1A1A1A] text-white">Smart</option>
-                      <option value="Classic" className="bg-[#1A1A1A] text-white">Classic</option>
+                      <option value="Luxury" className="bg-[#1A1A1A] text-white py-2">Luxury</option>
+                      <option value="Sport" className="bg-[#1A1A1A] text-white py-2">Sport</option>
+                      <option value="Smart" className="bg-[#1A1A1A] text-white py-2">Smart</option>
+                      <option value="Classic" className="bg-[#1A1A1A] text-white py-2">Classic</option>
                     </select>
                   </div>
                 </div>
@@ -335,7 +335,7 @@ export default function AdminDashboard() {
                        <select 
                          value={o.status} 
                          onChange={(e) => handleUpdateOrderStatus(o.id, e.target.value)}
-                         className="bg-[#1A1A1A] text-[10px] font-bold uppercase tracking-widest text-white border border-white/10 rounded px-2 py-1 focus:border-gold outline-none"
+                         className="bg-[#1A1A1A] text-[10px] font-bold uppercase tracking-widest text-white border border-white/20 rounded px-3 py-2 focus:border-gold outline-none cursor-pointer"
                        >
                          <option value="pending">Pending</option>
                          <option value="processing">Processing</option>
