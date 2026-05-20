@@ -24,12 +24,15 @@ async function startServer() {
   });
 
   // Razorpay Setup
+  const razorpayKeyId = (process.env.RAZORPAY_KEY_ID || 'rzp_test_Src2TlFsCnS6kt').trim();
+  const razorpayKeySecret = (process.env.RAZORPAY_KEY_SECRET || '5O4AY0jrBIjSqDUtE9XyyCjx').trim();
+
   const razorpay = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID || 'rzp_test_Src2TlFsCnS6kt', // Fallback to provided test key
-    key_secret: process.env.RAZORPAY_KEY_SECRET || '5O4AY0jrBIjSqDUtE9XyyCjx', // Fallback to provided test secret
+    key_id: razorpayKeyId,
+    key_secret: razorpayKeySecret,
   });
 
-  console.log("Razorpay initialized with Key ID:", process.env.RAZORPAY_KEY_ID ? "Loaded from ENV" : "Using Fallback");
+  console.log("Razorpay initialized with Key ID:", razorpayKeyId.startsWith('rzp_test') ? "Test Mode (Using Fallback or Provided)" : "Production Mode");
 
   // API Routes
   // Admin Seed Route (Normally protected, but for demo bootstrapping)
@@ -75,10 +78,6 @@ async function startServer() {
     try {
       const { amount, currency = "INR" } = req.body;
       
-      if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
-        return res.status(500).json({ error: "Razorpay credentials not configured" });
-      }
-
       const options = {
         amount: Math.round(amount * 100), // amount in the smallest currency unit
         currency,
@@ -90,11 +89,14 @@ async function startServer() {
         id: order.id,
         amount: order.amount,
         currency: order.currency,
-        key: process.env.RAZORPAY_KEY_ID
+        key: razorpayKeyId
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Razorpay Error:", error);
-      res.status(500).json({ error: "Order creation failed" });
+      res.status(500).json({ 
+        error: "Order creation failed", 
+        details: error.description || error.message || "Authentication or network error"
+      });
     }
   });
 

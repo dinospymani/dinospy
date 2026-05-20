@@ -184,7 +184,7 @@ export default function CheckoutPage() {
 
       if (!orderResponse.ok) {
         const errData = await orderResponse.json();
-        throw new Error(errData.error || 'Failed to initialize secure payment');
+        throw new Error(errData.details || errData.error || 'Failed to initialize secure payment');
       }
 
       const rzpOrder = await orderResponse.json();
@@ -359,19 +359,22 @@ export default function CheckoutPage() {
                         <motion.div 
                           initial={{ opacity: 0, y: -10 }}
                           animate={{ opacity: 1, y: 0 }}
-                          className="bg-red-500/10 border border-red-500/20 p-4 rounded-xl flex items-center space-x-3 mb-4"
+                          className="bg-red-500/10 border border-red-500/30 p-6 rounded-2xl flex flex-col space-y-4 mb-6"
                         >
-                          <AlertTriangle className="text-red-500 flex-shrink-0" size={18} />
-                          <div className="flex-grow">
-                            <p className="text-[10px] text-white/60">Phone authentication requires a Firebase Blaze plan. Since this is a preview, please use the bypass button to continue.</p>
-                            <button 
-                              type="button"
-                              onClick={handleBypass}
-                              className="text-gold text-[10px] font-bold uppercase tracking-widest mt-2 hover:underline"
-                            >
-                              Initialize Preview Bypass
-                            </button>
+                          <div className="flex items-center space-x-3">
+                            <AlertTriangle className="text-red-500 flex-shrink-0" size={24} />
+                            <div className="flex-grow">
+                              <p className="text-xs font-bold text-white uppercase tracking-widest">Authentication Restriction</p>
+                              <p className="text-[10px] text-white/60 leading-relaxed">Identity verification requires a Google Cloud Billing active subscription (Blaze Plan). For this preview, you may bypass this security protocol below.</p>
+                            </div>
                           </div>
+                          <button 
+                            type="button"
+                            onClick={handleBypass}
+                            className="w-full py-4 bg-gold text-luxury-black font-black uppercase tracking-[0.2em] text-[10px] rounded-xl hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_10px_20px_rgba(212,175,55,0.2)]"
+                          >
+                            Execute Preview Bypass
+                          </button>
                         </motion.div>
                       )}
                       

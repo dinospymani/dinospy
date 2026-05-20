@@ -295,6 +295,104 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleSeed = async () => {
+    const seedProducts = [
+      {
+        name: 'Ouroboros Gold Edition',
+        brand: 'DINOSPY',
+        price: 245000,
+        discount: 10,
+        isOffer: true,
+        category: 'Luxury',
+        images: ['https://images.unsplash.com/photo-1547996160-81dfa63595aa?auto=format&fit=crop&q=80&w=1974'],
+        description: 'Forged in 18k solid gold with a deep obsidian skeleton dial. The Ouroboros is our signature statement of eternal luxury.',
+        isTrending: true,
+        isNewArrival: true,
+        stock: 5,
+        rating: 5.0,
+        specs: { Movement: 'Tourbillon', Case: '18k Gold', Crystal: 'Double Sapphire' }
+      },
+      {
+        name: 'Phantom Ghost Stealth',
+        brand: 'DINOSPY',
+        price: 85000,
+        discount: 0,
+        isOffer: false,
+        category: 'Sport',
+        images: ['https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80&w=2099'],
+        description: 'Matte black titanium case with a carbon fiber dial. Designed for those who operate in the shadows.',
+        isTrending: true,
+        isNewArrival: true,
+        stock: 12,
+        rating: 4.8,
+        specs: { Movement: 'Self-Winding', Case: 'Titanium', Crystal: 'Scratch-Proof' }
+      },
+      {
+        name: 'Heritage Classic Ivory',
+        brand: 'DINOSPY',
+        price: 45000,
+        discount: 5,
+        isOffer: true,
+        category: 'Classic',
+        images: ['https://images.unsplash.com/photo-1524592094714-0f0654e20314?auto=format&fit=crop&q=80&w=2018'],
+        description: 'Hand-stitched leather strap with a sunray ivory dial. A timeless companion for the modern gentleman.',
+        isTrending: false,
+        isNewArrival: true,
+        stock: 20,
+        rating: 4.7,
+        specs: { Movement: 'Quartz Precision', Case: 'Surgical Steel', Crystal: 'Mineral' }
+      },
+      {
+        name: 'Quantum Connect Pro',
+        brand: 'DINOSPY',
+        price: 32000,
+        discount: 0,
+        isOffer: false,
+        category: 'Smart',
+        images: ['https://images.unsplash.com/photo-1579586337278-3befd40fd17a?auto=format&fit=crop&q=80&w=2072'],
+        description: 'The apex of wearable tech. OLED display with sapphire edge-to-edge protection. Syncs your digital life with luxury.',
+        isTrending: true,
+        isNewArrival: false,
+        stock: 50,
+        rating: 4.6,
+        specs: { Movement: 'Digital Core', Case: 'Alloy', Crystal: 'Edge Sapphire' }
+      },
+      {
+        name: 'Submariner Deep Sea',
+        brand: 'DINOSPY',
+        price: 135000,
+        discount: 0,
+        isOffer: false,
+        category: 'Sport',
+        images: ['https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?auto=format&fit=crop&q=80&w=1974'],
+        description: 'Waterproof up to 1000m. Built like a tank, finished like a diamond.',
+        isTrending: true,
+        isNewArrival: false,
+        stock: 8,
+        rating: 4.9,
+        specs: { Movement: 'Automatic High-Freq', Case: 'Steel', Crystal: 'Thick Sapphire' }
+      }
+    ];
+
+    setIsSaving(true);
+    try {
+      const batch = seedProducts.map(p => addDoc(collection(db, 'products'), {
+        ...p,
+        createdAt: new Date().toISOString(),
+        reviewCount: 0
+      }));
+      await Promise.all(batch);
+      
+      const snap = await getDocs(collection(db, 'products'));
+      setProducts(snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as AdminProduct)));
+      toast.success('Catalog populated with seed data');
+    } catch (err) {
+      toast.error('Seeding failed');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const handleAddProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     if (imageFiles.length === 0 && !image) {
@@ -740,7 +838,19 @@ export default function AdminDashboard() {
             <div className="space-y-4">
               <h2 className="text-xl font-bold mb-8">Current Inventory</h2>
               <div className="grid grid-cols-1 gap-4">
-                {products.length === 0 && <p className="text-white/40 text-center py-20">No products found in catalog.</p>}
+                {products.length === 0 && (
+                  <div className="text-center py-20 bg-white/5 rounded-3xl border border-dashed border-white/10">
+                    <Package className="mx-auto text-white/20 mb-4" size={48} />
+                    <p className="text-white/40 mb-8">No products found in catalog.</p>
+                    <button 
+                      onClick={handleSeed}
+                      disabled={isSaving}
+                      className="px-8 py-4 gold-gradient text-luxury-black font-bold uppercase tracking-widest rounded-xl hover:scale-[1.05] transition-all disabled:opacity-50"
+                    >
+                      {isSaving ? 'Initializing...' : 'Seed Sample Collection'}
+                    </button>
+                  </div>
+                )}
                 {products.map((p) => (
                   <div key={p.id} className="flex items-center space-x-4 glass p-4 rounded-2xl border border-white/5">
                     <img src={p.images[0]} className="w-16 h-16 object-cover rounded-lg" alt={p.name} />

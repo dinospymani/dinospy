@@ -103,17 +103,24 @@ export default function HomePage() {
               }}
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-16"
             >
-              {newArrivals.map(product => (
-                <motion.div
-                  key={product.id}
-                  variants={{
-                    hidden: { opacity: 0, y: 20 },
-                    show: { opacity: 1, y: 0 }
-                  }}
-                >
-                  <WatchCard product={product} />
-                </motion.div>
-              ))}
+              {newArrivals.length > 0 ? (
+                newArrivals.map(product => (
+                  <motion.div
+                    key={product.id}
+                    variants={{
+                      hidden: { opacity: 0, y: 20 },
+                      show: { opacity: 1, y: 0 }
+                    }}
+                  >
+                    <WatchCard product={product} />
+                  </motion.div>
+                ))
+              ) : !loading && (
+                <div className="col-span-full py-20 text-center glass rounded-3xl border border-white/5">
+                  <p className="text-white/40 font-display text-xl mb-4">No acquisitions available yet.</p>
+                  <p className="text-white/20 text-sm max-w-sm mx-auto">Access the Admin panel to initialize the DINOSPY Masterpiece catalog.</p>
+                </div>
+              )}
               {loading && new Array(4).fill(0).map((_, i) => (
                 <div key={i} className="animate-pulse glass aspect-[4/5] rounded-xl" />
               ))}

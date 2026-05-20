@@ -80,7 +80,8 @@ export default function ExplorePage() {
             </div>
         ) : (
             <div className="text-center py-20 glass rounded-3xl border border-white/5">
-                <p className="text-white/40 text-xl font-display">No timepieces found matching your search.</p>
+                <p className="text-white/40 text-xl font-display mb-4">The vault is currently empty.</p>
+                <p className="text-white/20 text-sm max-w-md mx-auto">Visit the Admin Dashboard to populate the catalog with our elite selection of timepieces.</p>
             </div>
         )}
       </main>

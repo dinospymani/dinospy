@@ -247,10 +247,10 @@ export default function ProductDetails() {
                   <div className="h-4 w-[1px] bg-white/10" />
                   <div className="flex items-center space-x-2">
                      <div className={`w-2 h-2 rounded-full ${product.stock > 0 ? (product.stock <= 5 ? 'bg-orange-500 animate-pulse' : 'bg-green-500') : 'bg-red-500'}`} />
-                     <span className={`text-[10px] uppercase tracking-widest font-bold ${product.stock > 0 ? (product.stock <= 5 ? 'text-orange-500' : 'text-green-500') : 'text-red-500'}`}>
+                     <span className={`text-[10px] uppercase tracking-widest font-black ${product.stock > 0 ? (product.stock <= 5 ? 'text-orange-500' : 'text-green-500') : 'text-red-500'}`}>
                         {product.stock > 0 
-                          ? (product.stock <= 5 ? `Critical: Only ${product.stock} Units Left` : `${product.stock} Units Available`) 
-                          : 'Currently Out of Stock'}
+                          ? (product.stock <= 5 ? `Urgent: Only ${product.stock} Units Remaining` : `${product.stock} Units In Vault`) 
+                          : 'Sold Out • Heritage Piece Only'}
                      </span>
                   </div>
                 </div>

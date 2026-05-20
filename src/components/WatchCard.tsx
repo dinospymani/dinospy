@@ -44,8 +44,8 @@ export default function WatchCard({ product }: WatchCardProps) {
       />
       <div className="absolute top-5 left-5 z-10 flex flex-col space-y-2">
         {isOutOfStock ? (
-          <div className="px-3 py-1 bg-red-600/90 text-white text-[8px] font-black uppercase tracking-[0.2em] rounded-sm shadow-lg">
-            Sold Out
+          <div className="px-4 py-2 bg-red-600 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-sm shadow-2xl border border-white/20">
+            Out of Stock
           </div>
         ) : isLowStock ? (
           <div className="px-3 py-1 bg-orange-600/90 text-white text-[8px] font-black uppercase tracking-[0.2em] rounded-sm shadow-lg animate-pulse">
@@ -81,8 +81,13 @@ export default function WatchCard({ product }: WatchCardProps) {
         <img 
           src={product.images[0]} 
           alt={product.name}
-          className={`w-full h-full object-cover group-hover:scale-110 transition-transform duration-[1.2s] ease-[0.23, 1, 0.32, 1] ${isOutOfStock ? 'grayscale opacity-30' : ''}`}
+          className={`w-full h-full object-cover group-hover:scale-110 transition-transform duration-[1.2s] ease-[0.23, 1, 0.32, 1] ${isOutOfStock ? 'grayscale opacity-50 contrast-[0.8]' : ''}`}
         />
+        {isOutOfStock && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-[2px]">
+            <span className="text-white/40 font-display text-sm uppercase tracking-[0.5em] -rotate-12 border-2 border-white/10 px-6 py-2">Acquired</span>
+          </div>
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
       </Link>
 
