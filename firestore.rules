@@ -32,6 +32,10 @@ service cloud.firestore {
       
       match /cart/{cartId} { allow read, write: if isSignedIn() && request.auth.uid == userId; }
       match /wishlist/{wishlistId} { allow read, write: if isSignedIn() && request.auth.uid == userId; }
+      match /notifications/{notificationId} {
+        allow read: if isSignedIn() && request.auth.uid == userId;
+        allow write: if isAdmin() || (isSignedIn() && request.auth.uid == userId && request.resource.data.read == true);
+      }
     }
 
     // ------------------------------------------------------------
@@ -66,6 +70,14 @@ service cloud.firestore {
     match /admins/{adminId} {
       allow read: if isSignedIn();
       allow write: if false;
+    }
+
+    // ------------------------------------------------------------
+    // BANNERS COLLECTION
+    // ------------------------------------------------------------
+    match /banners/{bannerId} {
+      allow read: if true;
+      allow write: if isAdmin();
     }
   }
 }

@@ -23,7 +23,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <h4 className="text-white font-bold uppercase tracking-widest text-xs mb-6">Collections</h4>
+            <h4 className="text-white font-bold uppercase tracking-widest text-xs mb-6">Explore</h4>
             <ul className="space-y-4 text-sm text-white/50">
               <li><Link to="/#luxury" className="hover:text-gold transition-colors">Luxury Edition</Link></li>
               <li><Link to="/#sport" className="hover:text-gold transition-colors">Sport Performance</Link></li>

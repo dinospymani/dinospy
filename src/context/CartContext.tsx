@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { toast } from 'sonner';
 
 interface Product {
   id: string;
@@ -8,6 +9,7 @@ interface Product {
   discount?: number;
   isOffer?: boolean;
   images: string[];
+  stock?: number;
 }
 
 interface CartItem extends Product {
@@ -17,7 +19,7 @@ interface CartItem extends Product {
 interface CartContextType {
   cart: CartItem[];
   wishlist: string[];
-  addToCart: (product: Product) => void;
+  addToCart: (product: Product, quantity?: number) => void;
   removeFromCart: (productId: string) => void;
   updateQuantity: (productId: string, delta: number) => void;
   toggleWishlist: (productId: string) => void;
@@ -47,14 +49,33 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem('aureum_wishlist', JSON.stringify(wishlist));
   }, [wishlist]);
 
-  const addToCart = (product: Product) => {
+  const addToCart = (product: Product, quantity: number = 1) => {
+    let success = false;
     setCart(prev => {
       const existing = prev.find(item => item.id === product.id);
-      if (existing) {
-        return prev.map(item => item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item);
+      const currentQty = existing ? existing.quantity : 0;
+      const targetQty = currentQty + quantity;
+
+      if (product.stock !== undefined && targetQty > product.stock) {
+        toast.error(`Insufficient inventory: Only ${product.stock} available.`);
+        return prev;
       }
-      return [...prev, { ...product, quantity: 1 }];
+
+      if (product.stock !== undefined && product.stock <= 0) {
+        toast.error(`${product.name} is currently out of stock.`);
+        return prev;
+      }
+      
+      success = true;
+      if (existing) {
+        return prev.map(item => item.id === product.id ? { ...item, quantity: targetQty } : item);
+      }
+      return [...prev, { ...product, quantity }];
     });
+    
+    if (success) {
+      toast.success(`${quantity} ${product.name} added to collection`);
+    }
   };
 
   const removeFromCart = (productId: string) => {
@@ -64,7 +85,17 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const updateQuantity = (productId: string, delta: number) => {
     setCart(prev => prev.map(item => {
       if (item.id === productId) {
-        const newQty = Math.max(1, item.quantity + delta);
+        const newQty = item.quantity + delta;
+        
+        // Capped at 1
+        if (newQty < 1) return item;
+
+        // Capped at stock
+        if (item.stock !== undefined && newQty > item.stock) {
+          toast.error(`Insufficient stock: Only ${item.stock} units in inventory.`);
+          return item;
+        }
+
         return { ...item, quantity: newQty };
       }
       return item;

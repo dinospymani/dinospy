@@ -12,7 +12,6 @@ import { Sparkles, ArrowRight, Zap } from 'lucide-react';
 const CATEGORIES = ['Luxury', 'Sport', 'Smart', 'Classic'];
 
 export default function HomePage() {
-  const [trending, setTrending] = useState<any[]>([]);
   const [newArrivals, setNewArrivals] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [aiRecs, setAiRecs] = useState<any[]>([]);
@@ -25,7 +24,6 @@ export default function HomePage() {
     const unsubscribe = onSnapshot(prodRef, (snapshot) => {
       const allProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       
-      setTrending(allProducts.filter((p: any) => p.isTrending).slice(0, 4));
       setNewArrivals(allProducts.filter((p: any) => p.isNewArrival).slice(0, 8));
       setLoading(false);
     }, (error: any) => {
@@ -33,12 +31,11 @@ export default function HomePage() {
       
       // Fallback mock data
       const mockProducts = [
-        { id: 'mock-1', name: 'Ouroboros Gold', brand: 'DINOSPY', price: 125000, images: ['https://images.unsplash.com/photo-1542496658-e33a6d0d50f6?auto=format&fit=crop&q=80&w=2070'], category: 'Luxury', rating: 4.9, isTrending: true, stock: 5 },
-        { id: 'mock-2', name: 'Chrono Sport', brand: 'DINOSPY', price: 42000, images: ['https://images.unsplash.com/photo-1523170335258-f5ed11844a49?auto=format&fit=crop&q=80&w=2080'], category: 'Sport', rating: 4.8, isTrending: true, stock: 12 },
-        { id: 'mock-3', name: 'Minimalist Slate', brand: 'DINOSPY', price: 21000, images: ['https://images.unsplash.com/photo-1524592094714-0f0654e20314?auto=format&fit=crop&q=80&w=2018'], category: 'Classic', rating: 4.7, isTrending: true, stock: 8 },
-        { id: 'mock-4', name: 'Quantum Smart', brand: 'DINOSPY', price: 18000, images: ['https://images.unsplash.com/photo-1579586337278-3befd40fd17a?auto=format&fit=crop&q=80&w=2072'], category: 'Smart', rating: 4.6, isTrending: true, stock: 15 }
+        { id: 'mock-1', name: 'Ouroboros Gold', brand: 'DINOSPY', price: 125000, images: ['https://images.unsplash.com/photo-1542496658-e33a6d0d50f6?auto=format&fit=crop&q=80&w=2070'], category: 'Luxury', rating: 4.9, isTrending: true, stock: 100 },
+        { id: 'mock-2', name: 'Chrono Sport', brand: 'DINOSPY', price: 42000, images: ['https://images.unsplash.com/photo-1523170335258-f5ed11844a49?auto=format&fit=crop&q=80&w=2080'], category: 'Sport', rating: 4.8, isTrending: true, stock: 150 },
+        { id: 'mock-3', name: 'Minimalist Slate', brand: 'DINOSPY', price: 21000, images: ['https://images.unsplash.com/photo-1524592094714-0f0654e20314?auto=format&fit=crop&q=80&w=2018'], category: 'Classic', rating: 4.7, isTrending: true, stock: 80 },
+        { id: 'mock-4', name: 'Quantum Smart', brand: 'DINOSPY', price: 18000, images: ['https://images.unsplash.com/photo-1579586337278-3befd40fd17a?auto=format&fit=crop&q=80&w=2072'], category: 'Smart', rating: 4.6, isTrending: true, stock: 200 }
       ];
-      setTrending(mockProducts);
       setNewArrivals([...mockProducts, ...mockProducts.map(p => ({ ...p, id: `extra-${p.id}` }))]);
       setLoading(false);
     });
@@ -69,7 +66,7 @@ export default function HomePage() {
       <main className="flex-grow">
         {/* Flash Sale Section */}
         <section className="bg-gold py-4 overflow-hidden relative">
-          <div className="flex whitespace-nowrap animate-marquee">
+          <div className="flex whitespace-nowrap animate-marquee-slow">
             {[1,2,3,4,5].map(i => (
               <span key={i} className="text-luxury-black font-bold uppercase tracking-[0.4em] text-xs mx-10">
                 DINOSPY EXCLUSIVE: India's Premier Watch Collection • Express India-wide Dispatch • Lifetime Service Support •
@@ -78,18 +75,82 @@ export default function HomePage() {
           </div>
         </section>
 
+        {/* New Arrivals Section - MOVED TO TOP */}
+        <section id="new" className="py-24 bg-luxury-black/30">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-end mb-16">
+              <div>
+                <span className="text-gold font-mono text-xs uppercase tracking-widest mb-4 block">New Additions</span>
+                <h2 className="text-4xl md:text-5xl font-display">New Releases</h2>
+              </div>
+              <button className="text-gold text-sm font-bold uppercase tracking-widest flex items-center hover:opacity-70 transition-opacity">
+                View All <ArrowRight className="ml-2" size={16} />
+              </button>
+            </div>
+            
+            <motion.div 
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true }}
+              variants={{
+                hidden: { opacity: 0 },
+                show: {
+                  opacity: 1,
+                  transition: {
+                    staggerChildren: 0.1
+                  }
+                }
+              }}
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-16"
+            >
+              {newArrivals.map(product => (
+                <motion.div
+                  key={product.id}
+                  variants={{
+                    hidden: { opacity: 0, y: 20 },
+                    show: { opacity: 1, y: 0 }
+                  }}
+                >
+                  <WatchCard product={product} />
+                </motion.div>
+              ))}
+              {loading && new Array(4).fill(0).map((_, i) => (
+                <div key={i} className="animate-pulse glass aspect-[4/5] rounded-xl" />
+              ))}
+            </motion.div>
+          </div>
+        </section>
+
         {/* Categories Section */}
         <section id="categories" className="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-end mb-16">
             <div>
               <span className="text-gold font-mono text-xs uppercase tracking-widest mb-4 block">Selection</span>
-              <h2 className="text-4xl md:text-5xl font-display">Collections</h2>
+              <h2 className="text-4xl md:text-5xl font-display">Shop by Style</h2>
             </div>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
+          <motion.div 
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true }}
+            variants={{
+              hidden: { opacity: 0 },
+              show: {
+                opacity: 1,
+                transition: {
+                  staggerChildren: 0.1
+                }
+              }
+            }}
+            className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8"
+          >
             {CATEGORIES.map((cat, i) => (
               <motion.div 
                 key={cat}
+                variants={{
+                  hidden: { opacity: 0, scale: 0.95 },
+                  show: { opacity: 1, scale: 1 }
+                }}
                 whileHover={{ scale: 1.02 }}
                 className="group relative h-64 md:h-80 rounded-2xl overflow-hidden glass cursor-pointer"
               >
@@ -100,28 +161,7 @@ export default function HomePage() {
                 </div>
               </motion.div>
             ))}
-          </div>
-        </section>
-
-        {/* Trending Section */}
-        <section id="trending" className="py-24 bg-luxury-gray/30">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-end mb-16">
-              <div>
-                <span className="text-gold font-mono text-xs uppercase tracking-widest mb-4 block">Most Desired</span>
-                <h2 className="text-4xl md:text-5xl font-display">Trending Now</h2>
-              </div>
-              <button className="text-gold text-sm font-bold uppercase tracking-widest flex items-center hover:opacity-70 transition-opacity">
-                View All <ArrowRight className="ml-2" size={16} />
-              </button>
-            </div>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-              {trending.map(product => (
-                <WatchCard key={product.id} product={product} />
-              ))}
-            </div>
-          </div>
+          </motion.div>
         </section>
 
         {/* AI Recommendations Section */}
@@ -222,21 +262,6 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* New Arrivals Section */}
-        <section id="new" className="py-24">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="mb-16">
-              <span className="text-gold font-mono text-xs uppercase tracking-widest mb-4 block">New Additions</span>
-              <h2 className="text-4xl md:text-5xl font-display">New Arrivals</h2>
-            </div>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-16">
-              {newArrivals.map(product => (
-                <WatchCard key={product.id} product={product} />
-              ))}
-            </div>
-          </div>
-        </section>
       </main>
 
       <Footer />

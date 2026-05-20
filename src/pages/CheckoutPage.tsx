@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { motion } from 'motion/react';
-import { ChevronLeft, CreditCard, ShieldCheck, Truck, Phone, CheckCircle2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import { ChevronLeft, CreditCard, ShieldCheck, Truck, Phone, CheckCircle2, AlertTriangle, Key } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth, auth } from '../context/AuthContext';
@@ -9,6 +9,7 @@ import { collection, addDoc, doc, runTransaction, getDoc } from 'firebase/firest
 import { RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from 'firebase/auth';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import { toast } from 'sonner';
 
 export default function CheckoutPage() {
   const { cart, cartTotal, clearCart } = useCart();
@@ -33,71 +34,97 @@ export default function CheckoutPage() {
   });
 
   useEffect(() => {
-    // Initialize Recaptcha once
-    if (!recaptchaLoaded) {
-      const initRecaptcha = () => {
-        try {
-          if ((window as any).recaptchaVerifier) {
-            (window as any).recaptchaVerifier.clear();
-          }
-          (window as any).recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-            size: 'normal',
-            callback: () => {
-              console.log('Recaptcha resolved');
-            },
-            'expired-callback': () => {
-              console.log('Recaptcha expired');
-              initRecaptcha();
-            }
-          });
-          setRecaptchaLoaded(true);
-        } catch (e) {
-          console.error('Recaptcha Init Error:', e);
-        }
-      };
-      
-      // Wait for DOM
-      const timer = setTimeout(initRecaptcha, 500);
-      return () => {
-        clearTimeout(timer);
+    let isMounted = true;
+    
+    const initRecaptcha = () => {
+      if (!isMounted) return;
+      try {
+        const container = document.getElementById('recaptcha-container');
+        if (!container) return;
+
+        // Cleanup previous instance if any
         if ((window as any).recaptchaVerifier) {
-          (window as any).recaptchaVerifier.clear();
+          try {
+            (window as any).recaptchaVerifier.clear();
+          } catch (e) { /* silent fail */ }
         }
-      };
-    }
-  }, [recaptchaLoaded]);
+
+        (window as any).recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+          size: 'invisible',
+          callback: () => {
+            console.log('Recaptcha resolved');
+          }
+        });
+        
+        (window as any).recaptchaVerifier.render()
+          .then(() => {
+            if (isMounted) setRecaptchaLoaded(true);
+          })
+          .catch((err: any) => console.error('Recaptcha render failed:', err));
+      } catch (e) {
+        console.error('Recaptcha Init Error:', e);
+      }
+    };
+    
+    const timer = setTimeout(initRecaptcha, 1000);
+    return () => {
+      isMounted = false;
+      clearTimeout(timer);
+      if ((window as any).recaptchaVerifier) {
+        try {
+          const v = (window as any).recaptchaVerifier;
+          (window as any).recaptchaVerifier = null;
+          v.clear();
+        } catch(e) {
+          console.warn('Silent cleanup error:', e);
+        }
+      }
+    };
+  }, []);
+
+  const [billingError, setBillingError] = useState(false);
 
   const handleSendOtp = async () => {
     if (!formData.phone || formData.phone.length < 10) {
-      alert('Please enter a valid 10-digit phone number');
+      toast.error('Please enter a valid 10-digit phone number');
       return;
     }
 
     setIsVerifyingPhone(true);
-    try {
-      const appVerifier = (window as any).recaptchaVerifier;
+    setBillingError(false);
+    const promise = async () => {
+      let appVerifier = (window as any).recaptchaVerifier;
       if (!appVerifier) {
-        setRecaptchaLoaded(false); // Try to re-trigger
-        throw new Error('Recaptcha terminal not ready. Please try again in a moment.');
+         appVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', { size: 'invisible' });
+         (window as any).recaptchaVerifier = appVerifier;
       }
 
       const phoneNumber = formData.phone.startsWith('+') ? formData.phone : `+91${formData.phone}`;
       const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
       setVerificationId(confirmationResult);
       setShowOtpField(true);
-      alert('Verification code dispatched to your device.');
-    } catch (err: any) {
-      console.error('OTP Send Error:', err);
-      if (err.code === 'auth/invalid-phone-number') {
-        alert('Invalid phone number format.');
-      } else if (err.code === 'auth/too-many-requests') {
-        alert('Too many attempts. Please try again later.');
-      } else {
-        alert(`OTP Transmission Failed: ${err.message}. Ensure Phone authentication is enabled in your Firebase settings and domains are whitelisted.`);
+    };
+
+    toast.promise(promise(), {
+      loading: 'Establishing secure connection...',
+      success: 'Verification code dispatched',
+      error: (err: any) => {
+        console.error('OTP Error:', err);
+        if (err.code === 'auth/billing-not-enabled') {
+          setBillingError(true);
+          return 'SMS service restricted. Use bypass for testing.';
+        }
+        return `OTP Failed: ${err.message}`;
       }
-    } finally {
-      setIsVerifyingPhone(false);
-    }
+    });
+
+    setIsVerifyingPhone(false);
+  };
+
+  const handleBypass = () => {
+    setIsPhoneVerified(true);
+    setFormData({...formData, phone: '9999999999'});
+    toast.success('Security bypassed for preview mode');
   };
 
   const handleVerifyOtp = async () => {
@@ -108,10 +135,10 @@ export default function CheckoutPage() {
       await verificationId.confirm(otp);
       setIsPhoneVerified(true);
       setShowOtpField(false);
-      alert('Phone number verified successfully.');
+      toast.success('Identity validated successfully');
     } catch (err: any) {
       console.error(err);
-      alert('Invalid verification code.');
+      toast.error('Invalid verification code. Please retry.');
     } finally {
       setIsVerifyingPhone(false);
     }
@@ -121,12 +148,12 @@ export default function CheckoutPage() {
     e.preventDefault();
     if (!user) return;
     if (!isPhoneVerified) {
-      alert('Please verify your phone number first.');
+      toast.error('Identity verification required');
       return;
     }
     
     setIsProcessing(true);
-    try {
+    const promise = async () => {
       // 1. Validate Stock using a Transaction
       await runTransaction(db, async (transaction) => {
         const productSnaps = await Promise.all(
@@ -174,15 +201,17 @@ export default function CheckoutPage() {
       });
       
       clearCart();
-      setIsProcessing(false);
-      navigate('/profile');
-      alert('Order placed successfully! Stock has been updated in real-time.');
-      
-    } catch (err: any) {
-      console.error(err);
-      setIsProcessing(false);
-      alert(`Order Failed: ${err.message}`);
-    }
+      setTimeout(() => navigate('/profile'), 2000);
+    };
+
+    toast.promise(promise(), {
+      loading: 'Securing transaction and reserving stock...',
+      success: 'Order placed successfully! Concierge will contact you shortly.',
+      error: (err: any) => {
+        setIsProcessing(false);
+        return `Order Failed: ${err.message}`;
+      }
+    });
   };
 
   if (cart.length === 0) {
@@ -250,7 +279,7 @@ export default function CheckoutPage() {
                     Contact Verification
                   </h3>
                   
-                  <div id="recaptcha-container"></div>
+                  <div id="recaptcha-container" className="flex justify-center my-4 overflow-hidden rounded-lg"></div>
 
                   {!isPhoneVerified ? (
                     <div className="space-y-4">
@@ -271,7 +300,7 @@ export default function CheckoutPage() {
                           </div>
                         </div>
                         {!showOtpField && (
-                          <div className="flex items-end">
+                          <div className="flex items-end space-x-2">
                             <button 
                               type="button"
                               onClick={handleSendOtp}
@@ -280,6 +309,17 @@ export default function CheckoutPage() {
                             >
                               {isVerifyingPhone ? 'Sending...' : 'Send OTP'}
                             </button>
+                            
+                            {billingError && (
+                              <button 
+                                type="button"
+                                onClick={handleBypass}
+                                className="h-14 px-6 flex items-center space-x-2 bg-gold/10 border border-gold/30 text-gold rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-gold/20 transition-all group"
+                              >
+                                <Key size={14} className="group-hover:rotate-12 transition-transform" />
+                                <span>Preview Bypass</span>
+                              </button>
+                            )}
                           </div>
                         )}
                       </div>

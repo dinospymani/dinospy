@@ -89,6 +89,38 @@
         "productId": { "type": "string" },
         "addedAt": { "type": "string", "format": "date-time" }
       }
+    },
+    "Banner": {
+      "title": "Promotion Banner",
+      "description": "Banners for home page offers and new arrivals.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "title": { "type": "string" },
+        "subtitle": { "type": "string" },
+        "link": { "type": "string" },
+        "active": { "type": "boolean" },
+        "order": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["imageUrl", "title", "active"]
+    },
+    "Notification": {
+      "title": "User Notification",
+      "description": "Alerts and prompts for the user.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "title": { "type": "string" },
+        "message": { "type": "string" },
+        "type": { "type": "string", "enum": ["order_update", "review_prompt", "system"] },
+        "link": { "type": "string" },
+        "read": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "title", "message", "type"]
     }
   },
   "firestore": {
@@ -115,6 +147,14 @@
     "/reviews/{reviewId}": {
       "schema": "Review",
       "description": "Product reviews."
+    },
+    "/banners/{bannerId}": {
+      "schema": "Banner",
+      "description": "Homepage promotional banners."
+    },
+    "/users/{userId}/notifications/{notificationId}": {
+      "schema": "Notification",
+      "description": "User notifications."
     }
   }
 }

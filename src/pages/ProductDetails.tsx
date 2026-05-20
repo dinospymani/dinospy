@@ -7,16 +7,34 @@ import Footer from '../components/Footer';
 import MobileNav from '../components/MobileNav';
 import { db } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
-import { doc, onSnapshot } from 'firebase/firestore';
+import { doc, onSnapshot, collection, query, where, orderBy, addDoc, serverTimestamp, updateDoc } from 'firebase/firestore';
+import { useAuth } from '../context/AuthContext';
+
+import { toast } from 'sonner';
 
 export default function ProductDetails() {
   const { id } = useParams();
   const [product, setProduct] = useState<any>(null);
   const [activeImage, setActiveImage] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [quantity, setQuantity] = useState(1);
+  const { user, profile } = useAuth();
   const { addToCart, toggleWishlist, wishlist } = useCart();
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [reviewComment, setReviewComment] = useState('');
+  const [reviewRating, setReviewRating] = useState(5);
+  const [isSubmittingReview, setIsSubmittingReview] = useState(false);
 
   const isWishlisted = wishlist.includes(id || '');
+
+  const handleAddToCart = () => {
+    if (product.stock < quantity) {
+      toast.error(`Limit exceeded. Only ${product.stock} units available.`);
+      return;
+    }
+    
+    addToCart(product, quantity);
+  };
 
   useEffect(() => {
     if (!id) return;
@@ -35,7 +53,7 @@ export default function ProductDetails() {
           name: 'Ouroboros Gold',
           brand: 'DINOSPY',
           price: 125000,
-          stock: 5,
+          stock: 100,
           images: [
               'https://images.unsplash.com/photo-1542496658-e33a6d0d50f6?auto=format&fit=crop&q=80&w=2070',
               'https://images.unsplash.com/photo-1508685096489-7aac29a23fce?auto=format&fit=crop&q=80&w=1978',
@@ -62,6 +80,57 @@ export default function ProductDetails() {
 
     return () => unsubscribe();
   }, [id]);
+
+  useEffect(() => {
+    if (!id) return;
+    const q = query(
+      collection(db, 'reviews'),
+      where('productId', '==', id),
+      orderBy('createdAt', 'desc')
+    );
+    const unsubscribe = onSnapshot(q, (snap) => {
+      setReviews(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    });
+    return () => unsubscribe();
+  }, [id]);
+
+  const handleSubmitReview = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) {
+      toast.error('Please sign in to leave a review');
+      return;
+    }
+    if (!reviewComment.trim()) return;
+
+    setIsSubmittingReview(true);
+    try {
+      await addDoc(collection(db, 'reviews'), {
+        productId: id,
+        userId: user.uid,
+        userName: user.displayName || 'Anonymous Client',
+        rating: reviewRating,
+        comment: reviewComment,
+        createdAt: new Date().toISOString()
+      });
+
+      // Update product stats (vulnerable to atomicity issues but okay for now)
+      const newReviewCount = (product.reviewCount || 0) + 1;
+      const newRating = ((product.rating * (product.reviewCount || 0)) + reviewRating) / newReviewCount;
+      
+      await updateDoc(doc(db, 'products', id), {
+        reviewCount: newReviewCount,
+        rating: parseFloat(newRating.toFixed(1))
+      });
+
+      setReviewComment('');
+      setReviewRating(5);
+      toast.success('Review submitted successfully');
+    } catch (err) {
+      toast.error('Failed to submit review');
+    } finally {
+      setIsSubmittingReview(false);
+    }
+  };
 
   if (loading) return <div className="h-screen flex items-center justify-center">Loading...</div>;
   if (!product) return <div className="h-screen flex items-center justify-center">Product not found.</div>;
@@ -147,9 +216,11 @@ export default function ProductDetails() {
                   <span className="text-white/40 text-sm">({product.reviewCount} Reviews)</span>
                   <div className="h-4 w-[1px] bg-white/10" />
                   <div className="flex items-center space-x-2">
-                     <div className={`w-2 h-2 rounded-full ${product.stock > 0 ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
-                     <span className={`text-[10px] uppercase tracking-widest font-bold ${product.stock > 0 ? 'text-green-500' : 'text-red-500'}`}>
-                        {product.stock > 0 ? `${product.stock} Units Available` : 'Out of Stock'}
+                     <div className={`w-2 h-2 rounded-full ${product.stock > 0 ? (product.stock <= 5 ? 'bg-orange-500 animate-pulse' : 'bg-green-500') : 'bg-red-500'}`} />
+                     <span className={`text-[10px] uppercase tracking-widest font-bold ${product.stock > 0 ? (product.stock <= 5 ? 'text-orange-500' : 'text-green-500') : 'text-red-500'}`}>
+                        {product.stock > 0 
+                          ? (product.stock <= 5 ? `Critical: Only ${product.stock} Units Left` : `${product.stock} Units Available`) 
+                          : 'Currently Out of Stock'}
                      </span>
                   </div>
                 </div>
@@ -189,21 +260,44 @@ export default function ProductDetails() {
                 ))}
               </div>
 
-              <div className="flex space-x-4 mb-12">
-                <button 
-                  onClick={() => addToCart(product)}
-                  disabled={product.stock <= 0}
-                  className={`flex-grow py-5 gold-gradient text-luxury-black font-bold uppercase tracking-widest transition-all flex items-center justify-center ${product.stock <= 0 ? 'opacity-50 grayscale cursor-not-allowed' : 'hover:scale-[1.02] active:scale-[0.98]'}`}
-                >
-                  <ShoppingBag className="mr-3" size={20} />
-                  {product.stock > 0 ? 'Add to Collection' : 'Sold Out'}
-                </button>
-                <button 
-                  onClick={() => toggleWishlist(product.id)}
-                  className={`p-5 glass border border-white/20 transition-colors rounded-xl ${isWishlisted ? 'text-red-500 fill-red-500' : 'hover:text-red-500'}`}
-                >
-                  <Heart size={24} />
-                </button>
+              <div className="flex flex-col space-y-4 mb-12">
+                {product.stock > 0 && (
+                   <div className="flex items-center space-x-4">
+                      <span className="text-[10px] uppercase tracking-[0.2em] text-white/40">Select Quantity</span>
+                      <div className="flex items-center border border-white/10 rounded-lg overflow-hidden">
+                         <button 
+                           onClick={() => setQuantity(q => Math.max(1, q - 1))}
+                           className="p-3 hover:bg-white/5 transition-colors"
+                         >
+                           -
+                         </button>
+                         <div className="px-6 font-mono text-gold">{quantity}</div>
+                         <button 
+                           onClick={() => setQuantity(q => q < product.stock ? q + 1 : q)}
+                           className="p-3 hover:bg-white/5 transition-colors"
+                         >
+                           +
+                         </button>
+                      </div>
+                   </div>
+                )}
+
+                <div className="flex space-x-4">
+                  <button 
+                    onClick={handleAddToCart}
+                    disabled={product.stock <= 0}
+                    className={`flex-grow py-5 gold-gradient text-luxury-black font-bold uppercase tracking-widest transition-all flex items-center justify-center ${product.stock <= 0 ? 'opacity-50 grayscale cursor-not-allowed' : 'hover:scale-[1.02] active:scale-[0.98]'}`}
+                  >
+                    <ShoppingBag className="mr-3" size={20} />
+                    {product.stock > 0 ? 'Add to Collection' : 'Sold Out'}
+                  </button>
+                  <button 
+                    onClick={() => toggleWishlist(product.id)}
+                    className={`p-5 glass border border-white/20 transition-colors rounded-xl ${isWishlisted ? 'text-red-500 fill-red-500' : 'hover:text-red-500'}`}
+                  >
+                    <Heart size={24} />
+                  </button>
+                </div>
               </div>
 
               {/* Trust Indicators */}
@@ -223,6 +317,88 @@ export default function ProductDetails() {
               </div>
             </div>
           </div>
+
+          {/* Reviews Section */}
+          <section className="mt-32 border-t border-white/5 pt-20">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-16">
+              <div>
+                <h2 className="text-3xl font-display mb-6">Client Experience</h2>
+                <div className="flex items-center space-x-4 mb-8">
+                  <div className="text-5xl font-mono text-gold">{product.rating || '5.0'}</div>
+                  <div>
+                    <div className="flex text-gold mb-1">
+                      {[1,2,3,4,5].map(i => (
+                        <Star key={i} size={16} fill={i <= Math.floor(product.rating || 5) ? "currentColor" : "none"} />
+                      ))}
+                    </div>
+                    <p className="text-[10px] uppercase tracking-widest text-white/40">Based on {reviews.length} reviews</p>
+                  </div>
+                </div>
+
+                {user && (
+                  <form onSubmit={handleSubmitReview} className="glass p-6 rounded-2xl border border-white/10">
+                    <h3 className="text-[10px] uppercase tracking-widest text-gold mb-4 font-bold">Leave Your Feedback</h3>
+                    <div className="flex space-x-2 mb-4">
+                      {[1,2,3,4,5].map((star) => (
+                        <button
+                          key={star}
+                          type="button"
+                          onClick={() => setReviewRating(star)}
+                          className={`hover:scale-110 transition-transform ${star <= reviewRating ? 'text-gold' : 'text-white/20'}`}
+                        >
+                          <Star size={20} fill={star <= reviewRating ? "currentColor" : "none"} />
+                        </button>
+                      ))}
+                    </div>
+                    <textarea
+                      value={reviewComment}
+                      onChange={(e) => setReviewComment(e.target.value)}
+                      placeholder="Describe your horological experience..."
+                      className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-sm focus:border-gold outline-none min-h-[120px] mb-4"
+                    />
+                    <button
+                      type="submit"
+                      disabled={isSubmittingReview}
+                      className="w-full py-3 gold-gradient text-luxury-black font-bold uppercase tracking-widest text-xs rounded-xl disabled:opacity-50"
+                    >
+                      Publish Review
+                    </button>
+                  </form>
+                )}
+              </div>
+
+              <div className="lg:col-span-2 space-y-8">
+                {reviews.length === 0 ? (
+                  <div className="glass p-12 rounded-3xl border border-white/5 text-center">
+                    <p className="text-white/40 italic">No reviews yet. Be the first to share your experience with this timepiece.</p>
+                  </div>
+                ) : (
+                  reviews.map((review) => (
+                    <motion.div 
+                      key={review.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      className="glass p-8 rounded-2xl border border-white/5"
+                    >
+                      <div className="flex justify-between items-start mb-4">
+                        <div>
+                          <p className="font-bold text-white/90">{review.userName}</p>
+                          <p className="text-[10px] text-white/40 uppercase tracking-widest">{new Date(review.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                        </div>
+                        <div className="flex text-gold">
+                          {[1,2,3,4,5].map(i => (
+                            <Star key={i} size={12} fill={i <= review.rating ? "currentColor" : "none"} />
+                          ))}
+                        </div>
+                      </div>
+                      <p className="text-white/70 leading-relaxed italic">"{review.comment}"</p>
+                    </motion.div>
+                  ))
+                )}
+              </div>
+            </div>
+          </section>
         </div>
       </main>
 

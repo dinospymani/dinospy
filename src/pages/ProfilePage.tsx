@@ -7,6 +7,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { Link } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
+import { toast } from 'sonner';
 
 export default function ProfilePage() {
   const { user, profile, signOut } = useAuth();
@@ -34,10 +35,10 @@ export default function ProfilePage() {
     const newRole = profile?.role === 'admin' ? 'user' : 'admin';
     try {
       await updateDoc(doc(db, 'users', user.uid), { role: newRole });
-      window.location.reload(); // Quick way to refresh context
+      toast.success(`Role updated to ${newRole}`);
     } catch (err) {
       console.error(err);
-      alert('Failed to update role.');
+      toast.error('Failed to update role.');
     }
   };
 

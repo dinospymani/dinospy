@@ -1,8 +1,9 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { initializeApp } from 'firebase/app';
 import { getAuth, onAuthStateChanged, User, GoogleAuthProvider, signInWithPopup, signOut as firebaseSignOut } from 'firebase/auth';
-import { getFirestore, doc, getDoc, setDoc } from 'firebase/firestore';
+import { getFirestore, doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
 import config from '../../firebase-applet-config.json';
+import { toast } from 'sonner';
 
 const app = initializeApp(config || {});
 export const auth = getAuth(app);
@@ -25,53 +26,58 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    let unsubscribeProfile: (() => void) | null = null;
+
+    const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
       try {
         setLoading(true);
         setUser(user);
+        
+        if (unsubscribeProfile) {
+          unsubscribeProfile();
+          unsubscribeProfile = null;
+        }
+
         if (user) {
           const userRef = doc(db, 'users', user.uid);
           
-          // Initial fetch with single retry if offline
-          let userSnap;
-          try {
-            userSnap = await getDoc(userRef);
-          } catch (e: any) {
-            if (e.code === 'unavailable' || e.message?.includes('offline')) {
-              console.warn('Firestore temporarily unavailable/offline, retrying in 2s...');
-              await new Promise(resolve => setTimeout(resolve, 2000));
-              userSnap = await getDoc(userRef);
+          // Use onSnapshot for real-time profile updates
+          unsubscribeProfile = onSnapshot(userRef, async (snap) => {
+            if (snap.exists()) {
+              setProfile(snap.data());
+              setLoading(false);
             } else {
-              throw e;
+              // Create default profile if not exists
+              const newProfile = {
+                userId: user.uid,
+                email: user.email,
+                displayName: user.displayName,
+                role: 'user',
+                createdAt: new Date().toISOString(),
+              };
+              await setDoc(userRef, newProfile);
+              setProfile(newProfile);
+              setLoading(false);
             }
-          }
-
-          if (userSnap && userSnap.exists()) {
-            setProfile(userSnap.data());
-          } else {
-            // Create default profile
-            const newProfile = {
-              userId: user.uid,
-              email: user.email,
-              displayName: user.displayName,
-              role: 'user',
-              createdAt: new Date().toISOString(),
-            };
-            await setDoc(userRef, newProfile);
-            setProfile(newProfile);
-          }
+          }, (err) => {
+            console.error('Profile Load Error:', err);
+            setLoading(false);
+          });
+          
         } else {
           setProfile(null);
+          setLoading(false);
         }
       } catch (error: any) {
         console.error('Auth State Change Error:', error);
-        // If still offline, we still want to stop loading
-      } finally {
         setLoading(false);
       }
     });
 
-    return unsubscribe;
+    return () => {
+      unsubscribeAuth();
+      if (unsubscribeProfile) unsubscribeProfile();
+    };
   }, []);
 
   const signInWithGoogle = async () => {
@@ -84,15 +90,14 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       await signInWithPopup(auth, provider);
     } catch (error: any) {
       console.error('Sign In Error:', error);
-      // Fallback for common deployment issues
       if (error.code === 'auth/popup-blocked') {
-        alert('The sign-in popup was blocked by your browser. Please allow popups for this site.');
+        toast.error('Sign-in popup blocked. Please allow popups.');
       } else if (error.code === 'auth/operation-not-allowed') {
-        alert('Google Sign-In is not enabled for this project. Please go to Firebase Console > Authentication > Settings and enable Google protocol.');
-      } else if (error.code === 'auth/unauthorized-domain' || error.code === 'auth/network-request-failed') {
-        alert(`CRITICAL SETUP REQUIRED:\n\n1. Copy this domain: ${window.location.hostname}\n2. Go to Firebase Console > Authentication > Settings > Authorized Domains\n3. Click "Add Domain" and paste your domain there.\n\nLogin will only work after this step.`);
+        toast.error('Google Sign-In is disabled. Enable it in Firebase Console.');
+      } else if (error.code === 'auth/unauthorized-domain') {
+        toast.error('Domain not authorized in Firebase settings.');
       } else {
-        alert(`Sign-in failed (${error.code}). Please check if your Firebase Authorized Domains include ${window.location.hostname}`);
+        toast.error('Sign-in failed. Check project configuration.');
       }
     }
   };

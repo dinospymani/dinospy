@@ -4,8 +4,32 @@ import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc } from 'firebase
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import MobileNav from '../components/MobileNav';
-import { Plus, Trash2, Edit, Save, Package, QrCode, Printer, X, Truck } from 'lucide-react';
+import { Plus, Trash2, Edit, Save, Package, QrCode, Printer, X, Truck, Loader2, ChevronLeft, TrendingUp, DollarSign, ShoppingBag, AlertCircle, BarChart2 } from 'lucide-react';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { QRCodeSVG } from 'qrcode.react';
+import { toast } from 'sonner';
+
+interface AdminProduct {
+  id: string;
+  name: string;
+  brand: string;
+  price: number;
+  stock: number;
+  category: string;
+  images: string[];
+  rating: number;
+  [key: string]: any;
+}
+
+interface AdminOrder {
+  id: string;
+  userId: string;
+  status: string;
+  total: number;
+  createdAt: string;
+  items: any[];
+  [key: string]: any;
+}
 
 export default function AdminDashboard() {
   const [name, setName] = useState('');
@@ -20,20 +44,67 @@ export default function AdminDashboard() {
   const [isNewArrival, setIsNewArrival] = useState(true);
   const [discount, setDiscount] = useState('0');
   const [isOffer, setIsOffer] = useState(false);
-  const [status, setStatus] = useState('');
-  const [products, setProducts] = useState<any[]>([]);
-  const [orders, setOrders] = useState<any[]>([]);
-  const [view, setView] = useState<'products' | 'orders' | 'add'>('add');
-  const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [products, setProducts] = useState<AdminProduct[]>([]);
+  const [orders, setOrders] = useState<AdminOrder[]>([]);
+  const [banners, setBanners] = useState<any[]>([]);
+  const [view, setView] = useState<'products' | 'orders' | 'add' | 'banners' | 'stats'>('stats');
+  const [selectedOrder, setSelectedOrder] = useState<AdminOrder | null>(null);
+
+  // Stats
+  const [stats, setStats] = useState({ revenue: 0, ordersCount: 0, lowStock: 0, conversionRate: 3.2 });
+  const [chartData, setChartData] = useState<any[]>([]);
+
+  // Stock edit states
+  const [editingStockId, setEditingStockId] = useState<string | null>(null);
+  const [newStockValue, setNewStockValue] = useState<string>('');
+
+  // Banner states
+  const [bannerTitle, setBannerTitle] = useState('');
+  const [bannerSubtitle, setBannerSubtitle] = useState('');
+  const [bannerImage, setBannerImage] = useState('');
+  const [bannerImageFile, setBannerImageFile] = useState<string | null>(null);
+  const [bannerLink, setBannerLink] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const pSnap = await getDocs(collection(db, 'products'));
-        setProducts(pSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+        const fetchedProducts = pSnap.docs.map(doc => ({ id: doc.id, ...doc.data() } as AdminProduct));
+        setProducts(fetchedProducts);
         
         const oSnap = await getDocs(collection(db, 'orders'));
-        setOrders(oSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+        const fetchedOrders = oSnap.docs.map(doc => ({ id: doc.id, ...doc.data() } as AdminOrder));
+        setOrders(fetchedOrders);
+
+        const bSnap = await getDocs(collection(db, 'banners'));
+        setBanners(bSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+
+        // Calculate Stats
+        const revenue = fetchedOrders
+          .filter(o => o.status === 'delivered')
+          .reduce((acc, o) => acc + (o.total || 0), 0);
+        
+        const lowStock = fetchedProducts.filter(p => p.stock < 5).length;
+        
+        setStats({
+          revenue,
+          ordersCount: fetchedOrders.length,
+          lowStock,
+          conversionRate: 3.2
+        });
+
+        // Mock chart data for last 7 days from orders
+        const last7Days = [...Array(7)].map((_, i) => {
+          const d = new Date();
+          d.setDate(d.getDate() - i);
+          const dateStr = d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+          const dayOrders = fetchedOrders.filter(o => new Date(o.createdAt).toDateString() === d.toDateString());
+          const total = dayOrders.reduce((acc, o) => acc + (o.total || 0), 0);
+          return { name: dateStr, sales: total };
+        }).reverse();
+        setChartData(last7Days);
+
       } catch (err) {
         console.error("Error fetching data:", err);
       }
@@ -41,15 +112,47 @@ export default function AdminDashboard() {
     fetchData();
   }, []);
 
+  const handleUpdateStock = async (productId: string) => {
+    if (!newStockValue) return;
+    try {
+      const stockNum = parseInt(newStockValue);
+      await updateDoc(doc(db, 'products', productId), { stock: stockNum });
+      setProducts(products.map(p => p.id === productId ? { ...p, stock: stockNum } : p));
+      setEditingStockId(null);
+      setNewStockValue('');
+      toast.success('Inventory balance coordinated');
+    } catch (err) {
+      toast.error('Sync failed');
+    }
+  };
+
   const handleUpdateOrderStatus = async (orderId: string, newStatus: string) => {
     try {
       await updateDoc(doc(db, 'orders', orderId), { status: newStatus });
+      
+      // Notify customer if delivered
+      const order = orders.find(o => o.id === orderId);
+      if (newStatus === 'delivered' && order && order.userId && order.items?.length > 0) {
+        const firstProductId = order.items[0].productId;
+        await addDoc(collection(db, 'users', order.userId, 'notifications'), {
+          title: "Horological Milestone",
+          message: `Your DINOSPY Masterpiece has arrived. Does it meet your standards? Share your signature review.`,
+          type: "review_prompt",
+          link: `/product/${firstProductId}#reviews`,
+          read: false,
+          createdAt: new Date().toISOString()
+        });
+        toast.info('Delivery confirmation & premium review prompt dispatched');
+      }
+
       setOrders(orders.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
       if (selectedOrder?.id === orderId) {
         setSelectedOrder({ ...selectedOrder, status: newStatus });
       }
+      toast.success(`Order status updated to ${newStatus}`);
     } catch (err) {
       console.error(err);
+      toast.error('Failed to update status');
     }
   };
 
@@ -57,71 +160,218 @@ export default function AdminDashboard() {
     try {
         await deleteDoc(doc(db, 'products', id));
         setProducts(products.filter(p => p.id !== id));
-        setStatus('Product removed.');
+        toast.info('Product removed from catalog');
     } catch (err) {
         console.error(err);
+        toast.error('Deletion failed');
+    }
+  };
+
+  const handleMoveBanner = async (index: number, direction: 'up' | 'down') => {
+    const newBanners = [...banners];
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= newBanners.length) return;
+
+    [newBanners[index], newBanners[targetIndex]] = [newBanners[targetIndex], newBanners[index]];
+    
+    try {
+      // Update order in Firestore for all affected banners
+      const batch = newBanners.map((b, i) => 
+        updateDoc(doc(db, 'banners', b.id), { order: i })
+      );
+      await Promise.all(batch);
+      setBanners(newBanners);
+      toast.success('Banner sequence updated');
+    } catch (err) {
+      toast.error('Failed to sync sequence');
+    }
+  };
+
+  const handleAddBanner = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!bannerImage && !bannerImageFile) {
+      toast.warning('Vision required: Please provide an image for the banner.');
+      return;
+    }
+    if (!bannerTitle) return;
+    
+    // Check for large base64 strings (Firestore Limit is 1MB)
+    const finalImage = bannerImageFile || bannerImage;
+    if (finalImage.length > 800000) {
+      toast.error('Image too large for Firestore. Please use a smaller file or a URL.');
+      return;
+    }
+
+    setIsSaving(true);
+    const promise = async () => {
+      try {
+        const bannerData = {
+          title: bannerTitle,
+          subtitle: bannerSubtitle,
+          imageUrl: finalImage,
+          link: bannerLink,
+          active: true,
+          order: banners.length,
+          createdAt: new Date().toISOString()
+        };
+
+        await addDoc(collection(db, 'banners'), bannerData);
+        
+        setBannerTitle('');
+        setBannerSubtitle('');
+        setBannerImage('');
+        setBannerImageFile(null);
+        setBannerLink('');
+        
+        const bSnap = await getDocs(collection(db, 'banners'));
+        setBanners(bSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      } finally {
+        setIsSaving(false);
+      }
+    };
+
+    toast.promise(promise(), {
+      loading: 'Deploying promotional asset...',
+      success: 'Banner active on storefront!',
+      error: (err) => {
+        console.error('Banner Error:', err);
+        return `Sync failed: ${err.message || 'Check connection'}`;
+      }
+    });
+  };
+
+  const handleDeleteBanner = async (id: string) => {
+    try {
+      await deleteDoc(doc(db, 'banners', id));
+      setBanners(banners.filter(b => b.id !== id));
+      toast.info('Banner removed');
+    } catch (err) {
+      toast.error('Delete failed');
     }
   };
 
   const handleAddProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     if (imageFiles.length === 0 && !image) {
-      setStatus('Please provide at least one image.');
+      toast.warning('Evidence required: Please provide at least one image.');
       return;
     }
-    setStatus('Adding...');
-    try {
-      await addDoc(collection(db, 'products'), {
-        name,
-        brand,
-        price: parseFloat(price),
-        discount: parseFloat(discount),
-        isOffer,
-        category,
-        images: imageFiles.length > 0 ? imageFiles : [image],
-        description,
-        isTrending,
-        isNewArrival,
-        stock: parseInt(stock),
-        rating: 5.0,
-        reviewCount: 0,
-        createdAt: new Date().toISOString(),
-        specs: {
-          Movement: 'Automatic',
-          Case: 'Stainless Steel',
-          Crystal: 'Sapphire'
-        }
-      });
-      setStatus('Product added successfully!');
-      setName('');
-      setPrice('');
-      setDiscount('0');
-      setImage('');
-      setDescription('');
-      // Refresh products
-      const snap = await getDocs(collection(db, 'products'));
-      setProducts(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-    } catch (err) {
-      console.error(err);
-      setStatus('Error adding product.');
+    
+    const finalImages = imageFiles.length > 0 ? imageFiles : [image];
+    const totalSize = finalImages.reduce((acc, img) => acc + img.length, 0);
+    
+    if (totalSize > 800000) {
+      toast.error('Evidence payload too heavy. Please use smaller images or fewer high-res files.');
+      return;
     }
+
+    setIsSaving(true);
+    const promise = async () => {
+      try {
+        await addDoc(collection(db, 'products'), {
+          name,
+          brand,
+          price: parseFloat(price),
+          discount: parseFloat(discount),
+          isOffer,
+          category,
+          images: finalImages,
+          description,
+          isTrending,
+          isNewArrival,
+          stock: parseInt(stock),
+          rating: 5.0,
+          reviewCount: 0,
+          createdAt: new Date().toISOString(),
+          specs: {
+            Movement: 'Automatic',
+            Case: 'Stainless Steel',
+            Crystal: 'Sapphire'
+          }
+        });
+        
+        setName('');
+        setPrice('');
+        setDiscount('0');
+        setImage('');
+        setImageFiles([]);
+        setDescription('');
+        
+        const snap = await getDocs(collection(db, 'products'));
+        setProducts(snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as AdminProduct)));
+      } finally {
+        setIsSaving(false);
+      }
+    };
+
+    toast.promise(promise(), {
+      loading: 'Archiving new acquisition...',
+      success: 'Masterpiece added to collection!',
+      error: 'Manifest failed to save.'
+    });
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const compressImage = (base64Str: string, maxWidth = 1200, maxHeight = 1200, quality = 0.7): Promise<string> => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.src = base64Str;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > maxWidth) {
+            height *= maxWidth / width;
+            width = maxWidth;
+          }
+        } else {
+          if (height > maxHeight) {
+            width *= maxHeight / height;
+            height = maxHeight;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx?.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+    });
+  };
+
+  const handleBannerFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      const compressed = await compressImage(reader.result as string);
+      setBannerImageFile(compressed);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
     
-    const newFiles: string[] = [];
-    Array.from(files).forEach(file => {
+    const compressedFiles: string[] = [];
+    const fileArray = Array.from(files);
+
+    for (const file of fileArray) {
       const reader = new FileReader();
-      reader.onloadend = () => {
-        newFiles.push(reader.result as string);
-        if (newFiles.length === files.length) {
-          setImageFiles(newFiles);
-        }
-      };
-      reader.readAsDataURL(file);
-    });
+      const compressed = await new Promise<string>((resolve) => {
+        reader.onloadend = async () => {
+          const result = await compressImage(reader.result as string);
+          resolve(result);
+        };
+        reader.readAsDataURL(file);
+      });
+      compressedFiles.push(compressed);
+    }
+    setImageFiles(compressedFiles);
   };
 
   return (
@@ -134,6 +384,12 @@ export default function AdminDashboard() {
             <p className="text-white/40 mt-2">Manage your luxury empire with precision.</p>
           </div>
           <div className="flex space-x-4 bg-white/5 p-1 rounded-2xl border border-white/10">
+            <button 
+              onClick={() => setView('stats')}
+              className={`px-6 py-2 rounded-xl text-sm font-bold transition-all ${view === 'stats' ? 'gold-gradient text-luxury-black' : 'text-white/60 hover:text-white'}`}
+            >
+              Intelligence
+            </button>
             <button 
               onClick={() => setView('add')}
               className={`px-6 py-2 rounded-xl text-sm font-bold transition-all ${view === 'add' ? 'gold-gradient text-luxury-black' : 'text-white/60 hover:text-white'}`}
@@ -152,10 +408,181 @@ export default function AdminDashboard() {
             >
               Orders
             </button>
+            <button 
+              onClick={() => setView('banners')}
+              className={`px-6 py-2 rounded-xl text-sm font-bold transition-all ${view === 'banners' ? 'gold-gradient text-luxury-black' : 'text-white/60 hover:text-white'}`}
+            >
+              Banners
+            </button>
           </div>
         </div>
         
         <div className="glass p-8 rounded-3xl border border-white/10">
+          {view === 'stats' && (
+            <div className="space-y-12">
+               {/* Stats Cards */}
+               <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                 <div className="glass p-6 rounded-2xl border border-white/5 bg-gradient-to-br from-gold/10 to-transparent">
+                   <div className="flex justify-between items-start mb-4">
+                     <div className="p-2 bg-gold/20 rounded-lg text-gold">
+                       <DollarSign size={20} />
+                     </div>
+                     <span className="text-[10px] bg-green-500/20 text-green-500 px-2 py-1 rounded-full font-bold">+12%</span>
+                   </div>
+                   <p className="text-[10px] uppercase tracking-widest text-white/40">Total Revenue</p>
+                   <h3 className="text-2xl font-mono mt-1">₹{stats.revenue.toLocaleString()}</h3>
+                 </div>
+
+                 <div className="glass p-6 rounded-2xl border border-white/5">
+                   <div className="flex justify-between items-start mb-4">
+                     <div className="p-2 bg-blue-500/20 rounded-lg text-blue-400">
+                       <ShoppingBag size={20} />
+                     </div>
+                   </div>
+                   <p className="text-[10px] uppercase tracking-widest text-white/40">Manifests Logged</p>
+                   <h3 className="text-2xl font-mono mt-1">{stats.ordersCount}</h3>
+                 </div>
+
+                 <div className="glass p-6 rounded-2xl border border-white/5">
+                   <div className="flex justify-between items-start mb-4">
+                     <div className="p-2 bg-purple-500/20 rounded-lg text-purple-400">
+                       <TrendingUp size={20} />
+                     </div>
+                   </div>
+                   <p className="text-[10px] uppercase tracking-widest text-white/40">Market Traction</p>
+                   <h3 className="text-2xl font-mono mt-1">{stats.conversionRate}%</h3>
+                 </div>
+
+                 <div className="glass p-6 rounded-2xl border border-white/5">
+                   <div className="flex justify-between items-start mb-4">
+                     <div className="p-2 bg-red-500/20 rounded-lg text-red-500">
+                       <AlertCircle size={20} />
+                     </div>
+                   </div>
+                   <p className="text-[10px] uppercase tracking-widest text-white/40">Inventory Warnings</p>
+                   <h3 className={`text-2xl font-mono mt-1 ${stats.lowStock > 0 ? 'text-red-500' : ''}`}>{stats.lowStock}</h3>
+                 </div>
+               </div>
+
+               {/* Chart */}
+               <div className="glass p-8 rounded-2xl border border-white/5 h-[400px]">
+                  <div className="flex justify-between items-center mb-8">
+                     <div>
+                       <h3 className="text-lg font-bold flex items-center">
+                         <BarChart2 className="mr-2 text-gold" size={18} />
+                         Revenue Intelligence
+                       </h3>
+                       <p className="text-xs text-white/40 uppercase tracking-widest mt-1">Last 7 Days Acquisition Trend</p>
+                     </div>
+                  </div>
+                  <ResponsiveContainer width="100%" height="80%">
+                    <AreaChart data={chartData}>
+                      <defs>
+                        <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#D4AF37" stopOpacity={0.3}/>
+                          <stop offset="95%" stopColor="#D4AF37" stopOpacity={0}/>
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" />
+                      <XAxis dataKey="name" stroke="#ffffff40" fontSize={10} />
+                      <YAxis stroke="#ffffff40" fontSize={10} />
+                      <Tooltip 
+                        contentStyle={{ backgroundColor: '#111', border: '1px solid #ffffff10', borderRadius: '12px' }}
+                        itemStyle={{ color: '#D4AF37' }}
+                      />
+                      <Area type="monotone" dataKey="sales" stroke="#D4AF37" fillOpacity={1} fill="url(#colorSales)" />
+                    </AreaChart>
+                  </ResponsiveContainer>
+               </div>
+            </div>
+          )}
+
+          {view === 'banners' && (
+            <div className="space-y-12">
+               <div>
+                  <h2 className="text-xl font-bold mb-8">Home Page Banner Controls</h2>
+                  <form onSubmit={handleAddBanner} className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <label className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block">Banner Title</label>
+                        <input value={bannerTitle} onChange={e => setBannerTitle(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none" placeholder="e.g. Summer Collection" required />
+                      </div>
+                      <div>
+                        <label className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block">Subtitle (Offer Text)</label>
+                        <input value={bannerSubtitle} onChange={e => setBannerSubtitle(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none" placeholder="e.g. Flat 30% Off" />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <label className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block">Direct Banner Upload</label>
+                        <input 
+                          type="file" accept="image/*" onChange={handleBannerFileChange}
+                          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-gold outline-none file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-gold file:text-luxury-black hover:file:bg-gold/80"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block">Or Image URL</label>
+                        <input value={bannerImage} onChange={e => setBannerImage(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none" placeholder="https://..." />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <label className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block">Link Path (Optional)</label>
+                        <input value={bannerLink} onChange={e => setBannerLink(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none" placeholder="/#new" />
+                      </div>
+                    </div>
+                    <button type="submit" disabled={isSaving} className="w-full py-4 gold-gradient text-luxury-black font-bold uppercase tracking-widest rounded-xl hover:scale-[1.01] transition-all disabled:opacity-50">
+                      Deploy Banner
+                    </button>
+                  </form>
+               </div>
+
+               <div>
+                 <h3 className="text-[10px] uppercase tracking-widest text-white/40 mb-6">Current active banners</h3>
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                   {banners.map((b, index) => (
+                     <div key={b.id} className="relative aspect-[21/9] rounded-2xl overflow-hidden border border-white/10 hover:border-gold/30 transition-all group">
+                        <img src={b.imageUrl} className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity" alt={b.title} />
+                        <div className="absolute top-4 right-4 flex space-x-2 z-10">
+                           <div className="flex flex-col space-y-1">
+                             <button 
+                               type="button"
+                               onClick={() => handleMoveBanner(index, 'up')} 
+                               disabled={index === 0}
+                               className="p-1.5 bg-black/60 text-white rounded-lg hover:bg-gold hover:text-luxury-black transition-all disabled:opacity-20"
+                             >
+                               <ChevronLeft size={14} className="rotate-90" />
+                             </button>
+                             <button 
+                               type="button"
+                               onClick={() => handleMoveBanner(index, 'down')} 
+                               disabled={index === banners.length - 1}
+                               className="p-1.5 bg-black/60 text-white rounded-lg hover:bg-gold hover:text-luxury-black transition-all disabled:opacity-20"
+                             >
+                               <ChevronLeft size={14} className="-rotate-90" />
+                             </button>
+                           </div>
+                           <button 
+                             type="button"
+                             onClick={() => handleDeleteBanner(b.id)} 
+                             className="p-2 bg-red-600/20 text-red-500 rounded-lg h-fit hover:bg-red-600 hover:text-white transition-colors"
+                           >
+                              <Trash2 size={16} />
+                           </button>
+                        </div>
+                        <div className="absolute inset-0 p-6 flex flex-col justify-end bg-gradient-to-t from-black/80 to-transparent">
+                           <span className="text-[10px] font-mono text-gold/60 mb-1">Slide #{index + 1}</span>
+                           <h4 className="font-display text-lg text-gold">{b.title}</h4>
+                           <p className="text-white/60 text-xs">{b.subtitle}</p>
+                        </div>
+                     </div>
+                   ))}
+                   {banners.length === 0 && <p className="text-white/20 text-xs py-10 text-center col-span-2">No promotional banners active.</p>}
+                 </div>
+               </div>
+            </div>
+          )}
+
           {view === 'add' && (
             <>
               <h2 className="text-xl font-bold mb-8 flex items-center">
@@ -257,11 +684,9 @@ export default function AdminDashboard() {
                   </label>
                 </div>
 
-                <button type="submit" className="w-full py-4 gold-gradient text-luxury-black font-bold uppercase tracking-widest rounded-xl hover:scale-[1.01] transition-all">
-                  Save to Catalog
+                <button type="submit" disabled={isSaving} className="w-full py-4 gold-gradient text-luxury-black font-bold uppercase tracking-widest rounded-xl hover:scale-[1.01] transition-all disabled:opacity-50">
+                  {isSaving ? 'Archiving...' : 'Save to Catalog'}
                 </button>
-                
-                {status && <p className="text-center text-sm text-gold">{status}</p>}
               </form>
             </>
           )}
@@ -276,9 +701,34 @@ export default function AdminDashboard() {
                     <img src={p.images[0]} className="w-16 h-16 object-cover rounded-lg" alt={p.name} />
                     <div className="flex-grow">
                       <h4 className="font-bold">{p.name}</h4>
-                      <p className="text-xs text-white/40">₹{p.price.toLocaleString()} • {p.category} • {p.stock} in stock</p>
+                      <p className="text-xs text-white/40">₹{p.price.toLocaleString()} • {p.category} • <span className={p.stock < 5 ? 'text-red-500' : ''}>{p.stock} units</span></p>
                     </div>
-                    <div className="flex space-x-2">
+                    <div className="flex items-center space-x-2">
+                       {editingStockId === p.id ? (
+                         <div className="flex items-center space-x-2">
+                            <input 
+                              type="number" 
+                              value={newStockValue} 
+                              onChange={e => setNewStockValue(e.target.value)}
+                              className="w-20 bg-white/5 border border-white/10 rounded px-2 py-1 text-xs outline-none focus:border-gold"
+                              placeholder="New Stock"
+                              autoFocus
+                            />
+                            <button onClick={() => handleUpdateStock(p.id)} className="text-[10px] font-bold text-gold uppercase tracking-widest hover:underline">Sync</button>
+                            <button onClick={() => setEditingStockId(null)} className="text-[10px] font-bold text-white/40 uppercase tracking-widest hover:underline">X</button>
+                         </div>
+                       ) : (
+                         <button 
+                           onClick={() => {
+                             setEditingStockId(p.id);
+                             setNewStockValue(p.stock.toString());
+                           }} 
+                           className="flex items-center text-[10px] font-bold text-white/40 uppercase tracking-widest hover:text-gold transition-colors"
+                         >
+                           <Edit size={12} className="mr-1" />
+                           Inventory
+                         </button>
+                       )}
                        <button onClick={() => handleDelete(p.id)} className="p-2 hover:text-red-400 transition-colors">
                          <Trash2 size={18} />
                        </button>
@@ -425,12 +875,30 @@ export default function AdminDashboard() {
                         { name: "Nero Sport", price: 65000, category: "Sport", img: "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?auto=format&fit=crop&q=80&w=2080", trending: true },
                         { name: "Heritage Classic", price: 42000, category: "Classic", img: "https://images.unsplash.com/photo-1524592094714-0f0654e20314?auto=format&fit=crop&q=80&w=2018", trending: false }
                     ];
-                    for (const p of demo) {
-                        await addDoc(collection(db, 'products'), {
-                            ...p, brand: 'DINOSPY', images: [p.img], isTrending: p.trending, isNewArrival: true, stock: 10, rating: 5.0, reviewCount: 0, createdAt: new Date().toISOString(), specs: { Movement: 'Automatic', Case: 'Gold/Steel', Crystal: 'Sapphire' }, description: 'A masterpiece of precision craftsmanship and timeless elegance.'
-                        });
-                    }
-                    setStatus('Demo data seeded!');
+                    
+                    const promise = async () => {
+                        // Seed products
+                        for (const p of demo) {
+                            await addDoc(collection(db, 'products'), {
+                                ...p, brand: 'DINOSPY', images: [p.img], isTrending: p.trending, isNewArrival: true, stock: 10, rating: 5.0, reviewCount: 0, createdAt: new Date().toISOString(), specs: { Movement: 'Automatic', Case: 'Gold/Steel', Crystal: 'Sapphire' }, description: 'A masterpiece of precision craftsmanship and timeless elegance.'
+                            });
+                        }
+                        // Seed banners
+                        const demoBanners = [
+                          { title: 'The Chronos Collection', subtitle: 'Exquisite Engineering', imageUrl: 'https://images.unsplash.com/photo-1547996160-81dfa63595aa?auto=format&fit=crop&q=80&w=2000', link: '/#new', active: true, order: 0 },
+                          { title: 'Summer Sale 2024', subtitle: 'Up to 30% Off Selected Sets', imageUrl: 'https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?auto=format&fit=crop&q=80&w=2000', link: '/#new', active: true, order: 1 },
+                          { title: 'The Monarch Series', subtitle: 'Limited Edition Heritage Sets', imageUrl: 'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?auto=format&fit=crop&q=80&w=2080', link: '/#categories', active: true, order: 2 }
+                        ];
+                        for (const b of demoBanners) {
+                          await addDoc(collection(db, 'banners'), { ...b, createdAt: new Date().toISOString() });
+                        }
+                    };
+
+                    toast.promise(promise(), {
+                        loading: 'Seeding demo catalog...',
+                        success: 'Boutique populated successfully!',
+                        error: 'Seeding failed.'
+                    });
                 }}
                 className="px-6 py-3 glass border border-gold/20 text-gold text-xs font-bold uppercase tracking-widest hover:bg-gold hover:text-luxury-black transition-all"
             >

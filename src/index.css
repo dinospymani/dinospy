@@ -52,6 +52,10 @@
     animation: marquee 30s linear infinite;
   }
 
+  .animate-marquee-slow {
+    animation: marquee 60s linear infinite;
+  }
+
   .animate-pulse-slow {
     animation: pulse-slow 10s ease-in-out infinite;
   }

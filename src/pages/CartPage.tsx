@@ -59,6 +59,12 @@ export default function CartPage() {
                         <span className="text-[10px] uppercase tracking-widest text-white/30">{item.brand}</span>
                         <h3 className="text-xl font-display mt-1">{item.name}</h3>
                         <div className="text-gold font-mono mt-2">₹{item.price.toLocaleString()}</div>
+                        {item.stock !== undefined && (
+                          <div className={`text-[10px] uppercase font-bold mt-2 ${item.stock <= 5 ? 'text-orange-500' : 'text-white/40'}`}>
+                             {item.stock > 0 ? `${item.stock} Available` : 'Sold Out'}
+                             {item.quantity >= item.stock && item.stock > 0 && <span className="ml-2 text-red-500">(Max reached)</span>}
+                          </div>
+                        )}
                       </div>
                       
                       <div className="flex items-center space-x-4">
@@ -72,7 +78,8 @@ export default function CartPage() {
                           <span className="w-10 text-center font-mono font-bold">{item.quantity}</span>
                           <button 
                             onClick={() => updateQuantity(item.id, 1)}
-                            className="p-2 hover:text-gold transition-colors"
+                            disabled={item.stock !== undefined && item.quantity >= item.stock}
+                            className={`p-2 transition-colors ${item.stock !== undefined && item.quantity >= item.stock ? 'opacity-20 cursor-not-allowed' : 'hover:text-gold'}`}
                           >
                             <Plus size={16} />
                           </button>

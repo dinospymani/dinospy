@@ -54,12 +54,15 @@ function AnimatedRoutes() {
   );
 }
 
+import { Toaster } from 'sonner';
+
 export default function App() {
   return (
     <FirebaseProvider>
       <CartProvider>
         <Router>
           <div className="min-h-screen bg-luxury-black text-white selection:bg-gold selection:text-luxury-black">
+            <Toaster position="top-center" richColors />
             <AnimatedRoutes />
           </div>
         </Router>

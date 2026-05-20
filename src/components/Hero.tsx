@@ -1,64 +1,145 @@
-import React from 'react';
-import { motion } from 'motion/react';
-import { ArrowRight } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
+import { db } from '../context/AuthContext';
+import { collection, onSnapshot, query, where, orderBy } from 'firebase/firestore';
 
 export default function Hero() {
-  return (
-    <section className="relative h-screen w-full overflow-hidden flex items-center">
-      {/* Background Image with Parallax effect */}
-      <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-gradient-to-r from-luxury-black via-luxury-black/70 to-transparent z-10" />
-        <img 
-          src="/src/assets/images/hero_watch_cinematic_1779204584374.png" 
-          alt="Luxury Watch"
-          className="w-full h-full object-cover object-center scale-110 animate-pulse-slow"
-        />
-      </div>
+  const [banners, setBanners] = useState<any[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
-      <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-        <motion.div
-          initial={{ opacity: 0, x: -50 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 1, ease: "easeOut" }}
-          className="max-w-2xl"
-        >
-          <motion.span 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            className="text-gold font-mono tracking-[0.3em] text-sm uppercase mb-4 block"
-          >
-            DINOSPY • Excellence Reimagined
-          </motion.span>
-          <h1 className="text-6xl md:text-8xl font-display font-medium leading-tight mb-8">
-            The Art of <br />
-            <span className="gold-text italic">Precision.</span>
-          </h1>
-          <p className="text-lg text-white/70 mb-10 leading-relaxed max-w-lg">
-            Experience the pinnacle of horological engineering. Handcrafted timepieces for those who value every second of excellence.
-          </p>
-          <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-6">
-            <button className="px-10 py-5 gold-gradient text-luxury-black font-bold uppercase tracking-widest flex items-center justify-center hover:scale-105 transition-transform group">
-              Explore Collection
+  useEffect(() => {
+    const q = query(
+      collection(db, 'banners'),
+      where('active', '==', true),
+      orderBy('order', 'asc')
+    );
+    const unsubscribe = onSnapshot(q, (snap) => {
+      setBanners(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    });
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    if (banners.length <= 1) return;
+    const timer = setInterval(() => {
+      setCurrentIndex(prev => (prev + 1) % banners.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [banners.length]);
+
+  if (banners.length === 0) {
+    return (
+      <section className="relative h-[90vh] w-full overflow-hidden flex items-center">
+        <div className="absolute inset-0 z-0">
+          <div className="absolute inset-0 bg-gradient-to-r from-luxury-black via-luxury-black/70 to-transparent z-10" />
+          <img 
+            src="https://images.unsplash.com/photo-1547996160-81dfa63595aa?auto=format&fit=crop&q=80&w=2000" 
+            alt="Luxury Watch"
+            className="w-full h-full object-cover object-center"
+          />
+        </div>
+        <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl">
+            <span className="text-gold font-mono tracking-[0.3em] text-sm uppercase mb-4 block">DINOSPY • Premier Horology</span>
+            <h1 className="text-6xl md:text-8xl font-display leading-tight mb-8">Crafting <br /><span className="gold-text italic">Time.</span></h1>
+            <p className="text-lg text-white/70 mb-10 max-w-lg">Handcrafted luxury timepieces for the modern elite. Experience perfection.</p>
+            <button className="px-10 py-5 gold-gradient text-luxury-black font-bold uppercase tracking-widest flex items-center hover:scale-105 transition-transform group">
+              View All Watches
               <ArrowRight className="ml-2 group-hover:translate-x-2 transition-transform" size={18} />
             </button>
-            <button className="px-10 py-5 glass border border-white/20 text-white font-bold uppercase tracking-widest hover:bg-white/10 transition-colors">
-              Limited Edition
-            </button>
-          </div>
+          </motion.div>
+        </div>
+      </section>
+    );
+  }
+
+  const currentBanner = banners[currentIndex];
+
+  return (
+    <section className="relative h-[90vh] w-full overflow-hidden flex items-center font-sans">
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={currentIndex}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 1.2 }}
+          className="absolute inset-0 z-0"
+        >
+          <div className="absolute inset-0 bg-gradient-to-r from-luxury-black via-luxury-black/40 to-transparent z-10" />
+          <div className="absolute inset-0 bg-black/20 z-[5]" />
+          <motion.img 
+            initial={{ scale: 1.2 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 15, ease: "linear" }}
+            src={currentBanner.imageUrl} 
+            alt={currentBanner.title}
+            className="w-full h-full object-cover object-center"
+          />
         </motion.div>
+      </AnimatePresence>
+
+
+      <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentIndex}
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 50 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="max-w-3xl"
+          >
+            <motion.span 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-gold font-mono tracking-[0.3em] text-sm md:text-base uppercase mb-4 block"
+            >
+              DINOSPY • {currentBanner.subtitle || 'Excellence Reimagined'}
+            </motion.span>
+            <h1 className="text-5xl md:text-7xl lg:text-8xl font-display font-medium leading-[1.1] mb-8 text-white drop-shadow-lg">
+              {currentBanner.title}
+            </h1>
+            <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-6">
+              <a 
+                href={currentBanner.link || "#new"}
+                className="px-10 py-5 gold-gradient text-luxury-black font-bold uppercase tracking-widest flex items-center justify-center hover:scale-105 transition-transform group rounded-sm"
+              >
+                Explore Now
+                <ArrowRight className="ml-2 group-hover:translate-x-2 transition-transform" size={18} />
+              </a>
+            </div>
+          </motion.div>
+        </AnimatePresence>
       </div>
 
-      {/* Scroll indicator */}
-      <motion.div 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 2, duration: 1 }}
-        className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center"
-      >
-        <div className="w-[1px] h-20 bg-gradient-to-b from-transparent via-gold to-transparent" />
-        <span className="text-[10px] uppercase tracking-[0.5em] text-white/50 mt-4">Scroll</span>
-      </motion.div>
+      {banners.length > 1 && (
+        <div className="absolute bottom-10 right-10 z-30 flex space-x-4">
+          <button 
+            onClick={() => setCurrentIndex(prev => (prev - 1 + banners.length) % banners.length)}
+            className="p-4 glass rounded-full border border-white/10 hover:border-gold/50 transition-all text-white/50 hover:text-gold"
+          >
+            <ChevronLeft size={24} />
+          </button>
+          <button 
+            onClick={() => setCurrentIndex(prev => (prev + 1) % banners.length)}
+            className="p-4 glass rounded-full border border-white/10 hover:border-gold/50 transition-all text-white/50 hover:text-gold"
+          >
+            <ChevronRight size={24} />
+          </button>
+        </div>
+      )}
+
+      {/* Progress indicators */}
+      <div className="absolute bottom-10 left-10 z-30 flex space-x-2">
+        {banners.map((_, i) => (
+          <div 
+            key={i}
+            className={`h-1 rounded-full transition-all duration-500 ${i === currentIndex ? 'w-12 bg-gold' : 'w-4 bg-white/20'}`}
+          />
+        ))}
+      </div>
     </section>
   );
 }
