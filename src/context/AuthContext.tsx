@@ -100,7 +100,7 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       } else if (error.code === 'auth/unauthorized-domain') {
         toast.error('Domain not authorized in Firebase settings.');
       } else {
-        toast.error('Sign-in failed. Check project configuration.');
+        toast.error('Sign-in failed.');
       }
     }
   };

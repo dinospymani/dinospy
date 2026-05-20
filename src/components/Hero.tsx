@@ -98,9 +98,11 @@ export default function Hero() {
             >
               DINOSPY • {currentBanner.subtitle || 'Excellence Reimagined'}
             </motion.span>
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-display font-medium leading-[1.1] mb-8 text-white drop-shadow-lg">
-              {currentBanner.title}
-            </h1>
+            {currentBanner.title && (
+              <h1 className="text-4xl md:text-7xl lg:text-8xl font-display font-medium leading-[1.1] mb-8 text-white drop-shadow-lg">
+                {currentBanner.title}
+              </h1>
+            )}
             <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-6">
               <a 
                 href={currentBanner.link || "#new"}

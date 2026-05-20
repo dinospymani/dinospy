@@ -7,14 +7,11 @@ import Footer from '../components/Footer';
 import MobileNav from '../components/MobileNav';
 import { db } from '../context/AuthContext';
 import { collection, query, where, onSnapshot, limit } from 'firebase/firestore';
-import { Sparkles, ArrowRight, Zap } from 'lucide-react';
-
-const CATEGORIES = ['Luxury', 'Sport', 'Smart', 'Classic'];
+import { ArrowRight, Zap } from 'lucide-react';
 
 export default function HomePage() {
   const [newArrivals, setNewArrivals] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [aiRecs, setAiRecs] = useState<any[]>([]);
 
   useEffect(() => {
     setLoading(true);
@@ -43,20 +40,7 @@ export default function HomePage() {
     return () => unsubscribe();
   }, []);
 
-  const getAIRecommendations = async () => {
-    // Actually calling our API route
-    try {
-      const res = await fetch('/api/ai/recommend', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ preferences: ['Luxury', 'Gold'], history: [] })
-      });
-      const data = await res.json();
-      setAiRecs(data);
-    } catch (e) {
-      console.error(e);
-    }
-  };
+
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -81,7 +65,7 @@ export default function HomePage() {
             <div className="flex justify-between items-end mb-16">
               <div>
                 <span className="text-gold font-mono text-xs uppercase tracking-widest mb-4 block">New Additions</span>
-                <h2 className="text-4xl md:text-5xl font-display">New Releases</h2>
+                <h2 className="text-3xl md:text-5xl font-display">New Releases</h2>
               </div>
               <button className="text-gold text-sm font-bold uppercase tracking-widest flex items-center hover:opacity-70 transition-opacity">
                 View All <ArrowRight className="ml-2" size={16} />
@@ -128,50 +112,79 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Categories Section */}
-        <section id="categories" className="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-end mb-16">
-            <div>
-              <span className="text-gold font-mono text-xs uppercase tracking-widest mb-4 block">Selection</span>
-              <h2 className="text-4xl md:text-5xl font-display">Shop by Style</h2>
-            </div>
-          </div>
-          <motion.div 
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true }}
-            variants={{
-              hidden: { opacity: 0 },
-              show: {
-                opacity: 1,
-                transition: {
-                  staggerChildren: 0.1
-                }
-              }
-            }}
-            className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8"
-          >
-            {CATEGORIES.map((cat, i) => (
+        {/* The DINOSPY Narrative Section (Replacement for Style Selection) */}
+        <section id="philosophy" className="py-40 bg-white/5 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-1/3 h-full bg-gold/5 blur-[120px] -z-10 animate-pulse" />
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
+              <div className="lg:col-span-7 space-y-12">
+                <motion.div
+                  initial={{ opacity: 0, x: -50 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                >
+                  <span className="text-gold font-mono text-xs uppercase tracking-[0.5em] mb-8 block">Legacy of Excellence</span>
+                  <h2 className="text-6xl md:text-8xl font-display leading-[0.9] tracking-tighter mb-12">
+                    Not Just a Watch.<br />
+                    <span className="gold-text italic">An Archive.</span>
+                  </h2>
+                  <p className="text-xl text-white/60 max-w-xl leading-relaxed font-light">
+                    At DINOSPY, we don't follow trends. We curate history. Each timepiece is a marriage of architectural precision and uncompromising luxury—a physical manifestation of time itself.
+                  </p>
+                </motion.div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-12 pt-12">
+                  <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    className="space-y-4"
+                  >
+                    <div className="w-12 h-[1px] bg-gold" />
+                    <h4 className="text-xs uppercase font-black tracking-widest text-gold">The Caliber</h4>
+                    <p className="text-sm text-white/40 leading-relaxed">
+                      Custom movements engineered to tolerances within microns. Absolute chronometric stability.
+                    </p>
+                  </motion.div>
+                  <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: 0.2 }}
+                    className="space-y-4"
+                  >
+                    <div className="w-12 h-[1px] bg-gold" />
+                    <h4 className="text-xs uppercase font-black tracking-widest text-gold">The Identity</h4>
+                    <p className="text-sm text-white/40 leading-relaxed">
+                      Hand-finished surfaces that play with light. A silhouette that defines the room.
+                    </p>
+                  </motion.div>
+                </div>
+              </div>
+
               <motion.div 
-                key={cat}
-                variants={{
-                  hidden: { opacity: 0, scale: 0.95 },
-                  show: { opacity: 1, scale: 1 }
-                }}
-                whileHover={{ scale: 1.02 }}
-                className="group relative h-64 md:h-80 rounded-2xl overflow-hidden glass cursor-pointer"
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                className="lg:col-span-5 relative"
               >
-                <div className="absolute inset-0 bg-gradient-to-t from-luxury-black via-transparent to-transparent z-10" />
-                <div className="absolute bottom-8 left-8 z-20">
-                  <h3 className="text-xl font-bold uppercase tracking-widest mb-2">{cat}</h3>
-                  <div className="w-8 h-[2px] bg-gold group-hover:w-full transition-all duration-500" />
+                <div className="aspect-[4/5] rounded-[4rem] overflow-hidden border border-white/10 glass p-4">
+                  <img 
+                    src="https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?auto=format&fit=crop&q=80&w=1974" 
+                    alt="Horological Art"
+                    className="w-full h-full object-cover rounded-[3rem]"
+                  />
+                </div>
+                <div className="absolute -bottom-10 -left-10 glass p-8 rounded-full border border-gold/20 flex flex-col items-center justify-center w-40 h-40 animate-marquee-slow">
+                  <span className="text-[10px] uppercase font-black tracking-widest text-gold">Artisanal</span>
+                  <span className="text-lg font-display">1 of 1</span>
                 </div>
               </motion.div>
-            ))}
-          </motion.div>
+            </div>
+          </div>
         </section>
 
-        {/* AI Recommendations Section */}
+        {/* Premium Startup Section */}
         <section className="py-24 border-y border-white/5 bg-gradient-to-b from-transparent to-gold/5">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <motion.div
@@ -179,41 +192,25 @@ export default function HomePage() {
               whileInView={{ opacity: 1, y: 0 }}
               className="inline-flex items-center space-x-2 px-4 py-1 rounded-full glass border border-gold/20 mb-8"
             >
-              <Sparkles className="text-gold" size={14} />
-              <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-white/80">AI Powered Personalization</span>
+              <Zap className="text-gold" size={14} />
+              <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-white/80">Premium Disruptor</span>
             </motion.div>
             
-            <h2 className="text-4xl md:text-6xl font-display mb-8">Guided by <span className="gold-text">Intelligence.</span></h2>
+            <h2 className="text-4xl md:text-6xl font-display mb-8">Pinnacle of <span className="gold-text md:italic">Boutique Luxury.</span></h2>
             <p className="text-white/50 max-w-2xl mx-auto mb-12">
-              Our AI engine analyzes your unique style profile to suggest timepieces that don't just tell time, but tell your story.
+              DINOSPY is a rising force in haute horology. As a high-end startup, we merge artisanal craftsmanship with limited-edition drops, ensuring every timepiece remains a rare artifact of your personal journey.
             </p>
             
-            {!aiRecs.length ? (
-              <button 
-                onClick={getAIRecommendations}
-                className="px-10 py-5 glass border border-gold/30 hover:bg-gold hover:text-luxury-black transition-all font-bold uppercase tracking-widest"
-              >
-                Find My Match
-              </button>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
-                {aiRecs.map((rec: any, i: number) => (
-                  <motion.div 
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: i * 0.1 }}
-                    key={i} 
-                    className="glass p-8 rounded-2xl border border-gold/20"
-                  >
-                    <div className="w-12 h-12 bg-gold/10 rounded-full flex items-center justify-center mb-6 mx-auto">
-                      <Zap className="text-gold" size={24} />
-                    </div>
-                    <h4 className="text-xl font-bold gold-text mb-4 uppercase">{rec.type}</h4>
-                    <p className="text-sm text-white/60 leading-relaxed mb-6 italic">"{rec.reason}"</p>
-                  </motion.div>
-                ))}
+            <div className="flex flex-wrap justify-center gap-8">
+              <div className="glass p-6 rounded-2xl border border-white/5 min-w-[200px]">
+                <p className="text-2xl font-display gold-text mb-1 italic">Exclusive</p>
+                <p className="text-[10px] text-white/40 uppercase tracking-widest">Limited Genesis Drops</p>
               </div>
-            )}
+              <div className="glass p-6 rounded-2xl border border-white/5 min-w-[200px]">
+                <p className="text-2xl font-display gold-text mb-1 italic">Rare</p>
+                <p className="text-[10px] text-white/40 uppercase tracking-widest">Serial Numbered Assets</p>
+              </div>
+            </div>
           </div>
         </section>
 

@@ -57,7 +57,7 @@ export default function ExplorePage() {
         </div>
 
         <div className="flex space-x-4 mb-12 overflow-x-auto pb-4 scrollbar-hide">
-            {['All', 'Luxury', 'Sport', 'Smart', 'Classic'].map(cat => (
+            {['All', 'Grand Complications', 'Heritage', 'Avant-Garde', 'Deep Sea'].map(cat => (
                 <button
                     key={cat}
                     onClick={() => setFilter(cat)}

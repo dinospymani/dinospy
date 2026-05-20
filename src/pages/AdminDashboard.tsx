@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../context/AuthContext';
-import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc } from 'firebase/firestore';
+import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc, onSnapshot, query, orderBy } from 'firebase/firestore';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import MobileNav from '../components/MobileNav';
-import { Plus, Trash2, Edit, Save, Package, QrCode, Printer, X, Truck, Loader2, ChevronLeft, TrendingUp, DollarSign, ShoppingBag, AlertCircle, BarChart2 } from 'lucide-react';
+import { Plus, Trash2, Edit, Save, Package, QrCode, Printer, X, Truck, Loader2, ChevronLeft, TrendingUp, DollarSign, ShoppingBag, AlertCircle, BarChart2, Bell } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { QRCodeSVG } from 'qrcode.react';
 import { toast } from 'sonner';
@@ -39,7 +39,7 @@ export default function AdminDashboard() {
   const [brand, setBrand] = useState('DINOSPY');
   const [price, setPrice] = useState('');
   const [stock, setStock] = useState('10');
-  const [category, setCategory] = useState('Luxury');
+  const [category, setCategory] = useState('Grand Complications');
   const [image, setImage] = useState('');
   const [imageFiles, setImageFiles] = useState<string[]>([]);
   const [description, setDescription] = useState('');
@@ -50,8 +50,9 @@ export default function AdminDashboard() {
   const [isSaving, setIsSaving] = useState(false);
   const [products, setProducts] = useState<AdminProduct[]>([]);
   const [orders, setOrders] = useState<AdminOrder[]>([]);
+  const [notifications, setNotifications] = useState<any[]>([]);
   const [banners, setBanners] = useState<any[]>([]);
-  const [view, setView] = useState<'products' | 'orders' | 'add' | 'banners' | 'stats'>('stats');
+  const [view, setView] = useState<'products' | 'orders' | 'add' | 'banners' | 'stats' | 'notifications'>('stats');
   const [selectedOrder, setSelectedOrder] = useState<AdminOrder | null>(null);
 
   // Stats
@@ -76,44 +77,89 @@ export default function AdminDashboard() {
         const fetchedProducts = pSnap.docs.map(doc => ({ id: doc.id, ...doc.data() } as AdminProduct));
         setProducts(fetchedProducts);
         
-        const oSnap = await getDocs(collection(db, 'orders'));
-        const fetchedOrders = oSnap.docs.map(doc => ({ id: doc.id, ...doc.data() } as AdminOrder));
-        setOrders(fetchedOrders);
-
         const bSnap = await getDocs(collection(db, 'banners'));
         setBanners(bSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-
-        // Calculate Stats
-        const revenue = fetchedOrders
-          .filter(o => o.status === 'delivered')
-          .reduce((acc, o) => acc + (o.total || 0), 0);
         
+        // Initial manual stats calculation for products
         const lowStock = fetchedProducts.filter(p => p.stock < 5).length;
-        
-        setStats({
-          revenue,
-          ordersCount: fetchedOrders.length,
-          lowStock,
-          conversionRate: 3.2
-        });
-
-        // Mock chart data for last 7 days from orders
-        const last7Days = [...Array(7)].map((_, i) => {
-          const d = new Date();
-          d.setDate(d.getDate() - i);
-          const dateStr = d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
-          const dayOrders = fetchedOrders.filter(o => new Date(o.createdAt).toDateString() === d.toDateString());
-          const total = dayOrders.reduce((acc, o) => acc + (o.total || 0), 0);
-          return { name: dateStr, sales: total };
-        }).reverse();
-        setChartData(last7Days);
+        setStats(prev => ({ ...prev, lowStock }));
 
       } catch (err) {
-        console.error("Error fetching data:", err);
+        console.error("Error fetching static data:", err);
       }
     };
     fetchData();
+
+    // REAL-TIME ORDER LISTENER
+    const q = query(collection(db, 'orders'), orderBy('createdAt', 'desc'));
+    const unsubscribeOrders = onSnapshot(q, (snapshot) => {
+      const fetchedOrders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as AdminOrder));
+      
+      // If we already had orders, and new ones arrived, notify
+      setOrders(prevOrders => {
+        if (prevOrders.length > 0 && fetchedOrders.length > prevOrders.length) {
+          const newOrders = fetchedOrders.filter(fo => !prevOrders.some(po => po.id === fo.id));
+          newOrders.forEach(no => {
+             toast.success(`NEW ACQUISITION: ${no.customerName} just placed an order!`, {
+               icon: <Bell className="text-gold" />,
+               duration: 5000
+             });
+             setNotifications(prev => [{
+               id: Date.now() + no.id,
+               type: 'new_order',
+               message: `Order #${no.id.slice(-6)} received from ${no.customerName}`,
+               timestamp: new Date().toISOString(),
+               read: false
+             }, ...prev]);
+          });
+        }
+        return fetchedOrders;
+      });
+
+      // Update Intelligence (Stats) Real-time
+      const revenue = fetchedOrders
+        .filter(o => o.status === 'delivered')
+        .reduce((acc, o) => acc + (o.total || 0), 0);
+      
+      setStats(prev => ({
+        ...prev,
+        revenue,
+        ordersCount: fetchedOrders.length
+      }));
+
+      // Update chart data
+      const last7Days = [...Array(7)].map((_, i) => {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        const dateStr = d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+        const dayOrders = fetchedOrders.filter(o => new Date(o.createdAt).toDateString() === d.toDateString());
+        const total = dayOrders.reduce((acc, o) => acc + (o.total || 0), 0);
+        return { name: dateStr, sales: total };
+      }).reverse();
+      setChartData(last7Days);
+    });
+
+    return () => unsubscribeOrders();
   }, []);
+
+  const handlePurgeOrders = async () => {
+    if (!window.confirm("CRITICAL PROTOCOL: This will permanently expunge ALL acquisition records and legacy manifests. Proceed with final authorization?")) return;
+    
+    setIsSaving(true);
+    try {
+      const snap = await getDocs(collection(db, 'orders'));
+      const batch = snap.docs.map(d => deleteDoc(doc(db, 'orders', d.id)));
+      await Promise.all(batch);
+      setOrders([]);
+      setStats(prev => ({ ...prev, revenue: 0, ordersCount: 0 }));
+      toast.success('Global Sales Manifest Expunged');
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to clear records');
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const handleUpdateStock = async (productId: string) => {
     if (!newStockValue) return;
@@ -238,7 +284,6 @@ export default function AdminDashboard() {
       toast.warning('Vision required: Please provide an image for the banner.');
       return;
     }
-    if (!bannerTitle) return;
     
     // Check for large base64 strings (Firestore Limit is 1MB)
     const finalImage = bannerImageFile || bannerImage;
@@ -303,7 +348,7 @@ export default function AdminDashboard() {
         price: 245000,
         discount: 10,
         isOffer: true,
-        category: 'Luxury',
+        category: 'Grand Complications',
         images: ['https://images.unsplash.com/photo-1547996160-81dfa63595aa?auto=format&fit=crop&q=80&w=1974'],
         description: 'Forged in 18k solid gold with a deep obsidian skeleton dial. The Ouroboros is our signature statement of eternal luxury.',
         isTrending: true,
@@ -318,7 +363,7 @@ export default function AdminDashboard() {
         price: 85000,
         discount: 0,
         isOffer: false,
-        category: 'Sport',
+        category: 'Avant-Garde',
         images: ['https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80&w=2099'],
         description: 'Matte black titanium case with a carbon fiber dial. Designed for those who operate in the shadows.',
         isTrending: true,
@@ -333,7 +378,7 @@ export default function AdminDashboard() {
         price: 45000,
         discount: 5,
         isOffer: true,
-        category: 'Classic',
+        category: 'Heritage',
         images: ['https://images.unsplash.com/photo-1524592094714-0f0654e20314?auto=format&fit=crop&q=80&w=2018'],
         description: 'Hand-stitched leather strap with a sunray ivory dial. A timeless companion for the modern gentleman.',
         isTrending: false,
@@ -348,7 +393,7 @@ export default function AdminDashboard() {
         price: 32000,
         discount: 0,
         isOffer: false,
-        category: 'Smart',
+        category: 'Avant-Garde',
         images: ['https://images.unsplash.com/photo-1579586337278-3befd40fd17a?auto=format&fit=crop&q=80&w=2072'],
         description: 'The apex of wearable tech. OLED display with sapphire edge-to-edge protection. Syncs your digital life with luxury.',
         isTrending: true,
@@ -363,7 +408,7 @@ export default function AdminDashboard() {
         price: 135000,
         discount: 0,
         isOffer: false,
-        category: 'Sport',
+        category: 'Deep Sea',
         images: ['https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?auto=format&fit=crop&q=80&w=1974'],
         description: 'Waterproof up to 1000m. Built like a tank, finished like a diamond.',
         isTrending: true,
@@ -521,39 +566,48 @@ export default function AdminDashboard() {
     <div className="min-h-screen flex flex-col">
       <Navbar />
       <main className="flex-grow pt-32 pb-20 max-w-6xl mx-auto px-4 w-full">
-        <div className="flex justify-between items-end mb-12">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 mb-12">
           <div>
-            <h1 className="text-4xl font-display gold-text">Admin Command Center</h1>
-            <p className="text-white/40 mt-2">Manage your luxury empire with precision.</p>
+            <h1 className="text-3xl md:text-4xl font-display gold-text">Admin Command Center</h1>
+            <p className="text-white/40 mt-2 text-sm">Manage your luxury empire with precision.</p>
           </div>
-          <div className="flex space-x-4 bg-white/5 p-1 rounded-2xl border border-white/10">
+          <div className="flex items-center space-x-2 sm:space-x-4 bg-white/5 p-1 rounded-2xl border border-white/10 overflow-x-auto no-scrollbar max-w-full">
             <button 
               onClick={() => setView('stats')}
-              className={`px-6 py-2 rounded-xl text-sm font-bold transition-all ${view === 'stats' ? 'gold-gradient text-luxury-black' : 'text-white/60 hover:text-white'}`}
+              className={`flex-shrink-0 px-4 sm:px-6 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${view === 'stats' ? 'gold-gradient text-luxury-black' : 'text-white/60 hover:text-white'}`}
             >
               Intelligence
             </button>
             <button 
               onClick={() => setView('add')}
-              className={`px-6 py-2 rounded-xl text-sm font-bold transition-all ${view === 'add' ? 'gold-gradient text-luxury-black' : 'text-white/60 hover:text-white'}`}
+              className={`flex-shrink-0 px-4 sm:px-6 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${view === 'add' ? 'gold-gradient text-luxury-black' : 'text-white/60 hover:text-white'}`}
             >
               Add Product
             </button>
             <button 
               onClick={() => setView('products')}
-              className={`px-6 py-2 rounded-xl text-sm font-bold transition-all ${view === 'products' ? 'gold-gradient text-luxury-black' : 'text-white/60 hover:text-white'}`}
+              className={`flex-shrink-0 px-4 sm:px-6 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${view === 'products' ? 'gold-gradient text-luxury-black' : 'text-white/60 hover:text-white'}`}
             >
               Products
             </button>
             <button 
               onClick={() => setView('orders')}
-              className={`px-6 py-2 rounded-xl text-sm font-bold transition-all ${view === 'orders' ? 'gold-gradient text-luxury-black' : 'text-white/60 hover:text-white'}`}
+              className={`flex-shrink-0 px-4 sm:px-6 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${view === 'orders' ? 'gold-gradient text-luxury-black' : 'text-white/60 hover:text-white'}`}
             >
               Orders
             </button>
             <button 
+              onClick={() => setView('notifications')}
+              className={`flex-shrink-0 px-4 sm:px-6 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all relative ${view === 'notifications' ? 'gold-gradient text-luxury-black' : 'text-white/60 hover:text-white'}`}
+            >
+              Alerts
+              {notifications.some(n => !n.read) && (
+                <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full border border-luxury-black animate-pulse" />
+              )}
+            </button>
+            <button 
               onClick={() => setView('banners')}
-              className={`px-6 py-2 rounded-xl text-sm font-bold transition-all ${view === 'banners' ? 'gold-gradient text-luxury-black' : 'text-white/60 hover:text-white'}`}
+              className={`flex-shrink-0 px-4 sm:px-6 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${view === 'banners' ? 'gold-gradient text-luxury-black' : 'text-white/60 hover:text-white'}`}
             >
               Banners
             </button>
@@ -647,8 +701,8 @@ export default function AdminDashboard() {
                   <form onSubmit={handleAddBanner} className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
-                        <label className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block">Banner Title</label>
-                        <input value={bannerTitle} onChange={e => setBannerTitle(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none" placeholder="e.g. Summer Collection" required />
+                        <label className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block">Banner Title (Optional)</label>
+                        <input value={bannerTitle} onChange={e => setBannerTitle(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none" placeholder="e.g. Summer Collection" />
                       </div>
                       <div>
                         <label className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block">Subtitle (Offer Text)</label>
@@ -776,10 +830,10 @@ export default function AdminDashboard() {
                       value={category} onChange={e => setCategory(e.target.value)}
                       className="w-full bg-[#1A1A1A] text-white border border-white/20 rounded-xl px-4 py-3 focus:border-gold outline-none cursor-pointer focus:ring-1 focus:ring-gold"
                     >
-                      <option value="Luxury" className="bg-[#1A1A1A] text-white py-2">Luxury</option>
-                      <option value="Sport" className="bg-[#1A1A1A] text-white py-2">Sport</option>
-                      <option value="Smart" className="bg-[#1A1A1A] text-white py-2">Smart</option>
-                      <option value="Classic" className="bg-[#1A1A1A] text-white py-2">Classic</option>
+                      <option value="Grand Complications" className="bg-[#1A1A1A] text-white py-2">Grand Complications</option>
+                      <option value="Heritage" className="bg-[#1A1A1A] text-white py-2">Heritage</option>
+                      <option value="Avant-Garde" className="bg-[#1A1A1A] text-white py-2">Avant-Garde</option>
+                      <option value="Deep Sea" className="bg-[#1A1A1A] text-white py-2">Deep Sea</option>
                     </select>
                   </div>
                 </div>
@@ -832,6 +886,56 @@ export default function AdminDashboard() {
                 </button>
               </form>
             </>
+          )}
+
+          {view === 'notifications' && (
+            <div className="space-y-4">
+              <div className="flex justify-between items-center mb-8">
+                <h2 className="text-xl font-bold">Intelligence Feed</h2>
+                <button 
+                  onClick={() => setNotifications(notifications.map(n => ({...n, read: true})))}
+                  className="text-[10px] uppercase font-bold text-white/40 hover:text-gold"
+                >
+                  Clear All Unread
+                </button>
+              </div>
+              <div className="space-y-4">
+                {notifications.length === 0 && (
+                  <div className="text-center py-20 bg-white/5 rounded-3xl border border-dashed border-white/10">
+                    <Bell className="mx-auto text-white/20 mb-4" size={48} />
+                    <p className="text-white/40">No new alerts in the feed.</p>
+                  </div>
+                )}
+                {notifications.map((n) => (
+                  <div 
+                    key={n.id} 
+                    className={`glass p-5 rounded-2xl border transition-all ${n.read ? 'border-white/5 opacity-60' : 'border-gold/30 bg-gold/5'}`}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-start space-x-4">
+                        <div className={`p-2 rounded-full ${n.type === 'new_order' ? 'bg-gold/20 text-gold' : 'bg-blue-500/20 text-blue-500'}`}>
+                          <Bell size={16} />
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold">{n.message}</p>
+                          <p className="text-[10px] text-white/40 mt-1 uppercase tracking-widest">
+                            {new Date(n.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • Just Now
+                          </p>
+                        </div>
+                      </div>
+                      {!n.read && (
+                        <button 
+                          onClick={() => setNotifications(notifications.map(notif => notif.id === n.id ? {...notif, read: true} : notif))}
+                          className="text-[10px] text-gold uppercase font-bold hover:underline"
+                        >
+                          Archive
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           )}
 
           {view === 'products' && (
@@ -896,7 +1000,19 @@ export default function AdminDashboard() {
 
           {view === 'orders' && (
             <div className="space-y-4">
-              <h2 className="text-xl font-bold mb-8">Global Sales Manifest</h2>
+              <div className="flex justify-between items-center mb-8">
+                <h2 className="text-xl font-bold">Global Sales Manifest</h2>
+                {orders.length > 0 && (
+                  <button 
+                    onClick={handlePurgeOrders}
+                    disabled={isSaving}
+                    className="flex items-center space-x-2 text-[10px] font-black uppercase tracking-widest text-red-500 hover:text-red-400 bg-red-500/10 px-4 py-2 rounded-xl border border-red-500/20 transition-all hover:scale-105 active:scale-95"
+                  >
+                    <Trash2 size={14} />
+                    <span>Purge All Records</span>
+                  </button>
+                )}
+              </div>
               <div className="space-y-6">
                 {orders.length === 0 && <p className="text-white/40 text-center py-20">No orders received yet.</p>}
                 {orders.map((o) => (
@@ -1019,7 +1135,10 @@ export default function AdminDashboard() {
                    </div>
 
                    <div className="grid grid-cols-2 gap-4">
-                      <button className="flex items-center justify-center space-x-2 py-4 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-colors uppercase tracking-widest text-[10px] font-bold">
+                      <button 
+                        onClick={() => window.print()}
+                        className="flex items-center justify-center space-x-2 py-4 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-colors uppercase tracking-widest text-[10px] font-bold"
+                      >
                         <Printer size={16} />
                         <span>Print Shipping Label</span>
                       </button>

@@ -240,9 +240,11 @@ export default function ProfilePage() {
                               </button>
                            </div>
                            <div className="flex flex-col items-center p-3 glass rounded-2xl border border-gold/10">
-                              <p className="text-[8px] uppercase tracking-widest text-gold mb-2 font-bold">Logistics Passport</p>
+                              <p className="text-[8px] uppercase tracking-widest text-gold mb-1 font-bold">Acquisition PIN</p>
+                              <div className="text-xl font-mono font-black text-white mb-2 tracking-widest">{order.deliveryPin || 'PENDING'}</div>
+                              <p className="text-[7px] uppercase tracking-widest text-white/40 mb-2">Show to Courier Agent</p>
                               <div className="bg-white p-1 rounded">
-                                <QRCodeSVG value={`https://dinospy-logistics.com/track/${order.id}`} size={64} />
+                                <QRCodeSVG value={`${window.location.origin}/partner/${order.id}`} size={64} />
                               </div>
                            </div>
                         </div>

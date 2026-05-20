@@ -11,22 +11,6 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { toast } from 'sonner';
 
-declare global {
-  interface Window {
-    Razorpay: any;
-  }
-}
-
-const loadRazorpay = () => {
-  return new Promise((resolve) => {
-    const script = document.createElement('script');
-    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-    script.onload = () => resolve(true);
-    script.onerror = () => resolve(false);
-    document.body.appendChild(script);
-  });
-};
-
 export default function CheckoutPage() {
   const { cart, cartTotal, clearCart } = useCart();
   const { user, profile } = useAuth();
@@ -128,7 +112,8 @@ export default function CheckoutPage() {
         console.error('OTP Error:', err);
         if (err.code === 'auth/billing-not-enabled') {
           setBillingError(true);
-          return 'SMS service requires Blaze plan. Use the "Preview Bypass" button below to proceed.';
+          // Set phone verified automatically if in critical error or at least set state to show bypass
+          return 'SMS service restricted (Blaze Plan Required). Use the Preview Bypass below.';
         }
         return `OTP Failed: ${err.message}`;
       }
@@ -171,109 +156,62 @@ export default function CheckoutPage() {
     setIsProcessing(true);
 
     const promise = async () => {
-      // 0. Load Razorpay SDK
-      const res = await loadRazorpay();
-      if (!res) throw new Error('Razorpay SDK failed to load. Are you online?');
+      // Direct order placement without real payment gateway for now
+      // 1. Validate Stock and Finalize Order using a Transaction
+      await runTransaction(db, async (transaction) => {
+        const productSnaps = await Promise.all(
+          cart.map(item => transaction.get(doc(db, 'products', item.id)))
+        );
 
-      // 1. Create Order on Backend
-      const orderResponse = await fetch('/api/payments/create-order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: cartTotal })
-      });
-
-      if (!orderResponse.ok) {
-        const errData = await orderResponse.json();
-        throw new Error(errData.details || errData.error || 'Failed to initialize secure payment');
-      }
-
-      const rzpOrder = await orderResponse.json();
-
-      // 2. Open Razorpay Checkout
-      return new Promise((resolve, reject) => {
-        const options = {
-          key: rzpOrder.key,
-          amount: rzpOrder.amount,
-          currency: rzpOrder.currency,
-          name: "DINOSPY LUXURY",
-          description: "Horological Acquisition",
-          image: "https://firebasestorage.googleapis.com/v0/b/dinospy-luxury.appspot.com/o/logo.png?alt=media",
-          order_id: rzpOrder.id,
-          handler: async (response: any) => {
-            try {
-              // 3. Validate Stock and Finalize Order using a Transaction
-              await runTransaction(db, async (transaction) => {
-                const productSnaps = await Promise.all(
-                  cart.map(item => transaction.get(doc(db, 'products', item.id)))
-                );
-
-                for (let i = 0; i < cart.length; i++) {
-                  const snap = productSnaps[i];
-                  const cartItem = cart[i];
-                  if (!snap.exists()) throw new Error(`Product ${cartItem.name} not found.`);
-                  
-                  const currentStock = snap.data().stock || 0;
-                  if (currentStock < cartItem.quantity) {
-                    throw new Error(`Insufficient stock for ${cartItem.name}.`);
-                  }
-                }
-
-                productSnaps.forEach((snap, i) => {
-                  const currentStock = snap.data().stock;
-                  transaction.update(snap.ref, { stock: currentStock - cart[i].quantity });
-                });
-
-                const orderData = {
-                  userId: user.uid,
-                  customerName: formData.fullName,
-                  customerEmail: formData.email,
-                  customerPhone: formData.phone,
-                  paymentId: response.razorpay_payment_id,
-                  razorpayOrderId: response.razorpay_order_id,
-                  shippingAddress: { ...formData },
-                  items: cart,
-                  total: cartTotal,
-                  status: 'pending',
-                  createdAt: new Date().toISOString(),
-                  timeline: [
-                    {
-                      status: 'pending',
-                      timestamp: new Date().toISOString(),
-                      message: "Payment captured. Asset acquisition authorized."
-                    }
-                  ]
-                };
-                
-                const orderRef = doc(collection(db, 'orders'));
-                transaction.set(orderRef, orderData);
-              });
-
-              clearCart();
-              setTimeout(() => navigate('/profile'), 2000);
-              resolve(true);
-            } catch (err: any) {
-              reject(err);
-            }
-          },
-          prefill: {
-            name: formData.fullName,
-            email: formData.email,
-            contact: formData.phone
-          },
-          theme: { color: "#D4AF37" },
-          modal: {
-            ondismiss: () => {
-              setIsProcessing(false);
-            }
+        for (let i = 0; i < cart.length; i++) {
+          const snap = productSnaps[i];
+          const cartItem = cart[i];
+          if (!snap.exists()) throw new Error(`Product ${cartItem.name} not found.`);
+          
+          const currentStock = snap.data().stock || 0;
+          if (currentStock < cartItem.quantity) {
+            throw new Error(`Insufficient stock for ${cartItem.name}.`);
           }
-        };
+        }
 
-        const rzp = new window.Razorpay(options);
-        rzp.on('payment.failed', (resp: any) => {
-          reject(new Error(resp.error.description));
+        productSnaps.forEach((snap, i) => {
+          const currentStock = snap.data().stock;
+          transaction.update(snap.ref, { stock: currentStock - cart[i].quantity });
         });
-        rzp.open();
+
+        const orderData = {
+          userId: user.uid,
+          customerName: formData.fullName,
+          customerEmail: formData.email,
+          customerPhone: formData.phone,
+          deliveryPin: Math.floor(100000 + Math.random() * 900000).toString(), // Secure 6-digit unique code
+          paymentStatus: 'pending_manual',
+          shippingAddress: { ...formData },
+          items: cart,
+          total: cartTotal,
+          status: 'confirmed',
+          createdAt: new Date().toISOString(),
+          timeline: [
+            {
+              status: 'confirmed',
+              timestamp: new Date().toISOString(),
+              message: "Acquisition authorized. Logistics manifest initialized."
+            },
+            {
+              status: 'pending_payment',
+              timestamp: new Date().toISOString(),
+              message: "Awaiting physical bank transfer verification."
+            }
+          ]
+        };
+        
+        const orderRef = doc(collection(db, 'orders'));
+        transaction.set(orderRef, orderData);
       });
+
+      clearCart();
+      setTimeout(() => navigate('/profile'), 2000);
+      return true;
     };
 
     toast.promise(promise(), {
@@ -281,7 +219,7 @@ export default function CheckoutPage() {
       success: 'Acquisition finalized! Welcome to the DINOSPY circle.',
       error: (err: any) => {
         setIsProcessing(false);
-        return `Secure payment failed: ${err.message}`;
+        return `Secure processing failed: ${err.message}`;
       }
     });
   };
@@ -409,7 +347,7 @@ export default function CheckoutPage() {
                               <button 
                                 type="button"
                                 onClick={handleBypass}
-                                className="h-14 px-6 flex items-center space-x-2 bg-gold/10 border border-gold/30 text-gold rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-gold/20 transition-all group"
+                                className="h-14 px-6 flex items-center space-x-2 bg-gold text-luxury-black rounded-xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all group animate-pulse"
                               >
                                 <Key size={14} className="group-hover:rotate-12 transition-transform" />
                                 <span>Preview Bypass</span>
@@ -418,6 +356,17 @@ export default function CheckoutPage() {
                           </div>
                         )}
                       </div>
+                      
+                      {billingError && (
+                        <div className="pt-2">
+                           <button 
+                             onClick={handleBypass}
+                             className="text-[9px] text-white/30 uppercase tracking-[0.2em] hover:text-gold transition-colors underline decoration-gold/20"
+                           >
+                             Force Bypass Security Manifest
+                           </button>
+                        </div>
+                      )}
 
                       {showOtpField && (
                         <div className="flex space-x-4 animate-in fade-in slide-in-from-top-2">
@@ -505,15 +454,19 @@ export default function CheckoutPage() {
                   <CreditCard className="mr-3 text-gold" size={20} />
                   Financing Options
                 </h3>
-                <div className="glass p-6 rounded-2xl border border-gold/20 flex items-center justify-between">
+                <div className="glass p-6 rounded-2xl border border-gold/20 flex flex-col space-y-4">
                    <div className="flex items-center space-x-4">
-                      <div className="w-12 h-8 bg-white/10 rounded border border-white/20 flex items-center justify-center text-[8px] font-bold">VISA</div>
+                      <div className="w-12 h-8 bg-gold/10 rounded border border-gold/20 flex items-center justify-center text-[8px] font-bold text-gold italic">DINOSPY</div>
                       <div>
-                        <p className="text-sm font-bold">Pay via Secure Gateway</p>
-                        <p className="text-[10px] text-white/40">Encrypted 256-bit SSL transaction</p>
+                        <p className="text-sm font-bold">Concierge Coordination</p>
+                        <p className="text-[10px] text-white/40">Secure checkout will be finalized via personal link.</p>
                       </div>
                    </div>
-                   <input type="radio" checked readOnly className="accent-gold" />
+                   <div className="p-4 bg-white/5 rounded-xl border border-white/5">
+                      <p className="text-[10px] text-white/40 leading-relaxed italic">
+                        "Your acquisition request will be logged. A personal DINOSPY concierge will contact you within 2 hours to provide a bespoke secure payment link and finalize logistics."
+                      </p>
+                   </div>
                 </div>
               </div>
 
@@ -522,7 +475,7 @@ export default function CheckoutPage() {
                 disabled={isProcessing || !isPhoneVerified}
                 className={`w-full py-6 gold-gradient text-luxury-black font-bold uppercase tracking-[0.3em] rounded-2xl shadow-2xl shadow-gold/10 transition-all ${isProcessing || !isPhoneVerified ? 'opacity-50 cursor-not-allowed' : 'hover:scale-[1.02] hover:shadow-gold/20 active:scale-[0.98]'}`}
               >
-                {!isPhoneVerified ? 'Verify Contact to Proceed' : isProcessing ? 'Transacting...' : 'Confirm Acquisition'}
+                {!isPhoneVerified ? 'Verify Contact to Proceed' : isProcessing ? 'Synchronizing...' : 'Initialize Concierge'}
               </button>
               
               <div className="flex items-center justify-center space-x-2 text-white/20">

@@ -55,7 +55,8 @@ export default function Navbar() {
           <div className="hidden md:flex items-center space-x-8">
             <Link to="/" className="text-sm font-medium hover:text-gold transition-colors">Home</Link>
             <Link to="/#new" className="text-sm font-medium hover:text-gold transition-colors">New Arrivals</Link>
-            <Link to="/#categories" className="text-sm font-medium hover:text-gold transition-colors">Categories</Link>
+            <Link to="/#philosophy" className="text-sm font-medium hover:text-gold transition-colors">Philosophy</Link>
+            <Link to="/explore" className="text-sm font-medium hover:text-gold transition-colors text-gold/60">Collection</Link>
             {profile?.role === 'admin' && (
               <Link to="/admin" className="text-sm font-medium text-gold/80 hover:text-gold">Admin</Link>
             )}
@@ -195,8 +196,8 @@ export default function Navbar() {
               {[
                 { label: 'Curated Collection', path: '/' },
                 { label: 'New Acquisitions', path: '/#new' },
-                { label: 'Exhibition Hall', path: '/#categories' },
-                { label: 'Direct Support', path: '/support' }
+                { label: 'The Philosophy', path: '/#philosophy' },
+                { label: 'Full Catalog', path: '/explore' }
               ].map((item, i) => (
                 <motion.div
                   key={item.path}

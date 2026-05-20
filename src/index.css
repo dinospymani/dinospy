@@ -22,6 +22,40 @@
     background-attachment: fixed;
     opacity: 0.98;
   }
+
+  @media print {
+    body * {
+      visibility: hidden !important;
+    }
+    #shipping-label, #shipping-label * {
+      visibility: visible !important;
+    }
+    #shipping-label {
+      position: absolute !important;
+      left: 0 !important;
+      top: 0 !important;
+      width: 100% !important;
+      border: 1px solid #000 !important;
+      box-shadow: none !important;
+      color: black !important;
+      background: white !important;
+      margin: 0 !important;
+      padding: 2rem !important;
+    }
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  
+  @media (max-width: 768px) {
+    main {
+      padding-bottom: 8rem !important;
+    }
+  }
 }
 
 @layer utilities {
