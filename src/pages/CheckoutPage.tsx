@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { ChevronLeft, CreditCard, ShieldCheck, Truck } from 'lucide-react';
+import { ChevronLeft, CreditCard, ShieldCheck, Truck, Phone, CheckCircle2 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
-import { useAuth } from '../context/AuthContext';
+import { useAuth, auth } from '../context/AuthContext';
 import { db } from '../context/AuthContext';
-import { collection, addDoc } from 'firebase/firestore';
+import { collection, addDoc, doc, runTransaction, getDoc } from 'firebase/firestore';
+import { RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from 'firebase/auth';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
@@ -14,51 +15,173 @@ export default function CheckoutPage() {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isVerifyingPhone, setIsVerifyingPhone] = useState(false);
+  const [showOtpField, setShowOtpField] = useState(false);
+  const [otp, setOtp] = useState('');
+  const [verificationId, setVerificationId] = useState<ConfirmationResult | null>(null);
+  const [isPhoneVerified, setIsPhoneVerified] = useState(false);
+  const [recaptchaLoaded, setRecaptchaLoaded] = useState(false);
+  
   const [formData, setFormData] = useState({
     fullName: profile?.displayName || '',
     email: profile?.email || '',
+    phone: '',
     address: '',
     city: '',
     zip: '',
-    country: 'USA'
+    country: 'India'
   });
+
+  useEffect(() => {
+    // Initialize Recaptcha once
+    if (!recaptchaLoaded) {
+      const initRecaptcha = () => {
+        try {
+          if ((window as any).recaptchaVerifier) {
+            (window as any).recaptchaVerifier.clear();
+          }
+          (window as any).recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+            size: 'normal',
+            callback: () => {
+              console.log('Recaptcha resolved');
+            },
+            'expired-callback': () => {
+              console.log('Recaptcha expired');
+              initRecaptcha();
+            }
+          });
+          setRecaptchaLoaded(true);
+        } catch (e) {
+          console.error('Recaptcha Init Error:', e);
+        }
+      };
+      
+      // Wait for DOM
+      const timer = setTimeout(initRecaptcha, 500);
+      return () => {
+        clearTimeout(timer);
+        if ((window as any).recaptchaVerifier) {
+          (window as any).recaptchaVerifier.clear();
+        }
+      };
+    }
+  }, [recaptchaLoaded]);
+
+  const handleSendOtp = async () => {
+    if (!formData.phone || formData.phone.length < 10) {
+      alert('Please enter a valid 10-digit phone number');
+      return;
+    }
+
+    setIsVerifyingPhone(true);
+    try {
+      const appVerifier = (window as any).recaptchaVerifier;
+      if (!appVerifier) {
+        setRecaptchaLoaded(false); // Try to re-trigger
+        throw new Error('Recaptcha terminal not ready. Please try again in a moment.');
+      }
+
+      const phoneNumber = formData.phone.startsWith('+') ? formData.phone : `+91${formData.phone}`;
+      const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
+      setVerificationId(confirmationResult);
+      setShowOtpField(true);
+      alert('Verification code dispatched to your device.');
+    } catch (err: any) {
+      console.error('OTP Send Error:', err);
+      if (err.code === 'auth/invalid-phone-number') {
+        alert('Invalid phone number format.');
+      } else if (err.code === 'auth/too-many-requests') {
+        alert('Too many attempts. Please try again later.');
+      } else {
+        alert(`OTP Transmission Failed: ${err.message}. Ensure Phone authentication is enabled in your Firebase settings and domains are whitelisted.`);
+      }
+    } finally {
+      setIsVerifyingPhone(false);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    if (!otp || !verificationId) return;
+    
+    setIsVerifyingPhone(true);
+    try {
+      await verificationId.confirm(otp);
+      setIsPhoneVerified(true);
+      setShowOtpField(false);
+      alert('Phone number verified successfully.');
+    } catch (err: any) {
+      console.error(err);
+      alert('Invalid verification code.');
+    } finally {
+      setIsVerifyingPhone(false);
+    }
+  };
 
   const handlePlaceOrder = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
+    if (!isPhoneVerified) {
+      alert('Please verify your phone number first.');
+      return;
+    }
     
     setIsProcessing(true);
     try {
-      const orderData = {
-        userId: user.uid,
-        customerName: formData.fullName,
-        customerEmail: formData.email,
-        shippingAddress: {
-          address: formData.address,
-          city: formData.city,
-          zip: formData.zip,
-          country: formData.country
-        },
-        items: cart,
-        total: cartTotal,
-        status: 'pending',
-        createdAt: new Date().toISOString()
-      };
+      // 1. Validate Stock using a Transaction
+      await runTransaction(db, async (transaction) => {
+        const productSnaps = await Promise.all(
+          cart.map(item => transaction.get(doc(db, 'products', item.id)))
+        );
+
+        // Check if all items in the cart are still in stock
+        for (let i = 0; i < cart.length; i++) {
+          const snap = productSnaps[i];
+          const cartItem = cart[i];
+          if (!snap.exists()) throw new Error(`Product ${cartItem.name} not found.`);
+          
+          const currentStock = snap.data().stock || 0;
+          if (currentStock < cartItem.quantity) {
+            throw new Error(`Insufficient stock for ${cartItem.name}. Only ${currentStock} left.`);
+          }
+        }
+
+        // 2. Decrement Stock
+        productSnaps.forEach((snap, i) => {
+          const currentStock = snap.data().stock;
+          transaction.update(snap.ref, { stock: currentStock - cart[i].quantity });
+        });
+
+        // 3. Create Order
+        const orderData = {
+          userId: user.uid,
+          customerName: formData.fullName,
+          customerEmail: formData.email,
+          customerPhone: formData.phone,
+          shippingAddress: {
+            address: formData.address,
+            city: formData.city,
+            zip: formData.zip,
+            country: formData.country
+          },
+          items: cart,
+          total: cartTotal,
+          status: 'pending',
+          createdAt: new Date().toISOString()
+        };
+        
+        const orderRef = doc(collection(db, 'orders'));
+        transaction.set(orderRef, orderData);
+      });
       
-      await addDoc(collection(db, 'orders'), orderData);
+      clearCart();
+      setIsProcessing(false);
+      navigate('/profile');
+      alert('Order placed successfully! Stock has been updated in real-time.');
       
-      // Simulate payment delay
-      setTimeout(() => {
-        clearCart();
-        setIsProcessing(false);
-        navigate('/profile'); // Redirect to profile to see orders (or a success page)
-        alert('Order placed successfully! DINOSPY concierge will contact you shortly.');
-      }, 2000);
-      
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
       setIsProcessing(false);
-      alert('Error placing order.');
+      alert(`Order Failed: ${err.message}`);
     }
   };
 
@@ -121,7 +244,84 @@ export default function CheckoutPage() {
                   </div>
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-6 pt-6 border-t border-white/5">
+                  <h3 className="text-lg font-bold uppercase tracking-widest flex items-center">
+                    <Phone className="mr-3 text-gold" size={20} />
+                    Contact Verification
+                  </h3>
+                  
+                  <div id="recaptcha-container"></div>
+
+                  {!isPhoneVerified ? (
+                    <div className="space-y-4">
+                      <div className="flex space-x-4">
+                        <div className="flex-grow space-y-2">
+                          <label className="text-[10px] uppercase tracking-widest text-white/40">Phone Number</label>
+                          <div className="relative">
+                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 text-sm">+91</span>
+                            <input 
+                              required
+                              type="tel"
+                              placeholder="10 digit contact number"
+                              value={formData.phone}
+                              disabled={showOtpField}
+                              onChange={e => setFormData({...formData, phone: e.target.value.replace(/\D/g, '').slice(0, 10)})}
+                              className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-5 py-4 focus:border-gold outline-none text-sm transition-all"
+                            />
+                          </div>
+                        </div>
+                        {!showOtpField && (
+                          <div className="flex items-end">
+                            <button 
+                              type="button"
+                              onClick={handleSendOtp}
+                              disabled={isVerifyingPhone || formData.phone.length < 10}
+                              className="h-14 px-6 gold-gradient rounded-xl text-luxury-black font-bold text-xs uppercase tracking-widest disabled:opacity-50 transition-all"
+                            >
+                              {isVerifyingPhone ? 'Sending...' : 'Send OTP'}
+                            </button>
+                          </div>
+                        )}
+                      </div>
+
+                      {showOtpField && (
+                        <div className="flex space-x-4 animate-in fade-in slide-in-from-top-2">
+                          <div className="flex-grow space-y-2">
+                            <label className="text-[10px] uppercase tracking-widest text-white/40">Verification Code</label>
+                            <input 
+                              required
+                              type="text"
+                              placeholder="Enter 6-digit OTP"
+                              value={otp}
+                              onChange={e => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                              className="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-4 focus:border-gold outline-none text-sm transition-all text-center tracking-[0.5em] font-mono"
+                            />
+                          </div>
+                          <div className="flex items-end">
+                            <button 
+                              type="button"
+                              onClick={handleVerifyOtp}
+                              disabled={isVerifyingPhone || otp.length < 6}
+                              className="h-14 px-6 gold-gradient rounded-xl text-luxury-black font-bold text-xs uppercase tracking-widest disabled:opacity-50 transition-all"
+                            >
+                              {isVerifyingPhone ? 'Verifying...' : 'Verify'}
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="flex items-center space-x-4 glass p-4 rounded-xl border border-gold/40 text-gold bg-gold/5">
+                      <CheckCircle2 size={24} />
+                      <div>
+                        <p className="text-sm font-bold uppercase tracking-widest">Verified: +91 {formData.phone}</p>
+                        <p className="text-[10px] opacity-60">Your identity has been authenticated securely.</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-2 pt-6 border-t border-white/5">
                   <label className="text-[10px] uppercase tracking-widest text-white/40">Residence Address</label>
                   <input 
                     required
@@ -184,10 +384,10 @@ export default function CheckoutPage() {
 
               <button 
                 type="submit" 
-                disabled={isProcessing}
-                className={`w-full py-6 gold-gradient text-luxury-black font-bold uppercase tracking-[0.3em] rounded-2xl shadow-2xl shadow-gold/10 transition-all ${isProcessing ? 'opacity-50 cursor-not-allowed' : 'hover:scale-[1.02] hover:shadow-gold/20 active:scale-[0.98]'}`}
+                disabled={isProcessing || !isPhoneVerified}
+                className={`w-full py-6 gold-gradient text-luxury-black font-bold uppercase tracking-[0.3em] rounded-2xl shadow-2xl shadow-gold/10 transition-all ${isProcessing || !isPhoneVerified ? 'opacity-50 cursor-not-allowed' : 'hover:scale-[1.02] hover:shadow-gold/20 active:scale-[0.98]'}`}
               >
-                {isProcessing ? 'Transacting...' : 'Confirm Acquisition'}
+                {!isPhoneVerified ? 'Verify Contact to Proceed' : isProcessing ? 'Transacting...' : 'Confirm Acquisition'}
               </button>
               
               <div className="flex items-center justify-center space-x-2 text-white/20">

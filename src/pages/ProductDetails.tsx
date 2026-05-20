@@ -7,7 +7,7 @@ import Footer from '../components/Footer';
 import MobileNav from '../components/MobileNav';
 import { db } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, onSnapshot } from 'firebase/firestore';
 
 export default function ProductDetails() {
   const { id } = useParams();
@@ -19,21 +19,24 @@ export default function ProductDetails() {
   const isWishlisted = wishlist.includes(id || '');
 
   useEffect(() => {
-    async function fetchProduct() {
-      if (!id) return;
-      try {
-        const docRef = doc(db, 'products', id);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          setProduct({ id: docSnap.id, ...docSnap.data() });
-        } else {
-          // Mock data if not found
-          setProduct({
-            id,
-            name: 'Ouroboros Gold',
-            brand: 'DINOSPY',
-            price: 125000,
-            images: [
+    if (!id) return;
+    
+    setLoading(true);
+    const docRef = doc(db, 'products', id);
+    
+    // Real-time listener for current product
+    const unsubscribe = onSnapshot(docRef, (docSnap) => {
+      if (docSnap.exists()) {
+        setProduct({ id: docSnap.id, ...docSnap.data() });
+      } else {
+        // Mock data if not found
+        setProduct({
+          id,
+          name: 'Ouroboros Gold',
+          brand: 'DINOSPY',
+          price: 125000,
+          stock: 5,
+          images: [
               'https://images.unsplash.com/photo-1542496658-e33a6d0d50f6?auto=format&fit=crop&q=80&w=2070',
               'https://images.unsplash.com/photo-1508685096489-7aac29a23fce?auto=format&fit=crop&q=80&w=1978',
               'https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?auto=format&fit=crop&q=80&w=1974'
@@ -52,12 +55,12 @@ export default function ProductDetails() {
           });
         }
         setLoading(false);
-      } catch (err) {
+      }, (err) => {
         console.error(err);
         setLoading(false);
-      }
-    }
-    fetchProduct();
+      });
+
+    return () => unsubscribe();
   }, [id]);
 
   if (loading) return <div className="h-screen flex items-center justify-center">Loading...</div>;

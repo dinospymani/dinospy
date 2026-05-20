@@ -5,7 +5,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import MobileNav from '../components/MobileNav';
 import WatchCard from '../components/WatchCard';
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import { collection, onSnapshot, query } from 'firebase/firestore';
 import { db } from '../context/AuthContext';
 
 export default function ExplorePage() {
@@ -15,19 +15,18 @@ export default function ExplorePage() {
   const [filter, setFilter] = useState('All');
 
   useEffect(() => {
-    async function fetchProducts() {
-      try {
-        const q = query(collection(db, 'products'));
-        const snap = await getDocs(q);
-        const fetched = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        setProducts(fetched);
-        setLoading(false);
-      } catch (e) {
-        console.error(e);
-        setLoading(false);
-      }
-    }
-    fetchProducts();
+    setLoading(true);
+    const q = query(collection(db, 'products'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const fetched = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setProducts(fetched);
+      setLoading(false);
+    }, (e) => {
+      console.error(e);
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
   }, []);
 
   const filtered = products.filter(p => {

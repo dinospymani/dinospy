@@ -6,7 +6,7 @@ import WatchCard from '../components/WatchCard';
 import Footer from '../components/Footer';
 import MobileNav from '../components/MobileNav';
 import { db } from '../context/AuthContext';
-import { collection, query, where, getDocs, limit } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, limit } from 'firebase/firestore';
 import { Sparkles, ArrowRight, Zap } from 'lucide-react';
 
 const CATEGORIES = ['Luxury', 'Sport', 'Smart', 'Classic'];
@@ -18,79 +18,32 @@ export default function HomePage() {
   const [aiRecs, setAiRecs] = useState<any[]>([]);
 
   useEffect(() => {
-    async function fetchData() {
-      try {
-        const prodRef = collection(db, 'products');
-        
-        // Trending
-        const trendingQuery = query(prodRef, where('isTrending', '==', true), limit(4));
-        const trendingSnap = await getDocs(trendingQuery);
-        setTrending(trendingSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    setLoading(true);
+    const prodRef = collection(db, 'products');
+    
+    // Real-time listener for ALL products to distribute locally
+    const unsubscribe = onSnapshot(prodRef, (snapshot) => {
+      const allProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      
+      setTrending(allProducts.filter((p: any) => p.isTrending).slice(0, 4));
+      setNewArrivals(allProducts.filter((p: any) => p.isNewArrival).slice(0, 8));
+      setLoading(false);
+    }, (error: any) => {
+      console.error("Error fetching products:", error);
+      
+      // Fallback mock data
+      const mockProducts = [
+        { id: 'mock-1', name: 'Ouroboros Gold', brand: 'DINOSPY', price: 125000, images: ['https://images.unsplash.com/photo-1542496658-e33a6d0d50f6?auto=format&fit=crop&q=80&w=2070'], category: 'Luxury', rating: 4.9, isTrending: true, stock: 5 },
+        { id: 'mock-2', name: 'Chrono Sport', brand: 'DINOSPY', price: 42000, images: ['https://images.unsplash.com/photo-1523170335258-f5ed11844a49?auto=format&fit=crop&q=80&w=2080'], category: 'Sport', rating: 4.8, isTrending: true, stock: 12 },
+        { id: 'mock-3', name: 'Minimalist Slate', brand: 'DINOSPY', price: 21000, images: ['https://images.unsplash.com/photo-1524592094714-0f0654e20314?auto=format&fit=crop&q=80&w=2018'], category: 'Classic', rating: 4.7, isTrending: true, stock: 8 },
+        { id: 'mock-4', name: 'Quantum Smart', brand: 'DINOSPY', price: 18000, images: ['https://images.unsplash.com/photo-1579586337278-3befd40fd17a?auto=format&fit=crop&q=80&w=2072'], category: 'Smart', rating: 4.6, isTrending: true, stock: 15 }
+      ];
+      setTrending(mockProducts);
+      setNewArrivals([...mockProducts, ...mockProducts.map(p => ({ ...p, id: `extra-${p.id}` }))]);
+      setLoading(false);
+    });
 
-        // New Arrivals
-        const newArrivalsQuery = query(prodRef, where('isNewArrival', '==', true), limit(8));
-        const newArrivalsSnap = await getDocs(newArrivalsQuery);
-        setNewArrivals(newArrivalsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-        
-        setLoading(false);
-      } catch (error: any) {
-        console.error("Error fetching products:", error);
-        // Better error message
-        if (error.code === 'permission-denied') {
-          console.warn("Permission denied. Ensure Firestore rules allow public access to products.");
-        }
-
-        // Mock data if failed or empty
-        const mockProducts = [
-          {
-            id: 'mock-1',
-            name: 'Ouroboros Gold',
-            brand: 'DINOSPY',
-            price: 125000,
-            images: ['https://images.unsplash.com/photo-1542496658-e33a6d0d50f6?auto=format&fit=crop&q=80&w=2070'],
-            category: 'Luxury',
-            rating: 4.9,
-            isTrending: true
-          },
-          {
-            id: 'mock-2',
-            name: 'Chrono Sport',
-            brand: 'DINOSPY',
-            price: 42000,
-            images: ['https://images.unsplash.com/photo-1523170335258-f5ed11844a49?auto=format&fit=crop&q=80&w=2080'],
-            category: 'Sport',
-            rating: 4.8,
-            isTrending: true
-          },
-          {
-            id: 'mock-3',
-            name: 'Minimalist Slate',
-            brand: 'DINOSPY',
-            price: 21000,
-            images: ['https://images.unsplash.com/photo-1524592094714-0f0654e20314?auto=format&fit=crop&q=80&w=2018'],
-            category: 'Classic',
-            rating: 4.7,
-            isTrending: true
-          },
-          {
-            id: 'mock-4',
-            name: 'Quantum Smart',
-            brand: 'DINOSPY',
-            price: 18000,
-            images: ['https://images.unsplash.com/photo-1579586337278-3befd40fd17a?auto=format&fit=crop&q=80&w=2072'],
-            category: 'Smart',
-            rating: 4.6,
-            isTrending: true
-          }
-        ];
-        if (trending.length === 0) setTrending(mockProducts);
-        // Fix duplicate keys by giving unique IDs to the second set
-        if (newArrivals.length === 0) setNewArrivals([...mockProducts, ...mockProducts.map(p => ({ ...p, id: `extra-${p.id}` }))]);
-        setLoading(false);
-      }
-    }
-
-    fetchData();
+    return () => unsubscribe();
   }, []);
 
   const getAIRecommendations = async () => {
