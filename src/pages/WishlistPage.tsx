@@ -1,17 +1,41 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Heart, ShoppingBag, ArrowRight } from 'lucide-react';
+import { Heart, Loader2 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { db } from '../context/AuthContext';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import MobileNav from '../components/MobileNav';
 import WatchCard from '../components/WatchCard';
 import { Link } from 'react-router-dom';
 
-// In a real app, we'd fetch actual product data for these IDs
-// For demo, we'll use a search or mock
 export default function WishlistPage() {
   const { wishlist } = useCart();
+  const [products, setProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (wishlist.length === 0) {
+      setProducts([]);
+      return;
+    }
+
+    setLoading(true);
+    // Real-time synchronization for the products in the wishlist
+    // Note: 'in' operator is limited to 10 items in Firestore. 
+    // For a larger wishlist, we would fetch in batches or use a different strategy.
+    const q = query(collection(db, 'products'));
+    
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const allProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const wishlistedProducts = allProducts.filter(p => wishlist.includes(p.id));
+      setProducts(wishlistedProducts);
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, [wishlist]);
 
   return (
     <div className="min-h-screen flex flex-col bg-luxury-black">
@@ -22,7 +46,15 @@ export default function WishlistPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <h1 className="text-5xl font-display mb-12 gold-text">Your Wishlist</h1>
+          <div className="flex justify-between items-end mb-12">
+            <div>
+              <h1 className="text-5xl font-display gold-text">Private Archive</h1>
+              <p className="text-white/40 mt-2">Your curated selection of horological excellence.</p>
+            </div>
+            {loading && (
+              <Loader2 className="text-gold animate-spin" size={24} />
+            )}
+          </div>
 
           {wishlist.length === 0 ? (
             <div className="glass p-20 rounded-[3rem] text-center border border-white/5">
@@ -42,18 +74,20 @@ export default function WishlistPage() {
             </div>
           ) : (
              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                <p className="col-span-full text-white/40 italic mb-4">
-                    Items you've added to your private selection.
-                </p>
-                {/* Normally we'd map over actual product objects fetched from Firestore */}
-                <div className="col-span-full py-20 text-center glass rounded-3xl border border-white/5">
-                    <p className="text-white/60 mb-6">Integration Pending: Connecting to your saved watchlist in real-time...</p>
-                    <div className="flex justify-center space-x-2">
-                        <div className="w-2 h-2 bg-gold rounded-full animate-bounce" style={{ animationDelay: '0s' }} />
-                        <div className="w-2 h-2 bg-gold rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
-                        <div className="w-2 h-2 bg-gold rounded-full animate-bounce" style={{ animationDelay: '0.4s' }} />
-                    </div>
-                </div>
+                <AnimatePresence mode="popLayout">
+                  {products.map((product) => (
+                    <motion.div
+                      key={product.id}
+                      layout
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.9 }}
+                      transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
+                    >
+                      <WatchCard product={product} />
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
              </div>
           )}
         </motion.div>

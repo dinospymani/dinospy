@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { toast } from 'sonner';
+import { useAuth, db } from './AuthContext';
+import { doc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
 
 interface Product {
   id: string;
@@ -31,6 +33,7 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user, profile } = useAuth();
   const [cart, setCart] = useState<CartItem[]>(() => {
     const saved = localStorage.getItem('aureum_cart');
     return saved ? JSON.parse(saved) : [];
@@ -40,6 +43,13 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const saved = localStorage.getItem('aureum_wishlist');
     return saved ? JSON.parse(saved) : [];
   });
+
+  // Sync wishlist from profile when user logs in
+  useEffect(() => {
+    if (profile?.wishlist) {
+      setWishlist(profile.wishlist);
+    }
+  }, [profile]);
 
   useEffect(() => {
     localStorage.setItem('aureum_cart', JSON.stringify(cart));
@@ -102,10 +112,26 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }));
   };
 
-  const toggleWishlist = (productId: string) => {
+  const toggleWishlist = async (productId: string) => {
+    const isAdding = !wishlist.includes(productId);
+    
+    // Update local state immediately
     setWishlist(prev => 
-      prev.includes(productId) ? prev.filter(id => id !== productId) : [...prev, productId]
+      isAdding ? [...prev, productId] : prev.filter(id => id !== productId)
     );
+
+    // Sync with Firestore if logged in
+    if (user) {
+      try {
+        const userRef = doc(db, 'users', user.uid);
+        await updateDoc(userRef, {
+          wishlist: isAdding ? arrayUnion(productId) : arrayRemove(productId)
+        });
+      } catch (err) {
+        console.error('Wishlist Sync Error:', err);
+        // Feedback not strictly necessary as local state is updated
+      }
+    }
   };
 
   const clearCart = () => setCart([]);
