@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
-import { User, Package, Settings, LogOut, Shield, ChevronRight } from 'lucide-react';
+import { User, Package, Settings, LogOut, Shield, ChevronRight, ArrowLeft } from 'lucide-react';
 import { useAuth, db } from '../context/AuthContext';
 import { collection, query, where, getDocs, doc, updateDoc } from 'firebase/firestore';
 import Navbar from '../components/Navbar';
@@ -121,6 +121,15 @@ export default function ProfilePage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
             >
+              <div className="mb-8">
+                <button 
+                  onClick={() => window.history.back()}
+                  className="flex items-center space-x-2 text-white/60 hover:text-gold transition-colors p-2 -ml-2"
+                >
+                  <ArrowLeft size={20} />
+                  <span className="text-[10px] uppercase tracking-[0.2em] font-bold">Return</span>
+                </button>
+              </div>
               <h1 className="text-5xl font-display gold-text mb-12">Your Heritage</h1>
               
               <div className="space-y-6">

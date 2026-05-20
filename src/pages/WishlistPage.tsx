@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Heart, Loader2 } from 'lucide-react';
+import { Heart, Loader2, ArrowLeft } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { db } from '../context/AuthContext';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
@@ -46,6 +46,15 @@ export default function WishlistPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
+          <div className="mb-8">
+            <button 
+              onClick={() => window.history.back()}
+              className="flex items-center space-x-2 text-white/60 hover:text-gold transition-colors p-2 -ml-2"
+            >
+              <ArrowLeft size={20} />
+              <span className="text-[10px] uppercase tracking-[0.2em] font-bold">Return</span>
+            </button>
+          </div>
           <div className="flex justify-between items-end mb-12">
             <div>
               <h1 className="text-5xl font-display gold-text">Private Archive</h1>

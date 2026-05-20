@@ -31,9 +31,10 @@ export default function WatchCard({ product }: WatchCardProps) {
 
   return (
     <motion.div 
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
+      variants={{
+        hidden: { opacity: 0, y: 30 },
+        visible: { opacity: 1, y: 0 }
+      }}
       whileHover={{ y: -15 }}
       transition={{ duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
       className="group relative glass p-6 rounded-3xl overflow-hidden border border-white/5 hover:border-gold/30 transition-all duration-700 shadow-2xl"
@@ -78,7 +79,8 @@ export default function WatchCard({ product }: WatchCardProps) {
       </button>
 
       <Link to={`/product/${product.id}`} className="block aspect-[4/5] mb-8 overflow-hidden rounded-2xl bg-luxury-gray/30 relative group-hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)] transition-all duration-700">
-        <img 
+        <motion.img 
+          layoutId={`image-${product.id}`}
           src={product.images[0]} 
           alt={product.name}
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-[1.2s] ease-[0.23, 1, 0.32, 1]"

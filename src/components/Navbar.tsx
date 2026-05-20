@@ -9,11 +9,41 @@ import { db } from '../context/AuthContext';
 import { collection, onSnapshot, query, orderBy, limit, doc, updateDoc } from 'firebase/firestore';
 
 export default function Navbar() {
-  const [showNotifications, setShowNotifications] = React.useState(false);
   const [notifications, setNotifications] = React.useState<any[]>([]);
   const { user, profile, signInWithGoogle, signOut } = useAuth();
   const { cartCount } = useCart();
+  const [showNotifications, setShowNotifications] = React.useState(false);
+  const [showSearch, setShowSearch] = React.useState(false);
+  const [mobileSearchTerm, setMobileSearchTerm] = React.useState('');
+  const [searchResults, setSearchResults] = React.useState<any[]>([]);
+  const searchInputRef = React.useRef<HTMLInputElement>(null);
+
+  React.useEffect(() => {
+    if (showSearch) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [showSearch]);
   const navigate = useNavigate();
+
+  React.useEffect(() => {
+    if (showSearch && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [showSearch]);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (mobileSearchTerm.trim()) {
+      navigate(`/explore?search=${encodeURIComponent(mobileSearchTerm)}`);
+      setShowSearch(false);
+    }
+  };
+
 
   React.useEffect(() => {
     if (!user) {
@@ -163,14 +193,79 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* Mobile elements hidden - replaced by MobileNav bottom bar */}
-          <div className="md:hidden flex items-center">
-            {/* Removed redundant menu icon and notifications from top on mobile */}
+          {/* Mobile Search Trigger */}
+          <div className="md:hidden flex items-center space-x-2">
+            <button 
+              onClick={() => setShowSearch(true)}
+              className="p-2 hover:text-gold transition-colors"
+            >
+              <Search size={22} />
+            </button>
+            <Link to="/cart" className="p-2 hover:text-gold transition-colors relative">
+              <ShoppingCart size={22} />
+              {cartCount > 0 && (
+                <span className="absolute top-0 right-0 w-3.5 h-3.5 bg-gold text-luxury-black text-[8px] font-bold rounded-full flex items-center justify-center">
+                  {cartCount}
+                </span>
+              )}
+            </Link>
           </div>
         </div>
       </div>
 
-      {/* Mobile Navigation Menu removed - replaced by MobileNav bottom bar */}
+      {/* Mobile Search Overlay */}
+      <AnimatePresence>
+        {showSearch && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="fixed inset-0 z-[100] glass backdrop-blur-3xl p-6 flex flex-col"
+          >
+            <div className="flex justify-between items-center mb-10">
+              <span className="text-xl font-display gold-text font-bold tracking-widest">SEARCH VAULT</span>
+              <button 
+                onClick={() => setShowSearch(false)}
+                className="p-3 glass rounded-full border border-white/10"
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSearch} className="relative mb-12">
+              <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-white/30" size={20} />
+              <input 
+                ref={searchInputRef}
+                type="text"
+                placeholder="Search collection..."
+                value={mobileSearchTerm}
+                onChange={(e) => setMobileSearchTerm(e.target.value)}
+                className="w-full bg-white/5 border border-white/20 rounded-2xl pl-16 pr-6 py-6 focus:border-gold outline-none text-xl transition-all font-display"
+              />
+            </form>
+
+            <div className="space-y-6">
+              <p className="text-[10px] uppercase tracking-widest text-white/30 font-bold">Trending Searches</p>
+              {['Gold Precision', 'Heritage', 'Automatic', 'Limited Edition'].map((tag) => (
+                <button
+                  key={tag}
+                  onClick={() => {
+                    setMobileSearchTerm(tag);
+                    navigate(`/explore?search=${encodeURIComponent(tag)}`);
+                    setShowSearch(false);
+                  }}
+                  className="flex items-center space-x-4 w-full group p-2 rounded-xl hover:bg-white/5 transition-all text-left"
+                >
+                  <div className="w-10 h-10 glass rounded-lg flex items-center justify-center group-hover:bg-gold/10 transition-all">
+                    <Search size={14} className="text-white/20 group-hover:text-gold" />
+                  </div>
+                  <span className="text-sm font-medium text-white/60 group-hover:text-white">{tag}</span>
+                </button>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </nav>
   );
 }

@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ChevronLeft, CreditCard, ShieldCheck, Truck, Phone, CheckCircle2, AlertTriangle, Key } from 'lucide-react';
+import { ChevronLeft, CreditCard, ShieldCheck, Truck, Phone, CheckCircle2, AlertTriangle, Key, Mail } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
-import { useAuth, auth } from '../context/AuthContext';
-import { db } from '../context/AuthContext';
-import { collection, addDoc, doc, runTransaction, getDoc } from 'firebase/firestore';
-import { RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from 'firebase/auth';
+import { useAuth, db } from '../context/AuthContext';
+import { collection, doc, runTransaction } from 'firebase/firestore';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { toast } from 'sonner';
@@ -16,12 +14,11 @@ export default function CheckoutPage() {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
   const [isProcessing, setIsProcessing] = useState(false);
-  const [isVerifyingPhone, setIsVerifyingPhone] = useState(false);
+  const [isVerifyingEmail, setIsVerifyingEmail] = useState(false);
   const [showOtpField, setShowOtpField] = useState(false);
   const [otp, setOtp] = useState('');
-  const [verificationId, setVerificationId] = useState<ConfirmationResult | null>(null);
-  const [isPhoneVerified, setIsPhoneVerified] = useState(false);
-  const [recaptchaLoaded, setRecaptchaLoaded] = useState(false);
+  const [isEmailVerified, setIsEmailVerified] = useState(false);
+  const [devOtp, setDevOtp] = useState<string | null>(null);
   
   const [formData, setFormData] = useState({
     fullName: profile?.displayName || '',
@@ -33,123 +30,73 @@ export default function CheckoutPage() {
     country: 'India'
   });
 
-  useEffect(() => {
-    let isMounted = true;
-    
-    const initRecaptcha = () => {
-      if (!isMounted) return;
-      try {
-        const container = document.getElementById('recaptcha-container');
-        if (!container) return;
-
-        // Cleanup previous instance if any
-        if ((window as any).recaptchaVerifier) {
-          try {
-            (window as any).recaptchaVerifier.clear();
-          } catch (e) { /* silent fail */ }
-        }
-
-        (window as any).recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-          size: 'invisible',
-          callback: () => {
-            console.log('Recaptcha resolved');
-          }
-        });
-        
-        (window as any).recaptchaVerifier.render()
-          .then(() => {
-            if (isMounted) setRecaptchaLoaded(true);
-          })
-          .catch((err: any) => console.error('Recaptcha render failed:', err));
-      } catch (e) {
-        console.error('Recaptcha Init Error:', e);
-      }
-    };
-    
-    const timer = setTimeout(initRecaptcha, 1000);
-    return () => {
-      isMounted = false;
-      clearTimeout(timer);
-      if ((window as any).recaptchaVerifier) {
-        try {
-          const v = (window as any).recaptchaVerifier;
-          (window as any).recaptchaVerifier = null;
-          v.clear();
-        } catch(e) {
-          console.warn('Silent cleanup error:', e);
-        }
-      }
-    };
-  }, []);
-
-  const [billingError, setBillingError] = useState(false);
-
-  const handleSendOtp = async () => {
-    if (!formData.phone || formData.phone.length < 10) {
-      toast.error('Please enter a valid 10-digit phone number');
+  const handleSendEmailOtp = async () => {
+    if (!formData.email || !formData.email.includes('@')) {
+      toast.error('Please enter a valid email address');
       return;
     }
 
-    setIsVerifyingPhone(true);
-    setBillingError(false);
+    setIsVerifyingEmail(true);
     const promise = async () => {
-      let appVerifier = (window as any).recaptchaVerifier;
-      if (!appVerifier) {
-         appVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', { size: 'invisible' });
-         (window as any).recaptchaVerifier = appVerifier;
+      const res = await fetch('/api/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: formData.email })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to send OTP');
+      
+      if (data.devOtp) {
+        console.log('OTP (Dev Mode):', data.devOtp);
+        setDevOtp(data.devOtp);
+        toast.info(`[DEMO MODE] Identity Verification Enabled`, {
+          description: "Use the code displayed in the secure terminal below."
+        });
       }
-
-      const phoneNumber = formData.phone.startsWith('+') ? formData.phone : `+91${formData.phone}`;
-      const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
-      setVerificationId(confirmationResult);
       setShowOtpField(true);
     };
 
     toast.promise(promise(), {
-      loading: 'Establishing secure connection...',
-      success: 'Verification code dispatched',
-      error: (err: any) => {
-        console.error('OTP Error:', err);
-        if (err.code === 'auth/billing-not-enabled') {
-          setBillingError(true);
-          // Set phone verified automatically if in critical error or at least set state to show bypass
-          return 'SMS service restricted (Blaze Plan Required). Use the Preview Bypass below.';
-        }
-        return `OTP Failed: ${err.message}`;
-      }
+      loading: 'Initializing secure email handshake...',
+      success: 'Verification code dispatched to your email',
+      error: (err: any) => `Connection failed: ${err.message}`
     });
 
-    setIsVerifyingPhone(false);
+    setIsVerifyingEmail(false);
   };
 
-  const handleBypass = () => {
-    setIsPhoneVerified(true);
-    setFormData({...formData, phone: '9999999999'});
-    toast.success('Security bypassed for preview mode');
-  };
-
-  const handleVerifyOtp = async () => {
-    if (!otp || !verificationId) return;
+  const handleVerifyEmailOtp = async () => {
+    if (!otp || otp.length < 6) return;
     
-    setIsVerifyingPhone(true);
+    setIsVerifyingEmail(true);
     try {
-      await verificationId.confirm(otp);
-      setIsPhoneVerified(true);
+      const res = await fetch('/api/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: formData.email, otp })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+
+      setIsEmailVerified(true);
       setShowOtpField(false);
       toast.success('Identity validated successfully');
     } catch (err: any) {
-      console.error(err);
-      toast.error('Invalid verification code. Please retry.');
+      toast.error(err.message || 'Verification failed');
     } finally {
-      setIsVerifyingPhone(false);
+      setIsVerifyingEmail(false);
     }
   };
 
   const handlePlaceOrder = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
-    if (!isPhoneVerified) {
-      toast.error('Identity verification required');
+    if (!isEmailVerified) {
+      toast.error('Email verification required to prevent fake orders');
+      return;
+    }
+    if (!formData.phone || formData.phone.length < 10) {
+      toast.error('Valid phone number is mandatory');
       return;
     }
     
@@ -158,7 +105,7 @@ export default function CheckoutPage() {
     const promise = async () => {
       // Direct order placement without real payment gateway for now
       // 1. Validate Stock and Finalize Order using a Transaction
-      await runTransaction(db, async (transaction) => {
+      const result = await runTransaction(db, async (transaction) => {
         const productSnaps = await Promise.all(
           cart.map(item => transaction.get(doc(db, 'products', item.id)))
         );
@@ -179,12 +126,14 @@ export default function CheckoutPage() {
           transaction.update(snap.ref, { stock: currentStock - cart[i].quantity });
         });
 
+        const deliveryPin = Math.floor(100000 + Math.random() * 900000).toString();
+
         const orderData = {
           userId: user.uid,
           customerName: formData.fullName,
           customerEmail: formData.email,
           customerPhone: formData.phone,
-          deliveryPin: Math.floor(100000 + Math.random() * 900000).toString(), // Secure 6-digit unique code
+          deliveryPin,
           paymentStatus: 'pending_manual',
           shippingAddress: { ...formData },
           items: cart,
@@ -207,7 +156,33 @@ export default function CheckoutPage() {
         
         const orderRef = doc(collection(db, 'orders'));
         transaction.set(orderRef, orderData);
+        
+        // Return order data for email trigger
+        return { orderId: orderRef.id, ...orderData };
       });
+
+      // 2. Trigger Confirmation Email via Server Proxy
+      try {
+        const emailRes = await fetch('/api/send-confirmation', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: formData.email,
+            orderDetails: {
+              customerName: formData.fullName,
+              total: cartTotal,
+              items: cart,
+              deliveryPin: result.deliveryPin
+            }
+          })
+        });
+        const emailData = await emailRes.json();
+        if (emailData.message && emailData.message.includes('skipped')) {
+          toast.info("Order processed. (Email manifest logged to server console)");
+        }
+      } catch (err) {
+        console.error('Email Trigger Failed:', err);
+      }
 
       clearCart();
       setTimeout(() => navigate('/profile'), 2000);
@@ -285,111 +260,85 @@ export default function CheckoutPage() {
 
                 <div className="space-y-6 pt-6 border-t border-white/5">
                   <h3 className="text-lg font-bold uppercase tracking-widest flex items-center">
-                    <Phone className="mr-3 text-gold" size={20} />
-                    Contact Verification
+                    <ShieldCheck className="mr-3 text-gold" size={20} />
+                    Identity Integrity
                   </h3>
                   
-                  <div id="recaptcha-container" className="flex justify-center my-4 overflow-hidden rounded-lg"></div>
-
-                  {!isPhoneVerified ? (
+                  {!isEmailVerified ? (
                     <div className="space-y-4">
-                      {billingError && (
-                        <motion.div 
-                          initial={{ opacity: 0, y: -10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          className="bg-red-500/10 border border-red-500/30 p-6 rounded-2xl flex flex-col space-y-4 mb-6"
-                        >
-                          <div className="flex items-center space-x-3">
-                            <AlertTriangle className="text-red-500 flex-shrink-0" size={24} />
-                            <div className="flex-grow">
-                              <p className="text-xs font-bold text-white uppercase tracking-widest">Authentication Restriction</p>
-                              <p className="text-[10px] text-white/60 leading-relaxed">Identity verification requires a Google Cloud Billing active subscription (Blaze Plan). For this preview, you may bypass this security protocol below.</p>
-                            </div>
-                          </div>
-                          <button 
-                            type="button"
-                            onClick={handleBypass}
-                            className="w-full py-4 bg-gold text-luxury-black font-black uppercase tracking-[0.2em] text-[10px] rounded-xl hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_10px_20px_rgba(212,175,55,0.2)]"
-                          >
-                            Execute Preview Bypass
-                          </button>
-                        </motion.div>
-                      )}
-                      
                       <div className="flex space-x-4">
                         <div className="flex-grow space-y-2">
-                          <label className="text-[10px] uppercase tracking-widest text-white/40">Phone Number</label>
+                          <label className="text-[10px] uppercase tracking-widest text-white/40">Registered Email</label>
                           <div className="relative">
-                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 text-sm">+91</span>
+                            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={16} />
                             <input 
                               required
-                              type="tel"
-                              placeholder="10 digit contact number"
-                              value={formData.phone}
+                              type="email"
+                              value={formData.email}
                               disabled={showOtpField}
-                              onChange={e => setFormData({...formData, phone: e.target.value.replace(/\D/g, '').slice(0, 10)})}
+                              onChange={e => setFormData({...formData, email: e.target.value})}
                               className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-5 py-4 focus:border-gold outline-none text-sm transition-all"
                             />
                           </div>
                         </div>
                         {!showOtpField && (
-                          <div className="flex items-end space-x-2">
-                            <button 
-                              type="button"
-                              onClick={handleSendOtp}
-                              disabled={isVerifyingPhone || formData.phone.length < 10}
-                              className="h-14 px-6 gold-gradient rounded-xl text-luxury-black font-bold text-xs uppercase tracking-widest disabled:opacity-50 transition-all"
-                            >
-                              {isVerifyingPhone ? 'Sending...' : 'Send OTP'}
-                            </button>
-                            
-                            {billingError && (
-                              <button 
-                                type="button"
-                                onClick={handleBypass}
-                                className="h-14 px-6 flex items-center space-x-2 bg-gold text-luxury-black rounded-xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all group animate-pulse"
-                              >
-                                <Key size={14} className="group-hover:rotate-12 transition-transform" />
-                                <span>Preview Bypass</span>
-                              </button>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                      
-                      {billingError && (
-                        <div className="pt-2">
-                           <button 
-                             onClick={handleBypass}
-                             className="text-[9px] text-white/30 uppercase tracking-[0.2em] hover:text-gold transition-colors underline decoration-gold/20"
-                           >
-                             Force Bypass Security Manifest
-                           </button>
-                        </div>
-                      )}
-
-                      {showOtpField && (
-                        <div className="flex space-x-4 animate-in fade-in slide-in-from-top-2">
-                          <div className="flex-grow space-y-2">
-                            <label className="text-[10px] uppercase tracking-widest text-white/40">Verification Code</label>
-                            <input 
-                              required
-                              type="text"
-                              placeholder="Enter 6-digit OTP"
-                              value={otp}
-                              onChange={e => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                              className="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-4 focus:border-gold outline-none text-sm transition-all text-center tracking-[0.5em] font-mono"
-                            />
-                          </div>
                           <div className="flex items-end">
                             <button 
                               type="button"
-                              onClick={handleVerifyOtp}
-                              disabled={isVerifyingPhone || otp.length < 6}
-                              className="h-14 px-6 gold-gradient rounded-xl text-luxury-black font-bold text-xs uppercase tracking-widest disabled:opacity-50 transition-all"
+                              onClick={handleSendEmailOtp}
+                              disabled={isVerifyingEmail || !formData.email}
+                              className="h-14 px-6 gold-gradient rounded-xl text-luxury-black font-bold text-xs uppercase tracking-widest disabled:opacity-50 transition-all shadow-[0_10px_20px_rgba(212,175,55,0.1)]"
                             >
-                              {isVerifyingPhone ? 'Verifying...' : 'Verify'}
+                              {isVerifyingEmail ? 'Sending...' : 'Verify Email'}
                             </button>
+                          </div>
+                        )}
+                      </div>
+
+                      {showOtpField && (
+                        <div className="space-y-4 animate-in fade-in slide-in-from-top-2">
+                          {devOtp && (
+                            <motion.div 
+                              initial={{ opacity: 0, scale: 0.95 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              className="p-6 bg-gold/10 border-2 border-dashed border-gold/40 rounded-2xl text-center"
+                            >
+                              <p className="text-[10px] uppercase tracking-widest text-gold mb-2 font-bold flex items-center justify-center">
+                                <Key size={12} className="mr-2" />
+                                Secure Demo Manifest: Verified Code
+                              </p>
+                              <h2 className="text-3xl font-mono text-gold tracking-[0.5em] font-black">{devOtp}</h2>
+                              <button 
+                                onClick={() => setOtp(devOtp)}
+                                className="mt-4 text-[9px] uppercase tracking-widest text-gold/60 underline hover:text-gold transition-colors"
+                              >
+                                Auto-Fill Verification
+                              </button>
+                            </motion.div>
+                          )}
+                          
+                          <div className="flex space-x-4">
+                            <div className="flex-grow space-y-2">
+                              <label className="text-[10px] uppercase tracking-widest text-white/40">Email OTP</label>
+                              <input 
+                                required
+                                type="text"
+                                placeholder="Enter 6-digit code"
+                                value={otp}
+                                onChange={e => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                                className="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-4 focus:border-gold outline-none text-sm transition-all text-center tracking-[0.5em] font-mono"
+                              />
+                            </div>
+                            <div className="flex items-end">
+                              <button 
+                                type="button"
+                                onClick={handleVerifyEmailOtp}
+                                disabled={isVerifyingEmail || otp.length < 6}
+                                className="h-14 px-6 gold-gradient rounded-xl text-luxury-black font-bold text-xs uppercase tracking-widest disabled:opacity-50 transition-all"
+                              >
+                                {isVerifyingEmail ? 'Confirm' : 'Authorize'}
+                              </button>
+                            </div>
                           </div>
                         </div>
                       )}
@@ -398,11 +347,32 @@ export default function CheckoutPage() {
                     <div className="flex items-center space-x-4 glass p-4 rounded-xl border border-gold/40 text-gold bg-gold/5">
                       <CheckCircle2 size={24} />
                       <div>
-                        <p className="text-sm font-bold uppercase tracking-widest">Verified: +91 {formData.phone}</p>
-                        <p className="text-[10px] opacity-60">Your identity has been authenticated securely.</p>
+                        <p className="text-sm font-bold uppercase tracking-widest">Verified: {formData.email}</p>
+                        <p className="text-[10px] opacity-60">Identity protection active. Acquisition authorized.</p>
                       </div>
                     </div>
                   )}
+
+                  <div className="pt-6">
+                    <h3 className="text-lg font-bold uppercase tracking-widest flex items-center mb-4">
+                      <Phone className="mr-3 text-gold" size={20} />
+                      Contact Coordinates
+                    </h3>
+                    <div className="space-y-2">
+                      <label className="text-[10px] uppercase tracking-widest text-white/40">Mandatory Phone Number</label>
+                      <div className="relative">
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 text-sm font-mono">+91</span>
+                        <input 
+                          required
+                          type="tel"
+                          placeholder="10 digit contact"
+                          value={formData.phone}
+                          onChange={e => setFormData({...formData, phone: e.target.value.replace(/\D/g, '').slice(0, 10)})}
+                          className="w-full bg-white/5 border border-white/10 rounded-xl pl-14 pr-5 py-4 focus:border-gold outline-none text-sm transition-all"
+                        />
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="space-y-2 pt-6 border-t border-white/5">
@@ -472,10 +442,10 @@ export default function CheckoutPage() {
 
               <button 
                 type="submit" 
-                disabled={isProcessing || !isPhoneVerified}
-                className={`w-full py-6 gold-gradient text-luxury-black font-bold uppercase tracking-[0.3em] rounded-2xl shadow-2xl shadow-gold/10 transition-all ${isProcessing || !isPhoneVerified ? 'opacity-50 cursor-not-allowed' : 'hover:scale-[1.02] hover:shadow-gold/20 active:scale-[0.98]'}`}
+                disabled={isProcessing || !isEmailVerified}
+                className={`w-full py-6 gold-gradient text-luxury-black font-bold uppercase tracking-[0.3em] rounded-2xl shadow-2xl shadow-gold/10 transition-all ${isProcessing || !isEmailVerified ? 'opacity-50 cursor-not-allowed' : 'hover:scale-[1.02] hover:shadow-gold/20 active:scale-[0.98]'}`}
               >
-                {!isPhoneVerified ? 'Verify Contact to Proceed' : isProcessing ? 'Synchronizing...' : 'Initialize Concierge'}
+                {!isEmailVerified ? 'Verify Email to Proceed' : isProcessing ? 'Synchronizing...' : 'Initialize Concierge'}
               </button>
               
               <div className="flex items-center justify-center space-x-2 text-white/20">

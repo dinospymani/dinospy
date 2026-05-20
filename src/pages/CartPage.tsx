@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Trash2, Plus, Minus, ArrowRight, ShoppingBag } from 'lucide-react';
+import { Trash2, Plus, Minus, ArrowRight, ShoppingBag, ArrowLeft } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -19,6 +19,15 @@ export default function CartPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
+          <div className="mb-8">
+            <button 
+              onClick={() => window.history.back()}
+              className="flex items-center space-x-2 text-white/60 hover:text-gold transition-colors p-2 -ml-2"
+            >
+              <ArrowLeft size={20} />
+              <span className="text-[10px] uppercase tracking-[0.2em] font-bold">Return</span>
+            </button>
+          </div>
           <h1 className="text-5xl font-display mb-12 gold-text">Your Collection</h1>
 
           {cart.length === 0 ? (

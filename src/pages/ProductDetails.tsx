@@ -165,6 +165,16 @@ export default function ProductDetails() {
       
       <main className="flex-grow pt-24 pb-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="mb-6">
+            <button 
+              onClick={() => window.history.back()}
+              className="flex items-center space-x-2 text-white/60 hover:text-gold transition-colors p-2 -ml-2"
+            >
+              <ArrowLeft size={20} />
+              <span className="text-[10px] uppercase tracking-[0.2em] font-bold">Back to Gallery</span>
+            </button>
+          </div>
+
           {/* Breadcrumbs */}
           <nav className="flex items-center space-x-2 text-[10px] uppercase tracking-widest text-white/40 mb-12">
             <Link to="/" className="hover:text-gold">Home</Link>
@@ -200,7 +210,7 @@ export default function ProductDetails() {
                   <img 
                     src={product.images[activeImage]} 
                     alt={product.name}
-                    className="w-full h-full object-cover transition-transform duration-700 md:group-hover:scale-150"
+                    className="w-full h-full object-contain bg-luxury-black/40 transition-transform duration-700 md:group-hover:scale-125"
                   />
                 </motion.div>
                 

@@ -4,7 +4,7 @@ import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc, onSnapshot, que
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import MobileNav from '../components/MobileNav';
-import { Plus, Trash2, Edit, Save, Package, QrCode, Printer, X, Truck, Loader2, ChevronLeft, TrendingUp, DollarSign, ShoppingBag, AlertCircle, BarChart2, Bell } from 'lucide-react';
+import { Plus, Trash2, Edit, Save, Package, QrCode, Printer, X, Truck, Loader2, ChevronLeft, TrendingUp, DollarSign, ShoppingBag, AlertCircle, BarChart2, Bell, ArrowLeft } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { QRCodeSVG } from 'qrcode.react';
 import { toast } from 'sonner';
@@ -566,6 +566,15 @@ export default function AdminDashboard() {
     <div className="min-h-screen flex flex-col">
       <Navbar />
       <main className="flex-grow pt-32 pb-20 max-w-6xl mx-auto px-4 w-full">
+        <div className="mb-6">
+          <button 
+              onClick={() => window.location.href = '/'}
+              className="flex items-center space-x-2 text-white/60 hover:text-gold transition-colors p-2 -ml-2"
+          >
+              <ArrowLeft size={20} />
+              <span className="text-[10px] uppercase tracking-[0.2em] font-bold">Exit Terminal</span>
+          </button>
+        </div>
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 mb-12">
           <div>
             <h1 className="text-3xl md:text-4xl font-display gold-text">Admin Command Center</h1>

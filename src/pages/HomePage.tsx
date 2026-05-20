@@ -74,11 +74,11 @@ export default function HomePage() {
             
             <motion.div 
               initial="hidden"
-              whileInView="show"
+              whileInView="visible"
               viewport={{ once: true }}
               variants={{
                 hidden: { opacity: 0 },
-                show: {
+                visible: {
                   opacity: 1,
                   transition: {
                     staggerChildren: 0.1
@@ -93,7 +93,7 @@ export default function HomePage() {
                     key={product.id}
                     variants={{
                       hidden: { opacity: 0, y: 20 },
-                      show: { opacity: 1, y: 0 }
+                      visible: { opacity: 1, y: 0 }
                     }}
                   >
                     <WatchCard product={product} />

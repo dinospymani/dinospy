@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { Shield, CheckCircle2, Truck, AlertCircle, ChevronRight, MapPin } from 'lucide-react';
+import { Shield, CheckCircle2, Truck, AlertCircle, ChevronRight, MapPin, ArrowLeft } from 'lucide-react';
 import { db } from '../context/AuthContext';
 import { doc, getDoc, updateDoc, arrayUnion } from 'firebase/firestore';
 import { toast } from 'sonner';
@@ -87,6 +87,15 @@ export default function PartnerPortal() {
       
       <main className="flex-grow pt-32 pb-40 px-4">
         <div className="max-w-xl mx-auto space-y-8">
+          <div className="mb-4">
+            <button 
+                onClick={() => navigate('/')}
+                className="flex items-center space-x-2 text-white/60 hover:text-gold transition-colors p-2 -ml-2"
+            >
+                <ArrowLeft size={20} />
+                <span className="text-[10px] uppercase tracking-[0.2em] font-bold">Main Console</span>
+            </button>
+          </div>
           <div className="text-center">
             <div className="inline-flex items-center justify-center p-3 bg-gold/10 rounded-full border border-gold/20 mb-6 font-mono text-[10px] text-gold tracking-widest uppercase">
               <Shield size={14} className="mr-2" />

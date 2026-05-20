@@ -1,18 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Search as SearchIcon, SlidersHorizontal, ArrowRight } from 'lucide-react';
+import { Search as SearchIcon, SlidersHorizontal, ArrowRight, ArrowLeft } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import MobileNav from '../components/MobileNav';
 import WatchCard from '../components/WatchCard';
 import { collection, onSnapshot, query } from 'firebase/firestore';
 import { db } from '../context/AuthContext';
+import { useSearchParams } from 'react-router-dom';
 
 export default function ExplorePage() {
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchParams] = useSearchParams();
+  const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('All');
+
+  useEffect(() => {
+    const search = searchParams.get('search');
+    if (search !== null) {
+      setSearchTerm(search);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     setLoading(true);
@@ -41,6 +50,15 @@ export default function ExplorePage() {
       <Navbar />
       
       <main className="flex-grow pt-32 pb-40 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+        <div className="mb-8">
+            <button 
+                onClick={() => window.history.back()}
+                className="flex items-center space-x-2 text-white/60 hover:text-gold transition-colors p-2 -ml-2"
+            >
+                <ArrowLeft size={20} />
+                <span className="text-[10px] uppercase tracking-[0.2em] font-bold">Return</span>
+            </button>
+        </div>
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-12">
             <h1 className="text-5xl font-display gold-text">Explore</h1>
             
@@ -70,14 +88,36 @@ export default function ExplorePage() {
 
         {loading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                {[1,2,3,4].map(i => <div key={i} className="h-[450px] glass rounded-3xl animate-pulse" />)}
+                {[1,2,3,4].map(i => <div key={i} className="h-[550px] glass rounded-3xl animate-pulse" />)}
             </div>
         ) : filtered.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            <motion.div 
+               layout
+               initial="hidden"
+               animate="visible"
+               variants={{
+                 hidden: { opacity: 0 },
+                 visible: {
+                   opacity: 1,
+                   transition: {
+                     staggerChildren: 0.1
+                   }
+                 }
+               }}
+               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"
+            >
                 {filtered.map(product => (
-                    <WatchCard key={product.id} product={product} />
+                    <motion.div
+                      key={product.id}
+                      variants={{
+                        hidden: { opacity: 0, y: 20 },
+                        visible: { opacity: 1, y: 0 }
+                      }}
+                    >
+                      <WatchCard product={product} />
+                    </motion.div>
                 ))}
-            </div>
+            </motion.div>
         ) : (
             <div className="text-center py-20 glass rounded-3xl border border-white/5">
                 <p className="text-white/40 text-xl font-display mb-4">The vault is currently empty.</p>
