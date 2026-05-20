@@ -1,10 +1,10 @@
 {
-  "projectId": "sapient-sequence-lx6pd",
-  "appId": "1:582116553379:web:5e709ae4aff38734358516",
-  "apiKey": "AIzaSyB1KlY4lbHMOHbAkfQBFIZDNyo383e4m2s",
-  "authDomain": "sapient-sequence-lx6pd.firebaseapp.com",
+  "projectId": "dinospy-a8150",
+  "appId": "1:331955101766:web:a893c44e1ec333a8e0aa47",
+  "apiKey": "AIzaSyD7Wvgb2JYLJpfX5gIWYetdedLniWojqkA",
+  "authDomain": "dinospy-a8150.firebaseapp.com",
   "firestoreDatabaseId": "ai-studio-b63c5792-f8bb-4cfc-8b23-193ce7b5e7ef",
-  "storageBucket": "sapient-sequence-lx6pd.firebasestorage.app",
-  "messagingSenderId": "582116553379",
+  "storageBucket": "dinospy-a8150.firebasestorage.app",
+  "messagingSenderId": "331955101766",
   "measurementId": ""
 }

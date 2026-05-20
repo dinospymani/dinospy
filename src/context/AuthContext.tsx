@@ -27,12 +27,26 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       try {
-        setLoading(true); // Restart loading if state change happens
+        setLoading(true);
         setUser(user);
         if (user) {
           const userRef = doc(db, 'users', user.uid);
-          const userSnap = await getDoc(userRef);
-          if (userSnap.exists()) {
+          
+          // Initial fetch with single retry if offline
+          let userSnap;
+          try {
+            userSnap = await getDoc(userRef);
+          } catch (e: any) {
+            if (e.code === 'unavailable' || e.message?.includes('offline')) {
+              console.warn('Firestore temporarily unavailable/offline, retrying in 2s...');
+              await new Promise(resolve => setTimeout(resolve, 2000));
+              userSnap = await getDoc(userRef);
+            } else {
+              throw e;
+            }
+          }
+
+          if (userSnap && userSnap.exists()) {
             setProfile(userSnap.data());
           } else {
             // Create default profile
@@ -49,8 +63,9 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         } else {
           setProfile(null);
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error('Auth State Change Error:', error);
+        // If still offline, we still want to stop loading
       } finally {
         setLoading(false);
       }

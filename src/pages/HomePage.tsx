@@ -33,12 +33,17 @@ export default function HomePage() {
         setNewArrivals(newArrivalsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
         
         setLoading(false);
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error fetching products:", error);
+        // Better error message
+        if (error.code === 'permission-denied') {
+          console.warn("Permission denied. Ensure Firestore rules allow public access to products.");
+        }
+
         // Mock data if failed or empty
         const mockProducts = [
           {
-            id: '1',
+            id: 'mock-1',
             name: 'Ouroboros Gold',
             brand: 'DINOSPY',
             price: 125000,
@@ -48,7 +53,7 @@ export default function HomePage() {
             isTrending: true
           },
           {
-            id: '2',
+            id: 'mock-2',
             name: 'Chrono Sport',
             brand: 'DINOSPY',
             price: 42000,
@@ -58,7 +63,7 @@ export default function HomePage() {
             isTrending: true
           },
           {
-            id: '3',
+            id: 'mock-3',
             name: 'Minimalist Slate',
             brand: 'DINOSPY',
             price: 21000,
@@ -68,7 +73,7 @@ export default function HomePage() {
             isTrending: true
           },
           {
-            id: '4',
+            id: 'mock-4',
             name: 'Quantum Smart',
             brand: 'DINOSPY',
             price: 18000,
@@ -79,7 +84,8 @@ export default function HomePage() {
           }
         ];
         if (trending.length === 0) setTrending(mockProducts);
-        if (newArrivals.length === 0) setNewArrivals([...mockProducts, ...mockProducts]);
+        // Fix duplicate keys by giving unique IDs to the second set
+        if (newArrivals.length === 0) setNewArrivals([...mockProducts, ...mockProducts.map(p => ({ ...p, id: `extra-${p.id}` }))]);
         setLoading(false);
       }
     }
