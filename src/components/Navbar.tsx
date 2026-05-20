@@ -9,7 +9,6 @@ import { db } from '../context/AuthContext';
 import { collection, onSnapshot, query, orderBy, limit, doc, updateDoc } from 'firebase/firestore';
 
 export default function Navbar() {
-  const [isOpen, setIsOpen] = React.useState(false);
   const [showNotifications, setShowNotifications] = React.useState(false);
   const [notifications, setNotifications] = React.useState<any[]>([]);
   const { user, profile, signInWithGoogle, signOut } = useAuth();
@@ -164,114 +163,14 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* Mobile menu button */}
-          <div className="md:hidden flex items-center space-x-4">
-             {unreadCount > 0 && <div className="w-2 h-2 bg-gold rounded-full animate-pulse" />}
-            <button onClick={() => setIsOpen(!isOpen)} className="p-2">
-              {isOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
+          {/* Mobile elements hidden - replaced by MobileNav bottom bar */}
+          <div className="md:hidden flex items-center">
+            {/* Removed redundant menu icon and notifications from top on mobile */}
           </div>
         </div>
       </div>
 
-      {/* Mobile Navigation Menu */}
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            className="md:hidden fixed inset-0 z-[60] glass backdrop-blur-3xl flex flex-col pt-32 px-10 pb-20 overflow-hidden"
-          >
-            <div className="absolute top-8 right-8">
-              <button 
-                onClick={() => setIsOpen(false)}
-                className="p-4 glass rounded-full border border-white/10"
-              >
-                <X size={28} />
-              </button>
-            </div>
-
-            <div className="space-y-12 mb-auto">
-              {[
-                { label: 'Curated Collection', path: '/' },
-                { label: 'New Acquisitions', path: '/#new' },
-                { label: 'The Philosophy', path: '/#philosophy' },
-                { label: 'Full Catalog', path: '/explore' }
-              ].map((item, i) => (
-                <motion.div
-                  key={item.path}
-                  initial={{ opacity: 0, x: -30 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.1 }}
-                >
-                  <Link 
-                    to={item.path} 
-                    onClick={() => setIsOpen(false)}
-                    className="text-4xl font-display uppercase tracking-widest hover:text-gold transition-colors block"
-                  >
-                    {item.label}
-                  </Link>
-                </motion.div>
-              ))}
-              {profile?.role === 'admin' && (
-                <motion.div
-                  initial={{ opacity: 0, x: -30 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.4 }}
-                >
-                  <Link 
-                    to="/admin" 
-                    onClick={() => setIsOpen(false)}
-                    className="text-4xl font-display uppercase tracking-widest text-gold/60 block"
-                  >
-                    Command Center
-                  </Link>
-                </motion.div>
-              )}
-            </div>
-
-            <div className="pt-12 border-t border-white/5 flex flex-col space-y-8">
-              <div className="flex justify-between items-center text-white/40 uppercase tracking-[0.3em] text-[10px] font-black">
-                <span>Account Sync</span>
-                <span>Enforced Security</span>
-              </div>
-              {!user ? (
-                <button 
-                  onClick={() => {
-                    signInWithGoogle();
-                    setIsOpen(false);
-                  }}
-                  className="w-full py-6 gold-gradient text-luxury-black font-black uppercase tracking-[0.2em] rounded-3xl text-sm shadow-[0_20px_40px_rgba(212,175,55,0.2)]"
-                >
-                  Establish Connection
-                </button>
-              ) : (
-                <div className="flex justify-between items-center bg-white/5 p-6 rounded-3xl border border-white/5">
-                   <div className="flex items-center space-x-4">
-                      <div className="w-12 h-12 rounded-full overflow-hidden border border-gold/50 shadow-[0_0_15px_rgba(212,175,55,0.3)]">
-                        <img src={user.photoURL || ''} alt="" className="w-full h-full object-cover" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-bold">{user.displayName}</p>
-                        <p className="text-[10px] text-white/40 uppercase tracking-widest">Verified Member</p>
-                      </div>
-                   </div>
-                   <button 
-                     onClick={() => {
-                       signOut();
-                       setIsOpen(false);
-                     }}
-                     className="p-3 glass rounded-xl text-red-500/60 hover:text-red-500 transition-colors"
-                   >
-                     <ShoppingBag size={20} className="rotate-45" /> {/* Use as close icon alternative */}
-                   </button>
-                </div>
-              )}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Mobile Navigation Menu removed - replaced by MobileNav bottom bar */}
     </nav>
   );
 }
