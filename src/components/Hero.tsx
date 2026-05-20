@@ -57,7 +57,7 @@ export default function Hero() {
   const currentBanner = banners[currentIndex];
 
   return (
-    <section className="relative h-[90vh] w-full overflow-hidden flex items-center font-sans">
+    <section className="relative h-screen md:h-[90vh] w-full overflow-hidden flex items-center font-sans">
       <AnimatePresence mode="wait">
         <motion.div
           key={currentIndex}

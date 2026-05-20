@@ -55,6 +55,7 @@ function AnimatedRoutes() {
 }
 
 import { Toaster } from 'sonner';
+import AuthModal from './components/AuthModal';
 
 export default function App() {
   return (
@@ -63,6 +64,7 @@ export default function App() {
         <Router>
           <div className="min-h-screen bg-luxury-black text-white selection:bg-gold selection:text-luxury-black">
             <Toaster position="top-center" richColors />
+            <AuthModal />
             <AnimatedRoutes />
           </div>
         </Router>

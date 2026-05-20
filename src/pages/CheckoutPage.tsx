@@ -11,6 +11,22 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { toast } from 'sonner';
 
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
+
+const loadRazorpay = () => {
+  return new Promise((resolve) => {
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+};
+
 export default function CheckoutPage() {
   const { cart, cartTotal, clearCart } = useCart();
   const { user, profile } = useAuth();
@@ -112,7 +128,7 @@ export default function CheckoutPage() {
         console.error('OTP Error:', err);
         if (err.code === 'auth/billing-not-enabled') {
           setBillingError(true);
-          return 'SMS service restricted. Use bypass for testing.';
+          return 'SMS service requires Blaze plan. Use the "Preview Bypass" button below to proceed.';
         }
         return `OTP Failed: ${err.message}`;
       }
@@ -153,63 +169,119 @@ export default function CheckoutPage() {
     }
     
     setIsProcessing(true);
+
     const promise = async () => {
-      // 1. Validate Stock using a Transaction
-      await runTransaction(db, async (transaction) => {
-        const productSnaps = await Promise.all(
-          cart.map(item => transaction.get(doc(db, 'products', item.id)))
-        );
+      // 0. Load Razorpay SDK
+      const res = await loadRazorpay();
+      if (!res) throw new Error('Razorpay SDK failed to load. Are you online?');
 
-        // Check if all items in the cart are still in stock
-        for (let i = 0; i < cart.length; i++) {
-          const snap = productSnaps[i];
-          const cartItem = cart[i];
-          if (!snap.exists()) throw new Error(`Product ${cartItem.name} not found.`);
-          
-          const currentStock = snap.data().stock || 0;
-          if (currentStock < cartItem.quantity) {
-            throw new Error(`Insufficient stock for ${cartItem.name}. Only ${currentStock} left.`);
-          }
-        }
-
-        // 2. Decrement Stock
-        productSnaps.forEach((snap, i) => {
-          const currentStock = snap.data().stock;
-          transaction.update(snap.ref, { stock: currentStock - cart[i].quantity });
-        });
-
-        // 3. Create Order
-        const orderData = {
-          userId: user.uid,
-          customerName: formData.fullName,
-          customerEmail: formData.email,
-          customerPhone: formData.phone,
-          shippingAddress: {
-            address: formData.address,
-            city: formData.city,
-            zip: formData.zip,
-            country: formData.country
-          },
-          items: cart,
-          total: cartTotal,
-          status: 'pending',
-          createdAt: new Date().toISOString()
-        };
-        
-        const orderRef = doc(collection(db, 'orders'));
-        transaction.set(orderRef, orderData);
+      // 1. Create Order on Backend
+      const orderResponse = await fetch('/api/payments/create-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount: cartTotal })
       });
-      
-      clearCart();
-      setTimeout(() => navigate('/profile'), 2000);
+
+      if (!orderResponse.ok) {
+        const errData = await orderResponse.json();
+        throw new Error(errData.error || 'Failed to initialize secure payment');
+      }
+
+      const rzpOrder = await orderResponse.json();
+
+      // 2. Open Razorpay Checkout
+      return new Promise((resolve, reject) => {
+        const options = {
+          key: rzpOrder.key,
+          amount: rzpOrder.amount,
+          currency: rzpOrder.currency,
+          name: "DINOSPY LUXURY",
+          description: "Horological Acquisition",
+          image: "https://firebasestorage.googleapis.com/v0/b/dinospy-luxury.appspot.com/o/logo.png?alt=media",
+          order_id: rzpOrder.id,
+          handler: async (response: any) => {
+            try {
+              // 3. Validate Stock and Finalize Order using a Transaction
+              await runTransaction(db, async (transaction) => {
+                const productSnaps = await Promise.all(
+                  cart.map(item => transaction.get(doc(db, 'products', item.id)))
+                );
+
+                for (let i = 0; i < cart.length; i++) {
+                  const snap = productSnaps[i];
+                  const cartItem = cart[i];
+                  if (!snap.exists()) throw new Error(`Product ${cartItem.name} not found.`);
+                  
+                  const currentStock = snap.data().stock || 0;
+                  if (currentStock < cartItem.quantity) {
+                    throw new Error(`Insufficient stock for ${cartItem.name}.`);
+                  }
+                }
+
+                productSnaps.forEach((snap, i) => {
+                  const currentStock = snap.data().stock;
+                  transaction.update(snap.ref, { stock: currentStock - cart[i].quantity });
+                });
+
+                const orderData = {
+                  userId: user.uid,
+                  customerName: formData.fullName,
+                  customerEmail: formData.email,
+                  customerPhone: formData.phone,
+                  paymentId: response.razorpay_payment_id,
+                  razorpayOrderId: response.razorpay_order_id,
+                  shippingAddress: { ...formData },
+                  items: cart,
+                  total: cartTotal,
+                  status: 'pending',
+                  createdAt: new Date().toISOString(),
+                  timeline: [
+                    {
+                      status: 'pending',
+                      timestamp: new Date().toISOString(),
+                      message: "Payment captured. Asset acquisition authorized."
+                    }
+                  ]
+                };
+                
+                const orderRef = doc(collection(db, 'orders'));
+                transaction.set(orderRef, orderData);
+              });
+
+              clearCart();
+              setTimeout(() => navigate('/profile'), 2000);
+              resolve(true);
+            } catch (err: any) {
+              reject(err);
+            }
+          },
+          prefill: {
+            name: formData.fullName,
+            email: formData.email,
+            contact: formData.phone
+          },
+          theme: { color: "#D4AF37" },
+          modal: {
+            ondismiss: () => {
+              setIsProcessing(false);
+            }
+          }
+        };
+
+        const rzp = new window.Razorpay(options);
+        rzp.on('payment.failed', (resp: any) => {
+          reject(new Error(resp.error.description));
+        });
+        rzp.open();
+      });
     };
 
     toast.promise(promise(), {
       loading: 'Securing transaction and reserving stock...',
-      success: 'Order placed successfully! Concierge will contact you shortly.',
+      success: 'Acquisition finalized! Welcome to the DINOSPY circle.',
       error: (err: any) => {
         setIsProcessing(false);
-        return `Order Failed: ${err.message}`;
+        return `Secure payment failed: ${err.message}`;
       }
     });
   };
@@ -283,6 +355,26 @@ export default function CheckoutPage() {
 
                   {!isPhoneVerified ? (
                     <div className="space-y-4">
+                      {billingError && (
+                        <motion.div 
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="bg-red-500/10 border border-red-500/20 p-4 rounded-xl flex items-center space-x-3 mb-4"
+                        >
+                          <AlertTriangle className="text-red-500 flex-shrink-0" size={18} />
+                          <div className="flex-grow">
+                            <p className="text-[10px] text-white/60">Phone authentication requires a Firebase Blaze plan. Since this is a preview, please use the bypass button to continue.</p>
+                            <button 
+                              type="button"
+                              onClick={handleBypass}
+                              className="text-gold text-[10px] font-bold uppercase tracking-widest mt-2 hover:underline"
+                            >
+                              Initialize Preview Bypass
+                            </button>
+                          </div>
+                        </motion.div>
+                      )}
+                      
                       <div className="flex space-x-4">
                         <div className="flex-grow space-y-2">
                           <label className="text-[10px] uppercase tracking-widest text-white/40">Phone Number</label>

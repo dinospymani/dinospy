@@ -24,10 +24,13 @@ interface AdminProduct {
 interface AdminOrder {
   id: string;
   userId: string;
-  status: string;
+  status: 'pending' | 'processing' | 'quality_check' | 'shipped' | 'out_for_delivery' | 'delivered';
   total: number;
   createdAt: string;
   items: any[];
+  trackingId?: string;
+  carrier?: string;
+  timeline?: { status: string; timestamp: string; message: string }[];
   [key: string]: any;
 }
 
@@ -126,34 +129,76 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleUpdateOrderStatus = async (orderId: string, newStatus: string) => {
+  const handleUpdateOrderStatus = async (orderId: string, newStatus: AdminOrder['status'], trackingInfo?: { trackingId: string, carrier: string }) => {
     try {
-      await updateDoc(doc(db, 'orders', orderId), { status: newStatus });
-      
-      // Notify customer if delivered
       const order = orders.find(o => o.id === orderId);
-      if (newStatus === 'delivered' && order && order.userId && order.items?.length > 0) {
-        const firstProductId = order.items[0].productId;
+      if (!order) return;
+
+      const timelineEntry = {
+        status: newStatus,
+        timestamp: new Date().toISOString(),
+        message: getStatusMessage(newStatus)
+      };
+
+      const updateData: any = { 
+        status: newStatus,
+        timeline: [...(order.timeline || []), timelineEntry]
+      };
+
+      if (trackingInfo) {
+        updateData.trackingId = trackingInfo.trackingId;
+        updateData.carrier = trackingInfo.carrier;
+      }
+
+      await updateDoc(doc(db, 'orders', orderId), updateData);
+      
+      // Notify customer based on status
+      if (order.userId) {
+        let notificationTitle = "Order Update";
+        let notificationMessage = timelineEntry.message;
+
+        if (newStatus === 'quality_check') {
+          notificationTitle = "Quality Assurance Initiated";
+          notificationMessage = "Your timepiece is now undergoing rigorous multi-point inspection.";
+        } else if (newStatus === 'shipped') {
+          notificationTitle = "Masterpiece Dispatched";
+          notificationMessage = `Your acquisition is in transit via ${trackingInfo?.carrier || 'Premium Courier'}. Tracking: ${trackingInfo?.trackingId || 'Available in portal'}`;
+        } else if (newStatus === 'delivered') {
+          notificationTitle = "Horological Milestone";
+          notificationMessage = "Your DINOSPY Masterpiece has arrived. Does it meet your standards? Share your signature review.";
+        }
+
         await addDoc(collection(db, 'users', order.userId, 'notifications'), {
-          title: "Horological Milestone",
-          message: `Your DINOSPY Masterpiece has arrived. Does it meet your standards? Share your signature review.`,
-          type: "review_prompt",
-          link: `/product/${firstProductId}#reviews`,
+          title: notificationTitle,
+          message: notificationMessage,
+          type: newStatus === 'delivered' ? "review_prompt" : "order_update",
+          link: `/profile#orders`,
           read: false,
           createdAt: new Date().toISOString()
         });
-        toast.info('Delivery confirmation & premium review prompt dispatched');
       }
 
-      setOrders(orders.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
+      setOrders(orders.map(o => o.id === orderId ? { ...o, ...updateData } : o));
       if (selectedOrder?.id === orderId) {
-        setSelectedOrder({ ...selectedOrder, status: newStatus });
+        setSelectedOrder({ ...selectedOrder, ...updateData });
       }
-      toast.success(`Order status updated to ${newStatus}`);
+      toast.success(`Order advanced to: ${newStatus.replace('_', ' ')}`);
     } catch (err) {
       console.error(err);
-      toast.error('Failed to update status');
+      toast.error('Transition failed');
     }
+  };
+
+  const getStatusMessage = (status: string) => {
+    const messages: Record<string, string> = {
+      pending: "Order manifest received and awaiting validation.",
+      processing: "Acquisition confirmed. Preparing for archival retrieval.",
+      quality_check: "Currently undergoing precision testing and aesthetic validation.",
+      shipped: "Logistics departure confirmed. The piece is in transit.",
+      out_for_delivery: "A courier has taken possession for final local arrival.",
+      delivered: "Signature delivery completed. Welcome to the collection."
+    };
+    return messages[status] || "Order state synchronized.";
   };
 
   const handleDelete = async (id: string) => {
@@ -748,7 +793,7 @@ export default function AdminDashboard() {
                   <div key={o.id} className="glass p-6 rounded-2xl border border-white/5 space-y-4">
                     <div className="flex justify-between items-start">
                       <div className="flex items-start space-x-4">
-                        <div className={`p-3 rounded-full ${o.status === 'shipping' ? 'bg-blue-500/20 text-blue-500' : o.status === 'delivered' ? 'bg-green-500/20 text-green-500' : 'bg-gold/20 text-gold'}`}>
+                        <div className={`p-3 rounded-full ${o.status === 'shipped' ? 'bg-blue-500/20 text-blue-500' : o.status === 'delivered' ? 'bg-green-500/20 text-green-500' : 'bg-gold/20 text-gold'}`}>
                           <Package size={20} />
                         </div>
                         <div>
@@ -784,12 +829,25 @@ export default function AdminDashboard() {
                        </div>
                        <select 
                          value={o.status} 
-                         onChange={(e) => handleUpdateOrderStatus(o.id, e.target.value)}
+                         onChange={(e) => {
+                           const newStatus = e.target.value as AdminOrder['status'];
+                           if (newStatus === 'shipped') {
+                             const trackingId = prompt("Enter Tracking ID:");
+                             const carrier = prompt("Enter Carrier:", "DHL Global");
+                             if (trackingId) {
+                               handleUpdateOrderStatus(o.id, newStatus, { trackingId, carrier: carrier || 'Premium Logistics' });
+                             }
+                           } else {
+                             handleUpdateOrderStatus(o.id, newStatus);
+                           }
+                         }}
                          className="bg-[#1A1A1A] text-[10px] font-bold uppercase tracking-widest text-white border border-white/20 rounded px-3 py-2 focus:border-gold outline-none cursor-pointer"
                        >
                          <option value="pending">Pending</option>
                          <option value="processing">Processing</option>
-                         <option value="shipping">Shipping</option>
+                         <option value="quality_check">Quality Check</option>
+                         <option value="shipped">Shipped</option>
+                         <option value="out_for_delivery">Out for Delivery</option>
                          <option value="delivered">Delivered</option>
                        </select>
                     </div>

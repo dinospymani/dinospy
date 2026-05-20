@@ -13,6 +13,28 @@ export default function ProfilePage() {
   const { user, profile, signOut } = useAuth();
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
+
+  const getStatusProgress = (status: string) => {
+    const map: Record<string, number> = {
+      pending: 10,
+      processing: 25,
+      quality_check: 45,
+      shipped: 65,
+      out_for_delivery: 85,
+      delivered: 100
+    };
+    return map[status] || 0;
+  };
+
+  const getStatusSteps = () => [
+    { key: 'pending', label: 'Manifested' },
+    { key: 'processing', label: 'Archiving' },
+    { key: 'quality_check', label: 'Inspection' },
+    { key: 'shipped', label: 'Dispatched' },
+    { key: 'out_for_delivery', label: 'Courier' },
+    { key: 'delivered', label: 'Acquired' }
+  ];
 
   useEffect(() => {
     async function fetchOrders() {
@@ -123,7 +145,7 @@ export default function ProfilePage() {
                             <p className="text-[10px] uppercase tracking-widest text-white/40">Order #{order.id.slice(-6)}</p>
                             <div className="flex items-center space-x-2 mt-1">
                                <h4 className={`text-lg font-bold uppercase tracking-widest ${order.status === 'delivered' ? 'text-green-500' : 'text-gold'}`}>
-                                 {order.status}
+                                 {order.status.replace('_', ' ')}
                                </h4>
                                <div className={`w-2 h-2 rounded-full ${order.status === 'delivered' ? 'bg-green-500' : 'bg-gold animate-pulse'}`} />
                             </div>
@@ -136,36 +158,86 @@ export default function ProfilePage() {
                         </div>
 
                         {/* Tracking Progress */}
-                        <div className="mb-8 relative pt-4">
+                        <div className="mb-12 relative pt-4">
                            <div className="h-1 bg-white/5 rounded-full w-full absolute top-1/2 -translate-y-1/2" />
                            <div 
                               className="h-1 bg-gold rounded-full absolute top-1/2 -translate-y-1/2 transition-all duration-1000 shadow-[0_0_10px_rgba(212,175,55,0.5)]" 
-                              style={{ width: order.status === 'pending' ? '10%' : order.status === 'processing' ? '40%' : order.status === 'shipping' ? '70%' : '100%' }}
+                              style={{ width: `${getStatusProgress(order.status)}%` }}
                            />
-                           <div className="flex justify-between relative px-2">
-                              {['Pending', 'Processing', 'Shipping', 'Delivered'].map((step) => {
-                                 const isActive = order.status === step.toLowerCase() || (order.status === 'delivered') || (order.status === 'shipping' && step !== 'Delivered') || (order.status === 'processing' && (step === 'Pending' || step === 'Processing'));
+                           <div className="flex justify-between relative px-1">
+                              {getStatusSteps().map((step) => {
+                                 const currentIdx = getStatusSteps().findIndex(s => s.key === order.status);
+                                 const stepIdx = getStatusSteps().findIndex(s => s.key === step.key);
+                                 const isActive = stepIdx <= currentIdx;
+                                 
                                  return (
-                                    <div key={step} className="flex flex-col items-center">
-                                       <div className={`w-3 h-3 rounded-full border-2 ${isActive ? 'bg-gold border-gold' : 'bg-luxury-black border-white/20'} z-10`} />
-                                       <span className={`text-[8px] uppercase tracking-tighter mt-2 font-bold ${isActive ? 'text-gold' : 'text-white/20'}`}>{step}</span>
+                                    <div key={step.key} className="flex flex-col items-center">
+                                       <div className={`w-3 h-3 rounded-full border-2 transition-all duration-500 ${isActive ? 'bg-gold border-gold scale-125 shadow-[0_0_8px_rgba(212,175,55,1)]' : 'bg-luxury-black border-white/10'} z-10`} />
+                                       <span className={`text-[7px] uppercase tracking-tighter mt-3 font-black whitespace-nowrap ${isActive ? 'text-gold' : 'text-white/10'}`}>{step.label}</span>
                                     </div>
                                  );
                               })}
                            </div>
                         </div>
+
+                        {/* Expandable Tracking Detail */}
+                        {expandedOrderId === order.id && order.timeline && (
+                          <motion.div 
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: 'auto', opacity: 1 }}
+                            className="bg-white/[0.02] border-y border-white/5 p-8 mb-8 space-y-6"
+                          >
+                            <div className="flex justify-between items-center mb-4">
+                               <h5 className="text-[10px] uppercase tracking-[0.3em] font-black text-white/40">Logistics Timeline</h5>
+                               {order.trackingId && (
+                                 <div className="text-right">
+                                    <span className="text-[8px] uppercase tracking-widest text-white/20 block mb-1">Carrier: {order.carrier}</span>
+                                    <span className="text-[10px] font-mono text-gold/80 block"># {order.trackingId}</span>
+                                 </div>
+                               )}
+                            </div>
+                            <div className="space-y-8 relative">
+                              <div className="absolute left-2 top-2 bottom-2 w-px bg-white/5" />
+                              {order.timeline.slice().reverse().map((event: any, i: number) => (
+                                <div key={i} className="flex space-x-6 relative">
+                                  <div className={`w-4 h-4 rounded-full border-2 flex-shrink-0 z-10 transition-colors ${i === 0 ? 'bg-gold border-gold shadow-[0_0_10px_rgba(212,175,55,0.5)]' : 'bg-luxury-black border-white/20'}`} />
+                                  <div className="flex-grow pt-0">
+                                    <div className="flex justify-between items-start">
+                                      <p className={`text-xs font-bold uppercase tracking-widest ${i === 0 ? 'text-white' : 'text-white/40'}`}>
+                                        {event.status.replace('_', ' ')}
+                                      </p>
+                                      <span className="text-[8px] font-mono text-white/20">{new Date(event.timestamp).toLocaleString()}</span>
+                                    </div>
+                                    <p className={`text-[10px] mt-1 leading-relaxed ${i === 0 ? 'text-white/60' : 'text-white/20'}`}>
+                                      {event.message}
+                                    </p>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </motion.div>
+                        )}
                         
                         <div className="flex flex-col md:flex-row justify-between items-end gap-6 pt-6 border-t border-white/5">
-                           <div className="flex flex-wrap gap-4 flex-grow">
-                             {order.items.map((item: any, idx: number) => (
-                               <div key={idx} className="flex items-center space-x-3 bg-white/5 p-3 rounded-2xl border border-white/10">
-                                 <img src={item.images[0]} className="w-10 h-10 object-cover rounded-lg" alt="" />
-                                 <div>
-                                   <p className="text-xs font-bold">{item.name}</p>
-                                   <p className="text-[10px] text-white/40">Qty: {item.quantity}</p>
-                                 </div>
-                               </div>
-                             ))}
+                           <div className="flex flex-col space-y-4 flex-grow w-full">
+                              <div className="flex flex-wrap gap-4">
+                                {order.items.map((item: any, idx: number) => (
+                                  <div key={idx} className="flex items-center space-x-3 bg-white/5 p-3 rounded-2xl border border-white/10">
+                                    <img src={item.images[0]} className="w-10 h-10 object-cover rounded-lg" alt="" />
+                                    <div>
+                                      <p className="text-xs font-bold">{item.name}</p>
+                                      <p className="text-[10px] text-white/40">Qty: {item.quantity}</p>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                              <button 
+                                onClick={() => setExpandedOrderId(expandedOrderId === order.id ? null : order.id)}
+                                className="w-fit text-[10px] font-black uppercase tracking-[0.2em] text-gold/60 hover:text-gold transition-colors flex items-center"
+                              >
+                                {expandedOrderId === order.id ? 'Hide Logistics Intel' : 'Analyze Delivery Assets'}
+                                <ChevronRight size={12} className={`ml-1 transition-transform ${expandedOrderId === order.id ? '-rotate-90' : 'rotate-90'}`} />
+                              </button>
                            </div>
                            <div className="flex flex-col items-center p-3 glass rounded-2xl border border-gold/10">
                               <p className="text-[8px] uppercase tracking-widest text-gold mb-2 font-bold">Logistics Passport</p>
