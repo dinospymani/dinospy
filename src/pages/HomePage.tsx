@@ -75,8 +75,10 @@ export default function HomePage() {
                 <h2 className="text-5xl md:text-8xl font-display font-light tracking-tight leading-tight">Latest <span className="italic">Acquisitions</span></h2>
                 <p className="mt-8 text-white/30 text-lg font-light tracking-wide max-w-md">Our newest masterpieces, forged in the fires of precision and heritage.</p>
               </div>
-              <Link to="/explore" className="text-white/40 text-[10px] uppercase tracking-[0.4em] font-bold py-3 border-b border-white/10 hover:text-gold hover:border-gold transition-all duration-700">
-                Explore All
+              <Link to="/explore" className="group flex flex-col items-end">
+                <span className="text-white/40 text-[10px] uppercase tracking-[0.6em] font-bold py-3 border-b border-white/5 group-hover:text-gold group-hover:border-gold transition-all duration-1000 group-hover:tracking-[1em] group-hover:pr-10">
+                  Explore All
+                </span>
               </Link>
             </motion.div>
             

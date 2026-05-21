@@ -1,18 +1,15 @@
 import React from 'react';
-import { ShoppingCart, Heart, User, Menu, Search, X, Bell, ShoppingBag } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import { Heart, User, ShoppingBag } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
-import { toast } from 'sonner';
 import { db } from '../context/AuthContext';
 import { collection, onSnapshot, query, orderBy, limit, doc, updateDoc } from 'firebase/firestore';
 
 export default function Navbar() {
   const [notifications, setNotifications] = React.useState<any[]>([]);
-  const { user, profile, signInWithGoogle, signOut } = useAuth();
+  const { user, profile, signInWithGoogle } = useAuth();
   const { cartCount } = useCart();
-  const [showNotifications, setShowNotifications] = React.useState(false);
   const navigate = useNavigate();
 
   React.useEffect(() => {
@@ -30,17 +27,6 @@ export default function Navbar() {
     });
     return () => unsubscribe();
   }, [user]);
-
-  const unreadCount = notifications.filter(n => !n.read).length;
-
-  const markAsRead = async (id: string) => {
-    if (!user) return;
-    try {
-      await updateDoc(doc(db, 'users', user.uid, 'notifications', id), { read: true });
-    } catch (err) {
-      console.error("Failed to mark notification as read", err);
-    }
-  };
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-luxury-black/30 backdrop-blur-xl border-b border-white/5">

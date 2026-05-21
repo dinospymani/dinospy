@@ -1,38 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Search as SearchIcon, SlidersHorizontal, ArrowRight, ArrowLeft } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import MobileNav from '../components/MobileNav';
 import WatchCard from '../components/WatchCard';
 import { collection, onSnapshot, query } from 'firebase/firestore';
 import { db } from '../context/AuthContext';
-import { useSearchParams } from 'react-router-dom';
 
 export default function ExplorePage() {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('All');
-
-  useEffect(() => {
-    const search = searchParams.get('search');
-    if (search !== null && search !== searchTerm) {
-      setSearchTerm(search);
-    }
-  }, [searchParams]);
-
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      if (searchTerm) {
-        setSearchParams({ search: searchTerm }, { replace: true });
-      } else {
-        setSearchParams({}, { replace: true });
-      }
-    }, 500);
-    return () => clearTimeout(timeout);
-  }, [searchTerm, setSearchParams]);
 
   useEffect(() => {
     setLoading(true);
@@ -50,10 +29,8 @@ export default function ExplorePage() {
   }, []);
 
   const filtered = products.filter(p => {
-    const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          p.brand.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesFilter = filter === 'All' || p.category === filter;
-    return matchesSearch && matchesFilter;
+    return matchesFilter;
   });
 
   return (
@@ -70,36 +47,40 @@ export default function ExplorePage() {
                 <span className="text-[10px] uppercase tracking-[0.2em] font-bold">Return</span>
             </button>
         </div>
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-12">
-            <h1 className="text-5xl font-display gold-text">Explore</h1>
-            
-            <div className="relative flex-grow max-w-xl">
-                <SearchIcon className="absolute left-6 top-1/2 -translate-y-1/2 text-white/30" size={20} />
-                <input 
-                    type="text"
-                    placeholder="Search DINOSPY collection..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full bg-white/5 border border-white/10 rounded-full pl-16 pr-6 py-5 focus:border-gold outline-none text-lg transition-all"
-                />
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-16 mb-24">
+            <div className="max-w-2xl">
+              <span className="text-gold font-sans text-[10px] uppercase tracking-[0.8em] mb-8 block font-bold">Archives</span>
+              <h1 className="text-6xl md:text-9xl font-display font-light leading-none tracking-tighter">Collection</h1>
             </div>
         </div>
 
-        <div className="flex space-x-4 mb-12 overflow-x-auto pb-4 scrollbar-hide">
+        <div className="flex space-x-12 mb-24 overflow-x-auto pb-4 scrollbar-hide border-b border-white/5">
             {['All', 'Grand Complications', 'Heritage', 'Avant-Garde', 'Deep Sea'].map(cat => (
                 <button
                     key={cat}
                     onClick={() => setFilter(cat)}
-                    className={`px-8 py-3 rounded-full text-sm font-bold uppercase tracking-widest transition-all whitespace-nowrap ${filter === cat ? 'gold-gradient text-luxury-black' : 'glass border border-white/10 text-white/50 hover:text-white'}`}
+                    className={`pb-4 text-[10px] font-bold uppercase tracking-[0.4em] transition-all duration-700 whitespace-nowrap relative ${filter === cat ? 'text-gold' : 'text-white/20 hover:text-white'}`}
                 >
                     {cat}
+                    {filter === cat && (
+                      <motion.div 
+                        layoutId="activeFilter"
+                        className="absolute bottom-0 left-0 right-0 h-[1px] bg-gold" 
+                      />
+                    )}
                 </button>
             ))}
         </div>
 
         {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                {[1,2,3,4].map(i => <div key={i} className="h-[550px] glass rounded-3xl animate-pulse" />)}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-12 gap-y-24">
+                {[1,2,3,4,5,6,7,8].map(i => (
+                  <div key={i} className="space-y-8 animate-pulse">
+                    <div className="aspect-[4/5] bg-white/[0.02]" />
+                    <div className="h-4 w-1/2 bg-white/[0.02] mx-auto" />
+                    <div className="h-6 w-3/4 bg-white/[0.02] mx-auto" />
+                  </div>
+                ))}
             </div>
         ) : filtered.length > 0 ? (
             <motion.div 
@@ -111,18 +92,20 @@ export default function ExplorePage() {
                  visible: {
                    opacity: 1,
                    transition: {
-                     staggerChildren: 0.1
+                     staggerChildren: 0.15,
+                     delayChildren: 0.3
                    }
                  }
                }}
-               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"
+               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-12 gap-y-24"
             >
                 {filtered.map(product => (
                     <motion.div
                       key={product.id}
+                      layout
                       variants={{
-                        hidden: { opacity: 0, y: 20 },
-                        visible: { opacity: 1, y: 0 }
+                        hidden: { opacity: 0, y: 50 },
+                        visible: { opacity: 1, y: 0, transition: { duration: 1.2, ease: [0.19, 1, 0.22, 1] } }
                       }}
                     >
                       <WatchCard product={product} />
@@ -130,9 +113,14 @@ export default function ExplorePage() {
                 ))}
             </motion.div>
         ) : (
-            <div className="text-center py-20 glass rounded-3xl border border-white/5">
-                <p className="text-white/40 text-xl font-display mb-4">The vault is currently empty.</p>
-                <p className="text-white/20 text-sm max-w-md mx-auto">Visit the Admin Dashboard to populate the catalog with our elite selection of timepieces.</p>
+            <div className="text-center py-60 border border-white/5 bg-white/[0.01]">
+                <p className="text-white/20 font-display text-4xl italic font-light tracking-widest mb-8">No assets matching your identity.</p>
+                <button 
+                  onClick={() => setFilter('All')}
+                  className="text-[10px] font-bold uppercase tracking-[0.4em] text-gold hover:text-white transition-colors"
+                >
+                  Clear Parameters
+                </button>
             </div>
         )}
       </main>

@@ -32,12 +32,12 @@ export default function WatchCard({ product }: WatchCardProps) {
   return (
     <motion.div 
       variants={{
-        hidden: { opacity: 0, scale: 0.95, y: 30 },
+        hidden: { opacity: 0, scale: 0.98, y: 30 },
         visible: { opacity: 1, scale: 1, y: 0 }
       }}
-      whileHover={{ y: -10 }}
-      transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
-      className="group relative glass p-8 rounded-none border border-white/5 hover:border-gold/20 transition-all duration-700 shadow-2xl flex flex-col"
+      whileHover={{ y: -16 }}
+      transition={{ duration: 1.5, ease: [0.19, 1, 0.22, 1] }}
+      className="group relative p-10 rounded-none border border-white/5 hover:border-gold/30 transition-all duration-1000 bg-white/[0.01] hover:bg-white/[0.03] flex flex-col luxury-shadow"
     >
       <div className="absolute top-8 left-8 z-10 flex flex-col space-y-3">
         {product.isLimited && (
