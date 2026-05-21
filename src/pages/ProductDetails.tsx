@@ -213,6 +213,31 @@ export default function ProductDetails() {
                      </div>
                    )}
                 </div>
+
+                {/* Unique Feature: Precision Heartbeat */}
+                <div className="absolute bottom-10 right-10 flex items-center space-x-6">
+                  <div className="flex flex-col items-end">
+                    <span className="text-[8px] uppercase tracking-[0.5em] text-white/20 font-bold mb-2">Mechanical Pulse</span>
+                    <div className="flex space-x-1 items-end h-4">
+                      {[1, 2, 3, 4, 5, 6].map((i) => (
+                        <motion.div
+                          key={i}
+                          animate={{ 
+                            height: [4, 16, 4],
+                            opacity: [0.1, 0.5, 0.1]
+                          }}
+                          transition={{ 
+                            duration: 0.8,
+                            repeat: Infinity,
+                            delay: i * 0.1,
+                            ease: "easeInOut"
+                          }}
+                          className="w-[1px] bg-gold"
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </div>
               </motion.div>
               
               <div className="flex justify-center space-x-8 px-4">
@@ -314,6 +339,24 @@ export default function ProductDetails() {
                   Share Asset Details
                   <div className="w-12 h-[1px] bg-white/10 ml-6 group-hover:bg-gold group-hover:w-20 transition-all duration-700" />
                 </button>
+
+                {/* Unique Feature: Digital Identity Registry */}
+                <div className="pt-20 mt-20 border-t border-white/5">
+                  <div className="p-10 border border-white/5 bg-white/[0.01] relative overflow-hidden group luxury-shadow">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-gold/5 blur-3xl -mr-16 -mt-16 group-hover:bg-gold/10 transition-all duration-1000" />
+                    <Shield className="text-gold/30 mb-8" size={32} strokeWidth={1} />
+                    <h4 className="text-[10px] uppercase tracking-[0.5em] text-white/80 font-bold mb-4">Digital Identity Registry</h4>
+                    <p className="text-[10px] text-white/30 uppercase tracking-[0.2em] leading-relaxed mb-10 max-w-xs font-medium">
+                      Each DINOSPY timepiece is issued a unique cryptographic signature, ensuring absolute provenance and archival lineage.
+                    </p>
+                    <div className="flex items-center space-x-6">
+                      <div className="bg-white/5 px-4 py-2 rounded-none border border-white/5">
+                        <span className="text-gold font-mono text-[9px] tracking-widest">DS-{product.id?.slice(0, 8).toUpperCase()}-{(new Date().getFullYear())}</span>
+                      </div>
+                      <span className="text-[8px] uppercase tracking-widest text-white/20 italic">Authenticity Verified</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

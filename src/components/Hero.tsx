@@ -29,33 +29,11 @@ export default function Hero() {
     return () => clearInterval(timer);
   }, [banners.length]);
 
-  if (banners.length === 0) {
-    return (
-      <section className="relative h-[90vh] w-full overflow-hidden flex items-center">
-        <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-gradient-to-r from-luxury-black via-luxury-black/70 to-transparent z-10" />
-          <img 
-            src="https://images.unsplash.com/photo-1547996160-81dfa63595aa?auto=format&fit=crop&q=80&w=2000" 
-            alt="Luxury Watch"
-            className="w-full h-full object-cover object-center"
-          />
-        </div>
-        <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl">
-            <span className="text-gold font-mono tracking-[0.3em] text-sm uppercase mb-4 block">DINOSPY • Premier Horology</span>
-            <h1 className="text-6xl md:text-8xl font-display leading-tight mb-8">Crafting <br /><span className="gold-text italic">Time.</span></h1>
-            <p className="text-lg text-white/70 mb-10 max-w-lg">Handcrafted luxury timepieces for the modern elite. Experience perfection.</p>
-            <button className="px-10 py-5 gold-gradient text-luxury-black font-bold uppercase tracking-widest flex items-center hover:scale-105 transition-transform group">
-              View All Watches
-              <ArrowRight className="ml-2 group-hover:translate-x-2 transition-transform" size={18} />
-            </button>
-          </motion.div>
-        </div>
-      </section>
-    );
-  }
-
-  const currentBanner = banners[currentIndex];
+  const currentBanner = banners[currentIndex] || {
+    imageUrl: "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?auto=format&fit=crop&q=80&w=2000",
+    title: "Precision Engineering",
+    subtitle: "Excellence Reimagined"
+  };
 
   return (
     <section className="relative h-screen md:h-[90vh] w-full overflow-hidden flex items-center font-sans">
@@ -68,7 +46,7 @@ export default function Hero() {
           transition={{ duration: 1.2 }}
           className="absolute inset-0 z-0"
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-luxury-black via-luxury-black/40 to-transparent z-10" />
+          <div className="absolute inset-0 bg-gradient-to-r from-luxury-black via-luxury-black/60 to-transparent z-10" />
           <div className="absolute inset-0 bg-black/20 z-[5]" />
           <motion.img 
             initial={{ scale: 1.2 }}
@@ -81,10 +59,9 @@ export default function Hero() {
         </motion.div>
       </AnimatePresence>
 
-
       <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
         <AnimatePresence mode="wait">
-          <motion.div
+          <motion.div 
             key={currentIndex}
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -93,32 +70,34 @@ export default function Hero() {
             className="max-w-4xl"
           >
             <motion.span 
-              initial={{ opacity: 0, letterSpacing: "0.5em" }}
-              animate={{ opacity: 1, letterSpacing: "0.35em" }}
+              initial={{ opacity: 0, letterSpacing: "1em" }}
+              animate={{ opacity: 1, letterSpacing: "0.5em" }}
               transition={{ duration: 2, ease: "easeOut" }}
-              className="text-gold font-sans font-semibold tracking-[0.35em] text-xs md:text-sm uppercase mb-6 block"
+              className="text-gold font-sans font-bold tracking-[0.5em] text-[10px] md:text-xs uppercase mb-12 block"
             >
               DINOSPY • {currentBanner.subtitle || 'Excellence Reimagined'}
             </motion.span>
-            {currentBanner.title && (
-              <h1 className="text-5xl md:text-8xl lg:text-9xl font-display font-light leading-[1] mb-12 text-white/95 tracking-tight">
-                {currentBanner.title}
-              </h1>
-            )}
-            <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-8 pt-4">
-              <motion.div
-                whileHover={{ scale: 1.05, letterSpacing: "0.3em" }}
-                transition={{ duration: 0.4 }}
+            
+            <h1 className="text-6xl md:text-8xl lg:text-9xl font-display font-light leading-[1] mb-12 text-white/95 tracking-tight">
+              {currentBanner.title}
+            </h1>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1, duration: 1 }}
+              className="mt-12"
+            >
+              <Link 
+                to="/explore"
+                className="inline-flex items-center space-x-6 group"
               >
-                <Link 
-                  to="/explore"
-                  className="px-12 py-5 border border-gold/40 text-gold hover:bg-gold hover:text-luxury-black font-bold uppercase tracking-[0.25em] text-[10px] flex items-center justify-center transition-all bg-luxury-black/30 backdrop-blur-md group"
-                >
+                <span className="text-gold font-bold uppercase tracking-[0.6em] text-[10px] md:text-xs group-hover:tracking-[0.8em] transition-all duration-700">
                   Discover Collection
-                  <ArrowRight className="ml-3 group-hover:translate-x-2 transition-transform" size={16} />
-                </Link>
-              </motion.div>
-            </div>
+                </span>
+                <div className="w-12 h-[1px] bg-gold/30 group-hover:w-24 group-hover:bg-gold transition-all duration-700" />
+              </Link>
+            </motion.div>
           </motion.div>
         </AnimatePresence>
       </div>
@@ -139,16 +118,6 @@ export default function Hero() {
           </button>
         </div>
       )}
-
-      {/* Progress indicators */}
-      <div className="absolute bottom-10 left-10 z-30 flex space-x-2">
-        {banners.map((_, i) => (
-          <div 
-            key={i}
-            className={`h-1 rounded-full transition-all duration-500 ${i === currentIndex ? 'w-12 bg-gold' : 'w-4 bg-white/20'}`}
-          />
-        ))}
-      </div>
     </section>
   );
 }

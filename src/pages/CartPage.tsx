@@ -6,9 +6,22 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import MobileNav from '../components/MobileNav';
 import { Link } from 'react-router-dom';
+import { toast } from 'sonner';
+import { X, AlertCircle } from 'lucide-react';
 
 export default function CartPage() {
   const { cart, removeFromCart, updateQuantity, cartTotal } = useCart();
+  const [outOfStockItems, setOutOfStockItems] = React.useState<string[]>([]);
+  const [showErrorPopup, setShowErrorPopup] = React.useState(false);
+
+  React.useEffect(() => {
+    const obs = cart.filter(item => item.stock <= 0).map(item => item.name);
+    if (obs.length > 0 && JSON.stringify(obs) !== JSON.stringify(outOfStockItems)) {
+      setOutOfStockItems(obs);
+    }
+  }, [cart]);
+
+  const hasOutOfStock = cart.some(item => item.stock <= 0);
 
   return (
     <div className="min-h-screen flex flex-col bg-luxury-black">
@@ -57,7 +70,7 @@ export default function CartPage() {
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: 20 }}
-                      className="glass p-6 rounded-3xl flex items-center space-x-6 border border-white/5"
+                      className={`glass p-6 rounded-3xl flex items-center space-x-6 border transition-all duration-700 ${item.stock <= 0 ? 'border-red-900/30 opacity-40 grayscale-[0.8]' : 'border-white/5'}`}
                     >
                       <img 
                         src={item.images[0]} 
@@ -69,9 +82,19 @@ export default function CartPage() {
                         <h3 className="text-xl font-display mt-1">{item.name}</h3>
                         <div className="text-gold font-mono mt-2">₹{item.price.toLocaleString()}</div>
                         {item.stock !== undefined && (
-                          <div className={`text-[10px] uppercase font-bold mt-2 ${item.stock <= 5 ? 'text-orange-500' : 'text-white/40'}`}>
-                             {item.stock > 0 ? `${item.stock} Available` : 'Sold Out'}
-                             {item.quantity >= item.stock && item.stock > 0 && <span className="ml-2 text-red-500">(Max reached)</span>}
+                          <div className={`text-[10px] uppercase font-bold mt-2 flex items-center space-x-2 ${item.stock <= 0 ? 'text-red-500' : (item.stock <= 5 ? 'text-orange-500' : 'text-white/40')}`}>
+                             {item.stock > 0 ? (
+                               <>
+                                 <div className={`w-1.5 h-1.5 rounded-full ${item.stock <= 5 ? 'bg-orange-500 animate-pulse' : 'bg-green-500'}`} />
+                                 <span>{item.stock} Units in Vault</span>
+                               </>
+                             ) : (
+                               <>
+                                 <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                                 <span className="font-black">ASSET ARCHIVED • OUT OF STOCK</span>
+                               </>
+                             )}
+                             {item.quantity >= item.stock && item.stock > 0 && <span className="ml-2 text-white/20 italic">(Collection Limit)</span>}
                           </div>
                         )}
                       </div>
@@ -123,8 +146,14 @@ export default function CartPage() {
                     <span className="text-3xl font-mono text-gold">₹{cartTotal.toLocaleString()}</span>
                   </div>
                   <Link 
-                    to="/checkout"
-                    className="w-full py-5 gold-gradient text-luxury-black font-bold uppercase tracking-widest flex items-center justify-center hover:scale-[1.02] active:scale-[0.98] transition-all"
+                    to={hasOutOfStock ? "#" : "/checkout"}
+                    onClick={(e) => {
+                      if (hasOutOfStock) {
+                        e.preventDefault();
+                        setShowErrorPopup(true);
+                      }
+                    }}
+                    className={`w-full py-5 font-bold uppercase tracking-widest flex items-center justify-center transition-all ${hasOutOfStock ? 'bg-white/10 text-white/50 cursor-pointer' : 'gold-gradient text-luxury-black hover:scale-[1.02] active:scale-[0.98]'}`}
                   >
                     Proceed to Checkout
                     <ArrowRight className="ml-2" size={18} />
@@ -138,6 +167,57 @@ export default function CartPage() {
 
       <Footer />
       <MobileNav />
+
+      {/* Out of Stock Popup */}
+      <AnimatePresence>
+        {showErrorPopup && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-luxury-black/90 backdrop-blur-md"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="glass max-w-md w-full p-10 rounded-[2.5rem] border border-red-500/20 text-center relative"
+            >
+              <button 
+                onClick={() => setShowErrorPopup(false)}
+                className="absolute top-6 right-6 text-white/20 hover:text-white transition-colors"
+              >
+                <X size={24} />
+              </button>
+
+              <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-8 border border-red-500/20">
+                <AlertCircle className="text-red-500" size={32} />
+              </div>
+
+              <h2 className="text-2xl font-display mb-4 uppercase tracking-wider">Vault Restriction</h2>
+              <p className="text-white/40 mb-10 text-[11px] uppercase tracking-widest leading-relaxed">
+                Some assets in your selection are no longer available in our vault. Please remove the following items to proceed:
+              </p>
+
+              <div className="space-y-4 mb-10 text-left">
+                {cart.filter(item => item.stock <= 0).map(item => (
+                  <div key={item.id} className="flex items-center space-x-4 p-4 border border-white/5 bg-white/[0.02]">
+                    <img src={item.images[0]} className="w-12 h-12 object-cover opacity-50" />
+                    <span className="text-[10px] uppercase font-bold tracking-widest text-white/60">{item.name}</span>
+                  </div>
+                ))}
+              </div>
+
+              <button 
+                onClick={() => setShowErrorPopup(false)}
+                className="w-full py-4 bg-white/5 hover:bg-white/10 text-white font-bold uppercase tracking-[0.3em] text-[10px] transition-all border border-white/10"
+              >
+                Return to Collection
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

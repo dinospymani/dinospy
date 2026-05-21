@@ -45,6 +45,11 @@ export default function WatchCard({ product }: WatchCardProps) {
             Limited
           </div>
         )}
+        {isOutOfStock && (
+          <div className="px-3 py-1 border border-red-900/50 text-red-500 text-[8px] font-bold uppercase tracking-[0.3em] bg-luxury-black/80 backdrop-blur-sm">
+            Out of Stock
+          </div>
+        )}
       </div>
       
       <button 

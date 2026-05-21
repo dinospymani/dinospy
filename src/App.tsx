@@ -44,7 +44,7 @@ function AnimatedRoutes() {
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<PageTransition><HomePage /></PageTransition>} />
         <Route path="/product/:id" element={<PageTransition><ProductDetailsPage /></PageTransition>} />
-        <Route path="/search" element={<PageTransition><ExplorePage /></PageTransition>} />
+        <Route path="/explore" element={<PageTransition><ExplorePage /></PageTransition>} />
         <Route path="/cart" element={<PageTransition><CartPage /></PageTransition>} />
         <Route path="/wishlist" element={<PageTransition><WishlistPage /></PageTransition>} />
         <Route path="/checkout" element={<ProtectedRoute><PageTransition><CheckoutPage /></PageTransition></ProtectedRoute>} />

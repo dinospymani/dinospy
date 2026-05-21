@@ -38,6 +38,7 @@ export default function Navbar() {
 
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center space-x-12">
+            <Link to="/" className="text-[10px] font-semibold uppercase tracking-[0.4em] text-white/50 hover:text-gold transition-all duration-500 hover:scale-105">Home</Link>
             <Link to="/explore" className="text-[10px] font-semibold uppercase tracking-[0.4em] text-white/50 hover:text-gold transition-all duration-500 hover:scale-105">Collection</Link>
             <Link to="/#philosophy" className="text-[10px] font-semibold uppercase tracking-[0.4em] text-white/50 hover:text-gold transition-all duration-500 hover:scale-105">Narrative</Link>
           </div>

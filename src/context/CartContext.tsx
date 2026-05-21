@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { useAuth, db } from './AuthContext';
-import { doc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
+import { doc, updateDoc, arrayUnion, arrayRemove, onSnapshot } from 'firebase/firestore';
 
 interface Product {
   id: string;
@@ -58,6 +58,37 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     localStorage.setItem('aureum_wishlist', JSON.stringify(wishlist));
   }, [wishlist]);
+
+  // Real-time synchronization for items currently in the cart
+  useEffect(() => {
+    if (cart.length === 0) return;
+
+    const unsubscribedIds = new Set<string>();
+    const unsubscribes: (() => void)[] = [];
+
+    cart.forEach((item) => {
+      if (unsubscribedIds.has(item.id)) return;
+      unsubscribedIds.add(item.id);
+
+      const itemRef = doc(db, 'products', item.id);
+      const unsub = onSnapshot(itemRef, (docSnap) => {
+        if (docSnap.exists()) {
+          const updatedProduct = { id: docSnap.id, ...docSnap.data() } as Product;
+          setCart(prev => prev.map(cartItem => 
+            cartItem.id === docSnap.id 
+              ? { ...cartItem, ...updatedProduct } 
+              : cartItem
+          ));
+        } else {
+          // If product removed from database, remove from cart
+          setCart(prev => prev.filter(cartItem => cartItem.id !== item.id));
+        }
+      });
+      unsubscribes.push(unsub);
+    });
+
+    return () => unsubscribes.forEach(unsub => unsub());
+  }, [cart.length]); // Only re-run when items are added/removed
 
   const addToCart = (product: Product, quantity: number = 1) => {
     let success = false;
