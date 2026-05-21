@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 import Navbar from '../components/Navbar';
 import Hero from '../components/Hero';
@@ -47,225 +48,233 @@ export default function HomePage() {
       <Navbar />
       <Hero />
 
-      <main className="flex-grow">
-        {/* Flash Sale Section */}
-        <section className="bg-gold py-4 overflow-hidden relative">
-          <div className="flex whitespace-nowrap animate-marquee-slow">
+      <main className="flex-grow space-y-32 md:space-y-60 pb-32">
+        {/* Cinematic Marquee */}
+        <section className="border-y border-white/5 py-8 overflow-hidden relative bg-luxury-black">
+          <div className="flex whitespace-nowrap animate-marquee">
             {[1,2,3,4,5].map(i => (
-              <span key={i} className="text-luxury-black font-bold uppercase tracking-[0.4em] text-xs mx-10">
-                DINOSPY EXCLUSIVE: India's Premier Watch Collection • Express India-wide Dispatch • Lifetime Service Support •
+              <span key={i} className="text-white/10 font-medium uppercase tracking-[0.6em] text-[9px] mx-16">
+                DINOSPY EXCLUSIVE • PREMIER HOROLOGY • ARCHITECTURAL PRECISION • LIFETIME HERITAGE • 
               </span>
             ))}
           </div>
         </section>
 
-        {/* New Arrivals Section - MOVED TO TOP */}
-        <section id="new" className="py-24 bg-luxury-black/30">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-end mb-16">
-              <div>
-                <span className="text-gold font-mono text-xs uppercase tracking-widest mb-4 block">New Additions</span>
-                <h2 className="text-3xl md:text-5xl font-display">New Releases</h2>
+        {/* New Arrivals Section */}
+        <section id="new" className="px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto">
+            <motion.div 
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 1.5, ease: [0.19, 1, 0.22, 1] }}
+              className="flex flex-col md:flex-row justify-between items-start md:items-end mb-32 gap-12"
+            >
+              <div className="max-w-2xl">
+                <span className="text-gold font-sans text-[10px] uppercase tracking-[0.6em] mb-8 block font-bold">New Additions</span>
+                <h2 className="text-5xl md:text-8xl font-display font-light tracking-tight leading-tight">Latest <span className="italic">Acquisitions</span></h2>
+                <p className="mt-8 text-white/30 text-lg font-light tracking-wide max-w-md">Our newest masterpieces, forged in the fires of precision and heritage.</p>
               </div>
-              <button className="text-gold text-sm font-bold uppercase tracking-widest flex items-center hover:opacity-70 transition-opacity">
-                View All <ArrowRight className="ml-2" size={16} />
-              </button>
-            </div>
+              <Link to="/explore" className="text-white/40 text-[10px] uppercase tracking-[0.4em] font-bold py-3 border-b border-white/10 hover:text-gold hover:border-gold transition-all duration-700">
+                Explore All
+              </Link>
+            </motion.div>
             
             <motion.div 
               initial="hidden"
               whileInView="visible"
-              viewport={{ once: true }}
+              viewport={{ once: true, margin: "-100px" }}
               variants={{
                 hidden: { opacity: 0 },
                 visible: {
                   opacity: 1,
-                  transition: {
-                    staggerChildren: 0.1
-                  }
+                  transition: { staggerChildren: 0.3 }
                 }
               }}
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-16"
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-12 gap-y-24"
             >
               {newArrivals.length > 0 ? (
                 newArrivals.map(product => (
-                  <motion.div
-                    key={product.id}
-                    variants={{
-                      hidden: { opacity: 0, y: 20 },
-                      visible: { opacity: 1, y: 0 }
-                    }}
-                  >
-                    <WatchCard product={product} />
-                  </motion.div>
+                  <WatchCard key={product.id} product={product} />
                 ))
               ) : !loading && (
-                <div className="col-span-full py-20 text-center glass rounded-3xl border border-white/5">
-                  <p className="text-white/40 font-display text-xl mb-4">No acquisitions available yet.</p>
-                  <p className="text-white/20 text-sm max-w-sm mx-auto">Access the Admin panel to initialize the DINOSPY Masterpiece catalog.</p>
+                <div className="col-span-full py-60 text-center border border-white/5">
+                  <p className="text-white/20 font-display text-4xl italic font-light tracking-widest">Elegance is arriving...</p>
                 </div>
               )}
               {loading && new Array(4).fill(0).map((_, i) => (
-                <div key={i} className="animate-pulse glass aspect-[4/5] rounded-xl" />
+                <div key={i} className="animate-pulse bg-white/[0.02] aspect-square" />
               ))}
             </motion.div>
           </div>
         </section>
 
-        {/* The DINOSPY Narrative Section (Replacement for Style Selection) */}
-        <section id="philosophy" className="py-40 bg-white/5 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-1/3 h-full bg-gold/5 blur-[120px] -z-10 animate-pulse" />
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
-              <div className="lg:col-span-7 space-y-12">
+        {/* The DINOSPY Narrative Section */}
+        <section id="philosophy" className="relative overflow-hidden px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-24 items-center">
+              <div className="lg:col-span-6 space-y-20">
                 <motion.div
-                  initial={{ opacity: 0, x: -50 }}
+                  initial={{ opacity: 0, x: -40 }}
                   whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
+                  viewport={{ once: true, margin: "-100px" }}
+                  transition={{ duration: 1.8, ease: [0.19, 1, 0.22, 1] }}
                 >
-                  <span className="text-gold font-mono text-xs uppercase tracking-[0.5em] mb-8 block">Legacy of Excellence</span>
-                  <h2 className="text-6xl md:text-8xl font-display leading-[0.9] tracking-tighter mb-12">
-                    Not Just a Watch.<br />
-                    <span className="gold-text italic">An Archive.</span>
+                  <span className="text-gold font-sans text-[10px] uppercase tracking-[0.8em] mb-12 block font-bold">The Narrative</span>
+                  <h2 className="text-6xl md:text-9xl font-display leading-[0.9] tracking-tighter mb-16 font-light">
+                    Archive of <br />
+                    <span className="gold-text italic">Excellence.</span>
                   </h2>
-                  <p className="text-xl text-white/60 max-w-xl leading-relaxed font-light">
-                    At DINOSPY, we don't follow trends. We curate history. Each timepiece is a marriage of architectural precision and uncompromising luxury—a physical manifestation of time itself.
+                  <p className="text-2xl text-white/30 max-w-lg leading-relaxed font-light italic">
+                    "At DINOSPY, we curate history. Each timepiece is a manifestation of time itself, forged for those who understand that true luxury is silent."
                   </p>
                 </motion.div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-12 pt-12">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-20 pt-10">
                   <motion.div 
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="space-y-4"
+                    transition={{ duration: 1.5 }}
+                    className="space-y-8"
                   >
-                    <div className="w-12 h-[1px] bg-gold" />
-                    <h4 className="text-xs uppercase font-black tracking-widest text-gold">The Caliber</h4>
-                    <p className="text-sm text-white/40 leading-relaxed">
-                      Custom movements engineered to tolerances within microns. Absolute chronometric stability.
+                    <div className="w-10 h-[1px] bg-gold/40" />
+                    <h4 className="text-[11px] uppercase font-bold tracking-[0.5em] text-gold">The Caliber</h4>
+                    <p className="text-[10px] text-white/20 leading-relaxed uppercase tracking-[0.2em] font-medium">
+                      Absolute chronometric stability meet innovative craftsmanship.
                     </p>
                   </motion.div>
                   <motion.div 
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    transition={{ delay: 0.2 }}
-                    className="space-y-4"
+                    transition={{ duration: 1.5, delay: 0.4 }}
+                    className="space-y-8"
                   >
-                    <div className="w-12 h-[1px] bg-gold" />
-                    <h4 className="text-xs uppercase font-black tracking-widest text-gold">The Identity</h4>
-                    <p className="text-sm text-white/40 leading-relaxed">
-                      Hand-finished surfaces that play with light. A silhouette that defines the room.
+                    <div className="w-10 h-[1px] bg-gold/40" />
+                    <h4 className="text-[11px] uppercase font-bold tracking-[0.5em] text-gold">The Identity</h4>
+                    <p className="text-[10px] text-white/20 leading-relaxed uppercase tracking-[0.2em] font-medium">
+                      Silhouettes that define the presence of the modern elite.
                     </p>
                   </motion.div>
                 </div>
               </div>
 
               <motion.div 
-                initial={{ opacity: 0, scale: 0.9 }}
+                initial={{ opacity: 0, scale: 0.95 }}
                 whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                className="lg:col-span-5 relative"
+                viewport={{ once: true, margin: "-100px" }}
+                transition={{ duration: 2.5, ease: [0.19, 1, 0.22, 1] }}
+                className="lg:col-span-6 relative group"
               >
-                <div className="aspect-[4/5] rounded-[4rem] overflow-hidden border border-white/10 glass p-4">
+                <div className="aspect-[4/5] overflow-hidden border border-white/5 relative luxury-shadow">
                   <img 
                     src="https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?auto=format&fit=crop&q=80&w=1974" 
                     alt="Horological Art"
-                    className="w-full h-full object-cover rounded-[3rem]"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-[4s] ease-out"
                   />
+                  <div className="absolute inset-0 bg-black/20" />
                 </div>
-                <div className="absolute -bottom-10 -left-10 glass p-8 rounded-full border border-gold/20 flex flex-col items-center justify-center w-40 h-40 animate-marquee-slow">
-                  <span className="text-[10px] uppercase font-black tracking-widest text-gold">Artisanal</span>
-                  <span className="text-lg font-display">1 of 1</span>
+                <div className="absolute -bottom-24 -right-4 md:-right-24 bg-luxury-black p-16 rounded-none border border-white/5 flex flex-col items-center justify-center w-64 h-64 backdrop-blur-3xl shadow-2xl z-10">
+                  <span className="text-[11px] uppercase font-bold tracking-[0.6em] text-gold mb-4">Artisanal</span>
+                  <span className="text-4xl font-display italic font-light">Mastery</span>
                 </div>
               </motion.div>
             </div>
           </div>
         </section>
 
-        {/* Premium Startup Section */}
-        <section className="py-24 border-y border-white/5 bg-gradient-to-b from-transparent to-gold/5">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        {/* Global Excellence Section */}
+        <section className="py-80 bg-luxury-black relative overflow-hidden px-4">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(212,175,55,0.03)_0%,transparent_80%)]" />
+          <div className="max-w-7xl mx-auto text-center relative z-10">
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
-              className="inline-flex items-center space-x-2 px-4 py-1 rounded-full glass border border-gold/20 mb-8"
+              viewport={{ once: true }}
+              transition={{ duration: 2 }}
             >
-              <Zap className="text-gold" size={14} />
-              <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-white/80">Premium Disruptor</span>
+              <h2 className="text-6xl md:text-9xl font-display mb-16 font-light tracking-tight leading-[0.85]">Pinnacle of <br /><span className="gold-text italic">Boutique Luxury.</span></h2>
+              <p className="text-white/20 max-w-3xl mx-auto mb-24 text-xl md:text-3xl font-light leading-relaxed tracking-wide italic">
+                "DINOSPY merges artisanal craftsmanship with limited-edition exclusivity. Every timepiece is a rare artifact of time."
+              </p>
+              
+              <div className="flex flex-col md:flex-row justify-center gap-16 md:gap-32 pt-12">
+                <div className="space-y-6">
+                  <p className="text-5xl md:text-7xl font-display gold-text italic tracking-tighter font-light">Exclusive</p>
+                  <p className="text-[11px] text-white/20 uppercase tracking-[0.6em] font-bold">Genesis Collection</p>
+                </div>
+                <div className="w-[1px] h-32 bg-white/5 hidden md:block self-center" />
+                <div className="space-y-6">
+                  <p className="text-5xl md:text-7xl font-display gold-text italic tracking-tighter font-light">Limited</p>
+                  <p className="text-[11px] text-white/20 uppercase tracking-[0.6em] font-bold">Serial Numbered</p>
+                </div>
+              </div>
             </motion.div>
-            
-            <h2 className="text-4xl md:text-6xl font-display mb-8">Pinnacle of <span className="gold-text md:italic">Boutique Luxury.</span></h2>
-            <p className="text-white/50 max-w-2xl mx-auto mb-12">
-              DINOSPY is a rising force in haute horology. As a high-end startup, we merge artisanal craftsmanship with limited-edition drops, ensuring every timepiece remains a rare artifact of your personal journey.
-            </p>
-            
-            <div className="flex flex-wrap justify-center gap-8">
-              <div className="glass p-6 rounded-2xl border border-white/5 min-w-[200px]">
-                <p className="text-2xl font-display gold-text mb-1 italic">Exclusive</p>
-                <p className="text-[10px] text-white/40 uppercase tracking-widest">Limited Genesis Drops</p>
-              </div>
-              <div className="glass p-6 rounded-2xl border border-white/5 min-w-[200px]">
-                <p className="text-2xl font-display gold-text mb-1 italic">Rare</p>
-                <p className="text-[10px] text-white/40 uppercase tracking-widest">Serial Numbered Assets</p>
-              </div>
-            </div>
           </div>
         </section>
 
         {/* Craftsmanship Section */}
-        <section className="py-32 bg-luxury-black/50 overflow-hidden">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+        <section className="px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-40 items-center">
               <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 1 }}
-                className="relative aspect-square"
+                initial={{ opacity: 0, y: 60 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-100px" }}
+                transition={{ duration: 2 }}
+                className="relative"
               >
-                <div className="absolute inset-0 gold-gradient blur-[100px] opacity-20 animate-pulse" />
-                <img 
-                  src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=2072" 
-                  alt="Watch Engineering"
-                  className="w-full h-full object-cover rounded-3xl border border-white/10 glass grayscale hover:grayscale-0 transition-all duration-700"
-                />
-                <div className="absolute -bottom-10 -right-10 glass p-8 rounded-3xl border border-gold/30 hidden md:block">
-                   <p className="text-4xl font-display gold-text mb-2">100%</p>
-                   <p className="text-[10px] uppercase tracking-widest text-white/50">Hand-Assembled in India</p>
+                <div className="aspect-square luxury-shadow overflow-hidden group border border-white/5 bg-luxury-charcoal">
+                  <img 
+                    src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=2072" 
+                    alt="Watch Engineering"
+                    className="w-full h-full object-cover grayscale transition-all duration-[3s] group-hover:grayscale-0 group-hover:scale-105 opacity-60 group-hover:opacity-100"
+                  />
+                </div>
+                <div className="absolute -bottom-16 -left-16 bg-luxury-black p-16 border border-white/5 hidden xl:block shadow-2xl">
+                   <p className="text-7xl font-display gold-text mb-3 italic font-light">100%</p>
+                   <p className="text-[11px] uppercase tracking-[0.5em] text-white/20 font-bold">Precision Assets</p>
                 </div>
               </motion.div>
 
-              <div className="space-y-12">
-                 <div>
-                    <span className="text-gold font-mono tracking-widest text-xs uppercase mb-4 block">The DINOSPY Standard</span>
-                    <h2 className="text-5xl font-display mb-6 leading-tight">Mastery in Every <span className="gold-text italic">Millisecond.</span></h2>
-                    <p className="text-white/60 leading-relaxed text-lg">
-                      Each DINOSPY timepiece undergoes 400 hours of rigorous testing and calibration. Our master horologists merge traditional Swiss techniques with innovative Indian engineering to create instruments of absolute precision.
+              <div className="space-y-24">
+                 <motion.div
+                   initial={{ opacity: 0, x: 40 }}
+                   whileInView={{ opacity: 1, x: 0 }}
+                   viewport={{ once: true }}
+                   transition={{ duration: 2 }}
+                 >
+                    <span className="text-gold font-sans tracking-[0.8em] text-[10px] uppercase mb-12 block font-bold">The Standard</span>
+                    <h2 className="text-5xl md:text-8xl font-display mb-12 leading-[1] font-light tracking-tight">Mastery in <br /><span className="gold-text italic">Motion.</span></h2>
+                    <p className="text-white/30 leading-relaxed text-2xl font-light italic">
+                      "Each instrument undergoes 400 hours of testing. Merging Swiss legacy with avant-garde engineering."
                     </p>
+                 </motion.div>
+
+                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-16">
+                    <div className="p-10 border border-white/5 hover:border-gold/30 transition-all duration-700 bg-white/[0.01] group">
+                       <h4 className="text-gold font-bold uppercase tracking-[0.5em] text-[11px] mb-8 group-hover:text-white transition-colors">Sapphire</h4>
+                       <p className="text-[10px] text-white/20 tracking-[0.2em] uppercase leading-loose font-medium">Eternal clarity via triple-layer anti-reflective coating.</p>
+                    </div>
+                    <div className="p-10 border border-white/5 hover:border-gold/30 transition-all duration-700 bg-white/[0.01] group">
+                       <h4 className="text-gold font-bold uppercase tracking-[0.5em] text-[11px] mb-8 group-hover:text-white transition-colors">Surgical</h4>
+                       <p className="text-[10px] text-white/20 tracking-[0.2em] uppercase leading-loose font-medium">Forged 316L stainless steel for absolute endurance.</p>
+                    </div>
                  </div>
 
-                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div className="glass p-6 rounded-2xl border border-white/5 hover:border-gold/20 transition-all">
-                       <h4 className="text-gold font-bold uppercase tracking-widest text-xs mb-3">Sapphire Crystal</h4>
-                       <p className="text-xs text-white/40">Scratch-resistant glass with triple-layer anti-reflective coating for ultimate clarity.</p>
-                    </div>
-                    <div className="glass p-6 rounded-2xl border border-white/5 hover:border-gold/20 transition-all">
-                       <h4 className="text-gold font-bold uppercase tracking-widest text-xs mb-3">Surgical Steel</h4>
-                       <p className="text-xs text-white/40">Forged from 316L stainless steel, offering maximum corrosion resistance and durability.</p>
-                    </div>
-                 </div>
-
-                 <button className="text-sm font-bold uppercase tracking-[0.3em] text-white hover:text-gold transition-colors flex items-center group">
-                    Discover Our Process
-                    <div className="w-12 h-[1px] bg-gold ml-4 group-hover:w-20 transition-all" />
-                 </button>
+                 <motion.button 
+                   whileHover={{ x: 30 }}
+                   transition={{ duration: 0.8, ease: "easeOut" }}
+                   className="text-[11px] font-bold uppercase tracking-[0.6em] text-white/50 hover:text-gold transition-all duration-700 flex items-center group pt-10"
+                 >
+                    The Manifesto
+                    <div className="w-20 h-[1px] bg-gold/30 ml-8 group-hover:w-32 group-hover:bg-gold transition-all duration-700" />
+                 </motion.button>
               </div>
             </div>
           </div>
         </section>
-
       </main>
 
       <Footer />

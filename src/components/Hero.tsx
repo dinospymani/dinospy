@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import { Link } from 'react-router-dom';
 import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { db } from '../context/AuthContext';
 import { collection, onSnapshot, query, where, orderBy } from 'firebase/firestore';
@@ -85,32 +86,38 @@ export default function Hero() {
         <AnimatePresence mode="wait">
           <motion.div
             key={currentIndex}
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 50 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            className="max-w-3xl"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -30 }}
+            transition={{ duration: 1.5, ease: [0.19, 1, 0.22, 1] }}
+            className="max-w-4xl"
           >
             <motion.span 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="text-gold font-mono tracking-[0.3em] text-sm md:text-base uppercase mb-4 block"
+              initial={{ opacity: 0, letterSpacing: "0.5em" }}
+              animate={{ opacity: 1, letterSpacing: "0.35em" }}
+              transition={{ duration: 2, ease: "easeOut" }}
+              className="text-gold font-sans font-semibold tracking-[0.35em] text-xs md:text-sm uppercase mb-6 block"
             >
               DINOSPY • {currentBanner.subtitle || 'Excellence Reimagined'}
             </motion.span>
             {currentBanner.title && (
-              <h1 className="text-4xl md:text-7xl lg:text-8xl font-display font-medium leading-[1.1] mb-8 text-white drop-shadow-lg">
+              <h1 className="text-5xl md:text-8xl lg:text-9xl font-display font-light leading-[1] mb-12 text-white/95 tracking-tight">
                 {currentBanner.title}
               </h1>
             )}
-            <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-6">
-              <a 
-                href={currentBanner.link || "#new"}
-                className="px-10 py-5 gold-gradient text-luxury-black font-bold uppercase tracking-widest flex items-center justify-center hover:scale-105 transition-transform group rounded-sm"
+            <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-8 pt-4">
+              <motion.div
+                whileHover={{ scale: 1.05, letterSpacing: "0.3em" }}
+                transition={{ duration: 0.4 }}
               >
-                Explore Now
-                <ArrowRight className="ml-2 group-hover:translate-x-2 transition-transform" size={18} />
-              </a>
+                <Link 
+                  to="/explore"
+                  className="px-12 py-5 border border-gold/40 text-gold hover:bg-gold hover:text-luxury-black font-bold uppercase tracking-[0.25em] text-[10px] flex items-center justify-center transition-all bg-luxury-black/30 backdrop-blur-md group"
+                >
+                  Discover Collection
+                  <ArrowRight className="ml-3 group-hover:translate-x-2 transition-transform" size={16} />
+                </Link>
+              </motion.div>
             </div>
           </motion.div>
         </AnimatePresence>

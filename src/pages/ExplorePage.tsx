@@ -10,7 +10,7 @@ import { db } from '../context/AuthContext';
 import { useSearchParams } from 'react-router-dom';
 
 export default function ExplorePage() {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -18,10 +18,21 @@ export default function ExplorePage() {
 
   useEffect(() => {
     const search = searchParams.get('search');
-    if (search !== null) {
+    if (search !== null && search !== searchTerm) {
       setSearchTerm(search);
     }
   }, [searchParams]);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (searchTerm) {
+        setSearchParams({ search: searchTerm }, { replace: true });
+      } else {
+        setSearchParams({}, { replace: true });
+      }
+    }, 500);
+    return () => clearTimeout(timeout);
+  }, [searchTerm, setSearchParams]);
 
   useEffect(() => {
     setLoading(true);

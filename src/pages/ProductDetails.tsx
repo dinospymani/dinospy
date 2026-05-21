@@ -176,200 +176,144 @@ export default function ProductDetails() {
           </div>
 
           {/* Breadcrumbs */}
-          <nav className="flex items-center space-x-2 text-[10px] uppercase tracking-widest text-white/40 mb-12">
-            <Link to="/" className="hover:text-gold">Home</Link>
-            <ChevronRight size={10} />
-            <span className="hover:text-gold cursor-pointer">{product.category}</span>
-            <ChevronRight size={10} />
-            <span className="text-white">{product.name}</span>
+          <nav className="flex items-center space-x-4 text-[10px] uppercase tracking-[0.5em] text-white/30 mb-20 font-bold">
+            <Link to="/" className="hover:text-gold transition-colors">Home</Link>
+            <div className="w-1 h-1 rounded-full bg-white/10" />
+            <Link to="/explore" className="hover:text-gold transition-colors">{product.category}</Link>
+            <div className="w-1 h-1 rounded-full bg-white/10" />
+            <span className="text-white/60">{product.name}</span>
           </nav>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 lg:gap-32">
             {/* Left: Images */}
-            <div className="space-y-6">
+            <div className="space-y-12">
               <motion.div 
                 layoutId={`image-${product.id}`}
-                className="relative aspect-square rounded-[2rem] sm:rounded-3xl overflow-hidden glass border border-white/5 cursor-zoom-in group shadow-2xl"
-                whileHover={{ scale: 1.02 }}
-                transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
+                className="relative aspect-square overflow-hidden bg-luxury-black/30 border border-white/5 cursor-zoom-in group luxury-shadow"
+                transition={{ duration: 1, ease: [0.19, 1, 0.22, 1] }}
               >
                 <motion.div 
                    key={activeImage}
-                   initial={{ opacity: 0, x: 20 }}
-                   animate={{ opacity: 1, x: 0 }}
-                   exit={{ opacity: 0, x: -20 }}
-                   drag="x"
-                   dragConstraints={{ left: 0, right: 0 }}
-                   onDragEnd={(_, info) => {
-                     if (info.offset.x < -50 && activeImage < product.images.length - 1) setActiveImage(activeImage + 1);
-                     if (info.offset.x > 50 && activeImage > 0) setActiveImage(activeImage - 1);
-                   }}
-                   transition={{ duration: 0.4, ease: "easeOut" }}
-                   className="w-full h-full cursor-grab active:cursor-grabbing"
+                   initial={{ opacity: 0, scale: 1.1 }}
+                   animate={{ opacity: 1, scale: 1 }}
+                   transition={{ duration: 1.5, ease: [0.19, 1, 0.22, 1] }}
+                   className="w-full h-full"
                 >
                   <img 
                     src={product.images[activeImage]} 
                     alt={product.name}
-                    className="w-full h-full object-contain bg-luxury-black/40 transition-transform duration-700 md:group-hover:scale-125"
+                    className="w-full h-full object-contain p-12 group-hover:scale-110 transition-transform duration-[3s] ease-out"
                   />
                 </motion.div>
                 
-                <div className="absolute top-6 left-6 flex space-x-2">
-                   {product.isLimited && <span className="bg-gold text-luxury-black text-[8px] font-bold px-2 py-1 uppercase tracking-widest">Limited Edition</span>}
-                   {product.isOffer && <span className="bg-red-600 text-white text-[8px] font-bold px-2 py-1 uppercase tracking-widest">DINOSPY Exclusive</span>}
-                </div>
-
-                <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex space-x-2 lg:hidden">
-                   {product.images.map((_: any, i: number) => (
-                     <div key={i} className={`w-1.5 h-1.5 rounded-full transition-all ${activeImage === i ? 'bg-gold w-4' : 'bg-white/20'}`} />
-                   ))}
+                <div className="absolute top-10 left-10">
+                   {product.isLimited && (
+                     <div className="px-5 py-2 border border-gold/40 bg-luxury-black/50 backdrop-blur-md text-gold text-[9px] font-bold uppercase tracking-[0.4em]">
+                        Limited Edition
+                     </div>
+                   )}
                 </div>
               </motion.div>
               
-              <div className="flex space-x-4 overflow-x-auto pb-4 custom-scrollbar snap-x">
+              <div className="flex justify-center space-x-8 px-4">
                 {product.images.map((img: string, i: number) => (
                   <button 
                     key={i}
                     onClick={() => setActiveImage(i)}
-                    className={`relative flex-shrink-0 w-24 aspect-square rounded-xl overflow-hidden border-2 transition-all snap-start ${activeImage === i ? 'border-gold' : 'border-transparent opacity-50 hover:opacity-100'}`}
+                    className={`relative w-20 aspect-square overflow-hidden border transition-all duration-700 ${activeImage === i ? 'border-gold p-1' : 'border-transparent opacity-20 hover:opacity-100'}`}
                   >
-                    <img src={img} alt="" className="w-full h-full object-cover" />
+                    <img src={img} alt="" className="w-full h-full object-contain" />
                   </button>
                 ))}
               </div>
             </div>
 
             {/* Right: Info */}
-            <div className="flex flex-col">
-              <div className="mb-10">
-            <span className="text-gold font-mono text-sm uppercase tracking-[0.2em] mb-4 block underline underline-offset-8">
-              DINOSPY • {product.category}
-            </span>
-                <h1 className="text-5xl md:text-6xl font-display mb-6 leading-tight">{product.name}</h1>
-                <div className="flex items-center space-x-6 mb-8">
-                  <div className="flex items-center text-gold space-x-2">
-                    {[1,2,3,4,5].map(i => (
-                      <Star key={i} size={14} fill={i <= Math.floor(product.rating) ? "currentColor" : "none"} />
-                    ))}
-                    <span className="text-sm font-bold ml-2">{product.rating}</span>
-                  </div>
-                  <span className="text-white/40 text-sm">({product.reviewCount} Reviews)</span>
-                  <div className="h-4 w-[1px] bg-white/10" />
-                  <div className="flex items-center space-x-2">
-                     <div className={`w-2 h-2 rounded-full ${product.stock > 0 ? (product.stock <= 5 ? 'bg-orange-500 animate-pulse' : 'bg-green-500') : 'bg-red-500'}`} />
-                     <span className={`text-[10px] uppercase tracking-widest font-black ${product.stock > 0 ? (product.stock <= 5 ? 'text-orange-500' : 'text-green-500') : 'text-red-500'}`}>
-                        {product.stock > 0 
-                          ? (product.stock <= 5 ? `Urgent: Only ${product.stock} Units Remaining` : `${product.stock} Units In Vault`) 
-                          : 'Sold Out • Heritage Piece Only'}
-                     </span>
-                  </div>
-                </div>
+            <div className="flex flex-col justify-center">
+              <div className="mb-16">
+                <span className="text-gold font-sans text-[11px] uppercase tracking-[0.6em] mb-10 block font-bold">
+                  The {product.category} Series
+                </span>
+                <h1 className="text-5xl md:text-8xl font-display mb-10 leading-[0.9] font-light tracking-tight">{product.name}</h1>
                 
-                <div className="flex items-end space-x-4 mb-10">
-                   {product.discount && product.discount > 0 ? (
-                     <>
-                       <div className="text-4xl font-mono text-gold">
-                         ₹{(product.price * (1 - product.discount / 100)).toLocaleString()}
-                       </div>
-                       <div className="text-xl font-mono text-white/30 line-through pb-1">
-                         ₹{product.price.toLocaleString()}
-                       </div>
-                       <div className="bg-red-600 text-white text-[10px] font-bold px-2 py-1 uppercase mb-2">
-                         {product.discount}% OFF
-                       </div>
-                     </>
-                   ) : (
-                     <div className="text-4xl font-mono text-gold">
-                       ₹{product.price.toLocaleString()}
-                     </div>
-                   )}
+                <div className="flex items-center space-x-8 mb-16 pb-12 border-b border-white/5">
+                   <div className="text-4xl md:text-5xl font-light text-white/90 tracking-tighter">
+                     <span className="text-xs text-white/30 mr-4 uppercase tracking-widest align-middle">INR</span>
+                     {product.price.toLocaleString()}
+                   </div>
+                   <div className="h-10 w-[1px] bg-white/10" />
+                   <div className="flex items-center space-x-3">
+                      <div className={`w-2 h-2 rounded-full ${product.stock > 0 ? 'bg-gold animate-pulse' : 'bg-red-900'}`} />
+                      <span className="text-[10px] uppercase tracking-[0.3em] font-bold text-white/40">
+                         {product.stock > 0 ? 'Vault Reserved' : 'Archive Only'}
+                      </span>
+                   </div>
                 </div>
 
-                <p className="text-white/60 leading-relaxed text-lg mb-12">
-                  {product.description}
+                <p className="text-white/40 leading-relaxed text-xl font-light italic mb-16 max-w-xl">
+                  "{product.description}"
                 </p>
               </div>
 
               {/* Specs Grid */}
-              <div className="grid grid-cols-2 gap-y-6 gap-x-12 mb-12 py-8 border-y border-white/5">
+              <div className="grid grid-cols-2 gap-y-12 gap-x-20 mb-20">
                 {Object.entries(product.specs || {}).map(([key, val]: [string, any]) => (
-                  <div key={key}>
-                    <span className="text-[10px] uppercase tracking-widest text-white/40 block mb-1">{key}</span>
-                    <span className="text-sm font-medium">{val}</span>
+                  <div key={key} className="space-y-3">
+                    <span className="text-[10px] uppercase tracking-[0.5em] text-gold font-bold block">{key}</span>
+                    <span className="text-sm font-light text-white/80 uppercase tracking-widest leading-relaxed">{val}</span>
                   </div>
                 ))}
               </div>
 
-              <div className="flex flex-col space-y-4 mb-12">
-                {product.stock > 0 && (
-                   <div className="flex items-center space-x-4">
-                      <span className="text-[10px] uppercase tracking-[0.2em] text-white/40">Select Quantity</span>
-                      <div className="flex items-center border border-white/10 rounded-lg overflow-hidden">
-                         <button 
-                           onClick={() => setQuantity(q => Math.max(1, q - 1))}
-                           className="p-3 hover:bg-white/5 transition-colors"
-                         >
-                           -
-                         </button>
-                         <div className="px-6 font-mono text-gold">{quantity}</div>
-                         <button 
-                           onClick={() => setQuantity(q => q < product.stock ? q + 1 : q)}
-                           className="p-3 hover:bg-white/5 transition-colors"
-                         >
-                           +
-                         </button>
-                      </div>
+              <div className="flex flex-col space-y-10">
+                <div className="flex items-center space-x-12">
+                   <div className="flex items-center space-x-8 border-b border-white/10 pb-4">
+                      <button 
+                        onClick={() => setQuantity(q => Math.max(1, q - 1))}
+                        className="text-white/30 hover:text-gold transition-colors text-xl font-light"
+                      >
+                        —
+                      </button>
+                      <span className="text-xl font-light w-8 text-center">{quantity}</span>
+                      <button 
+                        onClick={() => setQuantity(q => q < product.stock ? q + 1 : q)}
+                        className="text-white/30 hover:text-gold transition-colors text-xl font-light"
+                      >
+                        +
+                      </button>
                    </div>
-                )}
+                   <span className="text-[10px] uppercase tracking-[0.3em] text-white/20 font-bold italic">Units of Acquisition</span>
+                </div>
 
-                <div className="flex flex-col space-y-4">
-                  <div className="flex space-x-3 sm:space-x-4">
-                    <button 
-                      onClick={handleAddToCart}
-                      disabled={product.stock <= 0}
-                      className={`flex-grow py-5 gold-gradient text-luxury-black font-bold uppercase tracking-[0.25em] text-[10px] sm:text-xs transition-all flex items-center justify-center rounded-2xl shadow-[0_10px_30px_rgba(212,175,55,0.15)] ${product.stock <= 0 ? 'opacity-50 grayscale cursor-not-allowed' : 'hover:scale-[1.02] active:scale-[0.98]'}`}
-                    >
-                      <ShoppingBag className="mr-3" size={18} />
-                      {product.stock > 0 ? 'Acquire Piece' : 'Sold Out'}
-                    </button>
-                    <button 
-                      onClick={() => {
-                        if (!user) {
-                          setIsAuthModalOpen(true);
-                          return;
-                        }
-                        toggleWishlist(product.id);
-                      }}
-                      className={`p-5 glass border border-white/10 transition-all rounded-2xl active:scale-[0.95] ${isWishlisted ? 'text-red-500 fill-red-500' : 'hover:text-red-500 text-white/60'}`}
-                    >
-                      <Heart size={20} />
-                    </button>
-                  </div>
-                  
+                <div className="flex flex-col sm:flex-row gap-6">
                   <button 
-                    onClick={handleShare}
-                    className="w-full glass py-4 rounded-2xl border border-white/5 text-white/40 hover:text-white flex items-center justify-center space-x-2 transition-all active:scale-[0.98]"
+                    onClick={handleAddToCart}
+                    disabled={product.stock <= 0}
+                    className={`flex-grow py-6 border border-gold/50 text-gold hover:bg-gold hover:text-luxury-black transition-all duration-700 text-[11px] uppercase tracking-[0.5em] font-bold ${product.stock <= 0 ? 'opacity-20 cursor-not-allowed' : ''}`}
                   >
-                    <Share2 size={14} />
-                    <span className="uppercase tracking-[0.3em] text-[8px] font-black">Share with Associates</span>
+                    Acquire Piece
+                  </button>
+                  <button 
+                    onClick={() => {
+                      if (!user) {
+                        setIsAuthModalOpen(true);
+                        return;
+                      }
+                      toggleWishlist(product.id!);
+                    }}
+                    className={`px-10 py-6 border border-white/10 transition-all duration-500 hover:border-gold/50 ${isWishlisted ? 'text-gold' : 'text-white/30'}`}
+                  >
+                    <Heart size={20} strokeWidth={1} fill={isWishlisted ? "currentColor" : "none"} />
                   </button>
                 </div>
-              </div>
-
-              {/* Trust Indicators */}
-              <div className="grid grid-cols-3 gap-4">
-                <div className="flex flex-col items-center text-center p-4 glass rounded-2xl">
-                  <Truck className="text-gold mb-3" size={20} />
-                  <span className="text-[10px] uppercase font-bold tracking-tighter text-white/70 leading-none">India Dispatch</span>
-                </div>
-                <div className="flex flex-col items-center text-center p-4 glass rounded-2xl">
-                  <Shield className="text-gold mb-3" size={20} />
-                  <span className="text-[10px] uppercase font-bold tracking-tighter text-white/70 leading-none">Insured Logistics</span>
-                </div>
-                <div className="flex flex-col items-center text-center p-4 glass rounded-2xl">
-                  <RotateCcw className="text-gold mb-3" size={20} />
-                  <span className="text-[10px] uppercase font-bold tracking-tighter text-white/70 leading-none">Returns Policy</span>
-                </div>
+                
+                <button 
+                  onClick={handleShare}
+                  className="text-[10px] uppercase font-bold tracking-[0.5em] text-white/20 hover:text-gold transition-colors flex items-center group w-fit"
+                >
+                  Share Asset Details
+                  <div className="w-12 h-[1px] bg-white/10 ml-6 group-hover:bg-gold group-hover:w-20 transition-all duration-700" />
+                </button>
               </div>
             </div>
           </div>
