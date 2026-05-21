@@ -14,6 +14,7 @@ async function startServer() {
   app.use(express.json());
 
   const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
+  const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
   const otpStore = new Map<string, string>();
 
   // OTP Generation & Sending
@@ -29,8 +30,9 @@ async function startServer() {
 
     if (resend) {
       try {
+        console.log(`[RESEND] Attempting to send OTP to ${email} via ${FROM_EMAIL}`);
         await resend.emails.send({
-          from: 'DINOSPY <security@resend.dev>',
+          from: `DINOSPY <${FROM_EMAIL}>`,
           to: email,
           subject: '[SECURE] Your DINOSPY Verification Code',
           html: `
@@ -182,8 +184,9 @@ async function startServer() {
         </div>
       `;
 
+      console.log(`[RESEND] Attempting to send Confirmation to ${email} via ${FROM_EMAIL}`);
       await resend.emails.send({
-        from: 'DINOSPY <acquisitions@resend.dev>',
+        from: `DINOSPY <${FROM_EMAIL}>`,
         to: email,
         subject: `[CONFIDENTIAL] Acquisition Authorized - ${customerName}`,
         html: htmlContent,

@@ -19,6 +19,12 @@ export default function CheckoutPage() {
   const [otp, setOtp] = useState('');
   const [isEmailVerified, setIsEmailVerified] = useState(false);
   const [devOtp, setDevOtp] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (user?.emailVerified) {
+      setIsEmailVerified(true);
+    }
+  }, [user]);
   
   const [formData, setFormData] = useState({
     fullName: profile?.displayName || '',
@@ -329,7 +335,14 @@ export default function CheckoutPage() {
                                 className="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-4 focus:border-gold outline-none text-sm transition-all text-center tracking-[0.5em] font-mono"
                               />
                             </div>
-                            <div className="flex items-end">
+                            <div className="flex items-end space-x-2">
+                              <button 
+                                type="button"
+                                onClick={handleSendEmailOtp}
+                                className="h-14 px-4 border border-white/10 rounded-xl text-white/40 hover:text-gold font-bold text-[10px] uppercase tracking-widest transition-all"
+                              >
+                                {isVerifyingEmail ? '...' : 'Resend'}
+                              </button>
                               <button 
                                 type="button"
                                 onClick={handleVerifyEmailOtp}
@@ -340,6 +353,7 @@ export default function CheckoutPage() {
                               </button>
                             </div>
                           </div>
+                          <p className="text-[9px] text-white/30 italic">Note: If you don't see the code, please check your spam folder.</p>
                         </div>
                       )}
                     </div>
