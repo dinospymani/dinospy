@@ -5,6 +5,7 @@ export interface UserProfile {
   role: 'user' | 'admin';
   createdAt: string;
   lastReadNotification?: string;
+  dismissedNotifications?: string[];
 }
 
 export interface AppNotification {

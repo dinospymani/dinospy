@@ -4,7 +4,8 @@ import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc, onSnapshot, que
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import MobileNav from '../components/MobileNav';
-import { Plus, Trash2, Edit, Save, Package, QrCode, Printer, X, Truck, Loader2, ChevronLeft, TrendingUp, DollarSign, ShoppingBag, AlertCircle, BarChart2, Bell, ArrowLeft, Megaphone } from 'lucide-react';
+import { Plus, Trash2, Edit, Save, Package, QrCode, Printer, X, Truck, Loader2, ChevronLeft, TrendingUp, DollarSign, ShoppingBag, AlertCircle, BarChart2, Bell, ArrowLeft, Megaphone, Check } from 'lucide-react';
+import { motion } from 'motion/react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { QRCodeSVG } from 'qrcode.react';
 import { toast } from 'sonner';
@@ -55,6 +56,7 @@ export default function AdminDashboard() {
   const [banners, setBanners] = useState<any[]>([]);
   const [view, setView] = useState<'products' | 'orders' | 'add' | 'banners' | 'stats' | 'notifications' | 'broadcast'>('stats');
   const [selectedOrder, setSelectedOrder] = useState<AdminOrder | null>(null);
+  const [notificationFilter, setNotificationFilter] = useState<'all' | 'orders' | 'inventory'>('all');
 
   // Broadcast States
   const [broadcastTitle, setBroadcastTitle] = useState('');
@@ -88,9 +90,28 @@ export default function AdminDashboard() {
         const bSnap = await getDocs(collection(db, 'banners'));
         setBanners(bSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
         
-        // Initial manual stats calculation for products
-        const lowStock = fetchedProducts.filter(p => p.stock < 5).length;
-        setStats(prev => ({ ...prev, lowStock }));
+      // Initial manual stats calculation for products
+      const lowStockProducts = fetchedProducts.filter(p => p.stock < 5);
+      const lowStockCount = lowStockProducts.length;
+      setStats(prev => ({ ...prev, lowStock: lowStockCount }));
+
+      // Auto-populate inventory alerts
+      if (lowStockCount > 0) {
+        setNotifications(prev => {
+          const newAlerts = lowStockProducts.map(p => ({
+            id: `stock_${p.id}`,
+            type: 'inventory',
+            message: `CRITICAL STOCK: ${p.name} is down to ${p.stock} units.`,
+            timestamp: new Date().toISOString(),
+            read: false,
+            productId: p.id
+          }));
+          
+          // Filter out existing alerts to avoid duplicates
+          const uniqueNewAlerts = newAlerts.filter(na => !prev.some(pa => pa.id === na.id));
+          return [...uniqueNewAlerts, ...prev];
+        });
+      }
 
       } catch (err) {
         console.error("Error fetching static data:", err);
@@ -117,10 +138,12 @@ export default function AdminDashboard() {
                if (prev.some(n => n.id === `noti_${no.id}`)) return prev;
                return [{
                  id: `noti_${no.id}`,
-                 type: 'new_order',
-                 message: `Order #${no.id.slice(-6)} received from ${no.customerName}`,
+                 type: 'orders',
+                 message: `New Order #${no.id.slice(-6)} received from ${no.customerName}`,
+                 total: no.total,
                  timestamp: new Date().toISOString(),
-                 read: false
+                 read: false,
+                 orderId: no.id
                }, ...prev];
              });
           });
@@ -1052,51 +1075,104 @@ export default function AdminDashboard() {
           )}
 
           {view === 'notifications' && (
-            <div className="space-y-4">
-              <div className="flex justify-between items-center mb-8">
-                <h2 className="text-xl font-bold">Intelligence Feed</h2>
+            <div className="space-y-8">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-8">
+                <div>
+                   <h2 className="text-xl font-bold">Intelligence Feed</h2>
+                   <p className="text-[10px] text-white/40 uppercase tracking-widest mt-1">Real-time ecosystem monitoring</p>
+                </div>
+                <div className="flex items-center space-x-2 bg-white/5 p-1 rounded-xl border border-white/10">
+                   {(['all', 'orders', 'inventory'] as const).map((f) => (
+                     <button
+                       key={f}
+                       onClick={() => setNotificationFilter(f)}
+                       className={`px-4 py-1.5 rounded-lg text-[10px] uppercase font-bold tracking-widest transition-all ${notificationFilter === f ? 'bg-gold/20 text-gold shadow-sm' : 'text-white/40 hover:text-white'}`}
+                     >
+                       {f}
+                     </button>
+                   ))}
+                </div>
                 <button 
                   onClick={() => setNotifications(notifications.map(n => ({...n, read: true})))}
-                  className="text-[10px] uppercase font-bold text-white/40 hover:text-gold"
+                  className="text-[10px] uppercase font-black text-gold/60 hover:text-gold tracking-widest transition-colors ml-auto sm:ml-0"
                 >
                   Clear All Unread
                 </button>
               </div>
+
               <div className="space-y-4">
-                {notifications.length === 0 && (
+                {notifications.filter(n => notificationFilter === 'all' || n.type === notificationFilter).length === 0 ? (
                   <div className="text-center py-20 bg-white/5 rounded-3xl border border-dashed border-white/10">
-                    <Bell className="mx-auto text-white/20 mb-4" size={48} />
-                    <p className="text-white/40">No new alerts in the feed.</p>
+                    <Bell className="mx-auto text-white/10 mb-4" size={48} />
+                    <p className="text-[10px] uppercase tracking-[0.3em] font-bold text-white/20">No active signals in this frequency</p>
                   </div>
-                )}
-                {notifications.map((n) => (
-                  <div 
-                    key={n.id} 
-                    className={`glass p-5 rounded-2xl border transition-all ${n.read ? 'border-white/5 opacity-60' : 'border-gold/30 bg-gold/5'}`}
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-start space-x-4">
-                        <div className={`p-2 rounded-full ${n.type === 'new_order' ? 'bg-gold/20 text-gold' : 'bg-blue-500/20 text-blue-500'}`}>
-                          <Bell size={16} />
+                ) : (
+                  notifications
+                    .filter(n => notificationFilter === 'all' || n.type === notificationFilter)
+                    .map((n) => (
+                    <motion.div 
+                      key={n.id} 
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      className={`glass p-6 rounded-2xl border transition-all duration-500 relative overflow-hidden group ${n.read ? 'border-white/5 opacity-50 gray' : 'border-gold/20 bg-gradient-to-r from-gold/5 to-transparent'}`}
+                    >
+                      {!n.read && <div className="absolute top-0 left-0 w-1 h-full bg-gold shadow-[0_0_10px_#D4AF37]" />}
+                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                        <div className="flex items-start space-x-4">
+                          <div className={`mt-1 p-3 rounded-xl ${n.type === 'orders' ? 'bg-gold/20 text-gold' : 'bg-red-500/20 text-red-500'}`}>
+                            {n.type === 'orders' ? <ShoppingBag size={20} /> : <AlertCircle size={20} />}
+                          </div>
+                          <div>
+                            <div className="flex items-center space-x-3 mb-1">
+                               <span className={`text-[8px] px-2 py-0.5 rounded font-black uppercase tracking-widest ${n.type === 'orders' ? 'bg-gold/10 text-gold' : 'bg-red-500/10 text-red-500'}`}>
+                                 {n.type} Signal
+                               </span>
+                               <p className="text-[10px] text-white/20 font-mono">
+                                 {new Date(n.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                               </p>
+                            </div>
+                            <h4 className="text-sm font-bold text-white/90">{n.message}</h4>
+                            {n.total && <p className="text-xs text-gold/60 font-mono mt-1">Value: ₹{n.total.toLocaleString()}</p>}
+                          </div>
                         </div>
-                        <div>
-                          <p className="text-sm font-bold">{n.message}</p>
-                          <p className="text-[10px] text-white/40 mt-1 uppercase tracking-widest">
-                            {new Date(n.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • Just Now
-                          </p>
+                        
+                        <div className="flex items-center space-x-4">
+                          {n.orderId && (
+                            <button 
+                              onClick={() => {
+                                const order = orders.find(o => o.id === n.orderId);
+                                if (order) {
+                                  setSelectedOrder(order);
+                                  setView('orders');
+                                }
+                              }}
+                              className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-[10px] font-black uppercase tracking-widest text-white/60 hover:text-gold transition-all"
+                            >
+                              Inspect Manifest
+                            </button>
+                          )}
+                          {n.productId && (
+                            <button 
+                              onClick={() => setView('products')}
+                              className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-[10px] font-black uppercase tracking-widest text-white/60 hover:text-red-400 transition-all"
+                            >
+                              Restock Unit
+                            </button>
+                          )}
+                          {!n.read && (
+                            <button 
+                              onClick={() => setNotifications(notifications.map(notif => notif.id === n.id ? {...notif, read: true} : notif))}
+                              className="p-2 text-white/20 hover:text-gold transition-colors"
+                              title="Archive Signal"
+                            >
+                              <Check size={18} />
+                            </button>
+                          )}
                         </div>
                       </div>
-                      {!n.read && (
-                        <button 
-                          onClick={() => setNotifications(notifications.map(notif => notif.id === n.id ? {...notif, read: true} : notif))}
-                          className="text-[10px] text-gold uppercase font-bold hover:underline"
-                        >
-                          Archive
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                ))}
+                    </motion.div>
+                  ))
+                )}
               </div>
             </div>
           )}

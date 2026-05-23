@@ -29,12 +29,15 @@ export default function NotificationCenter() {
       setNotifications(fetched);
 
       // Calculate unread
+      const dismissedIds = profile?.dismissedNotifications || [];
+      const visibleNotifications = fetched.filter(n => !dismissedIds.includes(n.id));
+      
       if (profile?.lastReadNotification) {
         const lastRead = new Date(profile.lastReadNotification).getTime();
-        const unread = fetched.filter(n => new Date(n.createdAt).getTime() > lastRead).length;
+        const unread = visibleNotifications.filter(n => new Date(n.createdAt).getTime() > lastRead).length;
         setUnreadCount(unread);
       } else {
-        setUnreadCount(fetched.length);
+        setUnreadCount(visibleNotifications.length);
       }
     }, (error) => {
       handleFirestoreError(error, OperationType.LIST, path);
@@ -66,7 +69,46 @@ export default function NotificationCenter() {
     }
   };
 
+  const filteredNotifications = notifications.filter(n => 
+    !profile?.dismissedNotifications?.includes(n.id)
+  );
+
   if (!user) return null;
+
+  const handleDismiss = async (notificationId: string) => {
+    if (!user) return;
+    const path = `users/${user.uid}`;
+    try {
+      const userRef = doc(db, 'users', user.uid);
+      const currentDismissed = profile?.dismissedNotifications || [];
+      if (!currentDismissed.includes(notificationId)) {
+        await updateDoc(userRef, {
+          dismissedNotifications: [...currentDismissed, notificationId]
+        });
+      }
+    } catch (err) {
+      handleFirestoreError(err, OperationType.UPDATE, path);
+    }
+  };
+
+  const markAllAsDismissed = async () => {
+    if (!user) return;
+    const path = `users/${user.uid}`;
+    try {
+      const userRef = doc(db, 'users', user.uid);
+      const allIds = notifications.map(n => n.id);
+      const currentDismissed = profile?.dismissedNotifications || [];
+      const newDismissed = Array.from(new Set([...currentDismissed, ...allIds]));
+      
+      await updateDoc(userRef, {
+        dismissedNotifications: newDismissed,
+        lastReadNotification: new Date().toISOString()
+      });
+      setUnreadCount(0);
+    } catch (err) {
+      handleFirestoreError(err, OperationType.UPDATE, path);
+    }
+  };
 
   return (
     <div className="relative">
@@ -100,23 +142,34 @@ export default function NotificationCenter() {
               style={{ maxHeight: '500px' }}
             >
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-[10px] uppercase tracking-[0.4em] font-black text-white/40">Broadcasting System</h3>
+                <div className="flex items-center space-x-4">
+                  <h3 className="text-[10px] uppercase tracking-[0.4em] font-black text-white/40">Broadcasting System</h3>
+                  {filteredNotifications.length > 0 && (
+                    <button 
+                      onClick={markAllAsDismissed}
+                      className="text-[9px] uppercase tracking-widest text-gold/60 hover:text-gold font-bold"
+                    >
+                      Clear All
+                    </button>
+                  )}
+                </div>
                 <button onClick={() => setIsOpen(false)} className="text-white/20 hover:text-white">
                   <X size={14} />
                 </button>
               </div>
 
               <div className="space-y-4 overflow-y-auto max-h-[400px] pr-2 custom-scrollbar">
-                {notifications.length === 0 ? (
+                {filteredNotifications.length === 0 ? (
                   <div className="py-12 text-center">
                     <Bell className="mx-auto text-white/5 mb-4" size={40} />
                     <p className="text-[10px] uppercase tracking-widest text-white/20">No active transmissions</p>
                   </div>
                 ) : (
-                  notifications.map((n) => (
+                  filteredNotifications.map((n) => (
                     <div 
                       key={n.id} 
-                      className="group relative glass p-4 rounded-2xl border border-white/5 hover:border-white/10 transition-all"
+                      onClick={() => !n.link && handleDismiss(n.id)}
+                      className={`group relative glass p-4 rounded-2xl border border-white/5 hover:border-white/10 transition-all ${!n.link ? 'cursor-pointer' : ''}`}
                     >
                       <div className="flex items-start space-x-4">
                         <div className="mt-1 p-2 bg-white/5 rounded-lg">
@@ -129,15 +182,34 @@ export default function NotificationCenter() {
                             <span className="text-[8px] font-mono text-white/20">
                               {new Date(n.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric' })}
                             </span>
-                            {n.link && (
-                              <Link 
-                                to={n.link} 
-                                onClick={() => setIsOpen(false)}
-                                className="text-[9px] uppercase tracking-widest text-gold hover:underline"
+                            <div className="flex items-center space-x-4">
+                              {n.link ? (
+                                <Link 
+                                  to={n.link} 
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setIsOpen(false);
+                                    handleDismiss(n.id);
+                                  }}
+                                  className="text-[9px] uppercase tracking-widest text-gold hover:underline"
+                                >
+                                  View Entry
+                                </Link>
+                              ) : (
+                                <span className="text-[9px] uppercase tracking-widest text-white/10 group-hover:text-gold transition-colors font-bold">
+                                  Mark Read
+                                </span>
+                              )}
+                              <button 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDismiss(n.id);
+                                }}
+                                className="text-[9px] uppercase tracking-widest text-white/20 hover:text-white"
                               >
-                                View Entry
-                              </Link>
-                            )}
+                                Dismiss
+                              </button>
+                            </div>
                           </div>
                         </div>
                       </div>
