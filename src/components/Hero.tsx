@@ -6,7 +6,10 @@ import { db } from '../context/AuthContext';
 import { collection, onSnapshot, query, where, orderBy } from 'firebase/firestore';
 
 export default function Hero() {
-  const [banners, setBanners] = useState<any[]>([]);
+  const [banners, setBanners] = useState<any[]>(() => {
+    const cached = localStorage.getItem('dinospy_banners');
+    return cached ? JSON.parse(cached) : [];
+  });
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
@@ -16,7 +19,9 @@ export default function Hero() {
       orderBy('order', 'asc')
     );
     const unsubscribe = onSnapshot(q, (snap) => {
-      setBanners(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      const fetched = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setBanners(fetched);
+      localStorage.setItem('dinospy_banners', JSON.stringify(fetched));
     });
     return () => unsubscribe();
   }, []);
@@ -31,8 +36,8 @@ export default function Hero() {
 
   const currentBanner = banners[currentIndex] || {
     imageUrl: "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?auto=format&fit=crop&q=80&w=2000",
-    title: "Precision Engineering",
-    subtitle: "Excellence Reimagined"
+    title: "Latest Acquisitions",
+    subtitle: "Heritage Masterpieces"
   };
 
   return (

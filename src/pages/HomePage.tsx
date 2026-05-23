@@ -12,18 +12,22 @@ import { collection, query, where, onSnapshot, limit } from 'firebase/firestore'
 import { ArrowRight, Zap } from 'lucide-react';
 
 export default function HomePage() {
-  const [newArrivals, setNewArrivals] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [newArrivals, setNewArrivals] = useState<any[]>(() => {
+    // Immediate pre-hydration from local cache for instant appearance
+    const cached = localStorage.getItem('dinospy_new_arrivals');
+    return cached ? JSON.parse(cached) : [];
+  });
+  const [loading, setLoading] = useState(!newArrivals.length);
 
   useEffect(() => {
-    setLoading(true);
     const prodRef = collection(db, 'products');
     
-    // Real-time listener for ALL products to distribute locally
     const unsubscribe = onSnapshot(prodRef, (snapshot) => {
       const allProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const arrivals = allProducts.filter((p: any) => p.isNewArrival).slice(0, 8);
       
-      setNewArrivals(allProducts.filter((p: any) => p.isNewArrival).slice(0, 8));
+      setNewArrivals(arrivals);
+      localStorage.setItem('dinospy_new_arrivals', JSON.stringify(arrivals));
       setLoading(false);
     }, (error: any) => {
       console.error("Error fetching products:", error);

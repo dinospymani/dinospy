@@ -10,16 +10,20 @@ import { collection, onSnapshot, query } from 'firebase/firestore';
 import { db } from '../context/AuthContext';
 
 export default function ExplorePage() {
-  const [products, setProducts] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [products, setProducts] = useState<any[]>(() => {
+    // Immediate pre-hydration from local cache for instant appearance
+    const cached = localStorage.getItem('dinospy_products_all');
+    return cached ? JSON.parse(cached) : [];
+  });
+  const [loading, setLoading] = useState(!products.length);
   const [filter, setFilter] = useState('All');
 
   useEffect(() => {
-    setLoading(true);
     const q = query(collection(db, 'products'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const fetched = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setProducts(fetched);
+      localStorage.setItem('dinospy_products_all', JSON.stringify(fetched));
       setLoading(false);
     }, (e) => {
       console.error(e);

@@ -14,14 +14,7 @@ export default function CheckoutPage() {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
   const [isProcessing, setIsProcessing] = useState(false);
-  const [isVerifyingPhone, setIsVerifyingPhone] = useState(false);
-  const [showOtpField, setShowOtpField] = useState(false);
-  const [otp, setOtp] = useState('');
-  const [isPhoneVerified, setIsPhoneVerified] = useState(false);
-  const [devOtp, setDevOtp] = useState<string | null>(null);
 
-  // Force OTP verification for every session to ensure highest security for acquisitions
-  
   const [formData, setFormData] = useState({
     fullName: profile?.displayName || '',
     email: profile?.email || '',
@@ -32,89 +25,12 @@ export default function CheckoutPage() {
     country: 'India'
   });
 
-  const handleSendWhatsappOtp = async () => {
-    if (!formData.phone || formData.phone.length < 10) {
-      toast.error('Please enter a valid 10-digit phone number');
-      return;
-    }
-
-    setIsVerifyingPhone(true);
-    const promise = async () => {
-      const res = await fetch('/api/send-whatsapp-otp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone: formData.phone })
-      });
-      
-      const contentType = res.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        const text = await res.text();
-        throw new Error(`Server error (${res.status}): ${text.slice(0, 50)}...`);
-      }
-
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error || 'Failed to send OTP');
-      }
-      
-      if (data.devOtp) {
-        console.log('WhatsApp OTP (Dev Mode):', data.devOtp);
-        setDevOtp(data.devOtp);
-        toast.info(`[SECURE] WhatsApp Dispatch Simulated`, {
-          description: "Use the code displayed in the secure terminal."
-        });
-      }
-      setShowOtpField(true);
-    };
-
-    toast.promise(promise(), {
-      loading: 'Initializing WhatsApp secure handshake...',
-      success: 'Verification code dispatched to your WhatsApp',
-      error: (err: any) => `Dispatch failed: ${err.message}`
-    });
-
-    setIsVerifyingPhone(false);
-  };
-
-  const handleVerifyWhatsappOtp = async () => {
-    if (!otp || otp.length < 6) return;
-    
-    setIsVerifyingPhone(true);
-    try {
-      const res = await fetch('/api/verify-whatsapp-otp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone: formData.phone, otp })
-      });
-
-      const contentType = res.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        const text = await res.text();
-        throw new Error(`Server error (${res.status})`);
-      }
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Verification failed');
-
-      setIsPhoneVerified(true);
-      setShowOtpField(false);
-      toast.success('Cellular Identity validated');
-    } catch (err: any) {
-      toast.error(err.message || 'Verification failed');
-    } finally {
-      setIsVerifyingPhone(false);
-    }
-  };
-
   const handlePlaceOrder = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
-    if (!isPhoneVerified) {
-      toast.error('WhatsApp verification required for boutique security');
-      return;
-    }
-    if (!formData.address || !formData.city) {
-      toast.error('Complete address credentials required');
+    
+    if (!formData.address || !formData.city || !formData.phone) {
+      toast.error('Complete contact and address credentials required');
       return;
     }
     
@@ -251,13 +167,12 @@ export default function CheckoutPage() {
             <div className="absolute top-1/2 left-0 right-0 h-[1px] bg-white/5 -translate-y-1/2 z-0" />
             <div 
               className="absolute top-1/2 left-0 h-[1px] bg-gold -translate-y-1/2 z-0 transition-all duration-1000" 
-              style={{ width: isPhoneVerified ? '100%' : (showOtpField ? '50%' : '25%') }}
+              style={{ width: '50%' }}
             />
             
             {[
               { label: 'Details', icon: Mail, active: true },
-              { label: 'Verify', icon: Phone, active: showOtpField || isPhoneVerified },
-              { label: 'Payment', icon: CreditCard, active: isPhoneVerified }
+              { label: 'Payment', icon: CreditCard, active: false }
             ].map((step, i) => (
               <div key={i} className="relative z-10 flex flex-col items-center">
                 <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-700 ${step.active ? 'bg-gold text-luxury-black border-gold' : 'bg-luxury-black text-white/20 border-white/5'} border`}>
@@ -312,105 +227,25 @@ export default function CheckoutPage() {
                 <div className="space-y-6 pt-6 border-t border-white/5">
                   <h3 className="text-lg font-bold uppercase tracking-widest flex items-center">
                     <Phone className="mr-3 text-gold" size={20} />
-                    Contact Authorization
+                    Contact Coordinates
                   </h3>
                   
-                  {!isPhoneVerified ? (
-                    <div className="space-y-4">
-                      <div className="flex space-x-4">
-                        <div className="flex-grow space-y-2">
-                          <label className="text-[10px] uppercase tracking-widest text-white/40">WhatsApp Number</label>
-                          <div className="relative">
-                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 text-sm font-mono">+91</span>
-                            <input 
-                              required
-                              type="tel"
-                              value={formData.phone}
-                              disabled={showOtpField}
-                              onChange={e => setFormData({...formData, phone: e.target.value.replace(/\D/g, '').slice(0, 10)})}
-                              className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-5 py-4 focus:border-gold outline-none text-sm transition-all"
-                            />
-                          </div>
-                        </div>
-                        {!showOtpField && (
-                          <div className="flex items-end">
-                            <button 
-                              type="button"
-                              onClick={handleSendWhatsappOtp}
-                              disabled={isVerifyingPhone || formData.phone.length < 10}
-                              className="h-14 px-6 gold-gradient rounded-xl text-luxury-black font-bold text-xs uppercase tracking-widest disabled:opacity-50 transition-all shadow-[0_10px_20px_rgba(212,175,55,0.1)] flex items-center"
-                            >
-                              {isVerifyingPhone ? 'Dispatching...' : 'Verify @WhatsApp'}
-                            </button>
-                          </div>
-                        )}
-                      </div>
-
-                      {showOtpField && (
-                        <div className="space-y-4 animate-in fade-in slide-in-from-top-2">
-                          {devOtp && (
-                            <motion.div 
-                              initial={{ opacity: 0, scale: 0.95 }}
-                              animate={{ opacity: 1, scale: 1 }}
-                              className="p-6 bg-gold/10 border-2 border-dashed border-gold/40 rounded-2xl text-center"
-                            >
-                              <p className="text-[10px] uppercase tracking-widest text-gold mb-2 font-bold flex items-center justify-center">
-                                <Key size={12} className="mr-2" />
-                                WhatsApp Secure Manifest
-                              </p>
-                              <h2 className="text-3xl font-mono text-gold tracking-[0.5em] font-black">{devOtp}</h2>
-                              <button 
-                                onClick={() => setOtp(devOtp)}
-                                className="mt-4 text-[9px] uppercase tracking-widest text-gold/60 underline hover:text-gold transition-colors"
-                              >
-                                Auto-Fill from Secure Message
-                              </button>
-                            </motion.div>
-                          )}
-                          
-                          <div className="flex space-x-4">
-                            <div className="flex-grow space-y-2">
-                              <label className="text-[10px] uppercase tracking-widest text-white/40">WhatsApp code</label>
-                              <input 
-                                required
-                                type="text"
-                                placeholder="Enter 6-digit PIN"
-                                value={otp}
-                                onChange={e => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                                className="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-4 focus:border-gold outline-none text-sm transition-all text-center tracking-[0.5em] font-mono"
-                              />
-                            </div>
-                            <div className="flex items-end space-x-2">
-                              <button 
-                                type="button"
-                                onClick={handleSendWhatsappOtp}
-                                className="h-14 px-4 border border-white/10 rounded-xl text-white/40 hover:text-gold font-bold text-[10px] uppercase tracking-widest transition-all"
-                              >
-                                {isVerifyingPhone ? '...' : 'Resend'}
-                              </button>
-                              <button 
-                                type="button"
-                                onClick={handleVerifyWhatsappOtp}
-                                disabled={isVerifyingPhone || otp.length < 6}
-                                className="h-14 px-6 gold-gradient rounded-xl text-luxury-black font-bold text-xs uppercase tracking-widest disabled:opacity-50 transition-all"
-                              >
-                                {isVerifyingPhone ? 'Authenticating' : 'Authorize'}
-                              </button>
-                            </div>
-                          </div>
-                          <p className="text-[9px] text-white/30 italic">Transmission protocol: WhatsApp Secure Message. If not received within 60s, request resend.</p>
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="flex items-center space-x-4 glass p-4 rounded-xl border border-gold/40 text-gold bg-gold/5">
-                      <CheckCircle2 size={24} />
-                      <div>
-                        <p className="text-sm font-bold uppercase tracking-widest">Verified: +91 {formData.phone}</p>
-                        <p className="text-[10px] opacity-60">Cellular authorization active. Acquisition confirmed.</p>
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <label className="text-[10px] uppercase tracking-widest text-white/40">WhatsApp Number</label>
+                      <div className="relative">
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 text-sm font-mono">+91</span>
+                        <input 
+                          required
+                          type="tel"
+                          value={formData.phone}
+                          onChange={e => setFormData({...formData, phone: e.target.value.replace(/\D/g, '').slice(0, 10)})}
+                          className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-5 py-4 focus:border-gold outline-none text-sm transition-all"
+                          placeholder="99999 99999"
+                        />
                       </div>
                     </div>
-                  )}
+                  </div>
                 </div>
 
                 <div className="space-y-2 pt-6 border-t border-white/5">
@@ -480,10 +315,10 @@ export default function CheckoutPage() {
 
               <button 
                 type="submit" 
-                disabled={isProcessing || !isPhoneVerified}
-                className={`w-full py-6 gold-gradient text-luxury-black font-bold uppercase tracking-[0.3em] rounded-2xl shadow-2xl shadow-gold/10 transition-all ${isProcessing || !isPhoneVerified ? 'opacity-50 cursor-not-allowed' : 'hover:scale-[1.02] hover:shadow-gold/20 active:scale-[0.98]'}`}
+                disabled={isProcessing}
+                className={`w-full py-6 gold-gradient text-luxury-black font-bold uppercase tracking-[0.3em] rounded-2xl shadow-2xl shadow-gold/10 transition-all ${isProcessing ? 'opacity-50 cursor-not-allowed' : 'hover:scale-[1.02] hover:shadow-gold/20 active:scale-[0.98]'}`}
               >
-                {!isPhoneVerified ? 'Verify WhatsApp to Proceed' : isProcessing ? 'Synchronizing...' : 'Initialize Concierge'}
+                {isProcessing ? 'Synchronizing...' : 'Initialize Concierge'}
               </button>
               
               <div className="flex items-center justify-center space-x-2 text-white/20">
