@@ -11,10 +11,18 @@ async function startServer() {
   const app = express();
   const PORT = 3000;
 
-  app.use(express.json());
+  app.use(express.json({ limit: '50mb' }));
+  app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
   const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
   const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
+  
+  if (resend) {
+    console.log(`>>> [RESEND] Initialized with API Key. From: ${FROM_EMAIL}`);
+  } else {
+    console.log(`>>> [RESEND] Not initialized. API Key missing.`);
+  }
+
   const otpStore = new Map<string, string>();
 
   // OTP Generation & Sending
@@ -46,7 +54,9 @@ async function startServer() {
         });
         res.json({ success: true, message: "OTP sent to email" });
       } catch (err: any) {
-        res.status(500).json({ error: "Failed to send email" });
+        console.error('[RESEND OTP ERROR]', err);
+        const errorDetail = err?.response?.data || err?.message || "Unknown error";
+        res.status(500).json({ error: "Failed to send email", details: errorDetail });
       }
     } else {
       console.log(`[DEV MODE] OTP for ${email}: ${otp}`);
@@ -194,8 +204,9 @@ async function startServer() {
 
       res.json({ success: true });
     } catch (error: any) {
-      console.error("Email Error:", error);
-      res.status(500).json({ error: error.message || "Failed to send email" });
+      console.error("[RESEND CONFIRMATION ERROR]:", error);
+      const errorDetail = error?.response?.data || error?.message || "Unknown error";
+      res.status(500).json({ error: "Failed to send confirmation email", details: errorDetail });
     }
   });
 
@@ -217,6 +228,18 @@ async function startServer() {
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`>>> DINOSPY Server active at http://0.0.0.0:${PORT}`);
     console.log(`>>> MODE: ${process.env.NODE_ENV || 'development'}`);
+  });
+
+  // Global Error Handler for API routes
+  app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+    if (req.path.startsWith('/api')) {
+      console.error('API Error:', err);
+      return res.status(err.status || 500).json({
+        error: err.message || 'Internal Server Error',
+        code: err.code || 'UNKNOWN'
+      });
+    }
+    next(err);
   });
 }
 

@@ -20,11 +20,8 @@ export default function CheckoutPage() {
   const [isEmailVerified, setIsEmailVerified] = useState(false);
   const [devOtp, setDevOtp] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (user?.emailVerified) {
-      setIsEmailVerified(true);
-    }
-  }, [user]);
+  // Force OTP verification for every session to ensure highest security for acquisitions
+  // Even if user.emailVerified is true from Google, we want a fresh OTP for the transaction
   
   const [formData, setFormData] = useState({
     fullName: profile?.displayName || '',
@@ -49,8 +46,18 @@ export default function CheckoutPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: formData.email })
       });
+      
+      const contentType = res.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await res.text();
+        throw new Error(`Server error (${res.status}): ${text.slice(0, 50)}...`);
+      }
+
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to send OTP');
+      if (!res.ok) {
+        const errorMsg = data.details ? `${data.error}: ${JSON.stringify(data.details)}` : (data.error || 'Failed to send OTP');
+        throw new Error(errorMsg);
+      }
       
       if (data.devOtp) {
         console.log('OTP (Dev Mode):', data.devOtp);
@@ -81,8 +88,15 @@ export default function CheckoutPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: formData.email, otp })
       });
+
+      const contentType = res.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await res.text();
+        throw new Error(`Server error (${res.status})`);
+      }
+
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      if (!res.ok) throw new Error(data.error || 'Verification failed');
 
       setIsEmailVerified(true);
       setShowOtpField(false);
@@ -182,9 +196,18 @@ export default function CheckoutPage() {
             }
           })
         });
-        const emailData = await emailRes.json();
-        if (emailData.message && emailData.message.includes('skipped')) {
-          toast.info("Order processed. (Email manifest logged to server console)");
+        
+        const contentType = emailRes.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const emailData = await emailRes.json();
+          if (emailRes.ok) {
+            if (emailData.message && emailData.message.includes('skipped')) {
+              toast.info("Order processed. (Email manifest logged to server console)");
+            }
+          } else {
+            console.error('Email confirmation error:', emailData);
+            toast.error(`Confirmation Email Failed: ${emailData.error} ${emailData.details ? JSON.stringify(emailData.details) : ''}`);
+          }
         }
       } catch (err) {
         console.error('Email Trigger Failed:', err);

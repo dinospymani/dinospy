@@ -67,60 +67,62 @@ export default function CartPage() {
                     <motion.div
                       key={item.id}
                       layout
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, x: 20 }}
-                      className={`glass p-6 rounded-3xl flex items-center space-x-6 border transition-all duration-700 ${item.stock <= 0 ? 'border-red-900/30 opacity-40 grayscale-[0.8]' : 'border-white/5'}`}
+                      className={`glass p-4 sm:p-6 rounded-3xl flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-6 border transition-all duration-700 ${item.stock <= 0 ? 'border-red-900/30 opacity-40 grayscale-[0.8]' : 'border-white/5'}`}
                     >
-                      <img 
-                        src={item.images[0]} 
-                        className="w-24 h-32 object-cover rounded-xl bg-white/5" 
-                        alt={item.name} 
-                      />
-                      <div className="flex-grow">
-                        <span className="text-[10px] uppercase tracking-widest text-white/30">{item.brand}</span>
-                        <h3 className="text-xl font-display mt-1">{item.name}</h3>
-                        <div className="text-gold font-mono mt-2">₹{item.price.toLocaleString()}</div>
-                        {item.stock !== undefined && (
-                          <div className={`text-[10px] uppercase font-bold mt-2 flex items-center space-x-2 ${item.stock <= 0 ? 'text-red-500' : (item.stock <= 5 ? 'text-orange-500' : 'text-white/40')}`}>
-                             {item.stock > 0 ? (
-                               <>
-                                 <div className={`w-1.5 h-1.5 rounded-full ${item.stock <= 5 ? 'bg-orange-500 animate-pulse' : 'bg-green-500'}`} />
-                                 <span>{item.stock} Units in Vault</span>
-                               </>
-                             ) : (
-                               <>
-                                 <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
-                                 <span className="font-black">ASSET ARCHIVED • OUT OF STOCK</span>
-                               </>
-                             )}
-                             {item.quantity >= item.stock && item.stock > 0 && <span className="ml-2 text-white/20 italic">(Collection Limit)</span>}
-                          </div>
-                        )}
+                      <div className="flex items-center space-x-4 sm:space-x-6 w-full sm:w-auto">
+                        <img 
+                          src={item.images[0]} 
+                          className="w-20 h-24 sm:w-24 sm:h-32 object-cover rounded-xl bg-white/5 shrink-0" 
+                          alt={item.name} 
+                        />
+                        <div className="flex-grow">
+                          <span className="text-[9px] sm:text-[10px] uppercase tracking-widest text-white/30">{item.brand}</span>
+                          <h3 className="text-lg sm:text-xl font-display mt-1 line-clamp-1">{item.name}</h3>
+                          <div className="text-gold font-mono mt-1 sm:mt-2 text-sm sm:text-base">₹{item.price.toLocaleString()}</div>
+                          {item.stock !== undefined && (
+                            <div className={`text-[9px] sm:text-[10px] uppercase font-bold mt-1 sm:mt-2 flex items-center space-x-2 ${item.stock <= 0 ? 'text-red-500' : (item.stock <= 5 ? 'text-orange-500' : 'text-white/40')}`}>
+                               {item.stock > 0 ? (
+                                 <>
+                                   <div className={`w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full ${item.stock <= 5 ? 'bg-orange-500 animate-pulse' : 'bg-green-500'}`} />
+                                   <span>{item.stock} Units</span>
+                                 </>
+                               ) : (
+                                 <>
+                                   <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-red-500" />
+                                   <span className="font-black">OUT OF STOCK</span>
+                                 </>
+                               )}
+                            </div>
+                          )}
+                        </div>
                       </div>
                       
-                      <div className="flex items-center space-x-4">
+                      <div className="flex items-center justify-between w-full sm:w-auto sm:flex-grow-0 sm:space-x-4 border-t sm:border-t-0 border-white/5 pt-4 sm:pt-0">
                         <div className="flex items-center glass rounded-full p-1 border border-white/10">
                           <button 
                             onClick={() => updateQuantity(item.id, -1)}
-                            className="p-2 hover:text-gold transition-colors"
+                            className="p-1 sm:p-2 hover:text-gold transition-colors"
                           >
-                            <Minus size={16} />
+                            <Minus size={14} className="sm:w-4 sm:h-4" />
                           </button>
-                          <span className="w-10 text-center font-mono font-bold">{item.quantity}</span>
+                          <span className="w-8 sm:w-10 text-center font-mono font-bold text-sm">{item.quantity}</span>
                           <button 
                             onClick={() => updateQuantity(item.id, 1)}
                             disabled={item.stock !== undefined && item.quantity >= item.stock}
-                            className={`p-2 transition-colors ${item.stock !== undefined && item.quantity >= item.stock ? 'opacity-20 cursor-not-allowed' : 'hover:text-gold'}`}
+                            className={`p-1 sm:p-2 transition-colors ${item.stock !== undefined && item.quantity >= item.stock ? 'opacity-20 cursor-not-allowed' : 'hover:text-gold'}`}
                           >
-                            <Plus size={16} />
+                            <Plus size={14} className="sm:w-4 sm:h-4" />
                           </button>
                         </div>
                         <button 
                           onClick={() => removeFromCart(item.id)}
-                          className="p-3 hover:text-red-500 transition-colors"
+                          className="flex items-center space-x-2 text-white/40 hover:text-red-500 transition-colors py-2 px-4 rounded-xl hover:bg-red-500/10"
                         >
-                          <Trash2 size={20} />
+                          <Trash2 size={18} />
+                          <span className="text-[10px] uppercase tracking-widest font-bold sm:hidden">Remove</span>
                         </button>
                       </div>
                     </motion.div>
