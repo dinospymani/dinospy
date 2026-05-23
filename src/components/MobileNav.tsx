@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { Home, Search, Heart, ShoppingBag, User } from 'lucide-react';
+import { Home, Heart, ShoppingBag, User } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 
@@ -10,7 +10,6 @@ export default function MobileNav() {
 
   const navItems = [
     { icon: Home, path: '/', label: 'Home' },
-    { icon: Search, path: '/explore', label: 'Explore' },
     { icon: Heart, path: '/wishlist', label: 'Wish' },
     { icon: ShoppingBag, path: '/cart', label: 'Cart', badge: cartCount },
     { icon: User, path: '/profile', label: 'Me' },
