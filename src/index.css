@@ -30,6 +30,22 @@
     scroll-behavior: smooth;
     overflow-x: hidden;
     -webkit-tap-highlight-color: transparent;
+    height: 100%;
+  }
+
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--color-luxury-black);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(212, 175, 55, 0.1);
+    transition: background 0.3s;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(212, 175, 55, 0.3);
   }
 
   @media print {

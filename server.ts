@@ -25,7 +25,46 @@ async function startServer() {
 
   const otpStore = new Map<string, string>();
 
-  // OTP Generation & Sending
+  // WhatsApp OTP Generation & Sending
+  app.post("/api/send-whatsapp-otp", async (req, res) => {
+    const { phone } = req.body;
+    if (!phone) return res.status(400).json({ error: "Phone number required" });
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    otpStore.set(phone, otp);
+
+    // Auto-expiry after 10 minutes
+    setTimeout(() => otpStore.delete(phone), 10 * 60 * 1000);
+
+    // In a real production app, we would use a WhatsApp API like Twilio, Interakt, or Wati here.
+    // For this build, we simulate the transmission and provide a demo verification terminal.
+    console.log("------------------------------------------");
+    console.log(`>>> [WHATSAPP OTP DISPATCH]`);
+    console.log(`>>> TO: +91${phone}`);
+    console.log(`>>> CODE: ${otp}`);
+    console.log(`>>> MESSAGE: Your DINOSPY security code is ${otp}. Valid for 10 minutes.`);
+    console.log("------------------------------------------");
+
+    res.json({ 
+      success: true, 
+      message: "Security code sent via WhatsApp", 
+      devOtp: otp 
+    });
+  });
+
+  app.post("/api/verify-whatsapp-otp", (req, res) => {
+    const { phone, otp } = req.body;
+    const storedOtp = otpStore.get(phone);
+
+    if (storedOtp && storedOtp === otp) {
+      otpStore.delete(phone);
+      res.json({ success: true });
+    } else {
+      res.status(400).json({ error: "Invalid or expired security code" });
+    }
+  });
+
+  // OTP Generation & Sending (Existing Email OTP - kept for flexibility)
   app.post("/api/send-otp", async (req, res) => {
     const { email } = req.body;
     if (!email) return res.status(400).json({ error: "Email required" });

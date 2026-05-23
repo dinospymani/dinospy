@@ -14,12 +14,20 @@ import ExplorePage from './pages/ExplorePage';
 import ProfilePage from './pages/ProfilePage';
 import PartnerPortal from './pages/PartnerPortal';
 
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+  React.useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+};
+
 const PageTransition: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <motion.div
-    initial={{ opacity: 0, y: 10 }}
-    animate={{ opacity: 1, y: 0 }}
-    exit={{ opacity: 0, y: -10 }}
-    transition={{ duration: 0.3 }}
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    exit={{ opacity: 0 }}
+    transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
   >
     {children}
   </motion.div>
@@ -64,6 +72,7 @@ export default function App() {
     <FirebaseProvider>
       <CartProvider>
         <Router>
+          <ScrollToTop />
           <div className="min-h-screen bg-luxury-black text-white selection:bg-gold selection:text-luxury-black">
             <Toaster position="top-center" richColors />
             <AuthModal />

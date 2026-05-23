@@ -156,7 +156,26 @@ export default function ProductDetails() {
     }
   };
 
-  if (loading) return <div className="h-screen flex items-center justify-center">Loading...</div>;
+  if (loading) return (
+    <div className="flex flex-col min-h-screen bg-luxury-black">
+      <Navbar />
+      <main className="flex-grow pt-32 pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full animate-pulse">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 lg:gap-32">
+          <div className="aspect-square bg-white/[0.02] border border-white/5" />
+          <div className="space-y-12">
+            <div className="h-4 w-1/4 bg-white/[0.02]" />
+            <div className="h-24 w-3/4 bg-white/[0.02]" />
+            <div className="h-12 w-1/2 bg-white/[0.02]" />
+            <div className="space-y-4 pt-12 border-t border-white/5">
+              {[1,2,3,4].map(i => <div key={i} className="h-6 w-full bg-white/[0.02]" />)}
+            </div>
+            <div className="h-20 w-full bg-white/5" />
+          </div>
+        </div>
+      </main>
+      <Footer />
+    </div>
+  );
   if (!product) return <div className="h-screen flex items-center justify-center">Product not found.</div>;
 
   return (

@@ -4,6 +4,7 @@ import { motion } from 'motion/react';
 import Navbar from '../components/Navbar';
 import Hero from '../components/Hero';
 import WatchCard from '../components/WatchCard';
+import ProductSkeleton from '../components/ProductSkeleton';
 import Footer from '../components/Footer';
 import MobileNav from '../components/MobileNav';
 import { db } from '../context/AuthContext';
@@ -93,20 +94,21 @@ export default function HomePage() {
                   transition: { staggerChildren: 0.3 }
                 }
               }}
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-12 gap-y-24"
+              className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-x-12 sm:gap-y-24"
             >
-              {newArrivals.length > 0 ? (
+              {loading ? (
+                new Array(4).fill(0).map((_, i) => (
+                  <ProductSkeleton key={i} />
+                ))
+              ) : newArrivals.length > 0 ? (
                 newArrivals.map(product => (
                   <WatchCard key={product.id} product={product} />
                 ))
-              ) : !loading && (
+              ) : (
                 <div className="col-span-full py-60 text-center border border-white/5">
                   <p className="text-white/20 font-display text-4xl italic font-light tracking-widest">Elegance is arriving...</p>
                 </div>
               )}
-              {loading && new Array(4).fill(0).map((_, i) => (
-                <div key={i} className="animate-pulse bg-white/[0.02] aspect-square" />
-              ))}
             </motion.div>
           </div>
         </section>

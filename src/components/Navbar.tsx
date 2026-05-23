@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'motion/react';
 import { Heart, User, ShoppingBag } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -51,9 +52,14 @@ export default function Navbar() {
             <Link to="/cart" className="relative group text-white/40 hover:text-gold transition-colors duration-500">
               <ShoppingBag size={18} strokeWidth={1} />
               {cartCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-gold text-luxury-black text-[8px] font-bold rounded-none flex items-center justify-center">
+                <motion.span 
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  key={cartCount}
+                  className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-gold text-luxury-black text-[8px] font-bold rounded-none flex items-center justify-center"
+                >
                   {cartCount}
-                </span>
+                </motion.span>
               )}
             </Link>
             

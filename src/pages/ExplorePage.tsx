@@ -5,6 +5,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import MobileNav from '../components/MobileNav';
 import WatchCard from '../components/WatchCard';
+import ProductSkeleton from '../components/ProductSkeleton';
 import { collection, onSnapshot, query } from 'firebase/firestore';
 import { db } from '../context/AuthContext';
 
@@ -73,13 +74,9 @@ export default function ExplorePage() {
         </div>
 
         {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-12 gap-y-24">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-x-12 sm:gap-y-24">
                 {[1,2,3,4,5,6,7,8].map(i => (
-                  <div key={i} className="space-y-8 animate-pulse">
-                    <div className="aspect-[4/5] bg-white/[0.02]" />
-                    <div className="h-4 w-1/2 bg-white/[0.02] mx-auto" />
-                    <div className="h-6 w-3/4 bg-white/[0.02] mx-auto" />
-                  </div>
+                  <ProductSkeleton key={i} />
                 ))}
             </div>
         ) : filtered.length > 0 ? (
@@ -92,12 +89,12 @@ export default function ExplorePage() {
                  visible: {
                    opacity: 1,
                    transition: {
-                     staggerChildren: 0.15,
-                     delayChildren: 0.3
+                     staggerChildren: 0.1,
+                     delayChildren: 0.1
                    }
                  }
                }}
-               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-12 gap-y-24"
+               className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-x-12 sm:gap-y-24"
             >
                 {filtered.map(product => (
                     <motion.div

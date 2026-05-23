@@ -99,13 +99,13 @@ export default function AdminDashboard() {
       setOrders(prevOrders => {
         if (prevOrders.length > 0 && fetchedOrders.length > prevOrders.length) {
           const newOrders = fetchedOrders.filter(fo => !prevOrders.some(po => po.id === fo.id));
-          newOrders.forEach(no => {
+          newOrders.forEach((no, idx) => {
              toast.success(`NEW ACQUISITION: ${no.customerName} just placed an order!`, {
                icon: <Bell className="text-gold" />,
                duration: 5000
              });
              setNotifications(prev => [{
-               id: Date.now() + no.id,
+               id: `${Date.now()}-${no.id}-${idx}`,
                type: 'new_order',
                message: `Order #${no.id.slice(-6)} received from ${no.customerName}`,
                timestamp: new Date().toISOString(),
