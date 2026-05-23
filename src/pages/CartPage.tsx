@@ -11,6 +11,8 @@ import { X, AlertCircle } from 'lucide-react';
 
 export default function CartPage() {
   const { cart, removeFromCart, updateQuantity, cartTotal } = useCart();
+  const subtotal = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+  const savings = subtotal - cartTotal;
   const [outOfStockItems, setOutOfStockItems] = React.useState<string[]>([]);
   const [showErrorPopup, setShowErrorPopup] = React.useState(false);
 
@@ -81,8 +83,18 @@ export default function CartPage() {
                         <div className="flex-grow">
                           <span className="text-[9px] sm:text-[10px] uppercase tracking-widest text-white/30">{item.brand}</span>
                           <h3 className="text-lg sm:text-xl font-display mt-1 line-clamp-1">{item.name}</h3>
-                          <div className="text-gold font-mono mt-1 sm:mt-2 text-sm sm:text-base">₹{item.price.toLocaleString()}</div>
-                          {item.stock !== undefined && (
+                          <div className="flex flex-col mt-1 sm:mt-2">
+                             {item.discount ? (
+                               <div className="flex items-center space-x-2">
+                                 <span className="text-white/20 line-through text-[10px] font-light italic">₹{item.price.toLocaleString()}</span>
+                                 <span className="text-gold font-mono text-sm sm:text-base">₹{Math.round(item.price * (1 - item.discount / 100)).toLocaleString()}</span>
+                                 <span className="text-[8px] bg-gold/10 text-gold px-1.5 py-0.5 rounded font-black tracking-tighter">-{item.discount}%</span>
+                               </div>
+                             ) : (
+                               <div className="text-gold font-mono text-sm sm:text-base">₹{item.price.toLocaleString()}</div>
+                             )}
+                           </div>
+                           {item.stock !== undefined && (
                             <div className={`text-[9px] sm:text-[10px] uppercase font-bold mt-1 sm:mt-2 flex items-center space-x-2 ${item.stock <= 0 ? 'text-red-500' : (item.stock <= 5 ? 'text-orange-500' : 'text-white/40')}`}>
                                {item.stock > 0 ? (
                                  <>
@@ -136,8 +148,14 @@ export default function CartPage() {
                   <div className="space-y-4 mb-8 pb-8 border-b border-white/5">
                     <div className="flex justify-between text-white/50">
                       <span>Subtotal</span>
-                      <span className="font-mono text-white">₹{cartTotal.toLocaleString()}</span>
+                      <span className="font-mono text-white">₹{subtotal.toLocaleString()}</span>
                     </div>
+                    {savings > 0 && (
+                      <div className="flex justify-between text-gold/60">
+                        <span className="uppercase text-[10px] font-bold tracking-widest">Acquisition Savings</span>
+                        <span className="font-mono">-₹{savings.toLocaleString()}</span>
+                      </div>
+                    )}
                     <div className="flex justify-between text-white/50">
                       <span>Shipping</span>
                       <span className="text-gold uppercase text-[10px] font-bold tracking-widest">Complimentary</span>

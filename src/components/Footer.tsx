@@ -57,7 +57,7 @@ export default function Footer() {
         </div>
         
         <div className="pt-16 border-t border-white/5 flex flex-col md:flex-row justify-between items-center text-[9px] uppercase tracking-[0.5em] text-white/20 font-bold">
-          <p>© 2026 DINOSPY . EXCLUSIVE HERITAGE .</p>
+          <p>© 2026 DINOSPY . EXCLUSIVE HERITAGE . BY MANIKANT</p>
           <div className="flex space-x-12 mt-8 md:mt-0 italic font-light lowercase tracking-widest">
             <span>artisanal precision</span>
             <span>global logistics</span>

@@ -25,7 +25,7 @@ export default function WatchCard({ product }: WatchCardProps) {
   const { addToCart, wishlist, toggleWishlist } = useCart();
   const { user, setIsAuthModalOpen } = useAuth();
   const isWishlisted = wishlist.includes(product.id);
-  const discountPrice = product.discount ? product.price * (1 - product.discount / 100) : product.price;
+  const discountPrice = Math.round(product.discount ? product.price * (1 - product.discount / 100) : product.price);
   const isLowStock = product.stock !== undefined && product.stock > 0 && product.stock <= 3;
   const isOutOfStock = product.stock !== undefined && product.stock === 0;
 
@@ -101,9 +101,21 @@ export default function WatchCard({ product }: WatchCardProps) {
         </div>
         
         <div className="flex flex-col items-center pt-6 sm:pt-8 border-t border-white/5 space-y-4">
-          <div className={`text-lg sm:text-xl font-sans font-light tracking-[0.2em] ${isOutOfStock ? 'text-white/10' : 'text-white/90'}`}>
-            <span className="text-[9px] sm:text-[10px] text-white/30 mr-2 uppercase">INR</span>
-            {discountPrice.toLocaleString()}
+          <div className={`flex flex-col items-center ${isOutOfStock ? 'text-white/10' : ''}`}>
+            {product.discount ? (
+              <div className="flex items-center space-x-3 mb-1">
+                <span className="text-[9px] sm:text-[10px] text-white/20 line-through tracking-widest italic decoration-gold/30">
+                  INR {product.price.toLocaleString()}
+                </span>
+                <span className="text-[7px] sm:text-[9px] bg-gold/10 text-gold px-1.5 py-0.5 rounded font-black uppercase tracking-tighter shadow-[0_0_5px_rgba(212,175,55,0.1)]">
+                  -{product.discount}%
+                </span>
+              </div>
+            ) : null}
+            <div className={`text-lg sm:text-xl font-sans font-light tracking-[0.2em] ${!isOutOfStock && product.discount ? 'text-gold' : 'text-white/90'}`}>
+              <span className="text-[9px] sm:text-[10px] text-white/30 mr-2 uppercase">INR</span>
+              {discountPrice.toLocaleString()}
+            </div>
           </div>
           
           <motion.button 

@@ -169,7 +169,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
   const cartTotal = cart.reduce((acc, item) => {
-    const discountPrice = item.discount ? item.price * (1 - item.discount / 100) : item.price;
+    const discount = item.discount || 0;
+    const discountPrice = Math.round(item.price * (1 - discount / 100));
     return acc + (discountPrice * item.quantity);
   }, 0);
 

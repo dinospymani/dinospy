@@ -11,6 +11,8 @@ import { toast } from 'sonner';
 
 export default function CheckoutPage() {
   const { cart, cartTotal, clearCart } = useCart();
+  const subtotal = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+  const savings = subtotal - cartTotal;
   const { user, profile } = useAuth();
   const navigate = useNavigate();
   const [isProcessing, setIsProcessing] = useState(false);
@@ -343,7 +345,16 @@ export default function CheckoutPage() {
                     <div className="flex-grow">
                       <h4 className="text-sm font-bold">{item.name}</h4>
                       <p className="text-xs text-white/40">Qty: {item.quantity}</p>
-                      <p className="text-xs text-gold mt-1 font-mono">₹{(item.price * item.quantity).toLocaleString()}</p>
+                      <div className="flex items-center space-x-2 mt-1">
+                        {item.discount ? (
+                          <>
+                             <span className="text-[10px] text-white/20 line-through">₹{item.price.toLocaleString()}</span>
+                             <span className="text-xs text-gold font-mono font-bold">₹{Math.round(item.price * (1 - item.discount / 100)).toLocaleString()}</span>
+                          </>
+                        ) : (
+                          <span className="text-xs text-gold font-mono">₹{item.price.toLocaleString()}</span>
+                        )}
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -351,9 +362,15 @@ export default function CheckoutPage() {
 
               <div className="space-y-4 pt-8 border-t border-white/5">
                 <div className="flex justify-between text-white/40">
-                  <span className="text-xs uppercase tracking-widest">Subtotal</span>
-                  <span className="font-mono text-white">₹{cartTotal.toLocaleString()}</span>
+                  <span className="text-xs uppercase tracking-widest">Manifest Value</span>
+                  <span className="font-mono text-white">₹{subtotal.toLocaleString()}</span>
                 </div>
+                {savings > 0 && (
+                  <div className="flex justify-between text-gold/60">
+                    <span className="text-[10px] uppercase tracking-widest font-bold">Acquisition Saved</span>
+                    <span className="font-mono font-bold">-₹{savings.toLocaleString()}</span>
+                  </div>
+                )}
                 <div className="flex justify-between text-white/40">
                   <span className="text-xs uppercase tracking-widest">Shipping</span>
                   <span className="text-gold uppercase text-[10px] font-bold tracking-widest">Complimentary</span>

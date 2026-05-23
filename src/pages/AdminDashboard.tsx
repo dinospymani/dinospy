@@ -535,8 +535,8 @@ export default function AdminDashboard() {
         const productRef = await addDoc(collection(db, 'products'), {
           name,
           brand,
-          price: parseFloat(price),
-          discount: parseFloat(discount),
+          price: parseFloat(price) || 0,
+          discount: parseFloat(discount) || 0,
           isOffer,
           category,
           images: finalImages,

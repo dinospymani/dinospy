@@ -338,11 +338,28 @@ export default function ProductDetails() {
                 <h1 className="text-5xl md:text-8xl font-display mb-10 leading-[0.9] font-light tracking-tight">{product.name}</h1>
                 
                 <div className="flex items-center space-x-8 mb-16 pb-12 border-b border-white/5">
-                   <div className="text-4xl md:text-5xl font-light text-white/90 tracking-tighter">
-                     <span className="text-xs text-white/30 mr-4 uppercase tracking-widest align-middle">INR</span>
-                     {product.price.toLocaleString()}
+                   <div className="flex flex-col">
+                      {product.discount > 0 && (
+                        <div className="flex items-center space-x-3 mb-2 animate-in fade-in slide-in-from-left duration-1000">
+                          <span className="text-sm text-white/20 line-through tracking-widest font-light decoration-gold/40 italic">
+                            INR {product.price.toLocaleString()}
+                          </span>
+                          <span className="text-[10px] bg-gold/10 text-gold px-3 py-1 rounded-full font-black uppercase tracking-widest border border-gold/20 shadow-[0_0_20px_rgba(212,175,55,0.05)]">
+                            Reserved Offer -{product.discount}%
+                          </span>
+                        </div>
+                      )}
+                      <div className="text-4xl md:text-6xl font-light text-white/90 tracking-tighter">
+                        <span className="text-xs text-white/30 mr-4 uppercase tracking-widest align-middle">INR</span>
+                        {Math.round(product.discount ? product.price * (1 - product.discount / 100) : product.price).toLocaleString()}
+                      </div>
+                      {product.discount > 0 && (
+                        <p className="text-gold/60 text-[9px] uppercase tracking-[0.4em] font-black mt-3">
+                          Acquisition Advantage: Save ₹{Math.round(product.price * (product.discount / 100)).toLocaleString()}
+                        </p>
+                      )}
                    </div>
-                   <div className="h-10 w-[1px] bg-white/10" />
+                   <div className="h-16 w-[1px] bg-white/10" />
                    <div className="flex items-center space-x-3">
                       <div className={`w-2 h-2 rounded-full ${product.stock > 0 ? 'bg-gold animate-pulse' : 'bg-red-900'}`} />
                       <span className="text-[10px] uppercase tracking-[0.3em] font-bold text-white/40">
