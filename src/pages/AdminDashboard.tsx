@@ -4,7 +4,7 @@ import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc, onSnapshot, que
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import MobileNav from '../components/MobileNav';
-import { Plus, Trash2, Edit, Save, Package, QrCode, Printer, X, Truck, Loader2, ChevronLeft, TrendingUp, DollarSign, ShoppingBag, AlertCircle, BarChart2, Bell, ArrowLeft, Megaphone, Check } from 'lucide-react';
+import { Plus, Trash2, Edit, Save, Package, QrCode, Printer, X, Truck, Loader2, ChevronLeft, TrendingUp, DollarSign, ShoppingBag, AlertCircle, BarChart2, Bell, ArrowLeft, Megaphone, Check, Zap } from 'lucide-react';
 import { motion } from 'motion/react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { QRCodeSVG } from 'qrcode.react';
@@ -222,6 +222,18 @@ export default function AdminDashboard() {
       toast.error('Failed to clear records');
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleClearCache = () => {
+    try {
+      localStorage.clear();
+      toast.success('Local cache expunged. Re-syncing systems...', {
+        icon: <Zap size={16} className="text-gold" />
+      });
+      setTimeout(() => window.location.reload(), 1500);
+    } catch (err) {
+      toast.error('Failed to clear local cache');
     }
   };
 
@@ -797,6 +809,50 @@ export default function AdminDashboard() {
                       <Area type="monotone" dataKey="sales" stroke="#D4AF37" fillOpacity={1} fill="url(#colorSales)" />
                     </AreaChart>
                   </ResponsiveContainer>
+               </div>
+
+               {/* System Utilities */}
+               <div className="pt-12 border-t border-white/5">
+                 <div className="flex items-center justify-between mb-8">
+                   <div>
+                     <h3 className="text-lg font-bold">System Utilities</h3>
+                     <p className="text-xs text-white/40 uppercase tracking-widest mt-1">Core cache and manifest management</p>
+                   </div>
+                 </div>
+                 
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                   <div className="glass p-8 rounded-2xl border border-white/5 hover:border-gold/10 transition-all flex flex-col justify-between">
+                     <div>
+                       <h4 className="text-sm font-bold text-white/80 mb-2">Internal Cache Flush</h4>
+                       <p className="text-xs text-white/40 leading-relaxed mb-6 italic">
+                         Clears all local storage, including cached product list, banner states, and acquisition metadata. 
+                         Forces a complete hard sync with the horological database.
+                       </p>
+                     </div>
+                     <button 
+                       onClick={handleClearCache}
+                       className="w-full py-4 bg-white/5 hover:bg-white/10 text-white/60 hover:text-gold border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-[0.3em] transition-all"
+                     >
+                       Execute Cache Purge
+                     </button>
+                   </div>
+
+                   <div className="glass p-8 rounded-2xl border border-red-500/5 hover:border-red-500/20 transition-all flex flex-col justify-between">
+                     <div>
+                       <h4 className="text-sm font-bold text-red-500/80 mb-2">Manifest Expungement</h4>
+                       <p className="text-xs text-white/40 leading-relaxed mb-6 italic">
+                         Permanently deletes all order records from the live database. This operation is irreversible 
+                         and will result in a total loss of acquisition history.
+                       </p>
+                     </div>
+                     <button 
+                       onClick={handlePurgeOrders}
+                       className="w-full py-4 bg-red-500/5 hover:bg-red-500/10 text-red-500/60 hover:text-red-500 border border-red-500/10 rounded-xl text-[10px] font-black uppercase tracking-[0.3em] transition-all"
+                     >
+                       Purge All Live Data
+                     </button>
+                   </div>
+                 </div>
                </div>
             </div>
           )}
