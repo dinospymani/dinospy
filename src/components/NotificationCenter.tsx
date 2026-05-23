@@ -1,0 +1,154 @@
+import React, { useState, useEffect } from 'react';
+import { Bell, X, Tag, Zap, Sparkles, Megaphone, Check } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { collection, query, orderBy, limit, onSnapshot, doc, updateDoc } from 'firebase/firestore';
+import { db } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext';
+import { AppNotification } from '../types';
+import { Link } from 'react-router-dom';
+import { handleFirestoreError, OperationType } from '../lib/utils';
+
+export default function NotificationCenter() {
+  const { user, profile } = useAuth();
+  const [notifications, setNotifications] = useState<AppNotification[]>([]);
+  const [isOpen, setIsOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    if (!user) return;
+
+    const path = 'notifications';
+    const q = query(
+      collection(db, path),
+      orderBy('createdAt', 'desc'),
+      limit(20)
+    );
+
+    const unsubscribe = onSnapshot(q, (snap) => {
+      const fetched = snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as AppNotification));
+      setNotifications(fetched);
+
+      // Calculate unread
+      if (profile?.lastReadNotification) {
+        const lastRead = new Date(profile.lastReadNotification).getTime();
+        const unread = fetched.filter(n => new Date(n.createdAt).getTime() > lastRead).length;
+        setUnreadCount(unread);
+      } else {
+        setUnreadCount(fetched.length);
+      }
+    }, (error) => {
+      handleFirestoreError(error, OperationType.LIST, path);
+    });
+
+    return () => unsubscribe();
+  }, [user, profile?.lastReadNotification]);
+
+  const markAsRead = async () => {
+    if (!user) return;
+    const path = `users/${user.uid}`;
+    try {
+      const userRef = doc(db, 'users', user.uid);
+      await updateDoc(userRef, {
+        lastReadNotification: new Date().toISOString()
+      });
+      setUnreadCount(0);
+    } catch (err) {
+      handleFirestoreError(err, OperationType.UPDATE, path);
+    }
+  };
+
+  const getIcon = (type: string) => {
+    switch (type) {
+      case 'offer': return <Tag className="text-gold" size={16} />;
+      case 'trending': return <Zap className="text-orange-500" size={16} />;
+      case 'new_arrival': return <Sparkles className="text-blue-400" size={16} />;
+      default: return <Megaphone className="text-white/40" size={16} />;
+    }
+  };
+
+  if (!user) return null;
+
+  return (
+    <div className="relative">
+      <button 
+        onClick={() => {
+          setIsOpen(!isOpen);
+          if (!isOpen) markAsRead();
+        }}
+        className="relative p-2 text-white/60 hover:text-white transition-colors"
+      >
+        <Bell size={20} />
+        {unreadCount > 0 && (
+          <span className="absolute top-1 right-1 w-4 h-4 bg-gold text-luxury-black text-[10px] font-black rounded-full flex items-center justify-center">
+            {unreadCount}
+          </span>
+        )}
+      </button>
+
+      <AnimatePresence>
+        {isOpen && (
+          <>
+            <div 
+              className="fixed inset-0 z-40" 
+              onClick={() => setIsOpen(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, y: 10, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 10, scale: 0.95 }}
+              className="absolute right-0 mt-4 w-[350px] glass border border-white/5 rounded-3xl p-6 z-50 shadow-2xl overflow-hidden"
+              style={{ maxHeight: '500px' }}
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-[10px] uppercase tracking-[0.4em] font-black text-white/40">Broadcasting System</h3>
+                <button onClick={() => setIsOpen(false)} className="text-white/20 hover:text-white">
+                  <X size={14} />
+                </button>
+              </div>
+
+              <div className="space-y-4 overflow-y-auto max-h-[400px] pr-2 custom-scrollbar">
+                {notifications.length === 0 ? (
+                  <div className="py-12 text-center">
+                    <Bell className="mx-auto text-white/5 mb-4" size={40} />
+                    <p className="text-[10px] uppercase tracking-widest text-white/20">No active transmissions</p>
+                  </div>
+                ) : (
+                  notifications.map((n) => (
+                    <div 
+                      key={n.id} 
+                      className="group relative glass p-4 rounded-2xl border border-white/5 hover:border-white/10 transition-all"
+                    >
+                      <div className="flex items-start space-x-4">
+                        <div className="mt-1 p-2 bg-white/5 rounded-lg">
+                          {getIcon(n.type)}
+                        </div>
+                        <div className="flex-grow">
+                          <h4 className="text-xs font-bold uppercase tracking-tight text-white/90 mb-1">{n.title}</h4>
+                          <p className="text-[11px] text-white/50 leading-relaxed line-clamp-2">{n.message}</p>
+                          <div className="mt-3 flex items-center justify-between">
+                            <span className="text-[8px] font-mono text-white/20">
+                              {new Date(n.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric' })}
+                            </span>
+                            {n.link && (
+                              <Link 
+                                to={n.link} 
+                                onClick={() => setIsOpen(false)}
+                                className="text-[9px] uppercase tracking-widest text-gold hover:underline"
+                              >
+                                View Entry
+                              </Link>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}

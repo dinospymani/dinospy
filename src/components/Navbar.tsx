@@ -4,30 +4,12 @@ import { Heart, User, ShoppingBag } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
-import { db } from '../context/AuthContext';
-import { collection, onSnapshot, query, orderBy, limit, doc, updateDoc } from 'firebase/firestore';
+import NotificationCenter from './NotificationCenter';
 
 export default function Navbar() {
-  const [notifications, setNotifications] = React.useState<any[]>([]);
   const { user, profile, signInWithGoogle } = useAuth();
   const { cartCount } = useCart();
   const navigate = useNavigate();
-
-  React.useEffect(() => {
-    if (!user) {
-      setNotifications([]);
-      return;
-    }
-    const q = query(
-      collection(db, 'users', user.uid, 'notifications'),
-      orderBy('createdAt', 'desc'),
-      limit(5)
-    );
-    const unsubscribe = onSnapshot(q, (snap) => {
-      setNotifications(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-    });
-    return () => unsubscribe();
-  }, [user]);
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-luxury-black/30 backdrop-blur-xl border-b border-white/5">
@@ -45,6 +27,7 @@ export default function Navbar() {
           </div>
 
           <div className="flex items-center space-x-6 md:space-x-8">
+            <NotificationCenter />
             <Link to="/wishlist" className="text-white/40 hover:text-gold transition-colors duration-500">
               <Heart size={18} strokeWidth={1} />
             </Link>

@@ -9,6 +9,7 @@
         "email": { "type": "string" },
         "displayName": { "type": "string" },
         "role": { "type": "string", "enum": ["user", "admin"] },
+        "lastReadNotification": { "type": "string", "format": "date-time" },
         "createdAt": { "type": "string", "format": "date-time" },
         "updatedAt": { "type": "string", "format": "date-time" }
       },
@@ -107,20 +108,18 @@
       "required": ["imageUrl", "title", "active"]
     },
     "Notification": {
-      "title": "User Notification",
-      "description": "Alerts and prompts for the user.",
+      "title": "App Notification",
+      "description": "Global or user-specific notifications.",
       "type": "object",
       "properties": {
         "id": { "type": "string" },
-        "userId": { "type": "string" },
         "title": { "type": "string" },
         "message": { "type": "string" },
-        "type": { "type": "string", "enum": ["order_update", "review_prompt", "system"] },
+        "type": { "type": "string", "enum": ["offer", "trending", "new_arrival", "general"] },
         "link": { "type": "string" },
-        "read": { "type": "boolean" },
         "createdAt": { "type": "string", "format": "date-time" }
       },
-      "required": ["userId", "title", "message", "type"]
+      "required": ["title", "message", "type", "createdAt"]
     }
   },
   "firestore": {
@@ -152,9 +151,9 @@
       "schema": "Banner",
       "description": "Homepage promotional banners."
     },
-    "/users/{userId}/notifications/{notificationId}": {
+    "/notifications/{notificationId}": {
       "schema": "Notification",
-      "description": "User notifications."
+      "description": "Global application notifications."
     }
   }
 }

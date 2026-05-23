@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { ShoppingBag, Heart, Star, Shield, Truck, RotateCcw, ArrowLeft, ChevronRight, Play, Share2 } from 'lucide-react';
+import { ShoppingBag, Heart, Star, Shield, Truck, RotateCcw, ArrowLeft, ChevronRight, Play, Share2, ThumbsUp, CheckCircle2 } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import MobileNav from '../components/MobileNav';
 import { db } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
-import { doc, onSnapshot, collection, query, where, orderBy, addDoc, serverTimestamp, updateDoc } from 'firebase/firestore';
+import { doc, onSnapshot, collection, query, where, orderBy, addDoc, serverTimestamp, updateDoc, getDocs } from 'firebase/firestore';
 import { useAuth } from '../context/AuthContext';
 
 import { toast } from 'sonner';
@@ -24,6 +24,63 @@ export default function ProductDetails() {
   const [reviewComment, setReviewComment] = useState('');
   const [reviewRating, setReviewRating] = useState(5);
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+  const [sortBy, setSortBy] = useState<'newest' | 'highest' | 'lowest'>('newest');
+  const [hasPurchased, setHasPurchased] = useState(false);
+
+  useEffect(() => {
+    if (!user || !id) return;
+    const checkPurchase = async () => {
+      const q = query(
+        collection(db, 'orders'),
+        where('userId', '==', user.uid),
+        where('status', '==', 'delivered')
+      );
+      const snap = await getDocs(q);
+      const purchasedProduct = snap.docs.some(doc => 
+        doc.data().items.some((item: any) => item.id === id)
+      );
+      setHasPurchased(purchasedProduct);
+    };
+    checkPurchase();
+  }, [user, id]);
+
+  const sortedReviews = [...reviews].sort((a, b) => {
+    if (sortBy === 'newest') return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    if (sortBy === 'highest') return b.rating - a.rating;
+    if (sortBy === 'lowest') return a.rating - b.rating;
+    return 0;
+  });
+
+  const ratingCounts = [5, 4, 3, 2, 1].map(r => ({
+    stars: r,
+    count: reviews.filter(rev => Math.floor(rev.rating) === r).length,
+    percentage: reviews.length > 0 ? (reviews.filter(rev => Math.floor(rev.rating) === r).length / reviews.length) * 100 : 0
+  }));
+
+  const handleHelpful = async (reviewId: string) => {
+    if (!user) {
+      setIsAuthModalOpen(true);
+      return;
+    }
+    try {
+      const reviewRef = doc(db, 'reviews', reviewId);
+      const review = reviews.find(r => r.id === reviewId);
+      const helpfulBy = review.helpfulBy || [];
+      
+      if (helpfulBy.includes(user.uid)) {
+        toast.info('You already marked this as helpful');
+        return;
+      }
+
+      await updateDoc(reviewRef, {
+        helpfulCount: (review.helpfulCount || 0) + 1,
+        helpfulBy: [...helpfulBy, user.uid]
+      });
+      toast.success('Appreciation logged');
+    } catch (err) {
+      toast.error('Sync failed');
+    }
+  };
 
   const handleShare = async () => {
     const shareData = {
@@ -383,33 +440,80 @@ export default function ProductDetails() {
           {/* Reviews Section */}
           <section className="mt-32 border-t border-white/5 pt-20">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-16">
-              <div>
-                <h2 className="text-3xl font-display mb-6">Client Experience</h2>
-                <div className="flex items-center space-x-4 mb-8">
-                  <div className="text-5xl font-mono text-gold">{product.rating || '5.0'}</div>
-                  <div>
-                    <div className="flex text-gold mb-1">
-                      {[1,2,3,4,5].map(i => (
-                        <Star key={i} size={16} fill={i <= Math.floor(product.rating || 5) ? "currentColor" : "none"} />
-                      ))}
+              <div className="space-y-12">
+                <div>
+                  <h2 className="text-3xl font-display mb-6">Client Experience</h2>
+                  <div className="flex items-center space-x-6 mb-10 p-8 glass rounded-3xl border border-white/5 bg-gradient-to-br from-gold/5 to-transparent">
+                    <div className="text-6xl font-mono text-gold tracking-tighter">{product.rating || '5.0'}</div>
+                    <div>
+                      <div className="flex text-gold mb-2">
+                        {[1,2,3,4,5].map(i => (
+                          <Star key={i} size={18} fill={i <= Math.floor(product.rating || 5) ? "currentColor" : "none"} strokeWidth={1.5} />
+                        ))}
+                      </div>
+                      <p className="text-[10px] uppercase tracking-[0.2em] text-white/40 font-bold">Consensus of {reviews.length} Signature Reviews</p>
                     </div>
-                    <p className="text-[10px] uppercase tracking-widest text-white/40">Based on {reviews.length} reviews</p>
                   </div>
+
+                  {/* Rating Distribution */}
+                  <div className="space-y-4 px-2">
+                    {ratingCounts.map((rc) => (
+                      <div key={rc.stars} className="flex items-center space-x-4">
+                        <div className="flex items-center space-x-1 w-10">
+                          <span className="text-[10px] font-mono text-white/40">{rc.stars}</span>
+                          <Star size={10} className="text-gold/40" fill="currentColor" />
+                        </div>
+                        <div className="flex-grow h-[2px] bg-white/5 rounded-full overflow-hidden">
+                          <motion.div 
+                            initial={{ width: 0 }}
+                            whileInView={{ width: `${rc.percentage}%` }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+                            className="h-full bg-gold/40"
+                          />
+                        </div>
+                        <span className="text-[10px] font-mono text-white/20 w-8">{rc.count}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="pt-10 border-t border-white/5">
+                   <div className="flex items-center justify-between mb-6">
+                      <h3 className="text-[10px] uppercase tracking-[0.4em] text-white/60 font-bold">Review Feed</h3>
+                      <select 
+                        value={sortBy}
+                        onChange={(e) => setSortBy(e.target.value as any)}
+                        className="bg-transparent text-[10px] uppercase tracking-widest text-gold font-bold outline-none cursor-pointer border-b border-gold/20 pb-1"
+                      >
+                        <option value="newest" className="bg-luxury-black">Chronological</option>
+                        <option value="highest" className="bg-luxury-black">Tier: Prestige</option>
+                        <option value="lowest" className="bg-luxury-black">Tier: Critical</option>
+                      </select>
+                   </div>
                 </div>
               </div>
 
-              <div className="lg:col-span-2 space-y-8">
-                <div className={`glass p-8 rounded-3xl border border-white/5 relative overflow-hidden transition-all ${user ? '' : 'opacity-60 grayscale-[0.5]'}`}>
-                  <h3 className="text-[10px] uppercase tracking-[0.3em] text-gold mb-6 font-black">Elite Review Protocol</h3>
+              <div className="lg:col-span-2 space-y-12">
+                <div className={`glass p-10 rounded-[2.5rem] border border-white/5 relative overflow-hidden transition-all duration-700 ${user ? 'hover:border-gold/20' : 'opacity-60 grayscale-[0.5]'}`}>
+                  <div className="flex items-center justify-between mb-8">
+                    <h3 className="text-[10px] uppercase tracking-[0.5em] text-gold font-black">Elite Review Protocol</h3>
+                    {hasPurchased && (
+                       <div className="flex items-center space-x-2 text-green-500 bg-green-500/5 px-4 py-2 rounded-full border border-green-500/10 scale-90">
+                          <CheckCircle2 size={14} />
+                          <span className="text-[9px] uppercase tracking-widest font-bold">Verified Acquisition</span>
+                       </div>
+                    )}
+                  </div>
                   <textarea
                     value={reviewComment}
                     onChange={(e) => setReviewComment(e.target.value)}
                     onFocus={() => !user && setIsAuthModalOpen(true)}
-                    placeholder={user ? "Describe your horological experience..." : "Authorize elite access to publish reviews..."}
-                    className="w-full bg-white/[0.03] border border-white/5 rounded-[1.5rem] p-6 text-sm focus:border-gold/50 outline-none min-h-[150px] mb-6 transition-all"
+                    placeholder={user ? "Describe your horological experience with the signature Dinospy craftsmanship..." : "Authorize elite access to publish signature reviews..."}
+                    className="w-full bg-white/[0.02] border border-white/10 rounded-[1.5rem] p-8 text-sm focus:border-gold/30 outline-none min-h-[180px] mb-8 transition-all placeholder:text-white/20"
                   />
-                  <div className="flex flex-col sm:flex-row justify-between items-center gap-6">
-                    <div className="flex space-x-3">
+                  <div className="flex flex-col sm:flex-row justify-between items-center gap-8">
+                    <div className="flex space-x-4">
                       {[1,2,3,4,5].map((star) => (
                         <button
                           key={star}
@@ -417,56 +521,98 @@ export default function ProductDetails() {
                           onClick={() => setReviewRating(star)}
                           className={`hover:scale-110 transition-transform ${star <= reviewRating ? 'text-gold' : 'text-white/10'}`}
                         >
-                          <Star size={24} fill={star <= reviewRating ? "currentColor" : "none"} strokeWidth={1} />
+                          <Star size={28} fill={star <= reviewRating ? "currentColor" : "none"} strokeWidth={1} />
                         </button>
                       ))}
                     </div>
                     <button
                       onClick={handleSubmitReview}
                       disabled={isSubmittingReview || (!reviewComment.trim() && user !== null)}
-                      className="w-full sm:w-auto px-10 py-5 gold-gradient text-luxury-black font-black uppercase tracking-[0.2em] text-[10px] rounded-2xl disabled:opacity-30 shadow-xl"
+                      className="w-full sm:w-auto px-12 py-6 gold-gradient text-luxury-black font-black uppercase tracking-[0.3em] text-[10px] rounded-2xl disabled:opacity-30 shadow-[0_20px_40px_rgba(212,175,55,0.1)] hover:scale-105 active:scale-95 transition-all"
                     >
-                      {isSubmittingReview ? 'Transmitting...' : 'Post Signature Review'}
+                      {isSubmittingReview ? 'Transmitting Manifest...' : 'Deploy Signature Review'}
                     </button>
                   </div>
                   {!user && (
                     <div className="absolute inset-0 flex items-center justify-center bg-black/10 backdrop-blur-[2px] cursor-pointer" onClick={() => setIsAuthModalOpen(true)}>
-                      <div className="glass px-6 py-4 rounded-2xl border border-white/10 shadow-3xl flex items-center space-x-3">
-                        <Shield size={20} className="text-gold" />
-                        <span className="text-[10px] uppercase tracking-widest font-bold">Unlocking Required</span>
+                      <div className="glass px-8 py-5 rounded-2xl border border-white/10 shadow-3xl flex items-center space-x-4 bg-luxury-black/40">
+                        <Shield size={24} className="text-gold" />
+                        <span className="text-[11px] uppercase tracking-[0.3em] font-bold">Signature Recognition Required</span>
                       </div>
                     </div>
                   )}
                 </div>
 
-                {reviews.length === 0 ? (
-                  <div className="glass p-12 rounded-3xl border border-white/5 text-center">
-                    <p className="text-white/40 italic">No reviews yet. Be the first to share your experience with this timepiece.</p>
-                  </div>
-                ) : (
-                  reviews.map((review) => (
-                    <motion.div 
-                      key={review.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      className="glass p-8 rounded-2xl border border-white/5"
-                    >
-                      <div className="flex justify-between items-start mb-4">
-                        <div>
-                          <p className="font-bold text-white/90">{review.userName}</p>
-                          <p className="text-[10px] text-white/40 uppercase tracking-widest">{new Date(review.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                <div className="space-y-8">
+                  {sortedReviews.length === 0 ? (
+                    <div className="glass p-20 rounded-3xl border border-dashed border-white/10 text-center animate-in fade-in">
+                      <p className="text-white/20 uppercase tracking-[0.5em] text-[10px] font-bold">Awaiting first signature legacy</p>
+                    </div>
+                  ) : (
+                    sortedReviews.map((review) => (
+                      <motion.div 
+                        key={review.id}
+                        initial={{ opacity: 0, y: 30 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        className="glass p-10 rounded-[2rem] border border-white/5 relative group hover:border-white/10 transition-colors"
+                      >
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
+                          <div className="flex items-center space-x-4">
+                            <div className="w-12 h-12 rounded-full bg-gold/10 border border-gold/20 flex items-center justify-center text-gold font-bold text-lg">
+                              {review.userName.charAt(0)}
+                            </div>
+                            <div>
+                               <div className="flex items-center space-x-3">
+                                 <p className="font-bold text-white/90 text-sm">{review.userName}</p>
+                                 {(review.verified || review.isVerified) && (
+                                   <div className="flex items-center text-[8px] text-green-500 uppercase font-black tracking-widest bg-green-500/5 px-2 py-0.5 rounded border border-green-500/10">
+                                      <CheckCircle2 size={8} className="mr-1" />
+                                      Verified Asset
+                                   </div>
+                                 )}
+                               </div>
+                               <p className="text-[10px] text-white/30 uppercase tracking-widest font-medium mt-1">
+                                 {new Date(review.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                               </p>
+                            </div>
+                          </div>
+                          <div className="flex flex-col items-end gap-2">
+                            <div className="flex text-gold">
+                              {[1,2,3,4,5].map(i => (
+                                <Star key={i} size={14} fill={i <= review.rating ? "currentColor" : "none"} strokeWidth={1.5} />
+                              ))}
+                            </div>
+                            <span className="text-[9px] uppercase tracking-widest text-white/20 font-bold">Tier {review.rating}.0 Prestige</span>
+                          </div>
                         </div>
-                        <div className="flex text-gold">
-                          {[1,2,3,4,5].map(i => (
-                            <Star key={i} size={12} fill={i <= review.rating ? "currentColor" : "none"} />
-                          ))}
+                        <p className="text-white/60 leading-relaxed italic text-lg mb-8 font-light max-w-2xl px-4 border-l border-gold/20">
+                          "{review.comment}"
+                        </p>
+                        
+                        <div className="pt-8 border-t border-white/5 flex items-center justify-between">
+                           <button 
+                             onClick={() => handleHelpful(review.id)}
+                             className="flex items-center space-x-3 text-white/30 hover:text-gold transition-all group/btn"
+                           >
+                              <div className="p-2 rounded-full bg-white/5 group-hover/btn:bg-gold/10 transition-colors">
+                                <ThumbsUp size={14} className={review.helpfulBy?.includes(user?.uid) ? 'text-gold fill-gold' : ''} />
+                              </div>
+                              <span className="text-[10px] uppercase tracking-widest font-bold">
+                                Appreciation ({review.helpfulCount || 0})
+                              </span>
+                           </button>
+                           
+                           <div className="flex space-x-2">
+                              <div className="w-1 h-1 rounded-full bg-white/5" />
+                              <div className="w-1 h-1 rounded-full bg-white/5" />
+                              <div className="w-1 h-1 rounded-full bg-white/5" />
+                           </div>
                         </div>
-                      </div>
-                      <p className="text-white/70 leading-relaxed italic">"{review.comment}"</p>
-                    </motion.div>
-                  ))
-                )}
+                      </motion.div>
+                    ))
+                  )}
+                </div>
               </div>
             </div>
           </section>

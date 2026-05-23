@@ -84,5 +84,14 @@ service cloud.firestore {
       allow read: if true;
       allow write: if isAdmin();
     }
+
+    // ------------------------------------------------------------
+    // GLOBAL NOTIFICATIONS
+    // ------------------------------------------------------------
+    match /notifications/{notificationId} {
+      allow read: if isSignedIn();
+      allow create, delete: if isAdmin();
+      allow update: if isAdmin();
+    }
   }
 }

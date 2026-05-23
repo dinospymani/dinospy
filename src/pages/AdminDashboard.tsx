@@ -4,10 +4,11 @@ import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc, onSnapshot, que
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import MobileNav from '../components/MobileNav';
-import { Plus, Trash2, Edit, Save, Package, QrCode, Printer, X, Truck, Loader2, ChevronLeft, TrendingUp, DollarSign, ShoppingBag, AlertCircle, BarChart2, Bell, ArrowLeft } from 'lucide-react';
+import { Plus, Trash2, Edit, Save, Package, QrCode, Printer, X, Truck, Loader2, ChevronLeft, TrendingUp, DollarSign, ShoppingBag, AlertCircle, BarChart2, Bell, ArrowLeft, Megaphone } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { QRCodeSVG } from 'qrcode.react';
 import { toast } from 'sonner';
+import { handleFirestoreError, OperationType } from '../lib/utils';
 
 interface AdminProduct {
   id: string;
@@ -52,8 +53,15 @@ export default function AdminDashboard() {
   const [orders, setOrders] = useState<AdminOrder[]>([]);
   const [notifications, setNotifications] = useState<any[]>([]);
   const [banners, setBanners] = useState<any[]>([]);
-  const [view, setView] = useState<'products' | 'orders' | 'add' | 'banners' | 'stats' | 'notifications'>('stats');
+  const [view, setView] = useState<'products' | 'orders' | 'add' | 'banners' | 'stats' | 'notifications' | 'broadcast'>('stats');
   const [selectedOrder, setSelectedOrder] = useState<AdminOrder | null>(null);
+
+  // Broadcast States
+  const [broadcastTitle, setBroadcastTitle] = useState('');
+  const [broadcastMessage, setBroadcastMessage] = useState('');
+  const [broadcastType, setBroadcastType] = useState<'offer' | 'trending' | 'new_arrival' | 'general'>('general');
+  const [broadcastLink, setBroadcastLink] = useState('');
+  const [shouldAutoBroadcast, setShouldAutoBroadcast] = useState(false);
 
   // Stats
   const [stats, setStats] = useState({ revenue: 0, ordersCount: 0, lowStock: 0, conversionRate: 3.2 });
@@ -99,18 +107,22 @@ export default function AdminDashboard() {
       setOrders(prevOrders => {
         if (prevOrders.length > 0 && fetchedOrders.length > prevOrders.length) {
           const newOrders = fetchedOrders.filter(fo => !prevOrders.some(po => po.id === fo.id));
-          newOrders.forEach((no, idx) => {
+          newOrders.forEach((no) => {
              toast.success(`NEW ACQUISITION: ${no.customerName} just placed an order!`, {
                icon: <Bell className="text-gold" />,
                duration: 5000
              });
-             setNotifications(prev => [{
-               id: `${Date.now()}-${no.id}-${idx}`,
-               type: 'new_order',
-               message: `Order #${no.id.slice(-6)} received from ${no.customerName}`,
-               timestamp: new Date().toISOString(),
-               read: false
-             }, ...prev]);
+             setNotifications(prev => {
+               // Prevent duplicate notifications for the same order
+               if (prev.some(n => n.id === `noti_${no.id}`)) return prev;
+               return [{
+                 id: `noti_${no.id}`,
+                 type: 'new_order',
+                 message: `Order #${no.id.slice(-6)} received from ${no.customerName}`,
+                 timestamp: new Date().toISOString(),
+                 read: false
+               }, ...prev];
+             });
           });
         }
         return fetchedOrders;
@@ -141,6 +153,35 @@ export default function AdminDashboard() {
 
     return () => unsubscribeOrders();
   }, []);
+
+  const handleBroadcast = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!broadcastTitle || !broadcastMessage) {
+      toast.warning('Manifest required: Title and Message are mandatory.');
+      return;
+    }
+
+    setIsSaving(true);
+    const path = 'notifications';
+    try {
+      await addDoc(collection(db, path), {
+        title: broadcastTitle,
+        message: broadcastMessage,
+        type: broadcastType,
+        link: broadcastLink || null,
+        createdAt: new Date().toISOString()
+      });
+      
+      setBroadcastTitle('');
+      setBroadcastMessage('');
+      setBroadcastLink('');
+      toast.success('Global Transmission Successful');
+    } catch (err) {
+      handleFirestoreError(err, OperationType.CREATE, path);
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const handlePurgeOrders = async () => {
     if (!window.confirm("CRITICAL PROTOCOL: This will permanently expunge ALL acquisition records and legacy manifests. Proceed with final authorization?")) return;
@@ -456,7 +497,7 @@ export default function AdminDashboard() {
     setIsSaving(true);
     const promise = async () => {
       try {
-        await addDoc(collection(db, 'products'), {
+        const productRef = await addDoc(collection(db, 'products'), {
           name,
           brand,
           price: parseFloat(price),
@@ -477,6 +518,31 @@ export default function AdminDashboard() {
             Crystal: 'Sapphire'
           }
         });
+
+        // Trigger Auto-Broadcast if enabled
+        if (shouldAutoBroadcast) {
+          let bTitle = "New Masterpiece Unveiled";
+          let bMsg = `The ${name} is now available in our ${category} collection.`;
+          let bType: 'new_arrival' | 'offer' | 'trending' = 'new_arrival';
+
+          if (isOffer) {
+            bTitle = "Limited Opportunity";
+            bMsg = `Acquire the ${name} at an exclusive offer price for a limited time.`;
+            bType = 'offer';
+          } else if (isTrending) {
+            bTitle = "Trending Acquisition";
+            bMsg = `The ${name} is gaining significant traction among elite collectors.`;
+            bType = 'trending';
+          }
+
+          await addDoc(collection(db, 'notifications'), {
+            title: bTitle,
+            message: bMsg,
+            type: bType,
+            link: `/product/${productRef.id}`,
+            createdAt: new Date().toISOString()
+          });
+        }
         
         setName('');
         setPrice('');
@@ -484,9 +550,12 @@ export default function AdminDashboard() {
         setImage('');
         setImageFiles([]);
         setDescription('');
+        setShouldAutoBroadcast(false);
         
         const snap = await getDocs(collection(db, 'products'));
         setProducts(snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as AdminProduct)));
+      } catch (err) {
+        handleFirestoreError(err, OperationType.CREATE, 'products');
       } finally {
         setIsSaving(false);
       }
@@ -613,6 +682,12 @@ export default function AdminDashboard() {
               {notifications.some(n => !n.read) && (
                 <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full border border-luxury-black animate-pulse" />
               )}
+            </button>
+            <button 
+              onClick={() => setView('broadcast')}
+              className={`flex-shrink-0 px-4 sm:px-6 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${view === 'broadcast' ? 'gold-gradient text-luxury-black' : 'text-white/60 hover:text-white'}`}
+            >
+              Broadcast
             </button>
             <button 
               onClick={() => setView('banners')}
@@ -789,6 +864,77 @@ export default function AdminDashboard() {
             </div>
           )}
 
+          {view === 'broadcast' && (
+            <div className="space-y-12">
+               <div>
+                  <h2 className="text-xl font-bold mb-8 flex items-center">
+                    <Megaphone className="mr-3 text-gold" size={24} />
+                    Global Transmission System
+                  </h2>
+                  <form onSubmit={handleBroadcast} className="space-y-6 max-w-2xl">
+                    <div className="space-y-4">
+                      <div>
+                        <label className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block">Transmission Title</label>
+                        <input 
+                          value={broadcastTitle} 
+                          onChange={e => setBroadcastTitle(e.target.value)} 
+                          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-gold" 
+                          placeholder="e.g. Exclusive Weekend Offer" 
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block">Category</label>
+                        <div className="flex flex-wrap gap-4">
+                          {['offer', 'trending', 'new_arrival', 'general'].map((type) => (
+                            <button
+                              key={type}
+                              type="button"
+                              onClick={() => setBroadcastType(type as any)}
+                              className={`px-4 py-2 rounded-lg text-[10px] uppercase font-bold tracking-widest border transition-all ${broadcastType === type ? 'bg-gold/10 border-gold text-gold' : 'border-white/5 text-white/40'}`}
+                            >
+                              {type}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <label className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block">Transmission Manifest (Message)</label>
+                        <textarea 
+                          value={broadcastMessage} 
+                          onChange={e => setBroadcastMessage(e.target.value)} 
+                          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-gold h-32" 
+                          placeholder="Detailed announcement for all elite members..."
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block">Link Target (Optional)</label>
+                        <input 
+                          value={broadcastLink} 
+                          onChange={e => setBroadcastLink(e.target.value)} 
+                          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-gold" 
+                          placeholder="e.g. /explore or /product/ID" 
+                        />
+                      </div>
+                    </div>
+                    <button 
+                      type="submit" 
+                      disabled={isSaving} 
+                      className="w-full py-4 gold-gradient text-luxury-black font-black uppercase tracking-[0.3em] rounded-xl hover:scale-[1.01] transition-all disabled:opacity-50 shadow-xl shadow-gold/10"
+                    >
+                      {isSaving ? 'Initiating Broadcast...' : 'Execute Pulse'}
+                    </button>
+                  </form>
+               </div>
+
+               <div className="pt-12 border-t border-white/5">
+                 <h3 className="text-[10px] uppercase tracking-widest text-white/20 mb-6">Historical Transmissions</h3>
+                 <p className="text-white/40 text-xs italic">Pulse history is managed via the database console.</p>
+               </div>
+            </div>
+          )}
+
           {view === 'add' && (
             <>
               <h2 className="text-xl font-bold mb-8 flex items-center">
@@ -888,6 +1034,14 @@ export default function AdminDashboard() {
                     <input type="checkbox" checked={isOffer} onChange={e => setIsOffer(e.target.checked)} className="accent-gold h-4 w-4" />
                     <span className="text-sm text-white/60">Active Offer</span>
                   </label>
+                  <div className="h-6 w-[1px] bg-white/10 mx-2" />
+                  <label className="flex items-center space-x-3 cursor-pointer">
+                    <input type="checkbox" checked={shouldAutoBroadcast} onChange={e => setShouldAutoBroadcast(e.target.checked)} className="accent-gold h-4 w-4" />
+                    <div className="flex flex-col">
+                      <span className="text-sm text-gold font-bold">Auto-Broadcast</span>
+                      <span className="text-[8px] text-white/40 uppercase tracking-widest">Pulse to all collectors</span>
+                    </div>
+                  </label>
                 </div>
 
                 <button type="submit" disabled={isSaving} className="w-full py-4 gold-gradient text-luxury-black font-bold uppercase tracking-widest rounded-xl hover:scale-[1.01] transition-all disabled:opacity-50">
@@ -968,8 +1122,16 @@ export default function AdminDashboard() {
                   <div key={p.id} className="flex items-center space-x-4 glass p-4 rounded-2xl border border-white/5">
                     <img src={p.images[0]} className="w-16 h-16 object-cover rounded-lg" alt={p.name} />
                     <div className="flex-grow">
-                      <h4 className="font-bold">{p.name}</h4>
-                      <p className="text-xs text-white/40">₹{p.price.toLocaleString()} • {p.category} • <span className={p.stock < 5 ? 'text-red-500' : ''}>{p.stock} units</span></p>
+                      <div className="flex items-center space-x-2">
+                        <h4 className="font-bold">{p.name}</h4>
+                        {p.stock < 5 && (
+                          <div className="flex items-center text-red-500 bg-red-500/10 px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest animate-pulse">
+                            <AlertCircle size={10} className="mr-1" />
+                            Low Stock
+                          </div>
+                        )}
+                      </div>
+                      <p className="text-xs text-white/40">₹{p.price.toLocaleString()} • {p.category} • <span className={p.stock < 5 ? 'text-red-500 font-bold' : ''}>{p.stock} units</span></p>
                     </div>
                     <div className="flex items-center space-x-2">
                        {editingStockId === p.id ? (
