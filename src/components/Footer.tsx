@@ -34,8 +34,8 @@ export default function Footer() {
           <div>
             <h4 className="text-white/80 font-bold uppercase tracking-[0.4em] text-[10px] mb-10">Intelligence</h4>
             <ul className="space-y-6 text-[10px] uppercase tracking-[0.3em] text-white/30 font-bold">
+              <li><Link to="/faq" className="hover:text-gold transition-all duration-500">Archives (FAQ)</Link></li>
               <li><Link to="/#philosophy" className="hover:text-gold transition-all duration-500">Our Narrative</Link></li>
-              <li><Link to="/#philosophy" className="hover:text-gold transition-all duration-500">Heritage</Link></li>
               <li><Link to="/explore" className="hover:text-gold transition-all duration-500">Logistics</Link></li>
             </ul>
           </div>

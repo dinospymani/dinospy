@@ -55,7 +55,7 @@ export default function Hero() {
     subtitle: "Heritage Masterpieces"
   };
 
-  const bannerSource = isMobile ? (currentBanner.mobileImageUrl || currentBanner.imageUrl) : currentBanner.imageUrl;
+  const bannerSource = isMobile ? (currentBanner.mobileImageUrl || currentBanner.imageUrl) : (currentBanner.imageUrl || currentBanner.mobileImageUrl);
 
   return (
     <section className="relative h-screen min-h-[600px] md:h-[90vh] w-full overflow-hidden flex items-center font-sans">

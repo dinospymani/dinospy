@@ -13,6 +13,7 @@ import WishlistPage from './pages/WishlistPage';
 import ExplorePage from './pages/ExplorePage';
 import ProfilePage from './pages/ProfilePage';
 import PartnerPortal from './pages/PartnerPortal';
+import FAQPage from './pages/FAQPage';
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -57,6 +58,7 @@ function AnimatedRoutes() {
         <Route path="/wishlist" element={<PageTransition><WishlistPage /></PageTransition>} />
         <Route path="/checkout" element={<ProtectedRoute><PageTransition><CheckoutPage /></PageTransition></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><PageTransition><ProfilePage /></PageTransition></ProtectedRoute>} />
+        <Route path="/faq" element={<PageTransition><FAQPage /></PageTransition>} />
         <Route path="/partner/:orderId" element={<PageTransition><PartnerPortal /></PageTransition>} />
         <Route path="/admin" element={<ProtectedRoute adminOnly><PageTransition><AdminDashboard /></PageTransition></ProtectedRoute>} />
       </Routes>

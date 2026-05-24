@@ -8,6 +8,9 @@ import Footer from '../components/Footer';
 import { Link } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
 import { toast } from 'sonner';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import { FileDown } from 'lucide-react';
 
 export default function ProfilePage() {
   const { user, profile, signOut } = useAuth();
@@ -61,6 +64,82 @@ export default function ProfilePage() {
     } catch (err) {
       console.error(err);
       toast.error('Failed to update role.');
+    }
+  };
+
+  const downloadReceipt = (order: any) => {
+    try {
+      const doc = new jsPDF();
+      const goldColor = [212, 175, 55]; // #D4AF37
+      const blackColor = [10, 10, 10]; // #0A0A0A
+
+      // Title & Branding
+      doc.setFillColor(blackColor[0], blackColor[1], blackColor[2]);
+      doc.rect(0, 0, 210, 40, 'F');
+      
+      doc.setTextColor(goldColor[0], goldColor[1], goldColor[2]);
+      doc.setFontSize(24);
+      doc.setFont('helvetica', 'bold');
+      doc.text('DINOSPY', 105, 25, { align: 'center' });
+      
+      doc.setFontSize(8);
+      doc.text('ESTABLISHED IN HERITAGE', 105, 32, { align: 'center' });
+
+      // Order Info Header
+      doc.setTextColor(40, 40, 40);
+      doc.setFontSize(16);
+      doc.text('ACQUISITION RECEIPT', 20, 55);
+      
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`Order ID: #${order.id.slice(-8).toUpperCase()}`, 20, 65);
+      doc.text(`Date: ${new Date(order.createdAt).toLocaleDateString()}`, 20, 70);
+      doc.text(`Status: ${order.status.toUpperCase()}`, 20, 75);
+
+      // Customer Info
+      doc.setFont('helvetica', 'bold');
+      doc.text('DELIVERY MANDATE', 140, 55);
+      doc.setFont('helvetica', 'normal');
+      doc.text(profile?.displayName || 'DINOSPY Member', 140, 65);
+      doc.text(profile?.email || '', 140, 70);
+
+      // Table of Items
+      const tableData = order.items.map((item: any) => [
+        item.name,
+        `x${item.quantity}`,
+        `INR ${item.price.toLocaleString()}`,
+        `INR ${(item.price * item.quantity).toLocaleString()}`
+      ]);
+
+      autoTable(doc, {
+        startY: 90,
+        head: [['Heritage Asset', 'Qty', 'Unit Value', 'Total']],
+        body: tableData,
+        headStyles: { 
+          fillColor: goldColor as any, 
+          textColor: [255, 255, 255],
+          fontStyle: 'bold'
+        },
+        alternateRowStyles: { fillColor: [250, 250, 250] },
+        styles: { fontSize: 9 },
+        margin: { top: 90 }
+      });
+
+      const finalY = (doc as any).lastAutoTable.finalY + 15;
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.text(`FULL ACQUISITION VALUE: INR ${order.total.toLocaleString()}`, 120, finalY);
+
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'italic');
+      doc.setTextColor(150, 150, 150);
+      doc.text('Thank you for choosing DINOSPY. Your heritage is our legacy.', 105, 280, { align: 'center' });
+
+      doc.save(`DINOSPY-Receipt-${order.id.slice(-6)}.pdf`);
+      toast.success('Receipt localized successfully.');
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to generate archive.');
     }
   };
 
@@ -160,9 +239,19 @@ export default function ProfilePage() {
                             </div>
                             <p className="text-xs text-white/40 mt-1">{new Date(order.createdAt).toLocaleDateString()}</p>
                           </div>
-                          <div className="text-right">
+                          <div className="text-right flex flex-col items-end">
                             <span className="text-2xl font-mono text-white block">₹{order.total.toLocaleString()}</span>
                             <span className="text-[10px] text-white/40 uppercase tracking-widest mt-1 block">Full Acquisition Value</span>
+                            
+                            <motion.button
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              onClick={() => downloadReceipt(order)}
+                              className="mt-4 flex items-center space-x-2 bg-white/5 border border-white/10 px-4 py-2 rounded-xl text-[9px] uppercase tracking-widest font-bold hover:bg-gold/10 hover:border-gold/30 transition-all text-white/60 hover:text-gold"
+                            >
+                              <FileDown size={14} />
+                              <span>Download PDF Receipt</span>
+                            </motion.button>
                           </div>
                         </div>
 

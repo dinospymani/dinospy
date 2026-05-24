@@ -446,9 +446,14 @@ export default function AdminDashboard() {
     }
     
     const finalImage = bannerImageFile || bannerImage;
-    const finalMobileImage = bannerMobileImageFile || bannerMobileImage || finalImage;
+    const finalMobileImage = bannerMobileImageFile || bannerMobileImage;
 
-    if (finalImage.length > 800000 || finalMobileImage.length > 800000) {
+    if (!finalImage && !finalMobileImage) {
+      toast.warning('Vision required: Please provide at least one image for the banner.');
+      return;
+    }
+
+    if ((finalImage && finalImage.length > 800000) || (finalMobileImage && finalMobileImage.length > 800000)) {
       toast.error('Manifest too heavy: High-resolution assets detected. Please compress or use URL references.');
       return;
     }
@@ -459,8 +464,8 @@ export default function AdminDashboard() {
         const bannerData = {
           title: bannerTitle,
           subtitle: bannerSubtitle,
-          imageUrl: finalImage,
-          mobileImageUrl: finalMobileImage,
+          imageUrl: finalImage || null,
+          mobileImageUrl: finalMobileImage || null,
           link: bannerLink,
           expiryDate: bannerExpiry || null,
           active: true,
@@ -499,7 +504,7 @@ export default function AdminDashboard() {
   const handleAddCoupon = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!couponCode || !couponDiscount) {
-      toast.warning('Credential required: Coupon code and value are mandatory.');
+      toast.warning('Coupon required: Code and value are mandatory.');
       return;
     }
 
@@ -518,7 +523,7 @@ export default function AdminDashboard() {
       setCouponDiscount('');
       setCouponExpiry('');
       setCouponMinAmount('0');
-      toast.success('Promotional credential authorized');
+      toast.success('Valid coupon applied');
     } catch (err) {
       toast.error('Failed to sync coupon');
     } finally {
@@ -529,7 +534,7 @@ export default function AdminDashboard() {
   const handleDeleteCoupon = async (id: string) => {
     try {
       await deleteDoc(doc(db, 'coupons', id));
-      toast.info('Credential expunged');
+      toast.info('Coupon deleted');
     } catch (err) {
       toast.error('Delete operation failed');
     }
@@ -1647,7 +1652,7 @@ export default function AdminDashboard() {
           {view === 'coupons' && (
             <div className="space-y-12">
               <div>
-                <h2 className="text-xl font-bold mb-8">Promotional Credential Management</h2>
+                <h2 className="text-xl font-bold mb-8">Coupon System Management</h2>
                 <form onSubmit={handleAddCoupon} className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
@@ -1703,7 +1708,7 @@ export default function AdminDashboard() {
                     </div>
                   </div>
                   <button type="submit" disabled={isSaving} className="w-full py-4 gold-gradient text-luxury-black font-bold uppercase tracking-widest rounded-xl hover:scale-[1.01] transition-all disabled:opacity-50">
-                    Authorize Credential
+                    Add New Coupon
                   </button>
                 </form>
               </div>
@@ -1724,7 +1729,7 @@ export default function AdminDashboard() {
                             </div>
                             <div>
                                <h4 className="font-mono text-lg font-bold gold-text">{c.code}</h4>
-                               <p className="text-[10px] text-white/40 uppercase tracking-widest">Active Credential</p>
+                               <p className="text-[10px] text-white/40 uppercase tracking-widest">Valid Coupon</p>
                             </div>
                          </div>
                          <div className="space-y-2 pt-4 border-t border-white/5">

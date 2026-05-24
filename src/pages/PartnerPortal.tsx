@@ -172,7 +172,7 @@ export default function PartnerPortal() {
                     disabled={isVerifying || pin.length !== 6}
                     className="w-full py-6 gold-gradient text-luxury-black font-black uppercase tracking-[0.4em] text-[10px] rounded-2xl shadow-xl shadow-gold/10 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:grayscale"
                   >
-                    {isVerifying ? 'Verifying Credentials...' : 'Authorize Release'}
+                    {isVerifying ? 'Verifying PIN...' : 'Authorize Release'}
                   </button>
                 </form>
               </div>
