@@ -19,8 +19,15 @@ async function startServer() {
       directives: {
         ...helmet.contentSecurityPolicy.getDefaultDirectives(),
         "img-src": ["'self'", "data:", "https:", "http:"],
-        "connect-src": ["'self'", "https://firebasestorage.googleapis.com", "https://firestore.googleapis.com", "https://identitytoolkit.googleapis.com"],
-        "script-src": ["'self'", "'unsafe-inline'", "'unsafe-eval'"], // Needed for Vite and some React patterns
+        "connect-src": [
+          "'self'", 
+          "https://*.googleapis.com", 
+          "https://*.firebaseio.com", 
+          "wss://*.firebaseio.com",
+          "https://*.firebase.google.com",
+          "https://*.firebaseapp.com"
+        ],
+        "script-src": ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://apis.google.com", "https://www.gstatic.com"],
         "frame-ancestors": ["'self'", "https://*.google.com", "https://*.studio.google", "https://ai.studio"],
       },
     },
