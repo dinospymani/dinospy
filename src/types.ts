@@ -12,7 +12,7 @@ export interface AppNotification {
   id: string;
   title: string;
   message: string;
-  type: 'offer' | 'trending' | 'new_arrival' | 'general';
+  type: 'offer' | 'trending' | 'new_arrival' | 'general' | 'order' | 'security' | 'promotion';
   link?: string;
   createdAt: string;
   expiresAt?: string;

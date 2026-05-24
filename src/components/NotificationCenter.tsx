@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Bell, X, Tag, Zap, Sparkles, Megaphone, Check } from 'lucide-react';
+import { Bell, X, Tag, Zap, Sparkles, Megaphone, Check, Shield, ShoppingBag } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { collection, query, orderBy, limit, onSnapshot, doc, updateDoc } from 'firebase/firestore';
 import { db } from '../context/AuthContext';
@@ -62,11 +62,32 @@ export default function NotificationCenter() {
 
   const getIcon = (type: string) => {
     switch (type) {
-      case 'offer': return <Tag className="text-gold" size={16} />;
+      case 'offer':
+      case 'promotion': return <Tag className="text-gold" size={16} />;
       case 'trending': return <Zap className="text-orange-500" size={16} />;
       case 'new_arrival': return <Sparkles className="text-blue-400" size={16} />;
+      case 'order': return <ShoppingBag className="text-green-400" size={16} />;
+      case 'security': return <Shield className="text-red-400" size={16} />;
       default: return <Megaphone className="text-white/40" size={16} />;
     }
+  };
+
+  const getBadge = (type: string) => {
+    const config: Record<string, { label: string, color: string }> = {
+      offer: { label: 'Promotion', color: 'bg-gold/10 text-gold border-gold/20' },
+      promotion: { label: 'Promotion', color: 'bg-gold/10 text-gold border-gold/20' },
+      trending: { label: 'Trending', color: 'bg-orange-500/10 text-orange-500 border-orange-500/20' },
+      new_arrival: { label: 'New Arrival', color: 'bg-blue-400/10 text-blue-400 border-blue-400/20' },
+      order: { label: 'Order Update', color: 'bg-green-400/10 text-green-400 border-green-400/20' },
+      security: { label: 'Security', color: 'bg-red-400/10 text-red-400 border-red-400/20' },
+      general: { label: 'Update', color: 'bg-white/5 text-white/40 border-white/10' }
+    };
+    const { label, color } = config[type] || config.general;
+    return (
+      <span className={`px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest border ${color}`}>
+        {label}
+      </span>
+    );
   };
 
   const filteredNotifications = notifications.filter(n => 
@@ -159,63 +180,80 @@ export default function NotificationCenter() {
               </div>
 
               <div className="space-y-4 overflow-y-auto max-h-[400px] pr-2 custom-scrollbar">
-                {filteredNotifications.length === 0 ? (
-                  <div className="py-12 text-center">
-                    <Bell className="mx-auto text-white/5 mb-4" size={40} />
-                    <p className="text-[10px] uppercase tracking-widest text-white/20">No active transmissions</p>
-                  </div>
-                ) : (
-                  filteredNotifications.map((n) => (
-                    <div 
-                      key={n.id} 
-                      onClick={() => !n.link && handleDismiss(n.id)}
-                      className={`group relative glass p-4 rounded-2xl border border-white/5 hover:border-white/10 transition-all ${!n.link ? 'cursor-pointer' : ''}`}
+                <AnimatePresence initial={false}>
+                  {filteredNotifications.length === 0 ? (
+                    <motion.div 
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="py-12 text-center"
                     >
-                      <div className="flex items-start space-x-4">
-                        <div className="mt-1 p-2 bg-white/5 rounded-lg">
-                          {getIcon(n.type)}
-                        </div>
-                        <div className="flex-grow">
-                          <h4 className="text-xs font-bold uppercase tracking-tight text-white/90 mb-1">{n.title}</h4>
-                          <p className="text-[11px] text-white/50 leading-relaxed line-clamp-2">{n.message}</p>
-                          <div className="mt-3 flex items-center justify-between">
-                            <span className="text-[8px] font-mono text-white/20">
-                              {new Date(n.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric' })}
-                            </span>
-                            <div className="flex items-center space-x-4">
-                              {n.link ? (
-                                <Link 
-                                  to={n.link} 
+                      <Bell className="mx-auto text-white/5 mb-4" size={40} />
+                      <p className="text-[10px] uppercase tracking-widest text-white/20">No active transmissions</p>
+                    </motion.div>
+                  ) : (
+                    filteredNotifications.map((n, index) => (
+                      <motion.div 
+                        key={n.id} 
+                        initial={{ opacity: 0, x: -10, y: 10 }}
+                        animate={{ opacity: 1, x: 0, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        transition={{ 
+                          delay: index * 0.05, 
+                          duration: 0.5, 
+                          ease: [0.22, 1, 0.36, 1] 
+                        }}
+                        onClick={() => !n.link && handleDismiss(n.id)}
+                        className={`group relative glass p-4 rounded-2xl border border-white/5 hover:border-white/10 transition-all ${!n.link ? 'cursor-pointer' : ''}`}
+                      >
+                        <div className="flex items-start space-x-4">
+                          <div className="mt-1 p-2 bg-white/5 rounded-lg">
+                            {getIcon(n.type)}
+                          </div>
+                          <div className="flex-grow">
+                            <div className="flex items-center justify-between mb-1">
+                              <h4 className="text-xs font-bold uppercase tracking-tight text-white/90">{n.title}</h4>
+                              {getBadge(n.type)}
+                            </div>
+                            <p className="text-[11px] text-white/50 leading-relaxed line-clamp-2">{n.message}</p>
+                            <div className="mt-3 flex items-center justify-between">
+                              <span className="text-[8px] font-mono text-white/20">
+                                {new Date(n.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric' })}
+                              </span>
+                              <div className="flex items-center space-x-4">
+                                {n.link ? (
+                                  <Link 
+                                    to={n.link} 
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setIsOpen(false);
+                                      handleDismiss(n.id);
+                                    }}
+                                    className="text-[9px] uppercase tracking-widest text-gold hover:underline"
+                                  >
+                                    View Entry
+                                  </Link>
+                                ) : (
+                                  <span className="text-[9px] uppercase tracking-widest text-white/10 group-hover:text-gold transition-colors font-bold">
+                                    Mark Read
+                                  </span>
+                                )}
+                                <button 
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    setIsOpen(false);
                                     handleDismiss(n.id);
                                   }}
-                                  className="text-[9px] uppercase tracking-widest text-gold hover:underline"
+                                  className="text-[9px] uppercase tracking-widest text-white/20 hover:text-white"
                                 >
-                                  View Entry
-                                </Link>
-                              ) : (
-                                <span className="text-[9px] uppercase tracking-widest text-white/10 group-hover:text-gold transition-colors font-bold">
-                                  Mark Read
-                                </span>
-                              )}
-                              <button 
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleDismiss(n.id);
-                                }}
-                                className="text-[9px] uppercase tracking-widest text-white/20 hover:text-white"
-                              >
-                                Dismiss
-                              </button>
+                                  Dismiss
+                                </button>
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    </div>
-                  ))
-                )}
+                      </motion.div>
+                    ))
+                  )}
+                </AnimatePresence>
               </div>
             </motion.div>
           </>
