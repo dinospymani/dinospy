@@ -86,6 +86,14 @@ service cloud.firestore {
     }
 
     // ------------------------------------------------------------
+    // SETTINGS COLLECTION
+    // ------------------------------------------------------------
+    match /settings/{settingId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ------------------------------------------------------------
     // GLOBAL NOTIFICATIONS
     // ------------------------------------------------------------
     match /notifications/{notificationId} {

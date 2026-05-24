@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../context/AuthContext';
-import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc, onSnapshot, query, orderBy } from 'firebase/firestore';
+import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc, onSnapshot, query, orderBy, setDoc } from 'firebase/firestore';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import MobileNav from '../components/MobileNav';
@@ -57,6 +57,8 @@ export default function AdminDashboard() {
   const [view, setView] = useState<'products' | 'orders' | 'add' | 'banners' | 'stats' | 'notifications' | 'broadcast'>('stats');
   const [selectedOrder, setSelectedOrder] = useState<AdminOrder | null>(null);
   const [notificationFilter, setNotificationFilter] = useState<'all' | 'orders' | 'inventory'>('all');
+  const [maintenanceStatus, setMaintenanceStatus] = useState(false);
+  const [isTogglingMaintenance, setIsTogglingMaintenance] = useState(false);
 
   // Broadcast States
   const [broadcastTitle, setBroadcastTitle] = useState('');
@@ -174,8 +176,35 @@ export default function AdminDashboard() {
       setChartData(last7Days);
     });
 
-    return () => unsubscribeOrders();
+    // Maintenance Listener
+    const unsubMaintenance = onSnapshot(doc(db, 'settings', 'maintenance'), (doc) => {
+      if (doc.exists()) {
+        setMaintenanceStatus(doc.data().status || false);
+      }
+    });
+
+    return () => {
+      unsubscribeOrders();
+      unsubMaintenance();
+    };
   }, []);
+
+  const handleToggleMaintenance = async () => {
+    setIsTogglingMaintenance(true);
+    try {
+      const newStatus = !maintenanceStatus;
+      await setDoc(doc(db, 'settings', 'maintenance'), { 
+        status: newStatus,
+        updatedAt: new Date().toISOString()
+      }, { merge: true });
+      toast.success(newStatus ? 'SYSTEMS ENTERING STANDBY: Maintenance mode active' : 'SYSTEMS RESTORED: Storefront online');
+    } catch (err) {
+      console.error(err);
+      toast.error('Maintenance state coordination failed');
+    } finally {
+      setIsTogglingMaintenance(false);
+    }
+  };
 
   const handleBroadcast = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -850,6 +879,38 @@ export default function AdminDashboard() {
                        className="w-full py-4 bg-red-500/5 hover:bg-red-500/10 text-red-500/60 hover:text-red-500 border border-red-500/10 rounded-xl text-[10px] font-black uppercase tracking-[0.3em] transition-all"
                      >
                        Purge All Live Data
+                     </button>
+                   </div>
+                 </div>
+
+                 {/* Maintenance Control */}
+                 <div className="mt-8">
+                   <div className={`glass p-8 rounded-2xl border transition-all flex flex-col md:flex-row justify-between items-center gap-6 ${maintenanceStatus ? 'border-orange-500/30 bg-orange-500/5' : 'border-white/5'}`}>
+                     <div className="flex items-start space-x-6">
+                       <div className={`p-4 rounded-2xl ${maintenanceStatus ? 'bg-orange-500/20 text-orange-500' : 'bg-white/5 text-white/40'}`}>
+                         <Zap size={24} />
+                       </div>
+                       <div>
+                         <h4 className="text-sm font-bold flex items-center">
+                           Global Maintenance Protocol
+                           {maintenanceStatus && (
+                             <span className="ml-3 px-2 py-0.5 rounded bg-orange-500/20 text-orange-500 text-[8px] uppercase tracking-widest font-black animate-pulse">
+                               Active Standby
+                             </span>
+                           )}
+                         </h4>
+                         <p className="text-xs text-white/40 max-w-md mt-2 italic leading-relaxed">
+                           When enabled, the storefront will be inaccessible to standard visitors. Admins will retain 
+                           full command access to perform updates and restorations.
+                         </p>
+                       </div>
+                     </div>
+                     <button 
+                       onClick={handleToggleMaintenance}
+                       disabled={isTogglingMaintenance}
+                       className={`px-8 py-4 rounded-xl text-[10px] font-black uppercase tracking-[0.3em] transition-all w-full md:w-fit ${maintenanceStatus ? 'bg-orange-500 text-luxury-black shadow-[0_0_20px_rgba(249,115,22,0.3)]' : 'bg-white/5 text-white/60 border border-white/10 hover:border-gold hover:text-gold'}`}
+                     >
+                       {isTogglingMaintenance ? 'Coordinating...' : (maintenanceStatus ? 'Terminate Protocol' : 'Initiate Maintenance')}
                      </button>
                    </div>
                  </div>
