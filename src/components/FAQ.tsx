@@ -88,8 +88,11 @@ export function FAQ() {
 
       <div className="space-y-4">
         {filteredFaqs.map((faq, index) => (
-          <div 
+          <motion.div 
             key={index}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.1, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
             className="glass rounded-3xl border border-white/5 overflow-hidden transition-all hover:border-gold/20"
           >
             <button
@@ -118,7 +121,7 @@ export function FAQ() {
                 </motion.div>
               )}
             </AnimatePresence>
-          </div>
+          </motion.div>
         ))}
       </div>
     </div>

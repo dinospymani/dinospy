@@ -4,12 +4,40 @@ import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
 import dotenv from "dotenv";
 import { Resend } from "resend";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
 
 dotenv.config();
 
 async function startServer() {
   const app = express();
   const PORT = 3000;
+
+  // Security Headers
+  app.use(helmet({
+    contentSecurityPolicy: {
+      directives: {
+        ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+        "img-src": ["'self'", "data:", "https:", "http:"],
+        "connect-src": ["'self'", "https://firebasestorage.googleapis.com", "https://firestore.googleapis.com", "https://identitytoolkit.googleapis.com"],
+        "script-src": ["'self'", "'unsafe-inline'", "'unsafe-eval'"], // Needed for Vite and some React patterns
+        "frame-ancestors": ["'self'", "https://*.google.com", "https://*.studio.google", "https://ai.studio"],
+      },
+    },
+    crossOriginEmbedderPolicy: false,
+    frameguard: false, // Allow framing for AI Studio preview
+  }));
+
+  // Generic Rate Limiter for all API routes
+  const apiLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // Limit each IP to 100 requests per windowMs
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: "Too many requests from this IP, please try again after 15 minutes." }
+  });
+
+  app.use("/api/", apiLimiter);
 
   app.use(express.json({ limit: '50mb' }));
   app.use(express.urlencoded({ limit: '50mb', extended: true }));

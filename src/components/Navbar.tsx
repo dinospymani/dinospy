@@ -21,9 +21,20 @@ export default function Navbar() {
 
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center space-x-12">
-            <Link to="/" className="text-[10px] font-semibold uppercase tracking-[0.4em] text-white/50 hover:text-gold transition-all duration-500 hover:scale-105">Home</Link>
-            <Link to="/explore" className="text-[10px] font-semibold uppercase tracking-[0.4em] text-white/50 hover:text-gold transition-all duration-500 hover:scale-105">Collection</Link>
-            <Link to="/#philosophy" className="text-[10px] font-semibold uppercase tracking-[0.4em] text-white/50 hover:text-gold transition-all duration-500 hover:scale-105">Narrative</Link>
+            {[
+              { to: "/", label: "Home" },
+              { to: "/explore", label: "Collection" },
+              { to: "/#philosophy", label: "Narrative" }
+            ].map((link) => (
+              <Link 
+                key={link.to}
+                to={link.to} 
+                className="group relative text-[10px] font-semibold uppercase tracking-[0.4em] text-white/50 hover:text-gold transition-all duration-700"
+              >
+                {link.label}
+                <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-gold transition-all duration-700 group-hover:w-full" />
+              </Link>
+            ))}
           </div>
 
           <div className="flex items-center space-x-6 md:space-x-8">

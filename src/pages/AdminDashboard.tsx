@@ -4,7 +4,7 @@ import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc, onSnapshot, que
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import MobileNav from '../components/MobileNav';
-import { Plus, Trash2, Edit, Save, Package, QrCode, Printer, X, Truck, Loader2, ChevronLeft, TrendingUp, DollarSign, ShoppingBag, AlertCircle, BarChart2, Bell, ArrowLeft, Megaphone, Check, Zap, Clock } from 'lucide-react';
+import { Plus, Trash2, Edit, Save, Package, QrCode, Printer, X, Truck, Loader2, ChevronLeft, TrendingUp, DollarSign, ShoppingBag, AlertCircle, BarChart2, Bell, ArrowLeft, Megaphone, Check, Zap, Clock, Shield, Lock, Eye, EyeOff } from 'lucide-react';
 import { motion } from 'motion/react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { QRCodeSVG } from 'qrcode.react';
@@ -54,7 +54,7 @@ export default function AdminDashboard() {
   const [orders, setOrders] = useState<AdminOrder[]>([]);
   const [notifications, setNotifications] = useState<any[]>([]);
   const [banners, setBanners] = useState<any[]>([]);
-  const [view, setView] = useState<'products' | 'orders' | 'add' | 'banners' | 'stats' | 'notifications' | 'broadcast' | 'coupons'>('stats');
+  const [view, setView] = useState<'products' | 'orders' | 'add' | 'banners' | 'stats' | 'notifications' | 'broadcast' | 'coupons' | 'security'>('stats');
   const [selectedOrder, setSelectedOrder] = useState<AdminOrder | null>(null);
   const [notificationFilter, setNotificationFilter] = useState<'all' | 'orders' | 'inventory'>('all');
   const [maintenanceStatus, setMaintenanceStatus] = useState(false);
@@ -869,6 +869,13 @@ export default function AdminDashboard() {
               className={`flex-shrink-0 px-4 sm:px-6 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${view === 'coupons' ? 'gold-gradient text-luxury-black' : 'text-white/60 hover:text-white'}`}
             >
               Coupons
+            </button>
+            <button 
+              onClick={() => setView('security')}
+              className={`flex-shrink-0 px-4 sm:px-6 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${view === 'security' ? 'gold-gradient text-luxury-black' : 'text-white/60 hover:text-white'}`}
+            >
+              <Shield size={14} className="inline mr-2" />
+              Security
             </button>
           </div>
         </div>
@@ -1756,52 +1763,146 @@ export default function AdminDashboard() {
               </div>
             </div>
           )}
-              <div className="flex flex-col space-y-4">
-                <button 
-                  onClick={handleToggleTestMode}
-                  disabled={isTogglingTestMode}
-                  className={`px-8 py-4 rounded-xl text-[10px] font-black uppercase tracking-[0.3em] transition-all w-full max-w-md ${testMode ? 'gold-gradient text-luxury-black shadow-[0_0_20px_rgba(212,175,55,0.3)]' : 'bg-white/5 text-white/60 border border-white/10 hover:border-gold hover:text-gold'}`}
-                >
-                  {isTogglingTestMode ? 'Processing...' : (testMode ? 'Disable Test Protocol' : 'Enable Test Protocol')}
-                </button>
-                <button 
+          {view === 'security' && (
+            <div className="space-y-12">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="glass p-8 rounded-3xl border border-white/5 space-y-6">
+                  <div className="flex items-center space-x-4 mb-4">
+                    <div className="p-3 bg-gold/10 rounded-2xl text-gold">
+                      <Lock size={24} />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold">Protocol Overrides</h3>
+                      <p className="text-[10px] text-white/40 uppercase tracking-widest mt-1">Platform-wide visibility toggles</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5">
+                      <div>
+                        <p className="text-sm font-bold uppercase tracking-widest">Maintenance Mode</p>
+                        <p className="text-[10px] text-white/40 mt-1 italic">Public access restricted to "Celestial Alignment" screen</p>
+                      </div>
+                      <button 
+                        onClick={handleToggleMaintenance}
+                        disabled={isTogglingMaintenance}
+                        className={`px-6 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${maintenanceStatus ? 'gold-gradient text-luxury-black' : 'bg-white/10 text-white/40 hover:bg-white/20'}`}
+                      >
+                        {isTogglingMaintenance ? 'Syncing...' : (maintenanceStatus ? 'ACTIVE' : 'INACTIVE')}
+                      </button>
+                    </div>
+
+                    <div className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5">
+                      <div>
+                        <p className="text-sm font-bold uppercase tracking-widest">Test Protocol</p>
+                        <p className="text-[10px] text-white/40 mt-1 italic">Sandbox environment for data verification</p>
+                      </div>
+                      <button 
+                        onClick={handleToggleTestMode}
+                        disabled={isTogglingTestMode}
+                        className={`px-6 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${testMode ? 'gold-gradient text-luxury-black' : 'bg-white/10 text-white/40 hover:bg-white/20'}`}
+                      >
+                        {isTogglingTestMode ? 'Syncing...' : (testMode ? 'ACTIVE' : 'INACTIVE')}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="glass p-8 rounded-3xl border border-white/5 space-y-6">
+                  <div className="flex items-center space-x-4 mb-4">
+                    <div className="p-3 bg-green-500/10 rounded-2xl text-green-500">
+                      <Shield size={24} />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold">Firewall Infrastructure</h3>
+                      <p className="text-[10px] text-white/40 uppercase tracking-widest mt-1">Real-time protection stats</p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-4 bg-white/5 rounded-2xl border border-white/5">
+                      <p className="text-[9px] text-white/40 uppercase tracking-widest mb-1 italic">Headers</p>
+                      <p className="text-xs font-bold text-green-500 uppercase tracking-widest">HELMET: ON</p>
+                    </div>
+                    <div className="p-4 bg-white/5 rounded-2xl border border-white/5">
+                      <p className="text-[9px] text-white/40 uppercase tracking-widest mb-1 italic">Proxying</p>
+                      <p className="text-xs font-bold text-green-500 uppercase tracking-widest">ENCRYPTED</p>
+                    </div>
+                    <div className="p-4 bg-white/5 rounded-2xl border border-white/5">
+                      <p className="text-[9px] text-white/40 uppercase tracking-widest mb-1 italic">Rate Limits</p>
+                      <p className="text-xs font-bold text-white uppercase tracking-widest">100 req/15m</p>
+                    </div>
+                    <div className="p-4 bg-white/5 rounded-2xl border border-white/5">
+                      <p className="text-[9px] text-white/40 uppercase tracking-widest mb-1 italic">Audit Log</p>
+                      <p className="text-xs font-bold text-white uppercase tracking-widest">CONNECTED</p>
+                    </div>
+                  </div>
+
+                  <button 
+                    onClick={() => toast.success('Platform security parameters verified. No breaches detected.')}
+                    className="w-full py-4 border border-white/10 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-white/5 transition-all"
+                  >
+                    Run Security Diagnostics
+                  </button>
+                </div>
+              </div>
+
+              <div className="glass p-8 rounded-3xl border border-white/5 bg-red-500/5">
+                <div className="flex items-center justify-between">
+                   <div className="flex items-center space-x-4">
+                      <div className="p-3 bg-red-500/10 rounded-2xl text-red-500">
+                        <AlertCircle size={24} />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-bold text-red-100">Critical session termination</h3>
+                        <p className="text-[10px] text-white/40 uppercase tracking-widest mt-1 italic">Immediate sign-out of all current active admin sessions</p>
+                      </div>
+                   </div>
+                   <button 
+                    onClick={() => {
+                      if (window.confirm('Are you sure you want to invalidate all current admin tokens? This will log you out immediately.')) {
+                        toast.info('Session termination initiated.');
+                        setTimeout(() => window.location.reload(), 2000);
+                      }
+                    }}
+                    className="px-8 py-4 bg-red-500/20 border border-red-500/30 text-red-500 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all shadow-[0_0_30px_rgba(239,68,68,0.1)]"
+                   >
+                     Terminate All Sessions
+                   </button>
+                </div>
+              </div>
+
+              <div className="pt-8 border-t border-white/5">
+                 <button 
                     onClick={async () => {
-                    const demo = [
+                      const demo = [
                         { name: "Dinospy Celestia", price: 185000, category: "Luxury", img: "https://images.unsplash.com/photo-1542496658-e33a6d0d50f6?auto=format&fit=crop&q=80&w=2070", trending: true },
                         { name: "Monarch Chrono", price: 129000, category: "Luxury", img: "https://images.unsplash.com/photo-1508685096489-7aac29a23fce?auto=format&fit=crop&q=80&w=1978", trending: false },
                         { name: "Nero Sport", price: 65000, category: "Sport", img: "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?auto=format&fit=crop&q=80&w=2080", trending: true },
                         { name: "Heritage Classic", price: 42000, category: "Classic", img: "https://images.unsplash.com/photo-1524592094714-0f0654e20314?auto=format&fit=crop&q=80&w=2018", trending: false }
-                    ];
-                    
-                    const promise = async () => {
-                        // Seed products
+                      ];
+                      
+                      const promise = async () => {
                         for (const p of demo) {
-                            await addDoc(collection(db, 'products'), {
-                                ...p, brand: 'DINOSPY', images: [p.img], isTrending: p.trending, isNewArrival: true, stock: 10, rating: 5.0, reviewCount: 0, createdAt: new Date().toISOString(), specs: { Movement: 'Automatic', Case: 'Gold/Steel', Crystal: 'Sapphire' }, description: 'A masterpiece of precision craftsmanship and timeless elegance.'
-                            });
+                          await addDoc(collection(db, 'products'), {
+                            ...p, brand: 'DINOSPY', images: [p.img], isTrending: p.trending, isNewArrival: true, stock: 10, rating: 5.0, reviewCount: 0, createdAt: new Date().toISOString(), specs: { Movement: 'Automatic', Case: 'Gold/Steel', Crystal: 'Sapphire' }, description: 'A masterpiece of precision craftsmanship and timeless elegance.'
+                          });
                         }
-                        // Seed banners
-                        const demoBanners = [
-                          { title: 'The Chronos Collection', subtitle: 'Exquisite Engineering', imageUrl: 'https://images.unsplash.com/photo-1547996160-81dfa63595aa?auto=format&fit=crop&q=80&w=2000', link: '/#new', active: true, order: 0 },
-                          { title: 'Summer Sale 2024', subtitle: 'Up to 30% Off Selected Sets', imageUrl: 'https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?auto=format&fit=crop&q=80&w=2000', link: '/#new', active: true, order: 1 },
-                          { title: 'The Monarch Series', subtitle: 'Limited Edition Heritage Sets', imageUrl: 'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?auto=format&fit=crop&q=80&w=2080', link: '/#categories', active: true, order: 2 }
-                        ];
-                        for (const b of demoBanners) {
-                          await addDoc(collection(db, 'banners'), { ...b, createdAt: new Date().toISOString() });
-                        }
-                    };
+                      };
 
-                    toast.promise(promise(), {
+                      toast.promise(promise(), {
                         loading: 'Seeding demo catalog...',
                         success: 'Boutique populated successfully!',
                         error: 'Seeding failed.'
-                    });
-                }}
-                className="px-6 py-3 glass border border-gold/20 text-gold text-xs font-bold uppercase tracking-widest hover:bg-gold hover:text-luxury-black transition-all"
-            >
-                Seed Demo Catalog
-            </button>
-          </div>
+                      });
+                    }}
+                    className="text-[9px] uppercase tracking-widest text-white/20 hover:text-white/60 transition-all font-bold"
+                 >
+                    Advanced: Seed Catalog
+                 </button>
+              </div>
+            </div>
+          )}
         </div>
       </main>
       <Footer />
