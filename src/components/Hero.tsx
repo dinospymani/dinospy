@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { db } from '../context/AuthContext';
 import { collection, onSnapshot, query, where, orderBy } from 'firebase/firestore';
+import { CountdownTimer } from './CountdownTimer';
 
 export default function Hero() {
   const [banners, setBanners] = useState<any[]>(() => {
@@ -22,6 +23,8 @@ export default function Hero() {
       const fetched = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setBanners(fetched);
       localStorage.setItem('dinospy_banners', JSON.stringify(fetched));
+    }, (error) => {
+      console.warn("Banner registry isolation active", error);
     });
     return () => unsubscribe();
   }, []);
@@ -34,17 +37,31 @@ export default function Hero() {
     return () => clearInterval(timer);
   }, [banners.length]);
 
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   const currentBanner = banners[currentIndex] || {
     imageUrl: "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?auto=format&fit=crop&q=80&w=2000",
+    mobileImageUrl: "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?auto=format&fit=crop&q=80&w=1000",
     title: "Latest Acquisitions",
     subtitle: "Heritage Masterpieces"
   };
 
+  const bannerSource = isMobile ? (currentBanner.mobileImageUrl || currentBanner.imageUrl) : currentBanner.imageUrl;
+
   return (
-    <section className="relative h-screen md:h-[90vh] w-full overflow-hidden flex items-center font-sans">
+    <section className="relative h-screen min-h-[600px] md:h-[90vh] w-full overflow-hidden flex items-center font-sans">
       <AnimatePresence mode="wait">
         <motion.div
-          key={currentIndex}
+          key={currentIndex + (isMobile ? '-mob' : '-desk')}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -54,17 +71,17 @@ export default function Hero() {
           <div className="absolute inset-0 bg-gradient-to-r from-luxury-black via-luxury-black/60 to-transparent z-10" />
           <div className="absolute inset-0 bg-black/20 z-[5]" />
           <motion.img 
-            initial={{ scale: 1.2 }}
+            initial={{ scale: 1.15 }}
             animate={{ scale: 1 }}
-            transition={{ duration: 15, ease: "linear" }}
-            src={currentBanner.imageUrl} 
+            transition={{ duration: 10, ease: "easeOut" }}
+            src={bannerSource} 
             alt={currentBanner.title}
             className="w-full h-full object-cover object-center"
           />
         </motion.div>
       </AnimatePresence>
 
-      <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+      <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex flex-col justify-center h-full">
         <AnimatePresence mode="wait">
           <motion.div 
             key={currentIndex}
@@ -86,6 +103,17 @@ export default function Hero() {
             <h1 className="text-6xl md:text-8xl lg:text-9xl font-display font-light leading-[1] mb-12 text-white/95 tracking-tight">
               {currentBanner.title}
             </h1>
+
+            {currentBanner.expiryDate && (
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.5, duration: 1 }}
+                className="mb-12"
+              >
+                <CountdownTimer expiryDate={currentBanner.expiryDate} />
+              </motion.div>
+            )}
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}

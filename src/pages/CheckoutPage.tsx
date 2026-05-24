@@ -4,18 +4,54 @@ import { ChevronLeft, CreditCard, ShieldCheck, Truck, Phone, CheckCircle2, Alert
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth, db } from '../context/AuthContext';
-import { collection, doc, runTransaction } from 'firebase/firestore';
+import { collection, doc, runTransaction, getDoc, getDocs, query, where } from 'firebase/firestore';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { toast } from 'sonner';
 
 export default function CheckoutPage() {
-  const { cart, cartTotal, clearCart } = useCart();
+  const { cart, cartTotal, clearCart, coupon, applyCoupon, removeCoupon } = useCart();
   const subtotal = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
   const savings = subtotal - cartTotal;
   const { user, profile } = useAuth();
   const navigate = useNavigate();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [couponCode, setCouponCode] = useState('');
+  const [isValidatingCoupon, setIsValidatingCoupon] = useState(false);
+
+  const handleApplyCoupon = async () => {
+    if (!couponCode) return;
+    setIsValidatingCoupon(true);
+    try {
+      const q = query(collection(db, 'coupons'), where('code', '==', couponCode.toUpperCase().trim()), where('active', '==', true));
+      const snap = await getDocs(q);
+      
+      if (snap.empty) {
+        toast.error('Invalid credential: This coupon code does not exist in our registries.');
+        return;
+      }
+
+      const couponData = { id: snap.docs[0].id, ...snap.docs[0].data() } as any;
+
+      if (couponData.expiry && new Date(couponData.expiry) < new Date()) {
+        toast.error('Credential expired: This promotional window has closed.');
+        return;
+      }
+
+      if (couponData.minAmount && subtotal < couponData.minAmount) {
+        toast.error(`Requirement not met: Min acquisition of ₹${couponData.minAmount.toLocaleString()} required.`);
+        return;
+      }
+
+      applyCoupon(couponData);
+      toast.success('Promotional credential authorized');
+      setCouponCode('');
+    } catch (err) {
+      toast.error('Security handshake failed during coupon validation.');
+    } finally {
+      setIsValidatingCoupon(false);
+    }
+  };
 
   const [formData, setFormData] = useState({
     fullName: profile?.displayName || '',
@@ -39,7 +75,17 @@ export default function CheckoutPage() {
     setIsProcessing(true);
 
     const promise = async () => {
-      // Direct order placement without real payment gateway for now
+      // 0. Check for Test Mode
+      let isTestOrder = false;
+      try {
+        const settingsSnap = await getDoc(doc(db, 'settings', 'maintenance'));
+        if (settingsSnap.exists() && settingsSnap.data().testMode) {
+          isTestOrder = true;
+        }
+      } catch (err) {
+        console.warn('Metadata sync issues, defaulting to live protocol');
+      }
+
       // 1. Validate Stock and Finalize Order using a Transaction
       const result = await runTransaction(db, async (transaction) => {
         const productSnaps = await Promise.all(
@@ -57,10 +103,12 @@ export default function CheckoutPage() {
           }
         }
 
-        productSnaps.forEach((snap, i) => {
-          const currentStock = snap.data().stock;
-          transaction.update(snap.ref, { stock: currentStock - cart[i].quantity });
-        });
+        if (!isTestOrder) {
+          productSnaps.forEach((snap, i) => {
+            const currentStock = snap.data().stock;
+            transaction.update(snap.ref, { stock: currentStock - cart[i].quantity });
+          });
+        }
 
         const deliveryPin = Math.floor(100000 + Math.random() * 900000).toString();
 
@@ -75,17 +123,19 @@ export default function CheckoutPage() {
           items: cart,
           total: cartTotal,
           status: 'confirmed',
+          isTest: isTestOrder,
+          couponUsed: coupon ? coupon.code : null,
           createdAt: new Date().toISOString(),
           timeline: [
             {
               status: 'confirmed',
               timestamp: new Date().toISOString(),
-              message: "Acquisition authorized. Logistics manifest initialized."
+              message: isTestOrder ? "TESTING PROTOCOL: Simulation acquisition authorized." : "Acquisition authorized. Logistics manifest initialized."
             },
             {
               status: 'pending_payment',
               timestamp: new Date().toISOString(),
-              message: "Awaiting physical bank transfer verification."
+              message: isTestOrder ? "TESTING PROTOCOL: Physical bank transfer bypassed for simulation." : "Awaiting physical bank transfer verification."
             }
           ]
         };
@@ -346,7 +396,7 @@ export default function CheckoutPage() {
                       <h4 className="text-sm font-bold">{item.name}</h4>
                       <p className="text-xs text-white/40">Qty: {item.quantity}</p>
                       <div className="flex items-center space-x-2 mt-1">
-                        {item.discount ? (
+                        {item.discount && (!item.offerExpiry || new Date(item.offerExpiry) > new Date()) ? (
                           <>
                              <span className="text-[10px] text-white/20 line-through">₹{item.price.toLocaleString()}</span>
                              <span className="text-xs text-gold font-mono font-bold">₹{Math.round(item.price * (1 - item.discount / 100)).toLocaleString()}</span>
@@ -361,6 +411,36 @@ export default function CheckoutPage() {
               </div>
 
               <div className="space-y-4 pt-8 border-t border-white/5">
+                {/* Coupon Section */}
+                <div className="pb-6 border-b border-white/5">
+                   <p className="text-[10px] uppercase tracking-widest text-white/40 mb-3 ml-1">Promotional Credential</p>
+                   {coupon ? (
+                     <div className="flex items-center justify-between bg-gold/10 border border-gold/20 p-4 rounded-xl">
+                        <div className="flex items-center space-x-3">
+                           <Key size={14} className="text-gold" />
+                           <span className="text-xs font-bold text-white uppercase tracking-widest">{coupon.code}</span>
+                        </div>
+                        <button onClick={removeCoupon} className="text-[10px] text-gold uppercase tracking-widest font-black hover:underline underline-offset-4">Revoke</button>
+                     </div>
+                   ) : (
+                     <div className="flex space-x-2">
+                        <input 
+                          value={couponCode}
+                          onChange={e => setCouponCode(e.target.value)}
+                          placeholder="ENTER CODE"
+                          className="flex-grow bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-gold text-xs uppercase tracking-widest transition-all"
+                        />
+                        <button 
+                          onClick={handleApplyCoupon}
+                          disabled={isValidatingCoupon || !couponCode}
+                          className="px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-gold disabled:opacity-20 transition-all active:scale-95"
+                        >
+                          {isValidatingCoupon ? '...' : 'Verify'}
+                        </button>
+                     </div>
+                   )}
+                </div>
+
                 <div className="flex justify-between text-white/40">
                   <span className="text-xs uppercase tracking-widest">Manifest Value</span>
                   <span className="font-mono text-white">₹{subtotal.toLocaleString()}</span>

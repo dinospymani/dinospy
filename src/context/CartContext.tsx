@@ -9,6 +9,7 @@ interface Product {
   brand: string;
   price: number;
   discount?: number;
+  offerExpiry?: string;
   isOffer?: boolean;
   images: string[];
   stock?: number;
@@ -28,6 +29,9 @@ interface CartContextType {
   clearCart: () => void;
   cartCount: number;
   cartTotal: number;
+  coupon: any | null;
+  applyCoupon: (coupon: any) => void;
+  removeCoupon: () => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -35,13 +39,18 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, profile } = useAuth();
   const [cart, setCart] = useState<CartItem[]>(() => {
-    const saved = localStorage.getItem('aureum_cart');
+    const saved = localStorage.getItem('dinospy_cart');
     return saved ? JSON.parse(saved) : [];
   });
 
   const [wishlist, setWishlist] = useState<string[]>(() => {
-    const saved = localStorage.getItem('aureum_wishlist');
+    const saved = localStorage.getItem('dinospy_wishlist');
     return saved ? JSON.parse(saved) : [];
+  });
+
+  const [coupon, setCoupon] = useState<any | null>(() => {
+    const saved = localStorage.getItem('dinospy_coupon');
+    return saved ? JSON.parse(saved) : null;
   });
 
   // Sync wishlist from profile when user logs in
@@ -52,12 +61,20 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [profile]);
 
   useEffect(() => {
-    localStorage.setItem('aureum_cart', JSON.stringify(cart));
+    localStorage.setItem('dinospy_cart', JSON.stringify(cart));
   }, [cart]);
 
   useEffect(() => {
-    localStorage.setItem('aureum_wishlist', JSON.stringify(wishlist));
+    localStorage.setItem('dinospy_wishlist', JSON.stringify(wishlist));
   }, [wishlist]);
+
+  useEffect(() => {
+    if (coupon) {
+      localStorage.setItem('dinospy_coupon', JSON.stringify(coupon));
+    } else {
+      localStorage.removeItem('dinospy_coupon');
+    }
+  }, [coupon]);
 
   // Real-time synchronization for items currently in the cart
   useEffect(() => {
@@ -83,6 +100,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
           // If product removed from database, remove from cart
           setCart(prev => prev.filter(cartItem => cartItem.id !== item.id));
         }
+      }, (err) => {
+        console.warn(`Cart sync isolation active for ${item.id}`, err);
       });
       unsubscribes.push(unsub);
     });
@@ -165,18 +184,39 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const clearCart = () => setCart([]);
+  const clearCart = () => {
+    setCart([]);
+    setCoupon(null);
+  };
+
+  const applyCoupon = (newCoupon: any) => {
+    setCoupon(newCoupon);
+  };
+
+  const removeCoupon = () => {
+    setCoupon(null);
+  };
 
   const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
-  const cartTotal = cart.reduce((acc, item) => {
-    const discount = item.discount || 0;
-    const discountPrice = Math.round(item.price * (1 - discount / 100));
+  
+  const baseTotal = cart.reduce((acc, item) => {
+    let itemDiscount = item.discount || 0;
+    const discountPrice = Math.round(item.price * (1 - itemDiscount / 100));
     return acc + (discountPrice * item.quantity);
   }, 0);
 
+  let cartTotal = baseTotal;
+  if (coupon) {
+    if (coupon.type === 'percentage') {
+      cartTotal = Math.round(baseTotal * (1 - coupon.discount / 100));
+    } else {
+      cartTotal = Math.max(0, baseTotal - coupon.discount);
+    }
+  }
+
   return (
     <CartContext.Provider value={{ 
-      cart, wishlist, addToCart, removeFromCart, updateQuantity, toggleWishlist, clearCart, cartCount, cartTotal 
+      cart, wishlist, addToCart, removeFromCart, updateQuantity, toggleWishlist, clearCart, cartCount, cartTotal, coupon, applyCoupon, removeCoupon 
     }}>
       {children}
     </CartContext.Provider>

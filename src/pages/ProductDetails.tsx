@@ -5,6 +5,7 @@ import { ShoppingBag, Heart, Star, Shield, Truck, RotateCcw, ArrowLeft, ChevronR
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import MobileNav from '../components/MobileNav';
+import { CountdownTimer } from '../components/CountdownTimer';
 import { db } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { doc, onSnapshot, collection, query, where, orderBy, addDoc, serverTimestamp, updateDoc, getDocs } from 'firebase/firestore';
@@ -171,6 +172,8 @@ export default function ProductDetails() {
     );
     const unsubscribe = onSnapshot(q, (snap) => {
       setReviews(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    }, (err) => {
+      console.warn("Review transmission isolated", err);
     });
     return () => unsubscribe();
   }, [id]);

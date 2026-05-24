@@ -2,6 +2,7 @@ import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Trash2, Plus, Minus, ArrowRight, ShoppingBag, ArrowLeft } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { useAuth, db } from '../context/AuthContext';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import MobileNav from '../components/MobileNav';
@@ -10,11 +11,48 @@ import { toast } from 'sonner';
 import { X, AlertCircle } from 'lucide-react';
 
 export default function CartPage() {
-  const { cart, removeFromCart, updateQuantity, cartTotal } = useCart();
+  const { cart, removeFromCart, updateQuantity, cartTotal, coupon, applyCoupon, removeCoupon } = useCart();
   const subtotal = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
   const savings = subtotal - cartTotal;
   const [outOfStockItems, setOutOfStockItems] = React.useState<string[]>([]);
   const [showErrorPopup, setShowErrorPopup] = React.useState(false);
+  const [couponCode, setCouponCode] = React.useState('');
+  const [isValidatingCoupon, setIsValidatingCoupon] = React.useState(false);
+
+  const handleApplyCoupon = async () => {
+    if (!couponCode) return;
+    setIsValidatingCoupon(true);
+    try {
+      const { collection, getDocs, query, where } = await import('firebase/firestore');
+      const q = query(collection(db, 'coupons'), where('code', '==', couponCode.toUpperCase().trim()), where('active', '==', true));
+      const snap = await getDocs(q);
+      
+      if (snap.empty) {
+        toast.error('Invalid credential');
+        return;
+      }
+
+      const couponData = { id: snap.docs[0].id, ...snap.docs[0].data() } as any;
+
+      if (couponData.expiry && new Date(couponData.expiry) < new Date()) {
+        toast.error('Credential expired');
+        return;
+      }
+
+      if (couponData.minAmount && subtotal < couponData.minAmount) {
+        toast.error(`Min purchase ₹${couponData.minAmount.toLocaleString()} required`);
+        return;
+      }
+
+      applyCoupon(couponData);
+      toast.success('Credential authorized');
+      setCouponCode('');
+    } catch (err) {
+      toast.error('Validation failed');
+    } finally {
+      setIsValidatingCoupon(false);
+    }
+  };
 
   React.useEffect(() => {
     const obs = cart.filter(item => item.stock <= 0).map(item => item.name);
@@ -84,7 +122,7 @@ export default function CartPage() {
                           <span className="text-[9px] sm:text-[10px] uppercase tracking-widest text-white/30">{item.brand}</span>
                           <h3 className="text-lg sm:text-xl font-display mt-1 line-clamp-1">{item.name}</h3>
                           <div className="flex flex-col mt-1 sm:mt-2">
-                             {item.discount ? (
+                             {item.discount && (!item.offerExpiry || new Date(item.offerExpiry) > new Date()) ? (
                                <div className="flex items-center space-x-2">
                                  <span className="text-white/20 line-through text-[10px] font-light italic">₹{item.price.toLocaleString()}</span>
                                  <span className="text-gold font-mono text-sm sm:text-base">₹{Math.round(item.price * (1 - item.discount / 100)).toLocaleString()}</span>
@@ -146,6 +184,35 @@ export default function CartPage() {
                 <div className="glass p-8 rounded-[2.5rem] border border-white/10 sticky top-32">
                   <h2 className="text-xl font-bold uppercase tracking-widest mb-8">Summary</h2>
                   <div className="space-y-4 mb-8 pb-8 border-b border-white/5">
+                    {/* Coupon Section */}
+                    <div className="pb-6 border-b border-white/5">
+                       <p className="text-[10px] uppercase tracking-widest text-white/40 mb-3 ml-1">Promotional Credential</p>
+                       {coupon ? (
+                         <div className="flex items-center justify-between bg-gold/10 border border-gold/20 p-4 rounded-xl">
+                            <div className="flex items-center space-x-3">
+                               <span className="text-xs font-bold text-white uppercase tracking-widest">{coupon.code}</span>
+                            </div>
+                            <button onClick={removeCoupon} className="text-[10px] text-gold uppercase tracking-widest font-black hover:underline underline-offset-4">Revoke</button>
+                         </div>
+                       ) : (
+                         <div className="flex space-x-2">
+                            <input 
+                              value={couponCode}
+                              onChange={e => setCouponCode(e.target.value)}
+                              placeholder="CODE"
+                              className="flex-grow bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-gold text-xs uppercase tracking-widest transition-all"
+                            />
+                            <button 
+                              onClick={handleApplyCoupon}
+                              disabled={isValidatingCoupon || !couponCode}
+                              className="px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-gold disabled:opacity-20 transition-all"
+                            >
+                              {isValidatingCoupon ? '...' : 'Apply'}
+                            </button>
+                         </div>
+                       )}
+                    </div>
+                    
                     <div className="flex justify-between text-white/50">
                       <span>Subtotal</span>
                       <span className="font-mono text-white">₹{subtotal.toLocaleString()}</span>

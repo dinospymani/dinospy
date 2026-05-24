@@ -94,6 +94,14 @@ service cloud.firestore {
     }
 
     // ------------------------------------------------------------
+    // COUPONS COLLECTION
+    // ------------------------------------------------------------
+    match /coupons/{couponId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ------------------------------------------------------------
     // GLOBAL NOTIFICATIONS
     // ------------------------------------------------------------
     match /notifications/{notificationId} {

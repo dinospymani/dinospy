@@ -4,7 +4,7 @@ import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc, onSnapshot, que
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import MobileNav from '../components/MobileNav';
-import { Plus, Trash2, Edit, Save, Package, QrCode, Printer, X, Truck, Loader2, ChevronLeft, TrendingUp, DollarSign, ShoppingBag, AlertCircle, BarChart2, Bell, ArrowLeft, Megaphone, Check, Zap } from 'lucide-react';
+import { Plus, Trash2, Edit, Save, Package, QrCode, Printer, X, Truck, Loader2, ChevronLeft, TrendingUp, DollarSign, ShoppingBag, AlertCircle, BarChart2, Bell, ArrowLeft, Megaphone, Check, Zap, Clock } from 'lucide-react';
 import { motion } from 'motion/react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { QRCodeSVG } from 'qrcode.react';
@@ -54,11 +54,21 @@ export default function AdminDashboard() {
   const [orders, setOrders] = useState<AdminOrder[]>([]);
   const [notifications, setNotifications] = useState<any[]>([]);
   const [banners, setBanners] = useState<any[]>([]);
-  const [view, setView] = useState<'products' | 'orders' | 'add' | 'banners' | 'stats' | 'notifications' | 'broadcast'>('stats');
+  const [view, setView] = useState<'products' | 'orders' | 'add' | 'banners' | 'stats' | 'notifications' | 'broadcast' | 'coupons'>('stats');
   const [selectedOrder, setSelectedOrder] = useState<AdminOrder | null>(null);
   const [notificationFilter, setNotificationFilter] = useState<'all' | 'orders' | 'inventory'>('all');
   const [maintenanceStatus, setMaintenanceStatus] = useState(false);
+  const [testMode, setTestMode] = useState(false);
   const [isTogglingMaintenance, setIsTogglingMaintenance] = useState(false);
+  const [isTogglingTestMode, setIsTogglingTestMode] = useState(false);
+
+  // Coupons States
+  const [coupons, setCoupons] = useState<any[]>([]);
+  const [couponCode, setCouponCode] = useState('');
+  const [couponDiscount, setCouponDiscount] = useState('');
+  const [couponType, setCouponType] = useState<'percentage' | 'fixed'>('percentage');
+  const [couponMinAmount, setCouponMinAmount] = useState('0');
+  const [couponExpiry, setCouponExpiry] = useState('');
 
   // Broadcast States
   const [broadcastTitle, setBroadcastTitle] = useState('');
@@ -80,7 +90,10 @@ export default function AdminDashboard() {
   const [bannerSubtitle, setBannerSubtitle] = useState('');
   const [bannerImage, setBannerImage] = useState('');
   const [bannerImageFile, setBannerImageFile] = useState<string | null>(null);
+  const [bannerMobileImage, setBannerMobileImage] = useState('');
+  const [bannerMobileImageFile, setBannerMobileImageFile] = useState<string | null>(null);
   const [bannerLink, setBannerLink] = useState('');
+  const [bannerExpiry, setBannerExpiry] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -136,17 +149,17 @@ export default function AdminDashboard() {
                duration: 5000
              });
              setNotifications(prev => {
-               // Prevent duplicate notifications for the same order
-               if (prev.some(n => n.id === `noti_${no.id}`)) return prev;
-               return [{
-                 id: `noti_${no.id}`,
-                 type: 'orders',
-                 message: `New Order #${no.id.slice(-6)} received from ${no.customerName}`,
-                 total: no.total,
-                 timestamp: new Date().toISOString(),
-                 read: false,
-                 orderId: no.id
-               }, ...prev];
+                // Prevent duplicate notifications for the same order
+                if (prev.some(n => n.id === `noti_${no.id}`)) return prev;
+                return [{
+                  id: `noti_${no.id}`,
+                  type: 'orders',
+                  message: `New Order #${no.id.slice(-6)} received from ${no.customerName}`,
+                  total: no.total,
+                  timestamp: new Date().toISOString(),
+                  read: false,
+                  orderId: no.id
+                }, ...prev];
              });
           });
         }
@@ -174,18 +187,31 @@ export default function AdminDashboard() {
         return { name: dateStr, sales: total };
       }).reverse();
       setChartData(last7Days);
+    }, (error) => {
+      console.warn("Order listener status: Verification required", error);
     });
 
-    // Maintenance Listener
+    // Maintenance & Test Mode Listener
     const unsubMaintenance = onSnapshot(doc(db, 'settings', 'maintenance'), (doc) => {
       if (doc.exists()) {
         setMaintenanceStatus(doc.data().status || false);
+        setTestMode(doc.data().testMode || false);
       }
+    }, (error) => {
+      console.warn("Settings isolation active", error);
+    });
+
+    // Coupons Listener
+    const unsubCoupons = onSnapshot(collection(db, 'coupons'), (snap) => {
+      setCoupons(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    }, (error) => {
+      console.warn("Coupon isolation active", error);
     });
 
     return () => {
       unsubscribeOrders();
       unsubMaintenance();
+      unsubCoupons();
     };
   }, []);
 
@@ -203,6 +229,23 @@ export default function AdminDashboard() {
       toast.error('Maintenance state coordination failed');
     } finally {
       setIsTogglingMaintenance(false);
+    }
+  };
+
+  const handleToggleTestMode = async () => {
+    setIsTogglingTestMode(true);
+    try {
+      const newStatus = !testMode;
+      await setDoc(doc(db, 'settings', 'maintenance'), { 
+        testMode: newStatus,
+        updatedAt: new Date().toISOString()
+      }, { merge: true });
+      toast.success(newStatus ? 'TEST PROTOCOL ACTIVE: All new acquisitions marked for simulation' : 'LIVE PROTOCOL RESTORED: Transactions now legally binding');
+    } catch (err) {
+      console.error(err);
+      toast.error('Test Mode state coordination failed');
+    } finally {
+      setIsTogglingTestMode(false);
     }
   };
 
@@ -383,17 +426,30 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleBannerMobileFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      const compressed = await compressImage(reader.result as string);
+      setBannerMobileImageFile(compressed);
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleAddBanner = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!bannerImage && !bannerImageFile) {
-      toast.warning('Vision required: Please provide an image for the banner.');
+      toast.warning('Vision required: Please provide at least one image for the banner.');
       return;
     }
     
-    // Check for large base64 strings (Firestore Limit is 1MB)
     const finalImage = bannerImageFile || bannerImage;
-    if (finalImage.length > 800000) {
-      toast.error('Image too large for Firestore. Please use a smaller file or a URL.');
+    const finalMobileImage = bannerMobileImageFile || bannerMobileImage || finalImage;
+
+    if (finalImage.length > 800000 || finalMobileImage.length > 800000) {
+      toast.error('Manifest too heavy: High-resolution assets detected. Please compress or use URL references.');
       return;
     }
 
@@ -404,7 +460,9 @@ export default function AdminDashboard() {
           title: bannerTitle,
           subtitle: bannerSubtitle,
           imageUrl: finalImage,
+          mobileImageUrl: finalMobileImage,
           link: bannerLink,
+          expiryDate: bannerExpiry || null,
           active: true,
           order: banners.length,
           createdAt: new Date().toISOString()
@@ -416,7 +474,10 @@ export default function AdminDashboard() {
         setBannerSubtitle('');
         setBannerImage('');
         setBannerImageFile(null);
+        setBannerMobileImage('');
+        setBannerMobileImageFile(null);
         setBannerLink('');
+        setBannerExpiry('');
         
         const bSnap = await getDocs(collection(db, 'banners'));
         setBanners(bSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
@@ -433,6 +494,45 @@ export default function AdminDashboard() {
         return `Sync failed: ${err.message || 'Check connection'}`;
       }
     });
+  };
+
+  const handleAddCoupon = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!couponCode || !couponDiscount) {
+      toast.warning('Credential required: Coupon code and value are mandatory.');
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      await addDoc(collection(db, 'coupons'), {
+        code: couponCode.toUpperCase().trim(),
+        discount: parseFloat(couponDiscount),
+        type: couponType,
+        minAmount: parseFloat(couponMinAmount),
+        expiry: couponExpiry || null,
+        active: true,
+        createdAt: new Date().toISOString()
+      });
+      setCouponCode('');
+      setCouponDiscount('');
+      setCouponExpiry('');
+      setCouponMinAmount('0');
+      toast.success('Promotional credential authorized');
+    } catch (err) {
+      toast.error('Failed to sync coupon');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleDeleteCoupon = async (id: string) => {
+    try {
+      await deleteDoc(doc(db, 'coupons', id));
+      toast.info('Credential expunged');
+    } catch (err) {
+      toast.error('Delete operation failed');
+    }
   };
 
   const handleDeleteBanner = async (id: string) => {
@@ -759,6 +859,12 @@ export default function AdminDashboard() {
             >
               Banners
             </button>
+            <button 
+              onClick={() => setView('coupons')}
+              className={`flex-shrink-0 px-4 sm:px-6 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${view === 'coupons' ? 'gold-gradient text-luxury-black' : 'text-white/60 hover:text-white'}`}
+            >
+              Coupons
+            </button>
           </div>
         </div>
         
@@ -935,21 +1041,43 @@ export default function AdminDashboard() {
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
-                        <label className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block">Direct Banner Upload</label>
+                        <label className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block">Desktop Banner Upload</label>
                         <input 
                           type="file" accept="image/*" onChange={handleBannerFileChange}
                           className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-gold outline-none file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-gold file:text-luxury-black hover:file:bg-gold/80"
                         />
                       </div>
                       <div>
-                        <label className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block">Or Image URL</label>
+                        <label className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block">Desktop Image URL</label>
                         <input value={bannerImage} onChange={e => setBannerImage(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none" placeholder="https://..." />
                       </div>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
+                        <label className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block">Mobile Banner Upload (9:16 approx)</label>
+                        <input 
+                          type="file" accept="image/*" onChange={handleBannerMobileFileChange}
+                          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-gold outline-none file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-gold file:text-luxury-black hover:file:bg-gold/80"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block">Mobile Image URL</label>
+                        <input value={bannerMobileImage} onChange={e => setBannerMobileImage(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none" placeholder="https://..." />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      <div>
                         <label className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block">Link Path (Optional)</label>
                         <input value={bannerLink} onChange={e => setBannerLink(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none" placeholder="/#new" />
+                      </div>
+                      <div>
+                        <label className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block">Offer Expiry (Optional)</label>
+                        <input 
+                          type="datetime-local" 
+                          value={bannerExpiry} 
+                          onChange={e => setBannerExpiry(e.target.value)}
+                          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-gold outline-none text-white/60"
+                        />
                       </div>
                     </div>
                     <button type="submit" disabled={isSaving} className="w-full py-4 gold-gradient text-luxury-black font-bold uppercase tracking-widest rounded-xl hover:scale-[1.01] transition-all disabled:opacity-50">
@@ -1516,10 +1644,123 @@ export default function AdminDashboard() {
             </div>
           )}
 
-          <div className="mt-20 pt-10 border-t border-white/5">
-            <h3 className="text-sm font-bold uppercase tracking-widest text-white/40 mb-6">Demo Tools</h3>
-            <button 
-                onClick={async () => {
+          {view === 'coupons' && (
+            <div className="space-y-12">
+              <div>
+                <h2 className="text-xl font-bold mb-8">Promotional Credential Management</h2>
+                <form onSubmit={handleAddCoupon} className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block">Coupon Code</label>
+                      <input 
+                        value={couponCode} 
+                        onChange={e => setCouponCode(e.target.value)} 
+                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-gold uppercase" 
+                        placeholder="e.g. HERITAGE30" 
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block">Discount Type</label>
+                      <select 
+                        value={couponType} 
+                        onChange={e => setCouponType(e.target.value as any)} 
+                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-gold appearance-none"
+                      >
+                        <option value="percentage">Percentage (%)</option>
+                        <option value="fixed">Fixed Amount (₹)</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                      <label className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block">Discount Value</label>
+                      <input 
+                        type="number"
+                        value={couponDiscount} 
+                        onChange={e => setCouponDiscount(e.target.value)} 
+                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-gold" 
+                        placeholder="30" 
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block">Min Purchase (₹)</label>
+                      <input 
+                        type="number"
+                        value={couponMinAmount} 
+                        onChange={e => setCouponMinAmount(e.target.value)} 
+                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-gold" 
+                        placeholder="10000" 
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block">Expiry Date</label>
+                      <input 
+                        type="date"
+                        value={couponExpiry} 
+                        onChange={e => setCouponExpiry(e.target.value)} 
+                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-gold" 
+                      />
+                    </div>
+                  </div>
+                  <button type="submit" disabled={isSaving} className="w-full py-4 gold-gradient text-luxury-black font-bold uppercase tracking-widest rounded-xl hover:scale-[1.01] transition-all disabled:opacity-50">
+                    Authorize Credential
+                  </button>
+                </form>
+              </div>
+
+              <div>
+                 <h3 className="text-[10px] uppercase tracking-widest text-white/40 mb-6">Active Promotions</h3>
+                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {coupons.map(c => (
+                      <div key={c.id} className="glass p-6 rounded-2xl border border-gold/10 relative group overflow-hidden">
+                         <div className="absolute top-0 right-0 p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onClick={() => handleDeleteCoupon(c.id)} className="p-2 text-white/20 hover:text-red-500 transition-colors">
+                               <Trash2 size={16} />
+                            </button>
+                         </div>
+                         <div className="flex items-center space-x-4 mb-4">
+                            <div className="w-10 h-10 bg-gold/10 rounded-xl flex items-center justify-center text-gold">
+                               <Megaphone size={18} />
+                            </div>
+                            <div>
+                               <h4 className="font-mono text-lg font-bold gold-text">{c.code}</h4>
+                               <p className="text-[10px] text-white/40 uppercase tracking-widest">Active Credential</p>
+                            </div>
+                         </div>
+                         <div className="space-y-2 pt-4 border-t border-white/5">
+                            <div className="flex justify-between items-center text-xs">
+                               <span className="text-white/40">Benefit</span>
+                               <span className="font-bold text-white">{c.type === 'percentage' ? `${c.discount}% Off` : `₹${c.discount.toLocaleString()} Off`}</span>
+                            </div>
+                            {c.minAmount > 0 && (
+                              <div className="flex justify-between items-center text-xs">
+                                 <span className="text-white/40">Threshold</span>
+                                 <span className="text-white">₹{c.minAmount.toLocaleString()}</span>
+                              </div>
+                            )}
+                            {c.expiry && (
+                              <div className="flex justify-between items-center text-xs">
+                                 <span className="text-white/40">valid Until</span>
+                                 <span className={new Date(c.expiry) < new Date() ? 'text-red-500' : 'text-white'}>{new Date(c.expiry).toLocaleDateString()}</span>
+                              </div>
+                            )}
+                         </div>
+                      </div>
+                    ))}
+                 </div>
+              </div>
+            </div>
+          )}
+              <div className="flex flex-col space-y-4">
+                <button 
+                  onClick={handleToggleTestMode}
+                  disabled={isTogglingTestMode}
+                  className={`px-8 py-4 rounded-xl text-[10px] font-black uppercase tracking-[0.3em] transition-all w-full max-w-md ${testMode ? 'gold-gradient text-luxury-black shadow-[0_0_20px_rgba(212,175,55,0.3)]' : 'bg-white/5 text-white/60 border border-white/10 hover:border-gold hover:text-gold'}`}
+                >
+                  {isTogglingTestMode ? 'Processing...' : (testMode ? 'Disable Test Protocol' : 'Enable Test Protocol')}
+                </button>
+                <button 
+                    onClick={async () => {
                     const demo = [
                         { name: "Dinospy Celestia", price: 185000, category: "Luxury", img: "https://images.unsplash.com/photo-1542496658-e33a6d0d50f6?auto=format&fit=crop&q=80&w=2070", trending: true },
                         { name: "Monarch Chrono", price: 129000, category: "Luxury", img: "https://images.unsplash.com/photo-1508685096489-7aac29a23fce?auto=format&fit=crop&q=80&w=1978", trending: false },

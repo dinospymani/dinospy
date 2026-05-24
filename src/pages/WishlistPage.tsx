@@ -32,6 +32,9 @@ export default function WishlistPage() {
       const wishlistedProducts = allProducts.filter(p => wishlist.includes(p.id));
       setProducts(wishlistedProducts);
       setLoading(false);
+    }, (err) => {
+      console.warn("Archive transmission isolated", err);
+      setLoading(false);
     });
 
     return () => unsubscribe();
