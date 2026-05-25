@@ -7,9 +7,9 @@
   --font-mono: "JetBrains Mono", monospace;
 
   --color-gold: #D4AF37;
-  --color-luxury-black: #0D0D0D;
-  --color-luxury-gray: #1A1A1A;
-  --color-luxury-charcoal: #121212;
+  --color-luxury-black: #000000;
+  --color-luxury-gray: #0D0D0D;
+  --color-luxury-charcoal: #050505;
 }
 
 @layer base {
@@ -20,9 +20,6 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3%3Cfilter id='noiseFilter'%3%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3%3C/filter%3%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3%3C/svg%3");
-    background-blend-mode: overlay;
-    background-attachment: fixed;
     line-height: 1.6;
     overflow-x: hidden;
     scroll-behavior: smooth;

@@ -91,7 +91,6 @@ export default function WatchCard({ product }: WatchCardProps) {
           alt={product.name}
           className="w-full h-full object-contain p-2 sm:p-12 group-hover:scale-105 transition-transform duration-[2.5s] ease-[0.22,1,0.36,1]"
         />
-        <div className="absolute inset-0 bg-gradient-radial from-transparent to-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
       </Link>
 
       <div className="space-y-4 sm:space-y-6 flex-grow flex flex-col justify-end">

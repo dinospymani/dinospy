@@ -21,7 +21,7 @@ export default function FAQPage() {
               className="w-full h-full object-cover opacity-40"
               alt="Luxury watches background"
             />
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent to-luxury-black/90" />
+            <div className="absolute inset-0 bg-black/60" />
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6">
               <h1 className="text-6xl font-display gold-text mb-4">Archives</h1>
               <p className="text-white/40 text-xs uppercase tracking-[0.5em] font-black italic">Curated Knowledge & Support</p>

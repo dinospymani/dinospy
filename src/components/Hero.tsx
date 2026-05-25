@@ -39,90 +39,113 @@ export default function Hero() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  // Reset index when switching modes to avoid out-of-bounds
+  useEffect(() => {
+    setCurrentIndex(0);
+  }, [isMobile]);
+
   const visibleBanners = React.useMemo(() => {
     return allBanners.filter((b: any) => {
       if (isMobile) {
-        return (b.displayMobile !== false) && (b.mobileImageUrl || b.imageUrl);
+        // Strictly show only mobile-enabled banners that have a mobile image
+        return b.displayMobile === true && b.mobileImageUrl;
       }
-      return (b.displayDesktop !== false) && (b.imageUrl || b.mobileImageUrl);
+      // Strictly show only desktop-enabled banners that have a desktop image
+      return b.displayDesktop === true && b.imageUrl;
     });
   }, [allBanners, isMobile]);
 
   useEffect(() => {
-    if (visibleBanners.length <= 1) return;
-    const timer = setInterval(() => {
-      setCurrentIndex(prev => (prev + 1) % visibleBanners.length);
-    }, 5000);
-    return () => clearInterval(timer);
+    // Auto-rotation disabled per user request for a stable banner
+    return;
   }, [visibleBanners.length]);
 
   const currentBanner = visibleBanners[currentIndex] || {
-    imageUrl: "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?auto=format&fit=crop&q=80&w=2000",
-    mobileImageUrl: "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?auto=format&fit=crop&q=80&w=1000",
-    title: "Latest Acquisitions",
-    subtitle: "Heritage Masterpieces"
+    imageUrl: "https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?auto=format&fit=crop&q=80&w=2000",
+    mobileImageUrl: "https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?auto=format&fit=crop&q=80&w=1000",
+    title: "Latest Arrivals",
+    subtitle: "Precision Reimagined",
+    displayDesktop: true,
+    displayMobile: true
   };
 
   return (
-    <section className="relative h-screen min-h-[600px] md:h-[90vh] w-full overflow-hidden flex items-center font-sans">
+    <section className="relative h-[calc(100vh-64px)] md:h-[calc(100vh-80px)] mt-16 md:mt-20 w-full overflow-hidden flex items-center font-sans tracking-tight">
+      {/* Decorative Architectural Markings for 4K Detail */}
+      <div className="absolute top-32 left-10 z-20 hidden 2xl:block opacity-20">
+        <div className="flex flex-col space-y-4">
+          <div className="w-[1px] h-20 bg-gold" />
+          <span className="text-[8px] font-mono uppercase tracking-[0.5em] text-gold vertical-text">Ref. 4022.X</span>
+        </div>
+      </div>
+      
+      <div className="absolute bottom-10 left-10 z-20 hidden lg:block opacity-30">
+        <div className="space-y-1">
+          <p className="text-[7px] font-mono tracking-[0.4em] text-white uppercase">Lat: 25.0343° N</p>
+          <p className="text-[7px] font-mono tracking-[0.4em] text-white uppercase">Lon: 121.5640° E</p>
+        </div>
+      </div>
+
+      {/* Modern Scroll Indicator */}
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 2, duration: 1 }}
+        className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center space-y-4"
+      >
+        <span className="text-[8px] font-black uppercase tracking-[0.8em] text-white/40 ml-[0.8em]">Scroll</span>
+        <div className="w-[1px] h-12 bg-gradient-to-b from-gold/50 to-transparent relative overflow-hidden">
+          <motion.div 
+            animate={{ y: [0, 48, 0] }}
+            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute top-0 left-0 w-full h-1/3 bg-gold"
+          />
+        </div>
+      </motion.div>
+
       <AnimatePresence mode="wait">
         <motion.div
-          key={currentIndex}
+          key={currentIndex + (isMobile ? 'mobile' : 'desktop')}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 1.2 }}
           className="absolute inset-0 z-0"
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-luxury-black via-luxury-black/60 to-transparent z-10" />
-          <div className="absolute inset-0 bg-black/20 z-[5]" />
+          {/* Subtle overlay for text readability */}
+          <div className="absolute inset-0 bg-black/10 z-[5]" />
           
-          {/* Desktop Banner Image */}
-          {(currentBanner.imageUrl || currentBanner.mobileImageUrl) && (
-            <motion.img 
-              initial={{ scale: 1.15 }}
-              animate={{ scale: 1 }}
-              transition={{ duration: 10, ease: "easeOut" }}
-              src={currentBanner.imageUrl || currentBanner.mobileImageUrl} 
+          {/* Desktop Banner Image - Stable state */}
+          {!isMobile && currentBanner.imageUrl && (
+            <img 
+              src={currentBanner.imageUrl} 
               alt={currentBanner.title}
-              className="hidden md:block w-full h-full object-cover object-center"
+              className="w-full h-full object-cover object-center"
             />
           )}
 
-          {/* Mobile Banner Image */}
-          {(currentBanner.mobileImageUrl || currentBanner.imageUrl) && (
-            <motion.img 
-              initial={{ scale: 1.15 }}
-              animate={{ scale: 1 }}
-              transition={{ duration: 10, ease: "easeOut" }}
-              src={currentBanner.mobileImageUrl || currentBanner.imageUrl} 
+          {/* Mobile Banner Image - Stable state */}
+          {isMobile && currentBanner.mobileImageUrl && (
+            <img 
+              src={currentBanner.mobileImageUrl} 
               alt={currentBanner.title}
-              className="block md:hidden w-full h-full object-cover object-center"
+              className="w-full h-full object-cover object-center"
             />
           )}
         </motion.div>
       </AnimatePresence>
 
-      <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex flex-col justify-center h-full">
+      <div className="relative z-20 max-w-[1800px] mx-auto px-6 lg:px-20 w-full flex flex-col justify-center h-full">
         <AnimatePresence mode="wait">
           <motion.div 
             key={currentIndex}
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -30 }}
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 50 }}
             transition={{ duration: 1.5, ease: [0.19, 1, 0.22, 1] }}
-            className="max-w-4xl"
+            className="max-w-5xl"
           >
-            <motion.span 
-              initial={{ opacity: 0, letterSpacing: "1em" }}
-              animate={{ opacity: 1, letterSpacing: "0.5em" }}
-              transition={{ duration: 2, ease: "easeOut" }}
-              className="text-gold font-sans font-bold tracking-[0.5em] text-[10px] md:text-xs uppercase mb-12 block"
-            >
-              DINOSPY • {currentBanner.subtitle || 'Excellence Reimagined'}
-            </motion.span>
-            
-            <h1 className="text-6xl md:text-8xl lg:text-9xl font-display font-light leading-[1] mb-12 text-white/95 tracking-tight">
+            <h1 className="text-7xl md:text-[12rem] 2xl:text-[18rem] font-display font-light leading-[0.85] text-white/95 tracking-tighter mix-blend-exclusion filter drop-shadow-[0_0_20px_rgba(0,0,0,0.5)]">
               {currentBanner.title}
             </h1>
 
@@ -131,28 +154,11 @@ export default function Hero() {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.5, duration: 1 }}
-                className="mb-12"
+                className="mt-12"
               >
                 <CountdownTimer expiryDate={currentBanner.expiryDate} />
               </motion.div>
             )}
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1, duration: 1 }}
-              className="mt-12"
-            >
-              <Link 
-                to="/explore"
-                className="inline-flex items-center space-x-6 group"
-              >
-                <span className="text-gold font-bold uppercase tracking-[0.6em] text-[10px] md:text-xs group-hover:tracking-[0.8em] transition-all duration-700">
-                  Discover Collection
-                </span>
-                <div className="w-12 h-[1px] bg-gold/30 group-hover:w-24 group-hover:bg-gold transition-all duration-700" />
-              </Link>
-            </motion.div>
           </motion.div>
         </AnimatePresence>
       </div>

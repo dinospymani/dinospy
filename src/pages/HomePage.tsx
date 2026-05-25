@@ -195,7 +195,6 @@ export default function HomePage() {
 
         {/* Global Excellence Section */}
         <section className="py-80 bg-luxury-black relative overflow-hidden px-4">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(212,175,55,0.03)_0%,transparent_80%)]" />
           <div className="max-w-7xl mx-auto text-center relative z-10">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
