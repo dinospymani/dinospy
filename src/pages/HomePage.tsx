@@ -7,9 +7,10 @@ import WatchCard from '../components/WatchCard';
 import ProductSkeleton from '../components/ProductSkeleton';
 import Footer from '../components/Footer';
 import MobileNav from '../components/MobileNav';
-import { db } from '../context/AuthContext';
+import { db, auth } from '../context/AuthContext';
 import { collection, query, where, onSnapshot, limit } from 'firebase/firestore';
 import { ArrowRight, Zap } from 'lucide-react';
+import { handleFirestoreError, OperationType } from '../lib/utils';
 
 export default function HomePage() {
   const [newArrivals, setNewArrivals] = useState<any[]>(() => {
@@ -30,7 +31,7 @@ export default function HomePage() {
       localStorage.setItem('dinospy_new_arrivals', JSON.stringify(arrivals));
       setLoading(false);
     }, (error: any) => {
-      console.error("Error fetching products:", error);
+      handleFirestoreError(error, OperationType.LIST, 'products');
       
       // Fallback mock data
       const mockProducts = [

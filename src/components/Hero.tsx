@@ -7,7 +7,7 @@ import { collection, onSnapshot, query, where, orderBy } from 'firebase/firestor
 import { CountdownTimer } from './CountdownTimer';
 
 export default function Hero() {
-  const [banners, setBanners] = useState<any[]>(() => {
+  const [allBanners, setAllBanners] = useState<any[]>(() => {
     const cached = localStorage.getItem('dinospy_banners');
     return cached ? JSON.parse(cached) : [];
   });
@@ -21,7 +21,7 @@ export default function Hero() {
     );
     const unsubscribe = onSnapshot(q, (snap) => {
       const fetched = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setBanners(fetched);
+      setAllBanners(fetched);
       localStorage.setItem('dinospy_banners', JSON.stringify(fetched));
     }, (error) => {
       console.warn("Banner registry isolation active", error);
@@ -29,26 +29,32 @@ export default function Hero() {
     return () => unsubscribe();
   }, []);
 
-  useEffect(() => {
-    if (banners.length <= 1) return;
-    const timer = setInterval(() => {
-      setCurrentIndex(prev => (prev + 1) % banners.length);
-    }, 5000);
-    return () => clearInterval(timer);
-  }, [banners.length]);
-
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
-    checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  const currentBanner = banners[currentIndex] || {
+  const visibleBanners = React.useMemo(() => {
+    return allBanners.filter((b: any) => {
+      if (isMobile) return b.displayMobile !== false;
+      return b.displayDesktop !== false;
+    });
+  }, [allBanners, isMobile]);
+
+  useEffect(() => {
+    if (visibleBanners.length <= 1) return;
+    const timer = setInterval(() => {
+      setCurrentIndex(prev => (prev + 1) % visibleBanners.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [visibleBanners.length]);
+
+  const currentBanner = visibleBanners[currentIndex] || {
     imageUrl: "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?auto=format&fit=crop&q=80&w=2000",
     mobileImageUrl: "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?auto=format&fit=crop&q=80&w=1000",
     title: "Latest Acquisitions",
@@ -135,16 +141,16 @@ export default function Hero() {
         </AnimatePresence>
       </div>
 
-      {banners.length > 1 && (
+      {visibleBanners.length > 1 && (
         <div className="absolute bottom-10 right-10 z-30 flex space-x-4">
           <button 
-            onClick={() => setCurrentIndex(prev => (prev - 1 + banners.length) % banners.length)}
+            onClick={() => setCurrentIndex(prev => (prev - 1 + visibleBanners.length) % visibleBanners.length)}
             className="p-4 glass rounded-full border border-white/10 hover:border-gold/50 transition-all text-white/50 hover:text-gold"
           >
             <ChevronLeft size={24} />
           </button>
           <button 
-            onClick={() => setCurrentIndex(prev => (prev + 1) % banners.length)}
+            onClick={() => setCurrentIndex(prev => (prev + 1) % visibleBanners.length)}
             className="p-4 glass rounded-full border border-white/10 hover:border-gold/50 transition-all text-white/50 hover:text-gold"
           >
             <ChevronRight size={24} />

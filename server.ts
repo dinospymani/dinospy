@@ -13,6 +13,13 @@ async function startServer() {
   const app = express();
   const PORT = 3000;
 
+  // Trust proxy for rate limiting behind Cloud Run/Nginx
+  app.set('trust proxy', 1);
+
+  // Body Parsing Middleware (MUST be before routes)
+  app.use(express.json({ limit: '50mb' }));
+  app.use(express.urlencoded({ limit: '50mb', extended: true }));
+
   // Security Headers
   app.use(helmet({
     contentSecurityPolicy: {
@@ -25,9 +32,21 @@ async function startServer() {
           "https://*.firebaseio.com", 
           "wss://*.firebaseio.com",
           "https://*.firebase.google.com",
-          "https://*.firebaseapp.com"
+          "https://*.firebaseapp.com",
+          "https://*.cashfree.com"
         ],
-        "script-src": ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://apis.google.com", "https://www.gstatic.com"],
+        "script-src": [
+          "'self'", 
+          "'unsafe-inline'", 
+          "'unsafe-eval'", 
+          "https://apis.google.com", 
+          "https://www.gstatic.com",
+          "https://*.cashfree.com"
+        ],
+        "frame-src": [
+          "'self'",
+          "https://*.cashfree.com"
+        ],
         "frame-ancestors": ["'self'", "https://*.google.com", "https://*.studio.google", "https://ai.studio"],
       },
     },
@@ -46,8 +65,91 @@ async function startServer() {
 
   app.use("/api/", apiLimiter);
 
-  app.use(express.json({ limit: '50mb' }));
-  app.use(express.urlencoded({ limit: '50mb', extended: true }));
+  // Cashfree Order Creation
+  app.post("/api/payment/create-order", async (req, res) => {
+    try {
+      const { orderId, amount, customerDetails } = req.body;
+      const appId = process.env.CASHFREE_APP_ID;
+      const secretKey = process.env.CASHFREE_SECRET_KEY;
+
+      if (!appId || !secretKey) {
+        return res.status(500).json({ error: "Cashfree configuration missing" });
+      }
+
+      const isProd = process.env.NODE_ENV === "production";
+      const baseUrl = isProd ? "https://api.cashfree.com/pg/orders" : "https://sandbox.cashfree.com/pg/orders";
+
+      const response = await fetch(baseUrl, {
+        method: 'POST',
+        headers: {
+          'x-client-id': appId,
+          'x-client-secret': secretKey,
+          'x-api-version': '2023-08-01',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          order_id: orderId,
+          order_amount: amount,
+          order_currency: "INR",
+          customer_details: {
+            customer_id: customerDetails.customerId,
+            customer_email: customerDetails.customerEmail,
+            customer_phone: customerDetails.customerPhone,
+            customer_name: customerDetails.customerName
+          },
+          order_meta: {
+            return_url: `${process.env.APP_URL || 'http://localhost:3000'}/profile?order_id={order_id}`
+          }
+        })
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to create Cashfree order");
+      }
+
+      res.json(data);
+    } catch (error: any) {
+      console.error("Cashfree Error:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Cashfree Order Verification
+  app.get("/api/payment/verify-order/:orderId", async (req, res) => {
+    try {
+      const { orderId } = req.params;
+      const appId = process.env.CASHFREE_APP_ID;
+      const secretKey = process.env.CASHFREE_SECRET_KEY;
+
+      if (!appId || !secretKey) {
+        return res.status(500).json({ error: "Cashfree configuration missing" });
+      }
+
+      const isProd = process.env.NODE_ENV === "production";
+      const baseUrl = isProd ? "https://api.cashfree.com/pg/orders" : "https://sandbox.cashfree.com/pg/orders";
+
+      const response = await fetch(`${baseUrl}/${orderId}`, {
+        method: 'GET',
+        headers: {
+          'x-client-id': appId,
+          'x-client-secret': secretKey,
+          'x-api-version': '2023-08-01',
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to verify Cashfree order");
+      }
+
+      res.json(data);
+    } catch (error: any) {
+      console.error("Cashfree Verification Error:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
 
   const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
   const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';

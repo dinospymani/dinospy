@@ -10,6 +10,7 @@
         "displayName": { "type": "string" },
         "role": { "type": "string", "enum": ["user", "admin"] },
         "lastReadNotification": { "type": "string", "format": "date-time" },
+        "dismissedNotifications": { "type": "array" },
         "createdAt": { "type": "string", "format": "date-time" },
         "updatedAt": { "type": "string", "format": "date-time" }
       },
@@ -48,13 +49,13 @@
         "userId": { "type": "string" },
         "items": { "type": "array" },
         "totalAmount": { "type": "number" },
-        "status": { "type": "string", "enum": ["pending", "processing", "shipped", "delivered", "cancelled"] },
+        "status": { "type": "string", "enum": ["pending", "confirmed", "processing", "shipped", "delivered", "cancelled"] },
         "paymentStatus": { "type": "string" },
         "shippingAddress": { "type": "object" },
         "createdAt": { "type": "string", "format": "date-time" },
         "updatedAt": { "type": "string", "format": "date-time" }
       },
-      "required": ["userId", "items", "totalAmount", "status", "shippingAddress"]
+      "required": ["userId", "items", "totalAmount", "status"]
     },
     "CartItem": {
       "title": "Cart Item",
@@ -102,6 +103,8 @@
         "subtitle": { "type": "string" },
         "link": { "type": "string" },
         "active": { "type": "boolean" },
+        "displayDesktop": { "type": "boolean", "default": true },
+        "displayMobile": { "type": "boolean", "default": true },
         "order": { "type": "number" },
         "createdAt": { "type": "string", "format": "date-time" }
       },
@@ -115,7 +118,7 @@
         "id": { "type": "string" },
         "title": { "type": "string" },
         "message": { "type": "string" },
-        "type": { "type": "string", "enum": ["offer", "trending", "new_arrival", "general"] },
+        "type": { "type": "string", "enum": ["offer", "trending", "new_arrival", "general", "order", "security", "promotion"] },
         "link": { "type": "string" },
         "createdAt": { "type": "string", "format": "date-time" }
       },

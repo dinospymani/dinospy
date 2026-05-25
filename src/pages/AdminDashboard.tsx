@@ -94,6 +94,8 @@ export default function AdminDashboard() {
   const [bannerMobileImageFile, setBannerMobileImageFile] = useState<string | null>(null);
   const [bannerLink, setBannerLink] = useState('');
   const [bannerExpiry, setBannerExpiry] = useState('');
+  const [bannerDisplayDesktop, setBannerDisplayDesktop] = useState(true);
+  const [bannerDisplayMobile, setBannerDisplayMobile] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -253,6 +255,16 @@ export default function AdminDashboard() {
     e.preventDefault();
     if (!broadcastTitle || !broadcastMessage) {
       toast.warning('Manifest required: Title and Message are mandatory.');
+      return;
+    }
+
+    if (broadcastTitle.trim().length < 5) {
+      toast.error('Transmission title too short. Minimum 5 characters.');
+      return;
+    }
+
+    if (broadcastMessage.trim().length < 10) {
+      toast.error('Transmission message too short. Minimum 10 characters.');
       return;
     }
 
@@ -469,6 +481,8 @@ export default function AdminDashboard() {
           link: bannerLink,
           expiryDate: bannerExpiry || null,
           active: true,
+          displayDesktop: bannerDisplayDesktop,
+          displayMobile: bannerDisplayMobile,
           order: banners.length,
           createdAt: new Date().toISOString()
         };
@@ -483,6 +497,8 @@ export default function AdminDashboard() {
         setBannerMobileImageFile(null);
         setBannerLink('');
         setBannerExpiry('');
+        setBannerDisplayDesktop(true);
+        setBannerDisplayMobile(true);
         
         const bSnap = await getDocs(collection(db, 'banners'));
         setBanners(bSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
@@ -508,13 +524,30 @@ export default function AdminDashboard() {
       return;
     }
 
+    const cleanCode = couponCode.toUpperCase().trim();
+    if (cleanCode.length < 3 || !/^[A-Z0-9]+$/.test(cleanCode)) {
+      toast.error('Invalid coupon code. Alpha-numeric only, min 3 chars.');
+      return;
+    }
+
+    const discountVal = parseFloat(couponDiscount);
+    if (isNaN(discountVal) || discountVal <= 0) {
+      toast.error('Discount value must be a positive number.');
+      return;
+    }
+
+    if (couponType === 'percentage' && discountVal > 90) {
+      toast.error('Discount cannot exceed 90%.');
+      return;
+    }
+
     setIsSaving(true);
     try {
       await addDoc(collection(db, 'coupons'), {
-        code: couponCode.toUpperCase().trim(),
-        discount: parseFloat(couponDiscount),
+        code: cleanCode,
+        discount: discountVal,
         type: couponType,
-        minAmount: parseFloat(couponMinAmount),
+        minAmount: parseFloat(couponMinAmount) || 0,
         expiry: couponExpiry || null,
         active: true,
         createdAt: new Date().toISOString()
@@ -650,6 +683,23 @@ export default function AdminDashboard() {
 
   const handleAddProduct = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!name || name.trim().length < 3) {
+      toast.error('Product name required (min 3 chars).');
+      return;
+    }
+
+    const priceVal = parseFloat(price);
+    if (isNaN(priceVal) || priceVal <= 0) {
+      toast.error('Price must be a positive numeric value.');
+      return;
+    }
+
+    if (!description || description.trim().length < 20) {
+      toast.error('Formal description required (min 20 chars).');
+      return;
+    }
+
     if (imageFiles.length === 0 && !image) {
       toast.warning('Evidence required: Please provide at least one image.');
       return;
@@ -1091,6 +1141,32 @@ export default function AdminDashboard() {
                           className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-gold outline-none text-white/60"
                         />
                       </div>
+                      <div className="flex items-center space-x-6 h-full pt-6">
+                        <label className="flex items-center space-x-3 cursor-pointer group">
+                          <input 
+                            type="checkbox" 
+                            checked={bannerDisplayDesktop} 
+                            onChange={e => setBannerDisplayDesktop(e.target.checked)} 
+                            className="accent-gold h-4 w-4" 
+                          />
+                          <div className="flex flex-col">
+                            <span className="text-[10px] uppercase font-bold tracking-widest text-white/60 group-hover:text-gold transition-colors">Desktop</span>
+                            <span className="text-[8px] text-white/20 uppercase tracking-[0.2em]">Large Screen</span>
+                          </div>
+                        </label>
+                        <label className="flex items-center space-x-3 cursor-pointer group">
+                          <input 
+                            type="checkbox" 
+                            checked={bannerDisplayMobile} 
+                            onChange={e => setBannerDisplayMobile(e.target.checked)} 
+                            className="accent-gold h-4 w-4" 
+                          />
+                          <div className="flex flex-col">
+                            <span className="text-[10px] uppercase font-bold tracking-widest text-white/60 group-hover:text-gold transition-colors">Mobile</span>
+                            <span className="text-[8px] text-white/20 uppercase tracking-[0.2em]">Pocket Display</span>
+                          </div>
+                        </label>
+                      </div>
                     </div>
                     <button type="submit" disabled={isSaving} className="w-full py-4 gold-gradient text-luxury-black font-bold uppercase tracking-widest rounded-xl hover:scale-[1.01] transition-all disabled:opacity-50">
                       Deploy Banner
@@ -1105,8 +1181,13 @@ export default function AdminDashboard() {
                      <div key={b.id} className="relative aspect-[21/9] rounded-2xl overflow-hidden border border-white/10 hover:border-gold/30 transition-all group">
                         <img src={b.imageUrl} className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity" alt={b.title} />
                         <div className="absolute top-4 right-4 flex space-x-2 z-10">
-                           <div className="flex flex-col space-y-1">
-                             <button 
+                           <div className="flex flex-col items-end space-y-1">
+                              <div className="flex space-x-1 mb-1">
+                                 {b.displayDesktop !== false && <span className="bg-luxury-black/60 text-gold text-[8px] px-2 py-0.5 rounded border border-gold/20 font-black uppercase tracking-widest">DESK</span>}
+                                 {b.displayMobile !== false && <span className="bg-luxury-black/60 text-gold text-[8px] px-2 py-0.5 rounded border border-gold/20 font-black uppercase tracking-widest">MOB</span>}
+                              </div>
+                              <div className="flex flex-col space-y-1">
+                                 <button 
                                type="button"
                                onClick={() => handleMoveBanner(index, 'up')} 
                                disabled={index === 0}
@@ -1122,6 +1203,7 @@ export default function AdminDashboard() {
                              >
                                <ChevronLeft size={14} className="-rotate-90" />
                              </button>
+                              </div>
                            </div>
                            <button 
                              type="button"

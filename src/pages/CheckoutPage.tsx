@@ -8,6 +8,7 @@ import { collection, doc, runTransaction, getDoc, getDocs, query, where } from '
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { toast } from 'sonner';
+import { load as loadCashfree } from '@cashfreepayments/cashfree-js';
 
 export default function CheckoutPage() {
   const { cart, cartTotal, clearCart, coupon, applyCoupon, removeCoupon } = useCart();
@@ -67,8 +68,29 @@ export default function CheckoutPage() {
     e.preventDefault();
     if (!user) return;
     
-    if (!formData.address || !formData.city || !formData.phone) {
+    if (!formData.address || !formData.city || !formData.phone || !formData.fullName || !formData.zip) {
       toast.error('Complete contact and address details required');
+      return;
+    }
+
+    if (formData.fullName.trim().length < 3) {
+      toast.error('Full name is too short. Minimum 3 characters required.');
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      toast.error('Invalid email format detected.');
+      return;
+    }
+
+    if (formData.phone.length !== 10) {
+      toast.error('WhatsApp number must be exactly 10 digits.');
+      return;
+    }
+
+    if (formData.zip.trim().length < 6) {
+      toast.error('Postal code invalid. Minimum 6 digits required.');
       return;
     }
     
@@ -86,7 +108,7 @@ export default function CheckoutPage() {
         console.warn('Metadata sync issues, defaulting to live protocol');
       }
 
-      // 1. Validate Stock and Finalize Order using a Transaction
+      // 1. Validate Stock and Pre-create Order using a Transaction
       const result = await runTransaction(db, async (transaction) => {
         const productSnaps = await Promise.all(
           cart.map(item => transaction.get(doc(db, 'products', item.id)))
@@ -103,14 +125,8 @@ export default function CheckoutPage() {
           }
         }
 
-        if (!isTestOrder) {
-          productSnaps.forEach((snap, i) => {
-            const currentStock = snap.data().stock;
-            transaction.update(snap.ref, { stock: currentStock - cart[i].quantity });
-          });
-        }
-
         const deliveryPin = Math.floor(100000 + Math.random() * 900000).toString();
+        const orderId = `DSPY_${Date.now()}`;
 
         const orderData = {
           userId: user.uid,
@@ -118,75 +134,77 @@ export default function CheckoutPage() {
           customerEmail: formData.email,
           customerPhone: formData.phone,
           deliveryPin,
-          paymentStatus: 'pending_manual',
+          paymentStatus: 'pending',
           shippingAddress: { ...formData },
           items: cart,
           total: cartTotal,
-          status: 'confirmed',
+          status: 'pending_payment',
           isTest: isTestOrder,
           couponUsed: coupon ? coupon.code : null,
           createdAt: new Date().toISOString(),
           timeline: [
             {
-              status: 'confirmed',
-              timestamp: new Date().toISOString(),
-              message: isTestOrder ? "TESTING PROTOCOL: Simulation acquisition authorized." : "Acquisition authorized. Logistics manifest initialized."
-            },
-            {
               status: 'pending_payment',
               timestamp: new Date().toISOString(),
-              message: isTestOrder ? "TESTING PROTOCOL: Physical bank transfer bypassed for simulation." : "Awaiting physical bank transfer verification."
+              message: "Order initialized. Awaiting payment authorization."
             }
           ]
         };
         
-        const orderRef = doc(collection(db, 'orders'));
+        const orderRef = doc(db, 'orders', orderId);
         transaction.set(orderRef, orderData);
         
-        // Return order data for email trigger
-        return { orderId: orderRef.id, ...orderData };
+        return { orderId, ...orderData };
       });
 
-      // 2. Trigger Confirmation Email via Server Proxy
+      // 2. Create Cashfree Session
       try {
-        const emailRes = await fetch('/api/send-confirmation', {
+        const res = await fetch('/api/payment/create-order', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            email: formData.email,
-            orderDetails: {
-              customerName: formData.fullName,
-              total: cartTotal,
-              items: cart,
-              deliveryPin: result.deliveryPin
+            orderId: result.orderId,
+            amount: cartTotal,
+            customerDetails: {
+              customerId: user.uid,
+              customerEmail: formData.email,
+              customerPhone: formData.phone,
+              customerName: formData.fullName
             }
           })
         });
-        
-        const contentType = emailRes.headers.get('content-type');
-        if (contentType && contentType.includes('application/json')) {
-          const emailData = await emailRes.json();
-          if (emailRes.ok) {
-            if (emailData.message && emailData.message.includes('skipped')) {
-              toast.info("Order processed. (Email manifest logged to server console)");
-            }
-          } else {
-            console.error('Email confirmation error:', emailData);
-            toast.error(`Confirmation Email Failed: ${emailData.error} ${emailData.details ? JSON.stringify(emailData.details) : ''}`);
-          }
-        }
-      } catch (err) {
-        console.error('Email Trigger Failed:', err);
-      }
 
-      clearCart();
-      setTimeout(() => navigate('/profile'), 2000);
-      return true;
+        const sessionData = await res.json();
+        if (!res.ok) throw new Error(sessionData.error || "Payment session failed");
+
+        // 3. Initialize Cashfree SDK and Open Checkout
+        const cashfree = await loadCashfree({
+          mode: import.meta.env.PROD ? "production" : "sandbox"
+        });
+
+        if (!cashfree) {
+          throw new Error("Could not initialize payment gateway");
+        }
+
+        const checkoutOptions = {
+          paymentSessionId: sessionData.payment_session_id,
+          redirectTarget: "_self" 
+        };
+
+        await cashfree.checkout(checkoutOptions);
+        
+        // The above is usually a redirect or a popup depends on sandbox/prod.
+        // If it's a redirect, the execution stops here.
+        return true;
+      } catch (err: any) {
+        console.error('Payment Initialization Failed:', err);
+        throw new Error(err.message || 'Payment engine offline');
+      }
     };
 
     toast.promise(promise(), {
-      loading: 'Securing transaction and reserving stock...',
-      success: 'Acquisition finalized! Welcome to the DINOSPY circle.',
+      loading: 'Securing transaction and initializing payment...',
+      success: 'Payment gateway initialized.',
       error: (err: any) => {
         setIsProcessing(false);
         return `Secure processing failed: ${err.message}`;

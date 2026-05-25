@@ -8,6 +8,7 @@ import WatchCard from '../components/WatchCard';
 import ProductSkeleton from '../components/ProductSkeleton';
 import { collection, onSnapshot, query } from 'firebase/firestore';
 import { db } from '../context/AuthContext';
+import { handleFirestoreError, OperationType } from '../lib/utils';
 
 export default function ExplorePage() {
   const [products, setProducts] = useState<any[]>(() => {
@@ -26,7 +27,7 @@ export default function ExplorePage() {
       localStorage.setItem('dinospy_products_all', JSON.stringify(fetched));
       setLoading(false);
     }, (e) => {
-      console.error(e);
+      handleFirestoreError(e, OperationType.LIST, 'products');
       setLoading(false);
     });
 

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { motion } from 'motion/react';
-import { ShoppingBag, Heart, Star, Shield, Truck, RotateCcw, ArrowLeft, ChevronRight, Play, Share2, ThumbsUp, CheckCircle2 } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { ShoppingBag, Heart, Star, Shield, Truck, RotateCcw, ArrowLeft, ChevronRight, Play, Share2, ThumbsUp, CheckCircle2, X, ChevronLeft } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import MobileNav from '../components/MobileNav';
@@ -27,6 +27,16 @@ export default function ProductDetails() {
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
   const [sortBy, setSortBy] = useState<'newest' | 'highest' | 'lowest'>('newest');
   const [hasPurchased, setHasPurchased] = useState(false);
+  const [zoomPos, setZoomPos] = useState({ x: 50, y: 50 });
+  const [isZoomed, setIsZoomed] = useState(false);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - left) / width) * 100;
+    const y = ((e.clientY - top) / height) * 100;
+    setZoomPos({ x, y });
+  };
 
   useEffect(() => {
     if (!user || !id) return;
@@ -268,22 +278,43 @@ export default function ProductDetails() {
             <div className="space-y-12">
               <motion.div 
                 layoutId={`image-${product.id}`}
-                className="relative aspect-square overflow-hidden bg-luxury-black/30 border border-white/5 cursor-zoom-in group luxury-shadow"
+                className="relative aspect-square overflow-hidden bg-luxury-black/30 border border-white/5 cursor-crosshair group luxury-shadow"
                 transition={{ duration: 1, ease: [0.19, 1, 0.22, 1] }}
+                onMouseMove={handleMouseMove}
+                onMouseEnter={() => setIsZoomed(true)}
+                onMouseLeave={() => setIsZoomed(false)}
+                onClick={() => setIsLightboxOpen(true)}
               >
                 <motion.div 
                    key={activeImage}
                    initial={{ opacity: 0, scale: 1.1 }}
-                   animate={{ opacity: 1, scale: 1 }}
-                   transition={{ duration: 1.5, ease: [0.19, 1, 0.22, 1] }}
+                   animate={{ 
+                     opacity: 1, 
+                     scale: isZoomed ? 2.5 : 1,
+                     transformOrigin: `${zoomPos.x}% ${zoomPos.y}%`
+                   }}
+                   transition={{ 
+                     opacity: { duration: 1.5, ease: [0.19, 1, 0.22, 1] },
+                     scale: { duration: 0.6, ease: [0.19, 1, 0.22, 1] },
+                     transformOrigin: { duration: 0.1, ease: "linear" }
+                   }}
                    className="w-full h-full"
                 >
                   <img 
                     src={product.images[activeImage]} 
                     alt={product.name}
-                    className="w-full h-full object-contain p-12 group-hover:scale-110 transition-transform duration-[3s] ease-out"
+                    className="w-full h-full object-contain p-12"
                   />
                 </motion.div>
+                
+                {/* Zoom Indicator */}
+                {!isZoomed && (
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
+                    <div className="px-6 py-3 border border-gold/40 bg-luxury-black/60 backdrop-blur-md text-gold text-[8px] font-black uppercase tracking-[0.4em] rounded-full">
+                      Hover to Inspect Detailing
+                    </div>
+                  </div>
+                )}
                 
                 <div className="absolute top-10 left-10">
                    {product.isLimited && (
@@ -641,6 +672,81 @@ export default function ProductDetails() {
 
       <Footer />
       <MobileNav />
+
+      {/* Immersive Lightbox Modal */}
+      <AnimatePresence>
+        {isLightboxOpen && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] bg-luxury-black/95 backdrop-blur-2xl flex flex-col items-center justify-center"
+          >
+            {/* Controls */}
+            <div className="absolute top-10 w-full px-12 flex justify-between items-center">
+               <div className="flex flex-col">
+                  <span className="text-gold text-[10px] uppercase tracking-[0.6em] font-bold mb-2">Detailed Inspection</span>
+                  <span className="text-white/40 text-[9px] uppercase tracking-[0.4em] font-medium">{product.name} — Asset {activeImage + 1} of {product.images.length}</span>
+               </div>
+               <button 
+                 onClick={() => setIsLightboxOpen(false)}
+                 className="p-4 rounded-full bg-white/5 border border-white/10 text-white/40 hover:text-white hover:bg-white/10 transition-all group luxury-shadow"
+               >
+                 <X size={24} strokeWidth={1} />
+               </button>
+            </div>
+
+            {/* Navigation Left */}
+            <button 
+              onClick={() => setActiveImage(prev => prev === 0 ? product.images.length - 1 : prev - 1)}
+              className="absolute left-10 p-6 rounded-full bg-white/5 border border-white/5 text-white/20 hover:text-gold hover:border-gold/20 transition-all luxury-shadow hidden md:block"
+            >
+              <ChevronLeft size={32} strokeWidth={1} />
+            </button>
+
+            {/* Navigation Right */}
+            <button 
+              onClick={() => setActiveImage(prev => prev === product.images.length - 1 ? 0 : prev + 1)}
+              className="absolute right-10 p-6 rounded-full bg-white/5 border border-white/5 text-white/20 hover:text-gold hover:border-gold/20 transition-all luxury-shadow hidden md:block"
+            >
+              <ChevronRight size={32} strokeWidth={1} />
+            </button>
+
+            {/* Main Lightbox Image */}
+            <motion.div 
+              key={activeImage}
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.8, ease: [0.19, 1, 0.22, 1] }}
+              className="relative w-full max-w-5xl aspect-square p-20 flex items-center justify-center cursor-default"
+            >
+              <img 
+                src={product.images[activeImage]} 
+                alt={product.name} 
+                className="w-full h-full object-contain drop-shadow-[0_0_100px_rgba(212,175,55,0.05)]"
+              />
+            </motion.div>
+
+            {/* Thumbnail Strip */}
+            <div className="absolute bottom-10 flex space-x-6">
+               {product.images.map((img: string, i: number) => (
+                 <button 
+                   key={i}
+                   onClick={() => setActiveImage(i)}
+                   className={`relative w-16 aspect-square overflow-hidden border transition-all duration-700 ${activeImage === i ? 'border-gold scale-110 shadow-[0_0_30px_rgba(212,175,55,0.2)]' : 'border-white/10 opacity-30 hover:opacity-100 hover:border-white/20'}`}
+                 >
+                   <img src={img} alt="" className="w-full h-full object-contain p-1" />
+                 </button>
+               ))}
+            </div>
+
+            {/* Technical Detail Watermark */}
+            <div className="absolute bottom-12 right-12 opacity-10 pointer-events-none">
+               <span className="text-[60px] font-display text-white uppercase tracking-[0.5em] leading-none select-none">DINOSPY</span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

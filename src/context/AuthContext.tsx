@@ -4,6 +4,7 @@ import { getAuth, onAuthStateChanged, User, GoogleAuthProvider, signInWithPopup,
 import { getFirestore, doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
 import config from '../../firebase-applet-config.json';
 import { toast } from 'sonner';
+import { handleFirestoreError, OperationType } from '../lib/utils';
 
 const app = initializeApp(config || {});
 export const auth = getAuth(app);
@@ -63,7 +64,7 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
               setLoading(false);
             }
           }, (err) => {
-            console.error('Profile Load Error:', err);
+            handleFirestoreError(err, OperationType.GET, `users/${user.uid}`);
             setLoading(false);
           });
           

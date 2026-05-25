@@ -10,7 +10,8 @@ import { QRCodeSVG } from 'qrcode.react';
 import { toast } from 'sonner';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import { FileDown } from 'lucide-react';
+import { FileDown, MapPin } from 'lucide-react';
+import DeliveryMap from '../components/DeliveryMap';
 
 export default function ProfilePage() {
   const { user, profile, signOut } = useAuth();
@@ -40,6 +41,38 @@ export default function ProfilePage() {
   ];
 
   useEffect(() => {
+    const checkPaymentStatus = async () => {
+      const params = new URLSearchParams(window.location.search);
+      const orderId = params.get('order_id');
+      if (orderId) {
+        try {
+          const res = await fetch(`/api/payment/verify-order/${orderId}`);
+          const data = await res.json();
+          
+          if (data.order_status === 'PAID') {
+            toast.success('Payment Authorized: Your heritage acquisition is confirmed.');
+            // Update order in firestore
+            const orderRef = doc(db, 'orders', orderId);
+            await updateDoc(orderRef, { 
+              paymentStatus: 'paid',
+              status: 'confirmed',
+              updatedAt: new Date().toISOString()
+            });
+            // Re-fetch orders to show updated status
+            fetchOrders();
+          } else if (data.order_status === 'ACTIVE') {
+            toast.info('Payment Pending: Waiting for final authorization.');
+          } else {
+            toast.error(`Payment Protocol Failed: ${data.order_status || 'Session Terminated'}`);
+          }
+        } catch (err) {
+          console.error('Handshake Failure:', err);
+        }
+        // Clean URL
+        window.history.replaceState({}, '', window.location.pathname);
+      }
+    };
+
     async function fetchOrders() {
       if (!user) return;
       try {
@@ -52,7 +85,9 @@ export default function ProfilePage() {
         setLoading(false);
       }
     }
+
     fetchOrders();
+    checkPaymentStatus();
   }, [user]);
 
   const toggleAdmin = async () => {
@@ -285,7 +320,7 @@ export default function ProfilePage() {
                             animate={{ height: 'auto', opacity: 1 }}
                             className="bg-white/[0.02] border-y border-white/5 p-8 mb-8 space-y-6"
                           >
-                            <div className="flex justify-between items-center mb-4">
+                            <div className="flex justify-between items-center mb-8">
                                <h5 className="text-[10px] uppercase tracking-[0.3em] font-black text-white/40">Logistics Timeline</h5>
                                {order.trackingId && (
                                  <div className="text-right">
@@ -294,24 +329,40 @@ export default function ProfilePage() {
                                  </div>
                                )}
                             </div>
-                            <div className="space-y-8 relative">
-                              <div className="absolute left-2 top-2 bottom-2 w-px bg-white/5" />
-                              {order.timeline.slice().reverse().map((event: any, i: number) => (
-                                <div key={i} className="flex space-x-6 relative">
-                                  <div className={`w-4 h-4 rounded-full border-2 flex-shrink-0 z-10 transition-colors ${i === 0 ? 'bg-gold border-gold shadow-[0_0_10px_rgba(212,175,55,0.5)]' : 'bg-luxury-black border-white/20'}`} />
-                                  <div className="flex-grow pt-0">
-                                    <div className="flex justify-between items-start">
-                                      <p className={`text-xs font-bold uppercase tracking-widest ${i === 0 ? 'text-white' : 'text-white/40'}`}>
-                                        {event.status.replace('_', ' ')}
+
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                              <div className="space-y-8 relative">
+                                <div className="absolute left-2 top-2 bottom-2 w-px bg-white/5" />
+                                {order.timeline.slice().reverse().map((event: any, i: number) => (
+                                  <div key={i} className="flex space-x-6 relative">
+                                    <div className={`w-4 h-4 rounded-full border-2 flex-shrink-0 z-10 transition-colors ${i === 0 ? 'bg-gold border-gold shadow-[0_0_10px_rgba(212,175,55,0.5)]' : 'bg-luxury-black border-white/20'}`} />
+                                    <div className="flex-grow pt-0">
+                                      <div className="flex justify-between items-start">
+                                        <p className={`text-xs font-bold uppercase tracking-widest ${i === 0 ? 'text-white' : 'text-white/40'}`}>
+                                          {event.status.replace('_', ' ')}
+                                        </p>
+                                        <span className="text-[8px] font-mono text-white/20">{new Date(event.timestamp).toLocaleString()}</span>
+                                      </div>
+                                      <p className={`text-[10px] mt-1 leading-relaxed ${i === 0 ? 'text-white/60' : 'text-white/20'}`}>
+                                        {event.message}
                                       </p>
-                                      <span className="text-[8px] font-mono text-white/20">{new Date(event.timestamp).toLocaleString()}</span>
                                     </div>
-                                    <p className={`text-[10px] mt-1 leading-relaxed ${i === 0 ? 'text-white/60' : 'text-white/20'}`}>
-                                      {event.message}
-                                    </p>
                                   </div>
+                                ))}
+                              </div>
+
+                              <div className="space-y-6">
+                                <div className="flex items-center space-x-3 mb-2">
+                                   <MapPin size={16} className="text-gold" />
+                                   <h6 className="text-[10px] uppercase tracking-widest font-black text-white/60">Live Deployment Status</h6>
                                 </div>
-                              ))}
+                                <DeliveryMap status={order.status} orderId={order.id} />
+                                <div className="p-4 bg-white/5 rounded-2xl border border-white/5">
+                                   <p className="text-[9px] text-white/40 leading-relaxed italic">
+                                      Real-time courier telemetrics provided via DINOSPY Secure Channel. Deployment route optimized for heritage asset safety.
+                                   </p>
+                                </div>
+                              </div>
                             </div>
                           </motion.div>
                         )}
