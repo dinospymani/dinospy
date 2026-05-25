@@ -70,35 +70,20 @@ export default function Hero() {
   };
 
   return (
-    <section className="relative h-[calc(100vh-64px)] md:h-[calc(100vh-80px)] mt-16 md:mt-20 w-full overflow-hidden flex items-center font-sans tracking-tight">
-      {/* Decorative Architectural Markings for 4K Detail */}
-      <div className="absolute top-32 left-10 z-20 hidden 2xl:block opacity-20">
-        <div className="flex flex-col space-y-4">
-          <div className="w-[1px] h-20 bg-gold" />
-          <span className="text-[8px] font-mono uppercase tracking-[0.5em] text-gold vertical-text">Ref. 4022.X</span>
-        </div>
-      </div>
-      
-      <div className="absolute bottom-10 left-10 z-20 hidden lg:block opacity-30">
-        <div className="space-y-1">
-          <p className="text-[7px] font-mono tracking-[0.4em] text-white uppercase">Lat: 25.0343° N</p>
-          <p className="text-[7px] font-mono tracking-[0.4em] text-white uppercase">Lon: 121.5640° E</p>
-        </div>
-      </div>
-
+    <section className="relative h-[85vh] md:h-[90vh] mt-16 md:mt-20 w-full overflow-hidden flex items-center font-sans tracking-tight">
       {/* Modern Scroll Indicator */}
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 2, duration: 1 }}
-        className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center space-y-4"
+        className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center space-y-2"
       >
-        <span className="text-[8px] font-black uppercase tracking-[0.8em] text-white/40 ml-[0.8em]">Scroll</span>
+        <span className="text-[7px] font-black uppercase tracking-[0.8em] text-white/30 ml-[0.8em]">Scroll</span>
         <div className="w-[1px] h-12 bg-gradient-to-b from-gold/50 to-transparent relative overflow-hidden">
           <motion.div 
             animate={{ y: [0, 48, 0] }}
             transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute top-0 left-0 w-full h-1/3 bg-gold"
+            className="absolute top-0 left-0 w-full h-1/4 bg-gold"
           />
         </div>
       </motion.div>
@@ -129,36 +114,37 @@ export default function Hero() {
             <img 
               src={currentBanner.mobileImageUrl} 
               alt={currentBanner.title}
-              className="w-full h-full object-cover object-center"
+              className="w-full h-full object-cover object-[center_20%]"
             />
           )}
         </motion.div>
       </AnimatePresence>
 
-      <div className="relative z-20 max-w-[1800px] mx-auto px-6 lg:px-20 w-full flex flex-col justify-center h-full">
+      <div className="relative z-20 w-full flex flex-col justify-end items-center h-full pb-20 md:pb-24">
         <AnimatePresence mode="wait">
           <motion.div 
             key={currentIndex}
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 50 }}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -30 }}
             transition={{ duration: 1.5, ease: [0.19, 1, 0.22, 1] }}
-            className="max-w-5xl"
+            className="w-full max-w-7xl px-6 text-center"
           >
-            <h1 className="text-7xl md:text-[12rem] 2xl:text-[18rem] font-display font-light leading-[0.85] text-white/95 tracking-tighter mix-blend-exclusion filter drop-shadow-[0_0_20px_rgba(0,0,0,0.5)]">
+            <h1 className="text-7xl md:text-[12rem] 2xl:text-[16rem] font-display font-light leading-[0.8] text-white tracking-widest md:tracking-[0.1em] drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
               {currentBanner.title}
             </h1>
 
-            {currentBanner.expiryDate && (
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.5, duration: 1 }}
-                className="mt-12"
-              >
-                <CountdownTimer expiryDate={currentBanner.expiryDate} />
-              </motion.div>
-            )}
+            <div className="flex flex-col items-center mt-8 md:mt-12">
+              {currentBanner.expiryDate && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.5, duration: 1 }}
+                >
+                  <CountdownTimer expiryDate={currentBanner.expiryDate} />
+                </motion.div>
+              )}
+            </div>
           </motion.div>
         </AnimatePresence>
       </div>
