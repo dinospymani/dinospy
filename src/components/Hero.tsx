@@ -41,8 +41,10 @@ export default function Hero() {
 
   const visibleBanners = React.useMemo(() => {
     return allBanners.filter((b: any) => {
-      if (isMobile) return b.displayMobile !== false;
-      return b.displayDesktop !== false;
+      if (isMobile) {
+        return (b.displayMobile !== false) && (b.mobileImageUrl || b.imageUrl);
+      }
+      return (b.displayDesktop !== false) && (b.imageUrl || b.mobileImageUrl);
     });
   }, [allBanners, isMobile]);
 
@@ -61,13 +63,11 @@ export default function Hero() {
     subtitle: "Heritage Masterpieces"
   };
 
-  const bannerSource = isMobile ? (currentBanner.mobileImageUrl || currentBanner.imageUrl) : (currentBanner.imageUrl || currentBanner.mobileImageUrl);
-
   return (
     <section className="relative h-screen min-h-[600px] md:h-[90vh] w-full overflow-hidden flex items-center font-sans">
       <AnimatePresence mode="wait">
         <motion.div
-          key={currentIndex + (isMobile ? '-mob' : '-desk')}
+          key={currentIndex}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -76,14 +76,30 @@ export default function Hero() {
         >
           <div className="absolute inset-0 bg-gradient-to-r from-luxury-black via-luxury-black/60 to-transparent z-10" />
           <div className="absolute inset-0 bg-black/20 z-[5]" />
-          <motion.img 
-            initial={{ scale: 1.15 }}
-            animate={{ scale: 1 }}
-            transition={{ duration: 10, ease: "easeOut" }}
-            src={bannerSource} 
-            alt={currentBanner.title}
-            className="w-full h-full object-cover object-center"
-          />
+          
+          {/* Desktop Banner Image */}
+          {(currentBanner.imageUrl || currentBanner.mobileImageUrl) && (
+            <motion.img 
+              initial={{ scale: 1.15 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 10, ease: "easeOut" }}
+              src={currentBanner.imageUrl || currentBanner.mobileImageUrl} 
+              alt={currentBanner.title}
+              className="hidden md:block w-full h-full object-cover object-center"
+            />
+          )}
+
+          {/* Mobile Banner Image */}
+          {(currentBanner.mobileImageUrl || currentBanner.imageUrl) && (
+            <motion.img 
+              initial={{ scale: 1.15 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 10, ease: "easeOut" }}
+              src={currentBanner.mobileImageUrl || currentBanner.imageUrl} 
+              alt={currentBanner.title}
+              className="block md:hidden w-full h-full object-cover object-center"
+            />
+          )}
         </motion.div>
       </AnimatePresence>
 

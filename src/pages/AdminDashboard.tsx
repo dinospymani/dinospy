@@ -442,6 +442,12 @@ export default function AdminDashboard() {
     const file = e.target.files?.[0];
     if (!file) return;
     
+    // Auto-select mobile, unselect desktop if no desktop file yet
+    setBannerDisplayMobile(true);
+    if (!bannerImageFile && !bannerImage) {
+      setBannerDisplayDesktop(false);
+    }
+
     const reader = new FileReader();
     reader.onloadend = async () => {
       const compressed = await compressImage(reader.result as string);
@@ -821,6 +827,12 @@ export default function AdminDashboard() {
     const file = e.target.files?.[0];
     if (!file) return;
     
+    // Auto-select desktop, unselect mobile if no mobile file yet
+    setBannerDisplayDesktop(true);
+    if (!bannerMobileImageFile && !bannerMobileImage) {
+      setBannerDisplayMobile(false);
+    }
+
     const reader = new FileReader();
     reader.onloadend = async () => {
       const compressed = await compressImage(reader.result as string);
@@ -1111,7 +1123,18 @@ export default function AdminDashboard() {
                       </div>
                       <div>
                         <label className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block">Desktop Image URL</label>
-                        <input value={bannerImage} onChange={e => setBannerImage(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none" placeholder="https://..." />
+                        <input 
+                          value={bannerImage} 
+                          onChange={e => {
+                            setBannerImage(e.target.value);
+                            if (e.target.value) {
+                              setBannerDisplayDesktop(true);
+                              if (!bannerMobileImageFile && !bannerMobileImage) setBannerDisplayMobile(false);
+                            }
+                          }} 
+                          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none" 
+                          placeholder="https://..." 
+                        />
                       </div>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1124,7 +1147,18 @@ export default function AdminDashboard() {
                       </div>
                       <div>
                         <label className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block">Mobile Image URL</label>
-                        <input value={bannerMobileImage} onChange={e => setBannerMobileImage(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none" placeholder="https://..." />
+                        <input 
+                          value={bannerMobileImage} 
+                          onChange={e => {
+                            setBannerMobileImage(e.target.value);
+                            if (e.target.value) {
+                              setBannerDisplayMobile(true);
+                              if (!bannerImageFile && !bannerImage) setBannerDisplayDesktop(false);
+                            }
+                          }} 
+                          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none" 
+                          placeholder="https://..." 
+                        />
                       </div>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -1178,46 +1212,53 @@ export default function AdminDashboard() {
                  <h3 className="text-[10px] uppercase tracking-widest text-white/40 mb-6">Current active banners</h3>
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                    {banners.map((b, index) => (
-                     <div key={b.id} className="relative aspect-[21/9] rounded-2xl overflow-hidden border border-white/10 hover:border-gold/30 transition-all group">
-                        <img src={b.imageUrl} className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity" alt={b.title} />
-                        <div className="absolute top-4 right-4 flex space-x-2 z-10">
-                           <div className="flex flex-col items-end space-y-1">
-                              <div className="flex space-x-1 mb-1">
-                                 {b.displayDesktop !== false && <span className="bg-luxury-black/60 text-gold text-[8px] px-2 py-0.5 rounded border border-gold/20 font-black uppercase tracking-widest">DESK</span>}
-                                 {b.displayMobile !== false && <span className="bg-luxury-black/60 text-gold text-[8px] px-2 py-0.5 rounded border border-gold/20 font-black uppercase tracking-widest">MOB</span>}
-                              </div>
-                              <div className="flex flex-col space-y-1">
-                                 <button 
-                               type="button"
-                               onClick={() => handleMoveBanner(index, 'up')} 
-                               disabled={index === 0}
-                               className="p-1.5 bg-black/60 text-white rounded-lg hover:bg-gold hover:text-luxury-black transition-all disabled:opacity-20"
-                             >
-                               <ChevronLeft size={14} className="rotate-90" />
-                             </button>
-                             <button 
-                               type="button"
-                               onClick={() => handleMoveBanner(index, 'down')} 
-                               disabled={index === banners.length - 1}
-                               className="p-1.5 bg-black/60 text-white rounded-lg hover:bg-gold hover:text-luxury-black transition-all disabled:opacity-20"
-                             >
-                               <ChevronLeft size={14} className="-rotate-90" />
-                             </button>
-                              </div>
-                           </div>
-                           <button 
-                             type="button"
-                             onClick={() => handleDeleteBanner(b.id)} 
-                             className="p-2 bg-red-600/20 text-red-500 rounded-lg h-fit hover:bg-red-600 hover:text-white transition-colors"
-                           >
-                              <Trash2 size={16} />
-                           </button>
-                        </div>
-                        <div className="absolute inset-0 p-6 flex flex-col justify-end bg-gradient-to-t from-black/80 to-transparent">
-                           <span className="text-[10px] font-mono text-gold/60 mb-1">Slide #{index + 1}</span>
-                           <h4 className="font-display text-lg text-gold">{b.title}</h4>
-                           <p className="text-white/60 text-xs">{b.subtitle}</p>
-                        </div>
+                     <div key={b.id} className="glass rounded-2xl overflow-hidden border border-white/10 hover:border-gold/30 transition-all group p-4">
+                       <div className="grid grid-cols-2 gap-4 aspect-[21/9] mb-4">
+                         <div className="relative rounded-xl overflow-hidden bg-black/40">
+                            <img src={b.imageUrl} className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity" alt="Desktop Preview" />
+                            <div className="absolute top-2 left-2 bg-luxury-black/80 text-[8px] text-gold px-1.5 py-0.5 rounded border border-gold/20 font-bold uppercase">Desk</div>
+                         </div>
+                         <div className="relative rounded-xl overflow-hidden bg-black/40">
+                            <img src={b.mobileImageUrl || b.imageUrl} className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity" alt="Mobile Preview" />
+                            <div className="absolute top-2 left-2 bg-luxury-black/80 text-[8px] text-gold px-1.5 py-0.5 rounded border border-gold/20 font-bold uppercase">Mob</div>
+                            {!b.mobileImageUrl && <div className="absolute inset-0 flex items-center justify-center text-[8px] text-white/20 uppercase tracking-widest bg-black/40">No Mobile Asset</div>}
+                         </div>
+                       </div>
+
+                       <div className="flex justify-between items-start">
+                         <div className="min-w-0 flex-grow mr-4">
+                            <span className="text-[10px] font-mono text-gold/60">Slide #{index + 1}</span>
+                            <h4 className="font-display text-sm text-gold truncate">{b.title}</h4>
+                            <p className="text-white/40 text-[10px] truncate">{b.subtitle}</p>
+                         </div>
+                         <div className="flex space-x-2 flex-shrink-0">
+                            <div className="flex flex-col space-y-1">
+                              <button 
+                                type="button"
+                                onClick={() => handleMoveBanner(index, 'up')} 
+                                disabled={index === 0}
+                                className="p-1.5 bg-black/60 text-white rounded-lg hover:bg-gold hover:text-luxury-black transition-all disabled:opacity-20"
+                              >
+                                <ChevronLeft size={14} className="rotate-90" />
+                              </button>
+                              <button 
+                                type="button"
+                                onClick={() => handleMoveBanner(index, 'down')} 
+                                disabled={index === banners.length - 1}
+                                className="p-1.5 bg-black/60 text-white rounded-lg hover:bg-gold hover:text-luxury-black transition-all disabled:opacity-20"
+                              >
+                                <ChevronLeft size={14} className="-rotate-90" />
+                              </button>
+                            </div>
+                            <button 
+                              type="button"
+                              onClick={() => handleDeleteBanner(b.id)} 
+                              className="p-2 bg-red-600/20 text-red-500 rounded-lg scale-90 hover:scale-100 hover:bg-red-600 hover:text-white transition-all"
+                            >
+                               <Trash2 size={16} />
+                            </button>
+                         </div>
+                       </div>
                      </div>
                    ))}
                    {banners.length === 0 && <p className="text-white/20 text-xs py-10 text-center col-span-2">No promotional banners active.</p>}
