@@ -302,10 +302,10 @@ export default function AdminDashboard() {
       await Promise.all(batch);
       setOrders([]);
       setStats(prev => ({ ...prev, revenue: 0, ordersCount: 0 }));
-      toast.success('Global Sales Manifest Expunged');
+      toast.success('Global Sales Manifest Expunged', { id: 'purge-orders' });
     } catch (err) {
       console.error(err);
-      toast.error('Failed to clear records');
+      toast.error('Failed to clear records', { id: 'purge-orders-error' });
     } finally {
       setIsSaving(false);
     }
@@ -331,9 +331,9 @@ export default function AdminDashboard() {
       setProducts(products.map(p => p.id === productId ? { ...p, stock: stockNum } : p));
       setEditingStockId(null);
       setNewStockValue('');
-      toast.success('Inventory balance coordinated');
+      toast.success('Inventory balance coordinated', { id: `stock-sync-${productId}` });
     } catch (err) {
-      toast.error('Sync failed');
+      toast.error('Sync failed', { id: `stock-sync-err-${productId}` });
     }
   };
 
@@ -390,10 +390,10 @@ export default function AdminDashboard() {
       if (selectedOrder?.id === orderId) {
         setSelectedOrder({ ...selectedOrder, ...updateData });
       }
-      toast.success(`Order advanced to: ${newStatus.replace('_', ' ')}`);
+      toast.success(`Order advanced to: ${newStatus.replace('_', ' ')}`, { id: `order-status-${orderId}` });
     } catch (err) {
       console.error(err);
-      toast.error('Transition failed');
+      toast.error('Transition failed', { id: `order-status-err-${orderId}` });
     }
   };
 
