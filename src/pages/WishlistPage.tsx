@@ -44,7 +44,7 @@ export default function WishlistPage() {
     <div className="min-h-screen flex flex-col bg-luxury-black">
       <Navbar />
       
-      <main className="flex-grow pt-32 pb-40 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+      <main className="flex-grow pt-32 pb-40 max-w-[100%] mx-auto px-4 md:px-8 lg:px-10 w-full text-center sm:text-left">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -85,7 +85,7 @@ export default function WishlistPage() {
               </Link>
             </div>
           ) : (
-             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-5 gap-8">
                 <AnimatePresence mode="popLayout">
                   {products.map((product) => (
                     <motion.div

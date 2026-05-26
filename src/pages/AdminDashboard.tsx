@@ -867,7 +867,7 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      <main className="flex-grow pt-32 pb-20 max-w-6xl mx-auto px-4 w-full">
+      <main className="flex-grow pt-32 pb-20 max-w-[95%] mx-auto px-4 w-full">
         <div className="mb-6">
           <button 
               onClick={() => window.location.href = '/'}

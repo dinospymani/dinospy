@@ -15,10 +15,13 @@ export default function Footer() {
             <p className="text-white/30 text-sm leading-relaxed font-light italic max-w-xs">
               "Witness the peak of horological engineering. Heritage forged for the modern elite."
             </p>
-            <div className="flex space-x-8">
-              <a href="#" className="text-white/30 hover:text-gold transition-colors duration-500"><Instagram size={18} strokeWidth={1} /></a>
-              <a href="#" className="text-white/30 hover:text-gold transition-colors duration-500"><Twitter size={18} strokeWidth={1} /></a>
-              <a href="#" className="text-white/30 hover:text-gold transition-colors duration-500"><Facebook size={18} strokeWidth={1} /></a>
+            <div className="flex items-center space-x-8">
+              <div className="flex space-x-6">
+                <a href="https://www.instagram.com/dinospy.in/" target="_blank" rel="noopener noreferrer" className="text-white/30 hover:text-gold transition-colors duration-500"><Instagram size={18} strokeWidth={1} /></a>
+                <a href="#" className="text-white/30 hover:text-gold transition-colors duration-500"><Twitter size={18} strokeWidth={1} /></a>
+                <a href="#" className="text-white/30 hover:text-gold transition-colors duration-500"><Facebook size={18} strokeWidth={1} /></a>
+              </div>
+              <span className="text-[10px] uppercase tracking-[0.4em] text-white/20 font-bold border-l border-white/5 pl-8 hidden sm:block">@dinospy.in</span>
             </div>
           </div>
 

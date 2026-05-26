@@ -67,8 +67,8 @@ export default function HomePage() {
         </section>
 
         {/* New Arrivals Section */}
-        <section id="new" className="px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto">
+        <section id="new" className="px-4 md:px-8 lg:px-10">
+          <div className="max-w-[100%] mx-auto">
             <motion.div 
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -99,7 +99,7 @@ export default function HomePage() {
                   transition: { staggerChildren: 0.3 }
                 }
               }}
-              className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-x-12 sm:gap-y-24"
+              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-5 gap-6 sm:gap-x-8 md:gap-y-16 lg:gap-y-24"
             >
               {loading ? (
                 new Array(4).fill(0).map((_, i) => (
@@ -131,8 +131,8 @@ export default function HomePage() {
         </section>
 
         {/* The DINOSPY Narrative Section */}
-        <section id="philosophy" className="relative overflow-hidden px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto">
+        <section id="philosophy" className="relative overflow-hidden px-4 md:px-8 lg:px-10">
+          <div className="max-w-[100%] mx-auto">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-24 items-center">
               <div className="lg:col-span-6 space-y-20">
                 <motion.div
@@ -206,8 +206,8 @@ export default function HomePage() {
         </section>
 
         {/* Global Excellence Section */}
-        <section className="py-80 bg-luxury-black relative overflow-hidden px-4">
-          <div className="max-w-7xl mx-auto text-center relative z-10">
+        <section className="py-80 bg-luxury-black relative overflow-hidden px-4 md:px-8 lg:px-10">
+          <div className="max-w-[100%] mx-auto text-center relative z-10">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -235,8 +235,8 @@ export default function HomePage() {
         </section>
 
         {/* Craftsmanship Section */}
-        <section className="px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto">
+        <section className="px-4 md:px-8 lg:px-10">
+          <div className="max-w-[100%] mx-auto">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-40 items-center">
               <motion.div
                 initial={{ opacity: 0, y: 60 }}

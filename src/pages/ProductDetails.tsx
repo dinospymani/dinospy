@@ -303,7 +303,7 @@ export default function ProductDetails() {
                   <img 
                     src={product.images[activeImage]} 
                     alt={product.name}
-                    className="w-full h-full object-contain p-12"
+                    className="w-full h-full object-cover"
                   />
                 </motion.div>
                 
@@ -733,7 +733,7 @@ export default function ProductDetails() {
               <img 
                 src={product.images[activeImage]} 
                 alt={product.name} 
-                className="w-full h-full object-contain drop-shadow-[0_0_100px_rgba(212,175,55,0.05)]"
+                className="w-full h-full object-cover drop-shadow-[0_0_100px_rgba(212,175,55,0.05)]"
               />
             </motion.div>
 

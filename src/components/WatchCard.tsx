@@ -112,12 +112,12 @@ export default function WatchCard({ product }: WatchCardProps) {
         </button>
       </div>
 
-      <Link to={`/product/${product.id}`} className="block aspect-square mb-6 sm:mb-12 overflow-hidden bg-luxury-black/50 relative group-hover:shadow-[0_40px_100px_rgba(0,0,0,0.8)] transition-all duration-[1s] ease-[0.22,1,0.36,1]">
+      <Link to={`/product/${product.id}`} className="block aspect-[4/5] mb-6 sm:mb-12 overflow-hidden bg-zinc-950 relative group-hover:shadow-[0_40px_100px_rgba(0,0,0,0.8)] transition-all duration-[1s] ease-[0.22,1,0.36,1]">
         <motion.img 
           layoutId={`image-${product.id}`}
           src={product.images[0]} 
           alt={product.name}
-          className="w-full h-full object-contain p-2 sm:p-12 group-hover:scale-105 transition-transform duration-[2.5s] ease-[0.22,1,0.36,1]"
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-[2.5s] ease-[0.22,1,0.36,1]"
         />
       </Link>
 

@@ -43,7 +43,7 @@ export default function ExplorePage() {
     <div className="min-h-screen flex flex-col bg-luxury-black">
       <Navbar />
       
-      <main className="flex-grow pt-32 pb-40 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+      <main className="flex-grow pt-32 pb-40 max-w-[100%] mx-auto px-4 md:px-8 lg:px-10 w-full text-center sm:text-left">
         <div className="mb-8">
             <button 
                 onClick={() => window.history.back()}
@@ -79,7 +79,7 @@ export default function ExplorePage() {
         </div>
 
         {loading ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-x-12 sm:gap-y-24">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-5 gap-6 sm:gap-x-8 md:gap-y-16 lg:gap-y-24">
                 {[1,2,3,4,5,6,7,8].map(i => (
                   <ProductSkeleton key={i} />
                 ))}
@@ -99,7 +99,7 @@ export default function ExplorePage() {
                    }
                  }
                }}
-               className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-x-12 sm:gap-y-24"
+               className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-5 gap-6 sm:gap-x-8 md:gap-y-16 lg:gap-y-24"
             >
                 {filtered.map(product => (
                     <motion.div
