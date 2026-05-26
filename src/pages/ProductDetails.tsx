@@ -103,10 +103,10 @@ export default function ProductDetails() {
     try {
       if (navigator.share) {
         await navigator.share(shareData);
-        toast.success('Shared successfully');
+        toast.success('Shared successfully', { id: 'share-action' });
       } else {
         await navigator.clipboard.writeText(window.location.href);
-        toast.success('Link copied to clipboard');
+        toast.success('Link copied to clipboard', { id: 'share-action' });
       }
     } catch (err) {
       console.error('Share failed:', err);
@@ -441,11 +441,13 @@ export default function ProductDetails() {
                   <button 
                     onClick={handleAddToCart}
                     disabled={product.stock <= 0}
-                    className={`flex-grow py-6 border border-gold/50 text-gold hover:bg-gold hover:text-luxury-black transition-all duration-700 text-[11px] uppercase tracking-[0.5em] font-bold ${product.stock <= 0 ? 'opacity-20 cursor-not-allowed' : ''}`}
+                    className={`flex-grow py-6 border border-gold/50 text-gold hover:bg-gold hover:text-luxury-black transition-all duration-700 text-[11px] uppercase tracking-[0.5em] font-bold shadow-2xl shadow-gold/5 ${product.stock <= 0 ? 'opacity-20 cursor-not-allowed' : ''}`}
                   >
                     Acquire Piece
                   </button>
-                  <button 
+                  <motion.button 
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                     onClick={() => {
                       if (!user) {
                         setIsAuthModalOpen(true);
@@ -453,19 +455,27 @@ export default function ProductDetails() {
                       }
                       toggleWishlist(product.id!);
                     }}
-                    className={`px-10 py-6 border border-white/10 transition-all duration-500 hover:border-gold/50 ${isWishlisted ? 'text-gold' : 'text-white/30'}`}
+                    className={`px-10 py-6 border transition-all duration-500 rounded-none backdrop-blur-sm ${
+                      isWishlisted 
+                        ? 'bg-gold border-gold text-black shadow-lg shadow-gold/20' 
+                        : 'border-white/10 text-white/30 hover:border-gold/50 hover:text-gold hover:bg-gold/5'
+                    }`}
                   >
-                    <Heart size={20} strokeWidth={1} fill={isWishlisted ? "currentColor" : "none"} />
-                  </button>
+                    <Heart size={20} strokeWidth={1.5} fill={isWishlisted ? "currentColor" : "none"} />
+                  </motion.button>
                 </div>
                 
-                <button 
-                  onClick={handleShare}
-                  className="text-[10px] uppercase font-bold tracking-[0.5em] text-white/20 hover:text-gold transition-colors flex items-center group w-fit"
-                >
-                  Share Asset Details
-                  <div className="w-12 h-[1px] bg-white/10 ml-6 group-hover:bg-gold group-hover:w-20 transition-all duration-700" />
-                </button>
+                <div className="flex items-center space-x-8 pt-4">
+                  <motion.button 
+                    whileHover={{ x: 10 }}
+                    onClick={handleShare}
+                    className="text-[10px] uppercase font-bold tracking-[0.5em] text-white/40 hover:text-gold transition-all flex items-center group bg-white/5 px-8 py-4 border border-white/10 hover:border-gold/30"
+                  >
+                    <Share2 size={14} className="mr-4 text-gold/60" />
+                    Share Asset Details
+                    <div className="w-8 h-[1px] bg-gold/20 ml-6 group-hover:w-16 group-hover:bg-gold transition-all duration-700" />
+                  </motion.button>
+                </div>
 
                 {/* Unique Feature: Digital Identity Registry */}
                 <div className="pt-20 mt-20 border-t border-white/5">

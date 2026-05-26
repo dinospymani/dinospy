@@ -71,64 +71,163 @@ function AnimatedRoutes() {
 
 import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from './context/AuthContext';
-import { Toaster } from 'sonner';
+import { Toaster, toast } from 'sonner';
 import AuthModal from './components/AuthModal';
+
+import { Shield, Lock, Activity, Wifi } from 'lucide-react';
 
 const MaintenanceScreen = ({ isAdmin, onBypass }: { isAdmin: boolean; onBypass: () => void }) => {
   const { setIsAuthModalOpen } = useAuth();
+  const [isScanning, setIsScanning] = React.useState(true);
+  
+  React.useEffect(() => {
+    const timer = setTimeout(() => setIsScanning(false), 3500);
+    return () => clearTimeout(timer);
+  }, []);
   
   return (
-    <div className="h-screen w-full bg-luxury-black flex items-center justify-center p-6 text-center">
-      <div className="max-w-md w-full">
+    <div className="h-screen w-full bg-[#030303] flex items-center justify-center p-6 relative overflow-hidden">
+      {/* Background Security Grid */}
+      <div className="absolute inset-0 opacity-[0.03] pointer-events-none" 
+           style={{ backgroundImage: 'radial-gradient(#d4af37 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+      
+      {/* Dynamic Laser Scan */}
+      <AnimatePresence>
+        {isScanning && (
+          <motion.div 
+            initial={{ top: '-10%' }}
+            animate={{ top: '110%' }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+            className="absolute left-0 right-0 h-[2px] bg-gold/30 shadow-[0_0_20px_rgba(212,175,55,0.8)] z-50 pointer-events-none"
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Ambient Glows */}
+      <div className="absolute top-0 left-1/4 w-96 h-96 bg-gold/5 blur-[120px] rounded-full" />
+      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-gold/5 blur-[120px] rounded-full" />
+
+      <div className="max-w-2xl w-full relative z-10">
         <motion.div 
-          initial={{ opacity: 0, scale: 0.9 }}
+          initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="glass p-12 rounded-[3rem] border border-gold/10"
+          className="glass p-8 md:p-16 rounded-[4rem] border border-white/5 bg-black/40 backdrop-blur-3xl shadow-2xl relative overflow-hidden"
         >
-          <div className="relative mb-12">
-            <motion.div 
-              animate={{ 
-                rotate: 360,
-                scale: [1, 1.1, 1]
-              }}
-              transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-              className="w-24 h-24 border-2 border-gold/20 border-t-gold rounded-full mx-auto"
-            />
-            <div className="absolute inset-0 flex items-center justify-center">
-               <div className="w-2 h-2 bg-gold rounded-full animate-ping" />
-            </div>
+          {/* Security Corner Marks */}
+          <div className="absolute top-8 left-8 w-8 h-8 border-t border-l border-gold/30 rounded-tl-xl" />
+          <div className="absolute bottom-8 right-8 w-8 h-8 border-b border-r border-gold/30 rounded-br-xl" />
+
+          {/* Top Status Bar */}
+          <div className="flex justify-between items-center mb-16 px-2">
+             <div className="flex items-center space-x-3">
+                <div className={`w-1.5 h-1.5 rounded-full ${isScanning ? 'bg-orange-500 animate-ping' : 'bg-gold animate-pulse'}`} />
+                <span className="text-[8px] font-mono uppercase tracking-[0.4em] text-gold/60">
+                  {isScanning ? 'Analyzing Cryptographic Integrity' : 'Vault Protocol Active'}
+                </span>
+             </div>
+             <div className="flex items-center space-x-4 opacity-40">
+                <Shield size={10} className="text-white" />
+                <Lock size={10} className="text-white" />
+                <Wifi size={10} className="text-white" />
+             </div>
           </div>
-          <h1 className="text-3xl font-display gold-text mb-6">Store Under Maintenance</h1>
-          <p className="text-white/40 text-xs uppercase tracking-[0.4em] font-black mb-8 italic">Enhancing Your Experience</p>
-          <div className="space-y-4">
-            <p className="text-sm text-white/60 leading-relaxed">
-              DINOSPY is currently undergoing a scheduled update. We are making some improvements to our store to provide you with a even better shopping experience.
+
+          <div className="text-center">
+            <div className="relative mb-14 inline-block">
+              <motion.div 
+                animate={{ rotate: 360 }}
+                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                className="w-32 h-32 border border-gold/10 border-t-gold border-r-gold rounded-full"
+              />
+              <div className="absolute inset-4 border border-white/5 rounded-full flex items-center justify-center">
+                 <Activity size={32} className={`transition-colors duration-1000 ${isScanning ? 'text-orange-500' : 'text-gold/40'} animate-pulse`} />
+              </div>
+            </div>
+
+            <h1 className="text-4xl md:text-5xl font-display text-white mb-6 tracking-tight">
+              Vault Under <span className="text-gold">Maintenance</span>
+            </h1>
+            
+            <p className="text-[10px] font-mono uppercase tracking-[0.8em] text-gold/60 mb-10 ml-[0.8em]">
+              Protocol: Alignment & Security — v2.4
             </p>
-            <div className="pt-8 border-t border-white/5 flex flex-col items-center space-y-6">
-              <p className="text-[9px] uppercase tracking-widest text-gold font-bold">Standard service will resume shortly</p>
-              
-              <div className="flex flex-col items-center space-y-4 w-full">
-                {isAdmin ? (
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={onBypass}
-                    className="px-8 py-3 rounded-full border border-gold/20 text-gold text-[10px] uppercase tracking-widest font-bold hover:bg-gold/5 transition-all flex items-center"
+
+            <div className="max-w-md mx-auto space-y-8">
+              <div className="relative">
+                <p className="text-xs md:text-sm text-white/40 leading-relaxed font-light font-sans px-4">
+                  The DINOSPY digital archive is currently processing an infrastructure recalibration. Access to the collection is temporarily restricted to ensure absolute transaction security and manifest integrity.
+                </p>
+                {isScanning && (
+                  <motion.div 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center rounded-xl"
                   >
-                    <span className="mr-2">●</span> Bypass Alignment
-                  </motion.button>
-                ) : (
-                  <button 
-                    onClick={() => setIsAuthModalOpen(true)}
-                    className="text-[9px] uppercase tracking-widest text-white/20 hover:text-white/40 transition-colors"
-                  >
-                    Authorized Access Only
-                  </button>
+                    <span className="text-[10px] font-mono text-gold uppercase animate-pulse">Running Diagnostic...</span>
+                  </motion.div>
                 )}
+              </div>
+
+              <div className="pt-10 flex flex-col items-center space-y-8">
+                <div className="flex items-center space-x-12">
+                   <div className="flex flex-col items-center">
+                      <span className="text-[7px] uppercase tracking-widest text-white/20 mb-1">Enc Level</span>
+                      <span className="text-[9px] uppercase tracking-widest text-white font-black">Grade 1 Luxury</span>
+                   </div>
+                   <div className="w-[1px] h-8 bg-white/5" />
+                   <div className="flex flex-col items-center">
+                      <span className="text-[7px] uppercase tracking-widest text-white/20 mb-1">Status</span>
+                      <span className="text-[9px] uppercase tracking-widest text-white font-black">Restructuring</span>
+                   </div>
+                </div>
+                
+                <div className="w-full max-w-sm">
+                  {isAdmin ? (
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => {
+                        toast.success('Security Handshake Complete', { id: 'maint-bypass' });
+                        onBypass();
+                      }}
+                      className="w-full py-5 rounded-2xl gold-gradient text-black text-[10px] uppercase tracking-[0.4em] font-black shadow-2xl shadow-gold/20 flex items-center justify-center group"
+                    >
+                      <Lock size={14} className="mr-3 group-hover:rotate-12 transition-transform" />
+                      Override Protocol
+                    </motion.button>
+                  ) : (
+                    <button 
+                      onClick={() => setIsAuthModalOpen(true)}
+                      className="w-full py-5 rounded-2xl border border-white/5 text-[9px] uppercase tracking-[0.4em] text-white/20 hover:text-white/40 hover:border-white/10 transition-all font-bold group"
+                    >
+                      <Shield size={12} className="inline mr-2 group-hover:text-gold transition-colors" />
+                      Administrative Login Required
+                    </button>
+                  )}
+                </div>
+
+                <div className="flex items-center space-x-3 opacity-20">
+                   {[1, 2, 3, 4, 5].map(i => (
+                     <motion.div 
+                        key={i} 
+                        animate={{ opacity: [0.2, 1, 0.2] }}
+                        transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.2 }}
+                        className="w-1 h-1 bg-white rounded-full" 
+                     />
+                   ))}
+                </div>
               </div>
             </div>
           </div>
         </motion.div>
+        
+        {/* Footer Technical Detail */}
+        <div className="mt-8 flex justify-center opacity-10 space-x-12">
+           <p className="text-[7px] font-mono uppercase tracking-[0.5em] text-white">System: D-OS v2.4.1</p>
+           <p className="text-[7px] font-mono uppercase tracking-[0.5em] text-white">Encryption: AES-512-GCM</p>
+           <p className="text-[7px] font-mono uppercase tracking-[0.5em] text-white">Node: AIS-1.0</p>
+        </div>
       </div>
     </div>
   );

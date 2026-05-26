@@ -1061,18 +1061,16 @@ export default function AdminDashboard() {
                        Purge All Live Data
                      </button>
                    </div>
-                 </div>
-
-                 {/* Maintenance Control */}
+                 </div>                 {/* Maintenance Control */}
                  <div className="mt-8">
-                   <div className={`glass p-8 rounded-2xl border transition-all flex flex-col md:flex-row justify-between items-center gap-6 ${maintenanceStatus ? 'border-orange-500/30 bg-orange-500/5' : 'border-white/5'}`}>
+                   <div className={`glass p-8 rounded-[2rem] border transition-all flex flex-col md:flex-row justify-between items-center gap-6 ${maintenanceStatus ? 'border-orange-500/30 bg-orange-500/10 backdrop-blur-xl shadow-2xl shadow-orange-500/10' : 'border-white/5 bg-white/[0.02]'}`}>
                      <div className="flex items-start space-x-6">
                        <div className={`p-4 rounded-2xl ${maintenanceStatus ? 'bg-orange-500/20 text-orange-500' : 'bg-white/5 text-white/40'}`}>
-                         <Zap size={24} />
+                         <Shield size={24} className={maintenanceStatus ? 'animate-pulse' : ''} />
                        </div>
                        <div>
                          <h4 className="text-sm font-bold flex items-center">
-                           Global Maintenance Protocol
+                           Vault Lockout Protocol
                            {maintenanceStatus && (
                              <span className="ml-3 px-2 py-0.5 rounded bg-orange-500/20 text-orange-500 text-[8px] uppercase tracking-widest font-black animate-pulse">
                                Active Standby
@@ -1088,9 +1086,19 @@ export default function AdminDashboard() {
                      <button 
                        onClick={handleToggleMaintenance}
                        disabled={isTogglingMaintenance}
-                       className={`px-8 py-4 rounded-xl text-[10px] font-black uppercase tracking-[0.3em] transition-all w-full md:w-fit ${maintenanceStatus ? 'bg-orange-500 text-luxury-black shadow-[0_0_20px_rgba(249,115,22,0.3)]' : 'bg-white/5 text-white/60 border border-white/10 hover:border-gold hover:text-gold'}`}
+                       className={`px-8 py-4 rounded-xl text-[10px] font-black uppercase tracking-[0.3em] transition-all w-full md:w-fit flex items-center justify-center ${maintenanceStatus ? 'bg-orange-500 text-luxury-black shadow-[0_0_30px_rgba(249,115,22,0.3)]' : 'bg-white/5 text-white/60 border border-white/10 hover:border-gold hover:text-gold'}`}
                      >
-                       {isTogglingMaintenance ? 'Coordinating...' : (maintenanceStatus ? 'Terminate Protocol' : 'Initiate Maintenance')}
+                       {isTogglingMaintenance ? (
+                         <>
+                           <Loader2 size={14} className="mr-2 animate-spin" />
+                           Coordinating...
+                         </>
+                       ) : (
+                         <>
+                           <Lock size={14} className="mr-2" />
+                           {maintenanceStatus ? 'Terminate Protocol' : 'Initiate Maintenance'}
+                         </>
+                       )}
                      </button>
                    </div>
                  </div>

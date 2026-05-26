@@ -1,9 +1,10 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { Heart, ShoppingBag, Star } from 'lucide-react';
+import { Heart, ShoppingBag, Star, Share2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import { toast } from 'sonner';
 
 interface WatchCardProps {
   product: {
@@ -52,8 +53,10 @@ export default function WatchCard({ product }: WatchCardProps) {
         )}
       </div>
       
-      <div className="absolute top-2 sm:top-8 right-2 sm:right-8 z-10 flex flex-col space-y-2">
-        <button 
+      <div className="absolute top-2 sm:top-8 right-2 sm:right-8 z-10 flex flex-col space-y-3">
+        <motion.button 
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
           onClick={(e) => {
             e.preventDefault();
             if (!user) {
@@ -62,10 +65,31 @@ export default function WatchCard({ product }: WatchCardProps) {
             }
             toggleWishlist(product.id);
           }}
-          className={`p-2 transition-all duration-500 ${isWishlisted ? 'text-gold' : 'text-white/20 hover:text-gold'}`}
+          className={`p-2.5 rounded-full backdrop-blur-md border transition-all duration-500 shadow-xl ${
+            isWishlisted 
+              ? 'bg-gold text-black border-gold' 
+              : 'bg-black/40 text-white/60 border-white/10 hover:border-gold/50 hover:text-gold'
+          }`}
         >
-          <Heart size={16} className="sm:w-[18px] sm:h-[18px]" fill={isWishlisted ? "currentColor" : "none"} strokeWidth={1} />
-        </button>
+          <Heart size={16} className="sm:w-[18px] sm:h-[18px]" fill={isWishlisted ? "currentColor" : "none"} strokeWidth={1.5} />
+        </motion.button>
+
+        <motion.button 
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          onClick={(e) => {
+            e.preventDefault();
+            const url = `${window.location.origin}/product/${product.id}`;
+            navigator.clipboard.writeText(url);
+            toast.success('Link Secured', {
+              id: `share-${product.id}`,
+              description: 'Asset URL copied to clipboard'
+            });
+          }}
+          className="p-2.5 rounded-full bg-black/40 backdrop-blur-md border border-white/10 text-white/60 hover:border-gold/50 hover:text-gold transition-all duration-500 shadow-xl"
+        >
+          <Share2 size={16} className="sm:w-[18px] sm:h-[18px]" strokeWidth={1.5} />
+        </motion.button>
         
         {/* Quick Add Mobile Button */}
         <button 
@@ -78,7 +102,11 @@ export default function WatchCard({ product }: WatchCardProps) {
             addToCart(product);
           }}
           disabled={isOutOfStock}
-          className={`sm:hidden p-2 transition-all duration-500 ${isOutOfStock ? 'text-white/5' : 'text-white/20 active:text-gold active:bg-gold/10 rounded-full'}`}
+          className={`sm:hidden p-2.5 rounded-full backdrop-blur-md border transition-all duration-500 ${
+            isOutOfStock 
+              ? 'bg-black/20 text-white/5 border-white/5' 
+              : 'bg-black/40 text-gold border-gold/20 active:bg-gold active:text-black'
+          }`}
         >
           <ShoppingBag size={16} strokeWidth={1.5} />
         </button>

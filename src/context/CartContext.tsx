@@ -134,12 +134,24 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
     
     if (success) {
-      toast.success(`${quantity} ${product.name} added to collection`);
+      toast.success(`${product.name} Secured`, {
+        id: `cart-${product.id}`,
+        description: `${quantity} unit${quantity > 1 ? 's' : ''} added to your acquisition queue.`
+      });
     }
   };
 
   const removeFromCart = (productId: string) => {
-    setCart(prev => prev.filter(item => item.id !== productId));
+    setCart(prev => {
+      const item = prev.find(i => i.id === productId);
+      if (item) {
+        toast.info('Asset Released', {
+          id: `cart-remove-${productId}`,
+          description: `${item.name} removed from cart.`
+        });
+      }
+      return prev.filter(i => i.id !== productId);
+    });
   };
 
   const updateQuantity = (productId: string, delta: number) => {
@@ -152,7 +164,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         // Capped at stock
         if (item.stock !== undefined && newQty > item.stock) {
-          toast.error(`Insufficient stock: Only ${item.stock} units in inventory.`);
+          toast.error(`Stock Limit: Only ${item.stock} units available`, {
+            id: `stock-err-${productId}`
+          });
           return item;
         }
 
@@ -169,6 +183,18 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setWishlist(prev => 
       isAdding ? [...prev, productId] : prev.filter(id => id !== productId)
     );
+
+    if (isAdding) {
+      toast.success('Collection Updated', {
+        id: `wishlist-${productId}`,
+        description: 'Asset archived in your private registry.'
+      });
+    } else {
+      toast.info('Collection Updated', {
+        id: `wishlist-${productId}`,
+        description: 'Asset removed from your private registry.'
+      });
+    }
 
     // Sync with Firestore if logged in
     if (user) {

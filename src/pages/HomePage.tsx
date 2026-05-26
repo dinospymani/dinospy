@@ -110,8 +110,20 @@ export default function HomePage() {
                   <WatchCard key={product.id} product={product} />
                 ))
               ) : (
-                <div className="col-span-full py-60 text-center border border-white/5">
-                  <p className="text-white/20 font-display text-4xl italic font-light tracking-widest">Elegance is arriving...</p>
+                <div className="col-span-full py-40 md:py-60 text-center border border-white/5 bg-white/[0.01] rounded-3xl">
+                   <motion.div
+                     initial={{ opacity: 0 }}
+                     animate={{ opacity: 1 }}
+                     transition={{ duration: 2 }}
+                   >
+                    <p className="text-white/20 font-display text-3xl md:text-5xl italic font-light tracking-widest mb-12">Archive Empty.</p>
+                    <div className="flex flex-col items-center space-y-6">
+                      <div className="w-12 h-[1px] bg-gold/30 animate-pulse" />
+                      <p className="text-gold font-sans text-[10px] md:text-xs uppercase tracking-[0.6em] font-black leading-relaxed">
+                        The products will be added soon
+                      </p>
+                    </div>
+                   </motion.div>
                 </div>
               )}
             </motion.div>

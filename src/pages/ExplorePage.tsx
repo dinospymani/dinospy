@@ -115,14 +115,32 @@ export default function ExplorePage() {
                 ))}
             </motion.div>
         ) : (
-            <div className="text-center py-60 border border-white/5 bg-white/[0.01]">
-                <p className="text-white/20 font-display text-4xl italic font-light tracking-widest mb-8">No assets matching your identity.</p>
-                <button 
-                  onClick={() => setFilter('All')}
-                  className="text-[10px] font-bold uppercase tracking-[0.4em] text-gold hover:text-white transition-colors"
+            <div className="text-center py-40 md:py-60 border border-white/5 bg-white/[0.01] rounded-3xl">
+                <motion.div
+                   initial={{ opacity: 0 }}
+                   animate={{ opacity: 1 }}
+                   transition={{ duration: 2 }}
                 >
-                  Clear Parameters
-                </button>
+                    <p className="text-white/20 font-display text-3xl md:text-5xl italic font-light tracking-widest mb-12">
+                      {products.length === 0 ? "Archive Empty." : "No assets matching your identity."}
+                    </p>
+                    
+                    {products.length === 0 ? (
+                      <div className="flex flex-col items-center space-y-6">
+                        <div className="w-12 h-[1px] bg-gold/30 animate-pulse" />
+                        <p className="text-gold font-sans text-[10px] md:text-xs uppercase tracking-[0.6em] font-black leading-relaxed">
+                          The products will be added soon
+                        </p>
+                      </div>
+                    ) : (
+                      <button 
+                        onClick={() => setFilter('All')}
+                        className="text-[10px] font-bold uppercase tracking-[0.4em] text-gold hover:text-white transition-all hover:tracking-[0.6em]"
+                      >
+                        Clear Parameters
+                      </button>
+                    )}
+                </motion.div>
             </div>
         )}
       </main>
