@@ -61,8 +61,8 @@ export default function Hero() {
   }, [visibleBanners.length]);
 
   const currentBanner = visibleBanners[currentIndex] || {
-    imageUrl: "https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?auto=format&fit=crop&q=80&w=2000",
-    mobileImageUrl: "https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?auto=format&fit=crop&q=80&w=1000",
+    imageUrl: "https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?auto=format&fit=crop&q=100&w=3840",
+    mobileImageUrl: "https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?auto=format&fit=crop&q=90&w=1500",
     title: "Latest Arrivals",
     subtitle: "Precision Reimagined",
     displayDesktop: true,
@@ -70,8 +70,9 @@ export default function Hero() {
   };
 
   return (
-    <section className="relative h-[85vh] md:h-[90vh] mt-16 md:mt-20 w-full overflow-hidden flex items-center font-sans tracking-tight">
+    <section className="relative h-[85vh] md:h-[90vh] mt-16 md:mt-20 w-full overflow-hidden flex items-center font-sans tracking-tight bg-black">
       {/* Modern Scroll Indicator */}
+
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -105,6 +106,8 @@ export default function Hero() {
             <img 
               src={currentBanner.imageUrl} 
               alt={currentBanner.title}
+              fetchPriority="high"
+              loading="eager"
               className="w-full h-full object-cover object-center"
             />
           )}
@@ -114,6 +117,8 @@ export default function Hero() {
             <img 
               src={currentBanner.mobileImageUrl} 
               alt={currentBanner.title}
+              fetchPriority="high"
+              loading="eager"
               className="w-full h-full object-cover object-[center_20%]"
             />
           )}

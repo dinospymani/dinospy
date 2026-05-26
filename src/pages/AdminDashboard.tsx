@@ -219,16 +219,17 @@ export default function AdminDashboard() {
 
   const handleToggleMaintenance = async () => {
     setIsTogglingMaintenance(true);
+    const mid = 'maint-toggle';
     try {
       const newStatus = !maintenanceStatus;
       await setDoc(doc(db, 'settings', 'maintenance'), { 
         status: newStatus,
         updatedAt: new Date().toISOString()
       }, { merge: true });
-      toast.success(newStatus ? 'SYSTEMS ENTERING STANDBY: Maintenance mode active' : 'SYSTEMS RESTORED: Storefront online');
+      toast.success(newStatus ? 'SYSTEMS ENTERING STANDBY: Maintenance mode active' : 'SYSTEMS RESTORED: Storefront online', { id: mid });
     } catch (err) {
       console.error(err);
-      toast.error('Maintenance state coordination failed');
+      toast.error('Maintenance state coordination failed', { id: mid });
     } finally {
       setIsTogglingMaintenance(false);
     }
@@ -236,16 +237,17 @@ export default function AdminDashboard() {
 
   const handleToggleTestMode = async () => {
     setIsTogglingTestMode(true);
+    const tid = 'test-mode-toggle';
     try {
       const newStatus = !testMode;
       await setDoc(doc(db, 'settings', 'maintenance'), { 
         testMode: newStatus,
         updatedAt: new Date().toISOString()
       }, { merge: true });
-      toast.success(newStatus ? 'TEST PROTOCOL ACTIVE: All new acquisitions marked for simulation' : 'LIVE PROTOCOL RESTORED: Transactions now legally binding');
+      toast.success(newStatus ? 'TEST PROTOCOL ACTIVE: All new acquisitions marked for simulation' : 'LIVE PROTOCOL RESTORED: Transactions now legally binding', { id: tid });
     } catch (err) {
       console.error(err);
-      toast.error('Test Mode state coordination failed');
+      toast.error('Test Mode state coordination failed', { id: tid });
     } finally {
       setIsTogglingTestMode(false);
     }
@@ -282,7 +284,7 @@ export default function AdminDashboard() {
       setBroadcastTitle('');
       setBroadcastMessage('');
       setBroadcastLink('');
-      toast.success('Global Transmission Successful');
+      toast.success('Global Transmission Successful', { id: 'broadcast-success' });
     } catch (err) {
       handleFirestoreError(err, OperationType.CREATE, path);
     } finally {
