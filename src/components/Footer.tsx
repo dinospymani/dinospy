@@ -9,12 +9,8 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-24 md:gap-12 mb-32">
           <div className="col-span-1 md:col-span-1 space-y-10">
-            <Link to="/" className="block">
-              <img 
-                src="/logo.png" 
-                alt="DINOSPY" 
-                className="h-10 w-auto object-contain brightness-110"
-              />
+            <Link to="/" className="text-3xl font-display font-medium text-white tracking-[0.3em] block">
+              DINOSPY
             </Link>
             <p className="text-white/30 text-sm leading-relaxed font-light italic max-w-xs">
               "Witness the peak of horological engineering. Heritage forged for the modern elite."

@@ -221,7 +221,7 @@ export default function ProfilePage() {
                   >
                     <div className="flex items-center space-x-3 text-white/60 group-hover:text-white">
                        <Settings size={18} />
-                       <span className="text-sm">{profile?.role === 'admin' ? 'Relinquish Oversight' : 'Acquire Oversight'}</span>
+                       <span className="text-sm">{profile?.role === 'admin' ? 'Revoke Admin' : 'Elevate to Admin'}</span>
                     </div>
                   </button>
                 )}

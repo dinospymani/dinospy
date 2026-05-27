@@ -15,12 +15,8 @@ export default function Navbar() {
     <nav className="fixed top-0 left-0 right-0 z-50 bg-black/60 backdrop-blur-2xl border-b border-white/5">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16 md:h-20">
-          <Link to="/" className="flex items-center group">
-            <img 
-              src="/logo.png" 
-              alt="DINOSPY" 
-              className="h-8 md:h-10 w-auto object-contain brightness-110 group-hover:scale-105 transition-transform duration-500"
-            />
+          <Link to="/" className="flex items-center">
+            <span className="text-xl md:text-2xl font-display font-medium text-white tracking-[0.3em] hover:text-gold transition-colors duration-500">DINOSPY</span>
           </Link>
 
           {/* Desktop Navigation */}
