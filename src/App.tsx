@@ -150,7 +150,7 @@ const MaintenanceScreen = ({ isAdmin, onBypass }: { isAdmin: boolean; onBypass: 
             </h1>
             
             <p className="text-[10px] font-mono uppercase tracking-[0.8em] text-gold/60 mb-10 ml-[0.8em]">
-              Protocol: Alignment & Security — v2.4
+              Protocol: Alignment & Security
             </p>
 
             <div className="max-w-md mx-auto space-y-8">
@@ -188,21 +188,21 @@ const MaintenanceScreen = ({ isAdmin, onBypass }: { isAdmin: boolean; onBypass: 
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={() => {
-                        toast.success('Security Handshake Complete', { id: 'maint-bypass' });
+                        toast.success('Protocol Bypassed', { id: 'maint-bypass' });
                         onBypass();
                       }}
                       className="w-full py-5 rounded-2xl gold-gradient text-black text-[10px] uppercase tracking-[0.4em] font-black shadow-2xl shadow-gold/20 flex items-center justify-center group"
                     >
                       <Lock size={14} className="mr-3 group-hover:rotate-12 transition-transform" />
-                      Override Protocol
+                      Deactivate Vault Lock
                     </motion.button>
                   ) : (
                     <button 
                       onClick={() => setIsAuthModalOpen(true)}
-                      className="w-full py-5 rounded-2xl border border-white/5 text-[9px] uppercase tracking-[0.4em] text-white/20 hover:text-white/40 hover:border-white/10 transition-all font-bold group"
+                      className="w-full py-5 rounded-2xl border border-white/5 text-[9px] uppercase tracking-[0.4em] text-white/10 hover:text-white/40 hover:border-white/10 transition-all font-bold group"
                     >
                       <Shield size={12} className="inline mr-2 group-hover:text-gold transition-colors" />
-                      Administrative Login Required
+                      Secure Authorization Required
                     </button>
                   )}
                 </div>
@@ -224,9 +224,9 @@ const MaintenanceScreen = ({ isAdmin, onBypass }: { isAdmin: boolean; onBypass: 
         
         {/* Footer Technical Detail */}
         <div className="mt-8 flex justify-center opacity-10 space-x-12">
-           <p className="text-[7px] font-mono uppercase tracking-[0.5em] text-white">System: D-OS v2.4.1</p>
+           <p className="text-[7px] font-mono uppercase tracking-[0.5em] text-white">System: D-OS Active</p>
            <p className="text-[7px] font-mono uppercase tracking-[0.5em] text-white">Encryption: AES-512-GCM</p>
-           <p className="text-[7px] font-mono uppercase tracking-[0.5em] text-white">Node: AIS-1.0</p>
+           <p className="text-[7px] font-mono uppercase tracking-[0.5em] text-white">Node: AIS-Alpha</p>
         </div>
       </div>
     </div>
