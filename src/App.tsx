@@ -150,13 +150,13 @@ const MaintenanceScreen = ({ isAdmin, onBypass }: { isAdmin: boolean; onBypass: 
             </h1>
             
             <p className="text-[10px] font-mono uppercase tracking-[0.8em] text-gold/60 mb-10 ml-[0.8em]">
-              Protocol: Alignment & Security
+              The Collection is Temporarily Locked
             </p>
 
             <div className="max-w-md mx-auto space-y-8">
               <div className="relative">
                 <p className="text-xs md:text-sm text-white/40 leading-relaxed font-light font-sans px-4">
-                  The DINOSPY digital archive is currently processing an infrastructure recalibration. Access to the collection is temporarily restricted to ensure absolute transaction security and manifest integrity.
+                  The DINOSPY digital archive is currently processing essential updates. Access is restricted to ensure absolute manifest integrity.
                 </p>
                 {isScanning && (
                   <motion.div 
@@ -164,7 +164,7 @@ const MaintenanceScreen = ({ isAdmin, onBypass }: { isAdmin: boolean; onBypass: 
                     animate={{ opacity: 1 }}
                     className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center rounded-xl"
                   >
-                    <span className="text-[10px] font-mono text-gold uppercase animate-pulse">Running Diagnostic...</span>
+                    <span className="text-[10px] font-mono text-gold uppercase animate-pulse">Establishing Secure Link...</span>
                   </motion.div>
                 )}
               </div>
@@ -172,13 +172,13 @@ const MaintenanceScreen = ({ isAdmin, onBypass }: { isAdmin: boolean; onBypass: 
               <div className="pt-10 flex flex-col items-center space-y-8">
                 <div className="flex items-center space-x-12">
                    <div className="flex flex-col items-center">
-                      <span className="text-[7px] uppercase tracking-widest text-white/20 mb-1">Enc Level</span>
-                      <span className="text-[9px] uppercase tracking-widest text-white font-black">Grade 1 Luxury</span>
+                      <span className="text-[7px] uppercase tracking-widest text-white/20 mb-1">Security</span>
+                      <span className="text-[9px] uppercase tracking-widest text-white font-black">Verified</span>
                    </div>
                    <div className="w-[1px] h-8 bg-white/5" />
                    <div className="flex flex-col items-center">
-                      <span className="text-[7px] uppercase tracking-widest text-white/20 mb-1">Status</span>
-                      <span className="text-[9px] uppercase tracking-widest text-white font-black">Restructuring</span>
+                      <span className="text-[7px] uppercase tracking-widest text-white/20 mb-1">Aura</span>
+                      <span className="text-[9px] uppercase tracking-widest text-white font-black">Elite</span>
                    </div>
                 </div>
                 
@@ -194,7 +194,7 @@ const MaintenanceScreen = ({ isAdmin, onBypass }: { isAdmin: boolean; onBypass: 
                       className="w-full py-5 rounded-2xl gold-gradient text-black text-[10px] uppercase tracking-[0.4em] font-black shadow-2xl shadow-gold/20 flex items-center justify-center group"
                     >
                       <Lock size={14} className="mr-3 group-hover:rotate-12 transition-transform" />
-                      Deactivate Vault Lock
+                      Grant Access
                     </motion.button>
                   ) : (
                     <button 
@@ -202,7 +202,7 @@ const MaintenanceScreen = ({ isAdmin, onBypass }: { isAdmin: boolean; onBypass: 
                       className="w-full py-5 rounded-2xl border border-white/5 text-[9px] uppercase tracking-[0.4em] text-white/10 hover:text-white/40 hover:border-white/10 transition-all font-bold group"
                     >
                       <Shield size={12} className="inline mr-2 group-hover:text-gold transition-colors" />
-                      Protocol Clearance Required
+                      Secure Login
                     </button>
                   )}
                 </div>
@@ -221,13 +221,6 @@ const MaintenanceScreen = ({ isAdmin, onBypass }: { isAdmin: boolean; onBypass: 
             </div>
           </div>
         </motion.div>
-        
-        {/* Footer Technical Detail */}
-        <div className="mt-8 flex justify-center opacity-10 space-x-12">
-           <p className="text-[7px] font-mono uppercase tracking-[0.5em] text-white">System: D-OS Active</p>
-           <p className="text-[7px] font-mono uppercase tracking-[0.5em] text-white">Encryption: AES-512-GCM</p>
-           <p className="text-[7px] font-mono uppercase tracking-[0.5em] text-white">Node: AIS-Alpha</p>
-        </div>
       </div>
     </div>
   );

@@ -43,7 +43,7 @@ export default function AuthModal() {
                 <ShieldCheck size={32} className="text-gold" />
               </div>
 
-              <h2 className="text-2xl font-display uppercase tracking-[0.2em] mb-4">Elite Access Required</h2>
+              <h2 className="text-2xl font-display uppercase tracking-[0.2em] mb-4">Secure Access Required</h2>
               <p className="text-white/40 text-sm leading-relaxed mb-10 font-medium">
                 To curate your collection and manage acquisitions, you must establish a verified secure connection.
               </p>
@@ -54,7 +54,7 @@ export default function AuthModal() {
                   className="w-full py-5 gold-gradient text-luxury-black font-black uppercase tracking-[0.2em] rounded-2xl text-xs flex items-center justify-center shadow-[0_20px_40px_rgba(212,175,55,0.2)] hover:scale-[1.02] active:scale-[0.98] transition-all"
                 >
                   <LogIn className="mr-3" size={18} />
-                  Authorize with Google
+                  Connect with Google
                 </button>
                 
                 <div className="pt-6 border-t border-white/5">
