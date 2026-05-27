@@ -202,7 +202,7 @@ const MaintenanceScreen = ({ isAdmin, onBypass }: { isAdmin: boolean; onBypass: 
                       className="w-full py-5 rounded-2xl border border-white/5 text-[9px] uppercase tracking-[0.4em] text-white/10 hover:text-white/40 hover:border-white/10 transition-all font-bold group"
                     >
                       <Shield size={12} className="inline mr-2 group-hover:text-gold transition-colors" />
-                      Secure Authorization Required
+                      Protocol Clearance Required
                     </button>
                   )}
                 </div>
