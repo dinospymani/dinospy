@@ -40,14 +40,14 @@ export default function ExplorePage() {
   });
 
   return (
-    <div className="min-h-screen flex flex-col bg-luxury-black">
+    <div className="min-h-screen flex flex-col bg-bg">
       <Navbar />
       
       <main className="flex-grow pt-32 pb-40 max-w-[100%] mx-auto px-4 md:px-8 lg:px-10 w-full text-center sm:text-left">
         <div className="mb-8">
             <button 
                 onClick={() => window.history.back()}
-                className="flex items-center space-x-2 text-white/60 hover:text-gold transition-colors p-2 -ml-2"
+                className="flex items-center space-x-2 text-text/60 hover:text-gold transition-colors p-2 -ml-2"
             >
                 <ArrowLeft size={20} />
                 <span className="text-[10px] uppercase tracking-[0.2em] font-bold">Return</span>
@@ -56,7 +56,7 @@ export default function ExplorePage() {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-16 mb-24">
             <div className="max-w-2xl">
               <span className="text-gold font-sans text-[10px] uppercase tracking-[0.8em] mb-8 block font-bold">Archives</span>
-              <h1 className="text-6xl md:text-9xl font-display font-light leading-none tracking-tighter">Collection</h1>
+              <h1 className="text-6xl md:text-9xl font-display font-light leading-none tracking-tighter text-text">Collection</h1>
             </div>
         </div>
 
@@ -65,7 +65,7 @@ export default function ExplorePage() {
                 <button
                     key={cat}
                     onClick={() => setFilter(cat)}
-                    className={`pb-4 text-[10px] font-bold uppercase tracking-[0.4em] transition-all duration-700 whitespace-nowrap relative ${filter === cat ? 'text-gold' : 'text-white/20 hover:text-white'}`}
+                    className={`pb-4 text-[10px] font-bold uppercase tracking-[0.4em] transition-all duration-700 whitespace-nowrap relative ${filter === cat ? 'text-gold' : 'text-text/20 hover:text-text'}`}
                 >
                     {cat}
                     {filter === cat && (
@@ -115,27 +115,27 @@ export default function ExplorePage() {
                 ))}
             </motion.div>
         ) : (
-            <div className="text-center py-40 md:py-60 border border-white/5 bg-white/[0.01] rounded-3xl">
+            <div className="text-center py-40 md:py-60 border border-white/5 glass-card rounded-3xl">
                 <motion.div
                    initial={{ opacity: 0 }}
                    animate={{ opacity: 1 }}
                    transition={{ duration: 2 }}
                 >
-                    <p className="text-white/20 font-display text-3xl md:text-5xl italic font-light tracking-widest mb-12">
+                    <p className="text-text/20 font-display text-3xl md:text-5xl italic font-light tracking-widest mb-12">
                       {products.length === 0 ? "Archive Empty." : "No assets matching your identity."}
                     </p>
                     
                     {products.length === 0 ? (
                       <div className="flex flex-col items-center space-y-6">
                         <div className="w-12 h-[1px] bg-gold/30 animate-pulse" />
-                        <p className="text-gold font-sans text-[10px] md:text-xs uppercase tracking-[0.6em] font-black leading-relaxed">
+                        <p className="text-gold font-modern text-[10px] md:text-xs uppercase tracking-[0.6em] font-black leading-relaxed">
                           The products will be added soon
                         </p>
                       </div>
                     ) : (
                       <button 
                         onClick={() => setFilter('All')}
-                        className="text-[10px] font-bold uppercase tracking-[0.4em] text-gold hover:text-white transition-all hover:tracking-[0.6em]"
+                        className="text-[10px] font-modern font-bold uppercase tracking-[0.4em] text-gold hover:text-text transition-all hover:tracking-[0.6em]"
                       >
                         Clear Parameters
                       </button>

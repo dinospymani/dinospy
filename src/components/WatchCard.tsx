@@ -32,30 +32,22 @@ export default function WatchCard({ product }: WatchCardProps) {
 
   return (
     <motion.div 
-      variants={{
-        hidden: { opacity: 0, scale: 0.98, y: 30 },
-        visible: { opacity: 1, scale: 1, y: 0 }
-      }}
-      whileHover={{ y: -16 }}
-      transition={{ duration: 1.5, ease: [0.19, 1, 0.22, 1] }}
-      className="group relative p-3 sm:p-10 rounded-none border border-white/5 hover:border-gold/30 transition-all duration-1000 bg-white/[0.01] hover:bg-white/[0.03] flex flex-col luxury-shadow"
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+      className="group relative flex flex-col transition-all duration-700"
     >
-      <div className="absolute top-2 sm:top-8 left-2 sm:left-8 z-10 flex flex-col space-y-2 sm:space-y-3">
+      <div className="absolute top-4 left-4 z-10">
         {product.isLimited && (
-          <div className="px-2 sm:px-3 py-0.5 sm:py-1 border border-gold/40 text-gold text-[7px] sm:text-[8px] font-bold uppercase tracking-[0.3em] bg-luxury-black/50 backdrop-blur-sm">
-            Limited
-          </div>
-        )}
-        {isOutOfStock && (
-          <div className="px-2 sm:px-3 py-0.5 sm:py-1 border border-red-900/50 text-red-500 text-[7px] sm:text-[8px] font-bold uppercase tracking-[0.3em] bg-luxury-black/80 backdrop-blur-sm">
-            Out of Stock
+          <div className="px-3 py-1 hairline bg-bg/80 backdrop-blur-md text-gold font-tech text-[7px]">
+            REF_LTD_EDITION
           </div>
         )}
       </div>
       
-      <div className="absolute top-2 sm:top-8 right-2 sm:right-8 z-10 flex flex-col space-y-3">
+      <div className="absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-x-4 group-hover:translate-x-0">
         <motion.button 
-          whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
           onClick={(e) => {
             e.preventDefault();
@@ -65,89 +57,45 @@ export default function WatchCard({ product }: WatchCardProps) {
             }
             toggleWishlist(product.id);
           }}
-          className={`p-2.5 rounded-full backdrop-blur-md border transition-all duration-500 shadow-xl ${
+          className={`p-3 transition-all duration-500 border ${
             isWishlisted 
-              ? 'bg-gold text-black border-gold' 
-              : 'bg-black/40 text-white/60 border-white/10 hover:border-gold/50 hover:text-gold'
+              ? 'bg-gold text-bg border-gold shadow-[0_0_30px_rgba(197,160,89,0.3)]' 
+              : 'bg-bg/80 text-text border-text/10'
           }`}
         >
-          <Heart size={16} className="sm:w-[18px] sm:h-[18px]" fill={isWishlisted ? "currentColor" : "none"} strokeWidth={1.5} />
+          <Heart size={14} fill={isWishlisted ? "currentColor" : "none"} strokeWidth={1} />
         </motion.button>
-
-        <motion.button 
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          onClick={(e) => {
-            e.preventDefault();
-            const url = `${window.location.origin}/product/${product.id}`;
-            navigator.clipboard.writeText(url);
-            toast.success('Link Secured', {
-              id: `share-${product.id}`,
-              description: 'Asset URL copied to clipboard'
-            });
-          }}
-          className="p-2.5 rounded-full bg-black/40 backdrop-blur-md border border-white/10 text-white/60 hover:border-gold/50 hover:text-gold transition-all duration-500 shadow-xl"
-        >
-          <Share2 size={16} className="sm:w-[18px] sm:h-[18px]" strokeWidth={1.5} />
-        </motion.button>
-        
-        {/* Quick Add Mobile Button */}
-        <button 
-          onClick={(e) => {
-            e.preventDefault();
-            if (!user) {
-              setIsAuthModalOpen(true);
-              return;
-            }
-            addToCart(product);
-          }}
-          disabled={isOutOfStock}
-          className={`sm:hidden p-2.5 rounded-full backdrop-blur-md border transition-all duration-500 ${
-            isOutOfStock 
-              ? 'bg-black/20 text-white/5 border-white/5' 
-              : 'bg-black/40 text-gold border-gold/20 active:bg-gold active:text-black'
-          }`}
-        >
-          <ShoppingBag size={16} strokeWidth={1.5} />
-        </button>
       </div>
 
-      <Link to={`/product/${product.id}`} className="block aspect-[4/5] mb-6 sm:mb-12 overflow-hidden bg-zinc-950 relative group-hover:shadow-[0_40px_100px_rgba(0,0,0,0.8)] transition-all duration-[1s] ease-[0.22,1,0.36,1]">
+      <Link to={`/product/${product.id}`} className="block aspect-[3/4] overflow-hidden relative mb-8 hairline bg-slate">
         <motion.img 
-          layoutId={`image-${product.id}`}
           src={product.images[0]} 
           alt={product.name}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-[2.5s] ease-[0.22,1,0.36,1]"
+          className="w-full h-full object-cover transition-all duration-[2s] ease-[0.22,1,0.36,1] grayscale group-hover:grayscale-0 group-hover:scale-110"
         />
+        <div className="absolute inset-0 bg-gradient-to-t from-bg/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
       </Link>
 
-      <div className="space-y-4 sm:space-y-6 flex-grow flex flex-col justify-end">
-        <div className="text-center">
-          <span className="text-[8px] sm:text-[10px] uppercase tracking-[0.4em] font-medium text-gold/50 mb-1 sm:mb-3 block text-center w-full">{product.brand}</span>
-          <h3 className="text-sm sm:text-xl font-display group-hover:text-gold transition-colors leading-tight line-clamp-1 italic tracking-wide uppercase px-1 text-center w-full">{product.name}</h3>
+      <div className="flex flex-col flex-grow px-2">
+        <div className="flex justify-between items-start mb-6">
+           <div className="space-y-1">
+             <span className="font-tech text-gold text-[8px] font-bold">{product.brand}</span>
+             <h3 className="text-xl leading-none italic">{product.name}</h3>
+           </div>
+           <span className="font-tech text-[8px] text-text/20">SEQ_{product.id.slice(-4).toUpperCase()}</span>
         </div>
         
-        <div className="flex flex-col items-center pt-6 sm:pt-8 border-t border-white/5 space-y-4">
-          <div className={`flex flex-col items-center ${isOutOfStock ? 'text-white/10' : ''}`}>
-            {product.discount ? (
-              <div className="flex items-center space-x-3 mb-1">
-                <span className="text-[9px] sm:text-[10px] text-white/20 line-through tracking-widest italic decoration-gold/30">
-                  INR {product.price.toLocaleString()}
-                </span>
-                <span className="text-[7px] sm:text-[9px] bg-gold/10 text-gold px-1.5 py-0.5 rounded font-black uppercase tracking-tighter shadow-[0_0_5px_rgba(212,175,55,0.1)]">
-                  -{product.discount}%
-                </span>
-              </div>
-            ) : null}
-            <div className={`text-lg sm:text-xl font-sans font-light tracking-[0.2em] ${!isOutOfStock && product.discount ? 'text-gold' : 'text-white/90'}`}>
-              <span className="text-[9px] sm:text-[10px] text-white/30 mr-2 uppercase">INR</span>
+        <div className="flex items-center justify-between pt-8 border-t border-text/5 mt-auto">
+          <div className="flex flex-col">
+            <p className="text-lg font-tech tracking-tight">
+              <span className="text-[10px] text-text/30 mr-2">INR_</span>
               {discountPrice.toLocaleString()}
-            </div>
+            </p>
           </div>
-          
-          <motion.button 
-            whileHover={{ letterSpacing: "0.4em" }}
-            disabled={isOutOfStock}
+
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             onClick={(e) => {
               e.preventDefault();
               if (!user) {
@@ -156,9 +104,14 @@ export default function WatchCard({ product }: WatchCardProps) {
               }
               addToCart(product);
             }}
-            className={`w-full py-4 text-[9px] sm:text-[10px] uppercase font-bold tracking-[0.3em] transition-all duration-500 border border-white/10 group-hover:border-gold/50 hidden sm:block ${isOutOfStock ? 'text-white/10 cursor-not-allowed' : 'text-white/40 hover:text-gold hover:bg-gold/5'}`}
+            disabled={isOutOfStock}
+            className={`px-6 py-2 border transition-all duration-700 font-tech text-[10px] ${
+              isOutOfStock 
+                ? 'border-text/5 text-text/10 cursor-not-allowed' 
+                : 'border-text/10 text-text/40 hover:text-gold hover:border-gold'
+            }`}
           >
-            {isOutOfStock ? 'Out of Inventory' : 'Add to Collection'}
+            {isOutOfStock ? 'ARCHIVED' : 'RESERVE'}
           </motion.button>
         </div>
       </div>

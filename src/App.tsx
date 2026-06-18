@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { FirebaseProvider, useAuth } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
+import { ThemeProvider } from './context/ThemeContext';
 import { AnimatePresence, motion } from 'motion/react';
 
 import HomePage from './pages/HomePage';
@@ -337,19 +338,21 @@ const MaintenanceGuard: React.FC<{ children: React.ReactNode }> = ({ children })
 
 export default function App() {
   return (
-    <FirebaseProvider>
-      <CartProvider>
-        <Router>
-          <ScrollToTop />
-          <MaintenanceGuard>
-            <div className="min-h-screen bg-luxury-black text-white selection:bg-gold selection:text-luxury-black">
-              <Toaster position="top-center" richColors />
-              <AuthModal />
-              <AnimatedRoutes />
-            </div>
-          </MaintenanceGuard>
-        </Router>
-      </CartProvider>
-    </FirebaseProvider>
+    <ThemeProvider>
+      <FirebaseProvider>
+        <CartProvider>
+          <Router>
+            <ScrollToTop />
+            <MaintenanceGuard>
+              <div className="min-h-screen bg-bg text-text selection:bg-gold selection:text-luxury-black">
+                <Toaster position="top-center" richColors />
+                <AuthModal />
+                <AnimatedRoutes />
+              </div>
+            </MaintenanceGuard>
+          </Router>
+        </CartProvider>
+      </FirebaseProvider>
+    </ThemeProvider>
   );
 }

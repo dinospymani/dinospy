@@ -25,16 +25,16 @@ export default function MobileNav() {
             <Link key={item.path} to={item.path} className="relative flex flex-col items-center transition-all px-2">
               <motion.div
                 whileTap={{ scale: 0.9 }}
-                className={`transition-all duration-300 ${isActive ? 'text-gold' : 'text-white/40'}`}
+                className={`transition-all duration-300 ${isActive ? 'text-gold' : 'text-text/40'}`}
               >
                 <item.icon size={22} strokeWidth={isActive ? 2.5 : 2} />
                 {item.badge !== undefined && item.badge > 0 && (
-                  <span className="absolute -top-1.5 -right-2 bg-gold text-luxury-black text-[7px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center shadow-lg">
+                  <span className="absolute -top-1.5 -right-2 bg-gold text-bg text-[7px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center shadow-lg">
                     {item.badge}
                   </span>
                 )}
               </motion.div>
-              <span className={`text-[7px] uppercase tracking-[0.1em] mt-1.5 font-bold transition-all duration-300 ${isActive ? 'text-gold opacity-100' : 'text-white/30 opacity-100'}`}>
+              <span className={`text-[7px] uppercase tracking-[0.1em] mt-1.5 font-bold transition-all duration-300 ${isActive ? 'text-gold opacity-100' : 'text-text/30 opacity-100'}`}>
                 {item.label}
               </span>
               {isActive && (

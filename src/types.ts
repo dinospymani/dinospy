@@ -18,6 +18,8 @@ export interface AppNotification {
   expiresAt?: string;
 }
 
+export type HorologicalTheme = 'noir' | 'titanium' | 'heritage';
+
 export interface Product {
   id: string;
   name: string;

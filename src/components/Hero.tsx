@@ -1,175 +1,129 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
-import { db } from '../context/AuthContext';
-import { collection, onSnapshot, query, where, orderBy } from 'firebase/firestore';
-import { CountdownTimer } from './CountdownTimer';
 
 export default function Hero() {
-  const [allBanners, setAllBanners] = useState<any[]>(() => {
-    const cached = localStorage.getItem('dinospy_banners');
-    return cached ? JSON.parse(cached) : [];
-  });
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [activeFrame, setActiveFrame] = useState(0);
+  const frames = [
+    {
+      title: "Archetype.",
+      id: "REF-001",
+      data: "42mm Titanium / Caliber 9S",
+      image: "https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?q=80&w=2000"
+    },
+    {
+      title: "Monolith.",
+      id: "REF-072",
+      data: "Surgical Steel / Obsidian Dial",
+      image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=2000"
+    }
+  ];
 
   useEffect(() => {
-    const q = query(
-      collection(db, 'banners'),
-      where('active', '==', true),
-      orderBy('order', 'asc')
-    );
-    const unsubscribe = onSnapshot(q, (snap) => {
-      const fetched = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setAllBanners(fetched);
-      localStorage.setItem('dinospy_banners', JSON.stringify(fetched));
-    }, (error) => {
-      console.warn("Banner registry isolation active", error);
-    });
-    return () => unsubscribe();
-  }, []);
-
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
-
-  // Reset index when switching modes to avoid out-of-bounds
-  useEffect(() => {
-    setCurrentIndex(0);
-  }, [isMobile]);
-
-  const visibleBanners = React.useMemo(() => {
-    return allBanners.filter((b: any) => {
-      if (isMobile) {
-        // Strictly show only mobile-enabled banners that have a mobile image
-        return b.displayMobile === true && b.mobileImageUrl;
-      }
-      // Strictly show only desktop-enabled banners that have a desktop image
-      return b.displayDesktop === true && b.imageUrl;
-    });
-  }, [allBanners, isMobile]);
-
-  useEffect(() => {
-    // Auto-rotation disabled per user request for a stable banner
-    return;
-  }, [visibleBanners.length]);
-
-  const currentBanner = visibleBanners[currentIndex] || {
-    imageUrl: "https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?auto=format&fit=crop&q=100&w=3840",
-    mobileImageUrl: "https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?auto=format&fit=crop&q=90&w=1500",
-    title: "Latest Arrivals",
-    subtitle: "Precision Reimagined",
-    displayDesktop: true,
-    displayMobile: true
-  };
+    const timer = setInterval(() => {
+      setActiveFrame((prev) => (prev + 1) % frames.length);
+    }, 8000);
+    return () => clearInterval(timer);
+  }, [frames.length]);
 
   return (
-    <section className="relative h-[85vh] md:h-[90vh] mt-16 md:mt-20 w-full overflow-hidden flex items-center font-sans tracking-tight bg-black">
-      {/* Modern Scroll Indicator */}
-
-      <motion.div 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 2, duration: 1 }}
-        className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center space-y-2"
-      >
-        <span className="text-[7px] font-black uppercase tracking-[0.8em] text-white/30 ml-[0.8em]">Scroll</span>
-        <div className="w-[1px] h-12 bg-gradient-to-b from-gold/50 to-transparent relative overflow-hidden">
-          <motion.div 
-            animate={{ y: [0, 48, 0] }}
-            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute top-0 left-0 w-full h-1/4 bg-gold"
-          />
-        </div>
-      </motion.div>
-
+    <section className="relative h-screen w-full bg-bg overflow-hidden flex items-center pt-20">
+      {/* Background Layer */}
       <AnimatePresence mode="wait">
         <motion.div
-          key={currentIndex + (isMobile ? 'mobile' : 'desktop')}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 1.2 }}
+          key={activeFrame}
+          initial={{ opacity: 0, scale: 1.1 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 1.05 }}
+          transition={{ duration: 3, ease: [0.22, 1, 0.36, 1] }}
           className="absolute inset-0 z-0"
         >
-          {/* Subtle overlay for text readability */}
-          <div className="absolute inset-0 bg-black/10 z-[5]" />
-          
-          {/* Desktop Banner Image - Stable state */}
-          {!isMobile && currentBanner.imageUrl && (
-            <img 
-              src={currentBanner.imageUrl} 
-              alt={currentBanner.title}
-              fetchPriority="high"
-              loading="eager"
-              className="w-full h-full object-cover object-center"
-            />
-          )}
-
-          {/* Mobile Banner Image - Stable state */}
-          {isMobile && currentBanner.mobileImageUrl && (
-            <img 
-              src={currentBanner.mobileImageUrl} 
-              alt={currentBanner.title}
-              fetchPriority="high"
-              loading="eager"
-              className="w-full h-full object-cover object-[center_20%]"
-            />
-          )}
+          <img 
+            src={frames[activeFrame].image} 
+            className="w-full h-full object-cover grayscale brightness-[0.4]" 
+            alt="Hero"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-bg via-transparent to-bg" />
         </motion.div>
       </AnimatePresence>
 
-      <div className="relative z-20 w-full flex flex-col justify-end items-center h-full pb-20 md:pb-24">
-        <AnimatePresence mode="wait">
-          <motion.div 
-            key={currentIndex}
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -30 }}
-            transition={{ duration: 1.5, ease: [0.19, 1, 0.22, 1] }}
-            className="w-full max-w-7xl px-6 text-center"
-          >
-            <h1 className="text-7xl md:text-[12rem] 2xl:text-[16rem] font-display font-light leading-[0.8] text-white tracking-widest md:tracking-[0.1em] drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
-              {currentBanner.title}
-            </h1>
-
-            <div className="flex flex-col items-center mt-8 md:mt-12">
-              {currentBanner.expiryDate && (
-                <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.5, duration: 1 }}
-                >
-                  <CountdownTimer expiryDate={currentBanner.expiryDate} />
-                </motion.div>
-              )}
-            </div>
-          </motion.div>
-        </AnimatePresence>
+      {/* Decorative Lines */}
+      <div className="absolute inset-0 z-10 pointer-events-none opacity-20">
+        <div className="absolute top-0 left-[10%] w-[1px] h-full bg-text/30" />
+        <div className="absolute top-0 right-[10%] w-[1px] h-full bg-text/30" />
+        <div className="absolute top-[20%] left-0 w-full h-[1px] bg-text/30" />
+        <div className="absolute bottom-[20%] left-0 w-full h-[1px] bg-text/30" />
       </div>
 
-      {visibleBanners.length > 1 && (
-        <div className="absolute bottom-10 right-10 z-30 flex space-x-4">
-          <button 
-            onClick={() => setCurrentIndex(prev => (prev - 1 + visibleBanners.length) % visibleBanners.length)}
-            className="p-4 glass rounded-full border border-white/10 hover:border-gold/50 transition-all text-white/50 hover:text-gold"
-          >
-            <ChevronLeft size={24} />
-          </button>
-          <button 
-            onClick={() => setCurrentIndex(prev => (prev + 1) % visibleBanners.length)}
-            className="p-4 glass rounded-full border border-white/10 hover:border-gold/50 transition-all text-white/50 hover:text-gold"
-          >
-            <ChevronRight size={24} />
-          </button>
+      {/* Main Content */}
+      <div className="container mx-auto px-6 relative z-20">
+        <div className="grid-brutalist items-center">
+          <div className="col-span-24 lg:col-span-16">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeFrame}
+                initial={{ opacity: 0, x: -100 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 50 }}
+                transition={{ duration: 1.5, ease: [0.19, 1, 0.22, 1] }}
+              >
+                <div className="flex items-center space-x-6 mb-8">
+                  <span className="font-tech text-gold">ACTIVE_SESSION</span>
+                  <div className="w-12 h-[1px] bg-gold" />
+                  <span className="font-tech text-text/40 tracking-[0.5em]">0{activeFrame + 1} / 0{frames.length}</span>
+                </div>
+
+                <h1 className="text-[12vw] md:text-[12rem] leading-[0.8] mb-12 text-white font-display italic">
+                  {frames[activeFrame].title}
+                </h1>
+
+                <div className="flex flex-col md:flex-row md:items-center space-y-8 md:space-y-0 md:space-x-20">
+                   <Link to="/explore" className="group">
+                      <div className="inline-flex items-center space-x-6 transition-all duration-700">
+                        <span className="font-tech text-sm group-hover:text-gold">INITIALIZE_EXPLORATION</span>
+                        <div className="w-16 h-16 rounded-full border border-text/10 flex items-center justify-center group-hover:border-gold group-hover:rotate-45 transition-all duration-700">
+                           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-gold">
+                              <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                           </svg>
+                        </div>
+                      </div>
+                   </Link>
+
+                   <div className="flex flex-col">
+                      <span className="font-tech text-[10px] text-text/30 mb-2 font-bold uppercase">Specifications</span>
+                      <span className="font-tech text-xs text-text/80">{frames[activeFrame].data}</span>
+                   </div>
+                </div>
+              </motion.div>
+            </AnimatePresence>
+          </div>
         </div>
-      )}
+      </div>
+
+      {/* Technical Sidebar Indicator */}
+      <div className="absolute right-12 top-1/2 -translate-y-1/2 z-30 hidden xl:flex flex-col items-end space-y-12">
+        <div className="rotate-90 flex items-center space-x-6 origin-right">
+          <span className="font-tech text-[10px] text-text/20 font-bold whitespace-nowrap">EXTENDED_ARCHIVE_ACCESS</span>
+          <div className="w-24 h-[1px] bg-text/10" />
+        </div>
+        <div className="flex flex-col space-y-4">
+          {frames.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setActiveFrame(i)}
+              className={`w-1 h-8 transition-all duration-700 ${activeFrame === i ? 'bg-gold' : 'bg-text/10'}`}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Floating Precision Labels */}
+      <div className="absolute bottom-12 left-12 z-30 flex flex-col font-tech text-[8px] text-text/20 font-bold">
+        <span>LAT: 35.6895 N</span>
+        <span>LNG: 139.6917 E</span>
+        <span className="mt-2 text-gold/40">SYSTEM: ONLINE</span>
+      </div>
     </section>
   );
 }
+
