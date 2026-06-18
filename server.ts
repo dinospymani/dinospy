@@ -65,6 +65,11 @@ async function startServer() {
 
   app.use("/api/", apiLimiter);
 
+  // Health check endpoint
+  app.get("/api/health", (req, res) => {
+    res.json({ status: "ok", mode: process.env.NODE_ENV || 'development' });
+  });
+
   // Cashfree Order Creation
   app.post("/api/payment/create-order", async (req, res) => {
     try {
@@ -162,14 +167,20 @@ async function startServer() {
 
   const otpStore = new Map<string, string>();
 
-  const ai = new GoogleGenAI({
-    apiKey: process.env.GEMINI_API_KEY,
-    httpOptions: {
-      headers: {
-        'User-Agent': 'aistudio-build',
+  let ai: GoogleGenAI | null = null;
+  if (process.env.GEMINI_API_KEY) {
+    ai = new GoogleGenAI({
+      apiKey: process.env.GEMINI_API_KEY,
+      httpOptions: {
+        headers: {
+          'User-Agent': 'aistudio-build',
+        }
       }
-    }
-  });
+    });
+    console.log(">>> [GEMINI] Initialized with API Key.");
+  } else {
+    console.log(">>> [GEMINI] Not initialized. GEMINI_API_KEY missing.");
+  }
 
   // API Routes
   // Admin Seed Route (Normally protected, but for demo bootstrapping)
@@ -190,6 +201,9 @@ async function startServer() {
   // AI Recommendation Proxy
   app.post("/api/ai/recommend", async (req, res) => {
     try {
+      if (!ai) {
+        return res.status(503).json({ error: "AI service currently unavailable" });
+      }
       const { preferences, history } = req.body;
       const prompt = `Based on these user preferences: ${JSON.stringify(preferences)} and purchase history: ${JSON.stringify(history)}, recommend 3 types of luxury watches (Grand Complications, Heritage, Avant-Garde, or Deep Sea). Provide a reason for each. Return valid JSON only.`;
       

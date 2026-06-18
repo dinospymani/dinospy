@@ -79,18 +79,72 @@ import { Shield, Lock, Activity, Wifi } from 'lucide-react';
 const MaintenanceScreen = ({ isAdmin, onBypass }: { isAdmin: boolean; onBypass: () => void }) => {
   const { setIsAuthModalOpen } = useAuth();
   const [isScanning, setIsScanning] = React.useState(true);
+  const [logs, setLogs] = React.useState<string[]>([]);
   
+  const SECURITY_LOGS = [
+    "SSL Handshake Verified",
+    "Encrypted Buffer Sync",
+    "Firewall Integrity: 100%",
+    "Port 443 Traffic Scrubbed",
+    "Database Handshake: SECURE",
+    "Node AIS-Alpha Active",
+    "Biometric Vault Locked",
+    "IP Filtering Initialized",
+    "Malware Scan: CLEAN",
+    "Protocol D-OS Synchronized"
+  ];
+
   React.useEffect(() => {
-    const timer = setTimeout(() => setIsScanning(false), 3500);
-    return () => clearTimeout(timer);
+    const scanTimer = setTimeout(() => setIsScanning(false), 3500);
+    
+    // Automatic frequent security checks
+    const logInterval = setInterval(() => {
+      const randomLog = SECURITY_LOGS[Math.floor(Math.random() * SECURITY_LOGS.length)];
+      setLogs(prev => [
+        `[${new Date().toLocaleTimeString()}] ${randomLog}`,
+        ...prev.slice(0, 3)
+      ]);
+      
+      // Briefly trigger scanning animation during "check"
+      if (Math.random() > 0.7) {
+        setIsScanning(true);
+        setTimeout(() => setIsScanning(false), 2000);
+      }
+    }, 4500);
+
+    return () => {
+      clearTimeout(scanTimer);
+      clearInterval(logInterval);
+    };
   }, []);
   
   return (
-    <div className="h-screen w-full bg-[#030303] flex items-center justify-center p-6 relative overflow-hidden">
+    <div className="h-screen w-full bg-[#030303] flex items-center justify-center p-6 relative overflow-hidden font-sans">
       {/* Background Security Grid */}
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none" 
            style={{ backgroundImage: 'radial-gradient(#d4af37 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
       
+      {/* Side Security Ticker (Automatic Checks) */}
+      <div className="absolute left-10 bottom-10 hidden lg:block space-y-4">
+        <div className="flex items-center space-x-3 mb-6">
+           <Activity size={14} className="text-gold animate-pulse text-luxury-black bg-gold rounded-full p-0.5" />
+           <span className="text-[10px] font-mono uppercase tracking-[0.4em] text-gold">Security Pulse</span>
+        </div>
+        <AnimatePresence mode="popLayout">
+          {logs.map((log, idx) => (
+            <motion.div 
+              key={log + idx}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1 - (idx * 0.25), x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+              className="text-[8px] font-mono text-white/40 uppercase tracking-widest whitespace-nowrap"
+            >
+              <span className="text-gold/40 mr-2">»</span> {log}
+            </motion.div>
+          ))}
+        </AnimatePresence>
+      </div>
+
       {/* Dynamic Laser Scan */}
       <AnimatePresence>
         {isScanning && (

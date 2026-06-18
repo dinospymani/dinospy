@@ -1,6 +1,16 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { initializeApp } from 'firebase/app';
-import { getAuth, onAuthStateChanged, User, GoogleAuthProvider, signInWithPopup, signOut as firebaseSignOut } from 'firebase/auth';
+import { 
+  getAuth, 
+  onAuthStateChanged, 
+  User, 
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  updateProfile,
+  signOut as firebaseSignOut,
+  browserLocalPersistence,
+  setPersistence 
+} from 'firebase/auth';
 import { getFirestore, doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
 import config from '../../firebase-applet-config.json';
 import { toast } from 'sonner';
@@ -8,6 +18,7 @@ import { handleFirestoreError, OperationType } from '../lib/utils';
 
 const app = initializeApp(config || {});
 export const auth = getAuth(app);
+auth.useDeviceLanguage();
 // @ts-ignore
 export const db = getFirestore(app, config?.firestoreDatabaseId || '(default)');
 
@@ -15,7 +26,8 @@ interface AuthContextType {
   user: User | null;
   profile: any | null;
   loading: boolean;
-  signInWithGoogle: () => Promise<void>;
+  signInWithEmail: (email: string, pass: string) => Promise<void>;
+  signUpWithEmail: (email: string, pass: string, name: string, phone: string) => Promise<void>;
   signOut: () => Promise<void>;
   isAuthModalOpen: boolean;
   setIsAuthModalOpen: (open: boolean) => void;
@@ -30,6 +42,9 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   useEffect(() => {
+    // Set persistence to Local so it survives refreshes in the iframe
+    setPersistence(auth, browserLocalPersistence).catch(console.error);
+
     let unsubscribeProfile: (() => void) | null = null;
 
     const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
@@ -84,25 +99,53 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     };
   }, []);
 
-  const signInWithGoogle = async () => {
+  const signInWithEmail = async (email: string, pass: string) => {
     try {
-      const provider = new GoogleAuthProvider();
-      // Add custom parameters to handle common iframe issues if possible
-      provider.setCustomParameters({
-        prompt: 'select_account'
-      });
-      await signInWithPopup(auth, provider);
+      await signInWithEmailAndPassword(auth, email, pass);
+      toast.success('Access Granted. Welcome back.');
     } catch (error: any) {
-      console.error('Sign In Error:', error);
-      if (error.code === 'auth/popup-blocked') {
-        toast.error('Sign-in popup blocked. Please allow popups.');
-      } else if (error.code === 'auth/operation-not-allowed') {
-        toast.error('Google Sign-In is disabled. Enable it in Firebase Console.');
-      } else if (error.code === 'auth/unauthorized-domain') {
-        toast.error('Domain not authorized in Firebase settings.');
+      console.error('Email Sign In Error:', error);
+      if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+        toast.error('Identity Verification Failed: Invalid email or password.');
+      } else if (error.code === 'auth/too-many-requests') {
+        toast.error('Security Alert: Frequent login attempts. Please wait before retrying.');
       } else {
-        toast.error('Sign-in failed.');
+        toast.error('Authentication Protocol Failure.');
       }
+      throw error;
+    }
+  };
+
+  const signUpWithEmail = async (email: string, pass: string, name: string, phone: string) => {
+    try {
+      const res = await createUserWithEmailAndPassword(auth, email, pass);
+      if (res.user) {
+        await updateProfile(res.user, { displayName: name });
+        
+        // Explicitly create profile with phone number
+        const userRef = doc(db, 'users', res.user.uid);
+        const newProfile = {
+          userId: res.user.uid,
+          email: res.user.email,
+          displayName: name,
+          phoneNumber: phone,
+          role: 'user',
+          createdAt: new Date().toISOString(),
+        };
+        await setDoc(userRef, newProfile);
+        setProfile(newProfile);
+      }
+      toast.success('Credentials established. Registration complete.');
+    } catch (error: any) {
+      console.error('Email Sign Up Error:', error);
+      if (error.code === 'auth/email-already-in-use') {
+        toast.error('Identity Conflict: This email is already registered.');
+      } else if (error.code === 'auth/weak-password') {
+        toast.error('Security Violation: Password must be stronger.');
+      } else {
+        toast.error('Registration Protocol Failure.');
+      }
+      throw error;
     }
   };
 
@@ -111,7 +154,7 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   return (
-    <AuthContext.Provider value={{ user, profile, loading, signInWithGoogle, signOut, isAuthModalOpen, setIsAuthModalOpen }}>
+    <AuthContext.Provider value={{ user, profile, loading, signInWithEmail, signUpWithEmail, signOut, isAuthModalOpen, setIsAuthModalOpen }}>
       {children}
     </AuthContext.Provider>
   );
