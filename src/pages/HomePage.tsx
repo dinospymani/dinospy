@@ -3,18 +3,23 @@ import { motion } from 'motion/react';
 import Navbar from '../components/Navbar';
 import Hero from '../components/Hero';
 import WatchCard from '../components/WatchCard';
+import ProductSkeleton from '../components/ProductSkeleton';
 import Footer from '../components/Footer';
 import CinematicBanner from '../components/CinematicBanner';
 import { db } from '../context/AuthContext';
 import { collection, onSnapshot, query, limit } from 'firebase/firestore';
 import { handleFirestoreError, OperationType } from '../lib/utils';
+import { useScroll } from 'motion/react';
+import { ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export default function HomePage() {
   const [featured, setFeatured] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const { scrollYProgress } = useScroll();
 
   useEffect(() => {
-    const q = query(collection(db, 'products'), limit(4));
+    const q = query(collection(db, 'products'), limit(3));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setFeatured(items);
@@ -33,123 +38,145 @@ export default function HomePage() {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col bg-bg selection:bg-gold selection:text-black text-text">
+    <div className="min-h-screen flex flex-col bg-white selection:bg-black selection:text-white text-black">
       <Navbar />
       
       <main className="flex-grow">
-        {/* Typographic Hero */}
+        {/* Dynamic Entry Block */}
         <Hero />
 
-        {/* Editorial Section 01: The Philosophy */}
-        <section className="py-60 px-6 border-b border-text/5">
-          <div className="container mx-auto">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-32 items-center">
-              <motion.div
-                initial={{ opacity: 0, y: 50 }}
-                whileInView={{ opacity: 1, y: 0 }}
+        {/* Cinematic Chapter 01: The Creed */}
+        <section className="py-40 lg:py-96 px-4 md:px-6 relative overflow-hidden" id="philosophy">
+          {/* Parallax Background Text */}
+          <motion.div 
+            style={{ y: scrollYProgress }}
+            className="absolute top-1/2 left-0 -translate-y-1/2 opacity-[0.03] select-none pointer-events-none whitespace-nowrap"
+          >
+             <span className="text-[50vw] font-display italic leading-none uppercase">Architectural</span>
+          </motion.div>
+
+          <div className="container mx-auto relative z-10">
+            <div className="grid grid-cols-12 gap-12 items-center">
+              <motion.div 
+                className="col-span-12 lg:col-span-10"
+                initial={{ opacity: 0, x: -100 }}
+                whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 1.2 }}
+                transition={{ duration: 2, ease: [0.16, 1, 0.3, 1] }}
               >
-                <span className="font-tech text-gold text-[10px] mb-8 block">EST_1974 // PHILOSOPHY</span>
-                <h2 className="text-6xl md:text-9xl mb-12 leading-none">
-                  Precision as <br /> <span className="italic font-display">Brutality.</span>
+                <div className="flex items-center space-x-12 mb-20">
+                   <div className="w-1.5 h-1.5 bg-black rounded-full" />
+                   <span className="font-tech text-black/40 tracking-[1em]">SYSTEM_IDENTITY // PHILOSOPHY</span>
+                </div>
+                <h2 className="text-[18vw] lg:text-[20rem] leading-[0.7] font-display italic tracking-tightest mb-16 md:mb-32">
+                   Movement <br /> <span className="opacity-10">Unbound.</span>
                 </h2>
-                <p className="text-text/40 text-xl font-light italic leading-relaxed max-w-xl">
-                  We strip away the decorative to reveal the structural soul of time. 
-                  Horology is not an accessory; it is an architectural commitment.
-                </p>
+                <div className="max-w-4xl">
+                   <p className="text-black/40 text-2xl md:text-4xl lg:text-6xl font-light italic leading-tight mb-12 md:mb-24">
+                     Redefining the mechanical heartbeat. Every caliber we forge is a dialogue between 
+                     ancient horological tradition and the radical future of avant-garde design.
+                   </p>
+                   <div className="flex items-center space-x-12">
+                      <div className="w-32 h-[1px] bg-black/20" />
+                      <span className="font-tech text-black/60 tracking-[0.5em]">PROTOCOL_DINOSPY_READY</span>
+                   </div>
+                </div>
               </motion.div>
-              
-              <div className="relative">
-                 <motion.div 
-                   initial={{ opacity: 0, scale: 0.9 }}
-                   whileInView={{ opacity: 1, scale: 1 }}
-                   viewport={{ once: true }}
-                   transition={{ duration: 2 }}
-                   className="aspect-[4/5] overflow-hidden grayscale brightness-50"
-                 >
-                    <img 
-                      src="https://images.unsplash.com/photo-1509112756314-34a0badb29d4?q=80&w=2000" 
-                      alt="Mechanical Detail" 
-                      className="w-full h-full object-cover"
-                    />
-                 </motion.div>
-                 <div className="absolute -bottom-10 -left-10 bg-bg p-8 border border-text/5 hidden md:block">
-                    <span className="font-tech text-[8px] text-gold block mb-4">CALIBER_STATUS</span>
-                    <div className="flex items-center space-x-2">
-                       <div className="w-1.5 h-1.5 rounded-full bg-gold animate-pulse" />
-                       <span className="font-tech text-[10px] text-text/60 italic">99.998% ACCURACY_TARGET</span>
-                    </div>
-                 </div>
-              </div>
             </div>
           </div>
         </section>
 
-        {/* The Archive: Product Grid */}
-        <section className="py-60 px-6">
-          <div className="container mx-auto">
-            <div className="flex flex-col md:flex-row justify-between items-end mb-40 gap-12">
-               <div className="max-w-xl">
-                  <span className="font-tech text-gold text-[10px] mb-8 block">THE_ARCHIVE</span>
-                  <h2 className="text-5xl md:text-8xl leading-none">The <span className="italic">Manifesto.</span></h2>
+        {/* The Monolithic Grid: Featured Archive */}
+        <section className="py-40 lg:py-96 px-4 md:px-6 bg-[#F5F5F5] relative">
+          {/* Subtle Grid Interaction */}
+          <div className="absolute inset-0 opacity-[0.05] pointer-events-none" 
+               style={{ backgroundImage: 'linear-gradient(to right, black 1px, transparent 1px), linear-gradient(to bottom, black 1px, transparent 1px)', backgroundSize: '10vw 10vh' }} />
+
+          <div className="container mx-auto relative z-10">
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end mb-32 lg:mb-64 gap-12 lg:gap-20">
+               <div>
+                  <div className="flex items-center space-x-10 mb-12">
+                     <div className="w-12 h-[1px] bg-black/20" />
+                     <span className="font-tech text-black/40 tracking-[1em]">FEATURED_SEQUENCES</span>
+                  </div>
+                  <h2 className="text-[12vw] lg:text-[16rem] leading-[0.7] font-display italic tracking-tightest">Archive <span className="opacity-10">Manifest.</span></h2>
                </div>
                <div className="flex flex-col items-end">
-                  <span className="font-tech text-[10px] text-text/20 mb-4 font-bold tracking-[0.5em]">LATEST_SEQUENCE</span>
-                  <div className="h-[1px] w-40 bg-text/10" />
+                  <span className="font-tech text-[10px] text-black/20 mb-8 font-bold tracking-[1.5em]">LATEST_SEQUENCE // 2026.06</span>
+                  <Link to="/explore" className="group flex items-center space-x-6">
+                     <span className="font-tech text-black group-hover:tracking-[1em] transition-all duration-1000">BROWSE_ALL</span>
+                     <div className="w-12 h-12 border border-black/10 rounded-full flex items-center justify-center group-hover:bg-black group-hover:text-white transition-all duration-1000">
+                        <ArrowRight size={14} />
+                     </div>
+                  </Link>
                </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 text-center md:text-left">
-              {loading ? (
-                <div className="col-span-full h-80 flex items-center justify-center font-tech text-text/20">LOADING_ASSETS...</div>
-              ) : (
-                featured.map((product, i) => (
-                  <motion.div
-                    key={product.id}
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.1, duration: 0.8 }}
-                  >
-                    <WatchCard product={product} />
-                  </motion.div>
-                ))
-              )}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-16">
+              {featured.map((product, i) => (
+                <motion.div
+                  key={product.id}
+                  initial={{ opacity: 0, y: 150 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-100px" }}
+                  transition={{ delay: i * 0.2, duration: 1.8, ease: [0.16, 1, 0.3, 1] }}
+                >
+                  <WatchCard product={product} />
+                </motion.div>
+              ))}
             </div>
           </div>
         </section>
 
-        {/* Cinematic Chapter: Video Integration */}
+        {/* Full-Width Visual Chapter */}
         <CinematicBanner 
-          videoUrl="https://assets.mixkit.co/videos/preview/mixkit-mechanical-watch-gears-close-up-17361-large.mp4"
-          title="The Machine State."
-          subtitle="HOROLOGICAL_CORE"
-          description="Witness the raw kinetic energy within our movements. A relentless pursuit of mechanical perfection, forged in the fires of discipline."
-          align="left"
+          videoUrl="https://v.pexels.com/video-files/4440938/4440938-uhd_2160_3840_30fps.mp4"
+          title="Engineered Eternity."
+          subtitle="MONOLITH_CALIBER_V5"
+          description="A masterful convergence of Grand Complications and structural brutalism. Witness the skeletonized architecture of a multi-axial tourbillon, forged in surgical grade-5 titanium."
+          ctaText="EXPLORE_CALIBER"
+          align="right"
         />
 
-        {/* Technical Specification Section */}
-        <section className="py-60 bg-text text-bg overflow-hidden relative">
-           <div className="container mx-auto px-6">
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-20">
-                 <div className="lg:col-span-2">
-                    <h3 className="text-6xl md:text-[8rem] leading-none mb-20 text-bg italic font-display">Technical <br /> Sovereignty.</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                       <div className="space-y-6">
-                          <span className="font-tech font-bold text-[10px] border-b border-bg/10 pb-2 block">01_MATERIAL</span>
-                          <p className="text-xl font-light">Grade 5 Titanium alloy, typically reserved for aerospace engineering, forms our indestructible chassis.</p>
-                       </div>
-                       <div className="space-y-6">
-                          <span className="font-tech font-bold text-[10px] border-b border-bg/10 pb-2 block">02_HEARTBEAT</span>
-                          <p className="text-xl font-light">Self-winding hybrid movements with a 72-hour power reserve and magnetic resistance up to 4,800 A/m.</p>
-                       </div>
+        {/* Technical Specification: The Schema */}
+        <section className="py-96 bg-white text-black relative selection:bg-black selection:text-white">
+           <div className="absolute top-0 right-0 p-24 opacity-[0.03] text-[40vw] font-display italic leading-none pointer-events-none">03</div>
+           
+           <div className="container mx-auto px-6 relative z-10">
+              <div className="grid grid-cols-12 gap-12 mb-64">
+                 <div className="col-span-12 lg:col-span-8">
+                    <div className="flex items-center space-x-12 mb-20">
+                       <div className="w-4 h-4 bg-black rounded-full" />
+                       <span className="font-tech tracking-[1em] text-black/40">ARCHITECTURAL_SOVEREIGNTY</span>
+                    </div>
+                    <h3 className="text-[12vw] lg:text-[16rem] leading-[0.7] mb-32 italic font-display tracking-tightest">Structural <br /> <span className="opacity-20 italic">Sovereign.</span></h3>
+                 </div>
+              </div>
+
+              <div className="grid grid-cols-12 gap-20">
+                 <div className="col-span-12 lg:col-span-4 space-y-12">
+                    <div className="relative pl-12 border-l-4 border-black/5 group">
+                       <div className="absolute left-[-4px] top-0 w-[4px] h-0 group-hover:h-full bg-black transition-all duration-1000" />
+                       <span className="font-tech text-black/30 mb-8 block tracking-[1em]">01_MATERIALIZATION</span>
+                       <p className="text-4xl italic font-light leading-tight">Surgical Grade 5 Titanium. Indestructible. Compressed for extreme aerospace integrity.</p>
                     </div>
                  </div>
-                 <div className="flex flex-col justify-center items-end hidden lg:flex">
-                    <div className="w-full aspect-square border border-bg/10 flex items-center justify-center relative group">
-                       <div className="absolute inset-4 border border-bg/5 group-hover:inset-0 transition-all duration-700" />
-                       <span className="font-tech text-[10px] uppercase rotate-90 origin-center text-bg opacity-40">SYSTEM_SCHEMA_V.2</span>
+                 <div className="col-span-12 lg:col-span-4 space-y-12">
+                    <div className="relative pl-12 border-l-4 border-black/5 group">
+                       <div className="absolute left-[-4px] top-0 w-[4px] h-0 group-hover:h-full bg-black transition-all duration-1000" />
+                       <span className="font-tech text-black/30 mb-8 block tracking-[1em]">02_OSCILLATION</span>
+                       <p className="text-4xl italic font-light leading-tight">72-hour reserve. 4,800 A/m magnetic resistance. A heartbeat designed for the void.</p>
+                    </div>
+                 </div>
+                 <div className="col-span-12 lg:col-span-4 flex flex-col items-center justify-center">
+                    <div className="w-full aspect-square border border-black/10 flex items-center justify-center relative overflow-hidden group bg-white/50 backdrop-blur-3xl">
+                       <div className="absolute inset-20 border border-black/5 group-hover:inset-0 transition-all duration-1000" />
+                       <motion.div 
+                         animate={{ rotate: 360 }}
+                         transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+                         className="w-64 h-64 border-t border-black/40 rounded-full"
+                       />
+                       <span className="absolute font-tech text-[10px] tracking-[2em] translate-x-[1em]">SCHEMA_V3</span>
                     </div>
                  </div>
               </div>

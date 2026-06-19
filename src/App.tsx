@@ -38,12 +38,12 @@ const PageTransition: React.FC<{ children: React.ReactNode }> = ({ children }) =
   </motion.div>
 );
 
+import GlobalLoader from './components/GlobalLoader';
+
 const ProtectedRoute: React.FC<{ children: React.ReactNode; adminOnly?: boolean }> = ({ children, adminOnly }) => {
   const { user, profile, loading } = useAuth();
   
-  if (loading) return <div className="h-screen flex items-center justify-center bg-luxury-black">
-    <div className="w-12 h-12 border-4 border-gold border-t-transparent rounded-full animate-spin" />
-  </div>;
+  if (loading) return <GlobalLoader />;
   if (!user) return <Navigate to="/" />;
   if (adminOnly && profile?.role !== 'admin' && user?.email !== 'manikanta5sy@gmail.com') return <Navigate to="/" />;
   
@@ -318,9 +318,7 @@ const MaintenanceGuard: React.FC<{ children: React.ReactNode }> = ({ children })
   };
 
   if (checking) {
-    return <div className="h-screen flex items-center justify-center bg-luxury-black">
-      <div className="w-12 h-12 border-4 border-gold border-t-transparent rounded-full animate-spin" />
-    </div>;
+    return <GlobalLoader />;
   }
 
   // If maintenance is on, show screen unless user is admin AND has bypassed

@@ -16,9 +16,9 @@ export default function MobileNav() {
   ];
 
   return (
-    <div className="md:hidden fixed bottom-6 left-4 right-4 z-50">
-      <div className="glass px-6 py-4 rounded-[2.5rem] flex justify-between items-center shadow-[0_20px_50px_rgba(0,0,0,0.6)] border border-white/10 backdrop-blur-3xl relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-t from-gold/10 to-transparent pointer-events-none" />
+    <div className="md:hidden fixed bottom-1 left-0 right-0 z-50 px-2 pb-6">
+      <div className="glass px-8 py-5 rounded-[2.5rem] flex justify-between items-center shadow-[0_30px_60px_-15px_rgba(0,0,0,0.2)] border border-black/5 backdrop-blur-3xl relative overflow-hidden bg-white/80">
+        <div className="absolute inset-0 bg-gradient-to-t from-black/[0.02] to-transparent pointer-events-none" />
         {navItems.map((item) => {
           const isActive = location.pathname === item.path || (item.path.startsWith('/#') && location.hash === item.path.substring(1));
           return (
@@ -40,7 +40,7 @@ export default function MobileNav() {
               {isActive && (
                 <motion.div
                   layoutId="activeTabGlow"
-                  className="absolute inset-0 bg-gold/5 rounded-full blur-xl pointer-events-none"
+                  className="absolute inset-0 bg-black/5 rounded-full blur-xl pointer-events-none"
                 />
               )}
             </Link>

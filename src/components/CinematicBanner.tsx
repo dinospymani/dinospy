@@ -23,55 +23,68 @@ export default function CinematicBanner({
   link = "/explore"
 }: CinematicBannerProps) {
   return (
-    <section className="relative min-h-[90vh] md:min-h-screen w-full flex items-center overflow-hidden bg-bg">
+    <section className="relative min-h-[110vh] md:min-h-screen w-full flex items-center overflow-hidden bg-white">
       {/* Background Video */}
-      <div className="absolute inset-0 z-0 px-4 md:px-20 py-12 md:py-32">
-        <div className="relative w-full h-full overflow-hidden hairline">
+      <div className="absolute inset-0 z-0 px-4 md:px-24 py-12 md:py-48">
+        <div className="relative w-full h-full overflow-hidden bg-white">
           <video
             autoPlay
             loop
             muted
             playsInline
-            className="w-full h-full object-cover grayscale brightness-[0.2]"
+            preload="auto"
+            className="w-full h-full object-cover grayscale opacity-10 brightness-[1.1] contrast-[1.2]"
+            style={{ filter: 'grayscale(1) brightness(1.1) contrast(1.2)' }}
           >
             <source src={videoUrl} type="video/mp4" />
           </video>
-          <div className="absolute inset-0 bg-bg/20 z-10" />
+          <div className="absolute inset-0 bg-white/10 z-10" />
+          
+          {/* Internal Grid */}
+          <div className="absolute inset-0 z-20 pointer-events-none opacity-5">
+             <div className="w-full h-full grid grid-cols-12 grid-rows-12">
+                {Array.from({ length: 144 }).map((_, i) => (
+                  <div key={i} className="border-[0.5px] border-black" />
+                ))}
+             </div>
+          </div>
         </div>
       </div>
 
-      <div className="container mx-auto px-6 relative z-20">
-        <div className={`max-w-4xl ${align === 'right' ? 'ml-auto text-right' : 'mr-auto text-left'}`}>
+      <div className="container mx-auto px-4 md:px-6 relative z-30">
+        <div className={`flex flex-col ${align === 'right' ? 'items-start md:items-end md:text-right' : 'items-start'}`}>
           <motion.div
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
+            className="max-w-4xl"
           >
-            <div className={`flex items-center space-x-6 mb-8 ${align === 'right' ? 'justify-end md:flex-row-reverse md:space-x-reverse' : ''}`}>
-               <span className="font-tech text-gold text-[10px] uppercase tracking-[0.5em] font-bold">
+            <div className={`flex items-center space-x-6 md:space-x-10 mb-8 md:mb-16 ${align === 'right' ? 'md:justify-end md:flex-row-reverse md:space-x-reverse' : ''}`}>
+               <div className="w-2 md:w-3 h-2 md:h-3 bg-black rounded-full animate-pulse shadow-[0_0_15px_rgba(0,0,0,0.1)]" />
+               <span className="font-tech text-black text-[10px] md:text-[12px] uppercase tracking-[0.5em] md:tracking-[1em] font-bold">
                  {subtitle}
                </span>
-               <div className="w-12 h-[1px] bg-gold/30" />
+               <div className="w-12 md:w-24 h-[1px] bg-black/10" />
             </div>
 
-            <h2 className="text-6xl md:text-[10rem] font-display font-light leading-none italic mb-12 text-white">
+            <h2 className="text-[14vw] md:text-[16rem] font-display font-light leading-[0.8] md:leading-[0.7] italic mb-8 md:mb-20 text-black tracking-tightest">
               {title}
             </h2>
-            <p className="text-text/30 text-xl font-light italic leading-relaxed mb-16 max-w-xl">
+            <p className="text-black/30 text-xl md:text-3xl font-light italic leading-tight mb-12 md:mb-24 max-w-2xl">
               {description}
             </p>
             
             <Link 
               to={link}
-              className={`inline-flex items-center group ${align === 'right' ? 'flex-row-reverse' : ''}`}
+              className={`inline-flex items-center group transition-all duration-1000 ${align === 'right' ? 'flex-row-reverse' : ''}`}
             >
-              <div className="w-20 h-20 rounded-full border border-text/10 flex items-center justify-center group-hover:border-gold group-hover:rotate-45 transition-all duration-700">
-                <ArrowRight className="text-gold" size={24} />
+              <div className="w-28 h-28 rounded-full border border-black/10 flex items-center justify-center group-hover:border-black group-hover:bg-black group-hover:text-white transition-all duration-1000 group-hover:scale-110">
+                <ArrowRight className="transition-transform duration-1000 group-hover:rotate-[-45deg]" size={36} />
               </div>
-              <div className={`flex flex-col mx-8 ${align === 'right' ? 'items-end' : 'items-start'}`}>
-                 <span className="font-tech text-[8px] text-text/20 mb-2 font-bold uppercase tracking-widest">Initialization</span>
-                 <span className="font-tech text-[10px] font-bold uppercase tracking-[0.4em] text-white group-hover:text-gold transition-colors">
+              <div className={`flex flex-col mx-12 ${align === 'right' ? 'items-end' : 'items-start'}`}>
+                 <span className="font-tech text-[9px] text-black/20 mb-3 font-bold uppercase tracking-[1.5em]">REFERENCE_PROTOCOL</span>
+                 <span className="font-tech text-[14px] font-bold uppercase tracking-[0.6em] text-black group-hover:tracking-[1em] transition-all duration-1000">
                    {ctaText}
                  </span>
               </div>
@@ -82,15 +95,15 @@ export default function CinematicBanner({
 
       {/* Grid Overlay */}
       <div className="absolute inset-0 z-10 pointer-events-none grid grid-cols-24 px-20 opacity-5">
-         <div className="col-span-1 h-full border-x border-text" />
-         <div className="col-span-1 h-full border-r border-text col-start-24" />
+         <div className="col-span-1 h-full border-x border-black" />
+         <div className="col-span-1 h-full border-r border-black col-start-24" />
       </div>
 
       {/* Scanning Indicator */}
       <div className="absolute bottom-20 right-20 z-30 hidden md:block">
          <div className="flex flex-col items-end">
-            <span className="font-tech text-[7px] text-text/20 mb-1">CHAPTER_SEQUENCE</span>
-            <span className="font-tech text-[10px] text-gold tracking-widest italic">{align === 'left' ? '01_CORE' : '02_MATERIA'}</span>
+            <span className="font-tech text-[7px] text-black/20 mb-1">CHAPTER_SEQUENCE</span>
+            <span className="font-tech text-[10px] text-black tracking-widest italic">{align === 'left' ? '01_CORE' : '02_MATERIA'}</span>
          </div>
       </div>
     </section>

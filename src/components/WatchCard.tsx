@@ -32,86 +32,74 @@ export default function WatchCard({ product }: WatchCardProps) {
 
   return (
     <motion.div 
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0 }}
+      whileInView={{ opacity: 1 }}
       viewport={{ once: true }}
-      transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
-      className="group relative flex flex-col transition-all duration-700"
+      className="group flex flex-col h-full bg-white border border-black/5 p-8 transition-all duration-1000 hover:border-black/20 relative"
     >
-      <div className="absolute top-4 left-4 z-10">
-        {product.isLimited && (
-          <div className="px-3 py-1 hairline bg-bg/80 backdrop-blur-md text-gold font-tech text-[7px]">
-            REF_LTD_EDITION
-          </div>
-        )}
-      </div>
-      
-      <div className="absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-x-4 group-hover:translate-x-0">
-        <motion.button 
-          whileTap={{ scale: 0.9 }}
-          onClick={(e) => {
-            e.preventDefault();
-            if (!user) {
-              setIsAuthModalOpen(true);
-              return;
-            }
-            toggleWishlist(product.id);
-          }}
-          className={`p-3 transition-all duration-500 border ${
-            isWishlisted 
-              ? 'bg-gold text-bg border-gold shadow-[0_0_30px_rgba(197,160,89,0.3)]' 
-              : 'bg-bg/80 text-text border-text/10'
-          }`}
-        >
-          <Heart size={14} fill={isWishlisted ? "currentColor" : "none"} strokeWidth={1} />
-        </motion.button>
+      {/* Identification Header */}
+      <div className="flex items-center justify-between mb-12 opacity-40 group-hover:opacity-100 transition-opacity duration-1000">
+        <div className="flex items-center space-x-6">
+          <div className="w-2 h-2 bg-black rounded-full animate-pulse" />
+          <span className="font-tech">REF_{product.id.slice(-6).toUpperCase()}</span>
+        </div>
+        <span className="font-tech">CHAPTER_0{product.category === 'classic' ? '1' : '2'}</span>
       </div>
 
-      <Link to={`/product/${product.id}`} className="block aspect-[3/4] overflow-hidden relative mb-8 hairline bg-slate">
+      <Link to={`/product/${product.id}`} className="block aspect-[3/4] overflow-hidden relative mb-16 bg-[#F9F9F9] group/img">
         <motion.img 
           src={product.images[0]} 
           alt={product.name}
-          className="w-full h-full object-cover transition-all duration-[2s] ease-[0.22,1,0.36,1] grayscale group-hover:grayscale-0 group-hover:scale-110"
+          className="w-full h-full object-cover grayscale brightness-110 contrast-[1.1] transition-all duration-[3s] ease-[0.16,1,0.3,1] group-hover/img:scale-105 group-hover/img:brightness-100 group-hover/img:grayscale-0"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-bg/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+        <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent opacity-40" />
+        
+        {/* Cinematic Label */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center opacity-0 group-hover/img:opacity-100 transition-all duration-1000 scale-150 group-hover/img:scale-100">
+           <span className="font-tech text-black text-[10px] tracking-[1.5em] translate-x-[0.75em] mb-4">MATERIALIZE</span>
+           <div className="w-16 h-[1px] bg-black" />
+        </div>
+
+        {/* Limited Flag */}
+        {product.isLimited && (
+          <div className="absolute top-4 left-4 bg-black text-white px-4 py-2 font-tech text-[8px] tracking-widest font-bold">
+            LTD_EDITION
+          </div>
+        )}
       </Link>
 
-      <div className="flex flex-col flex-grow px-2">
-        <div className="flex justify-between items-start mb-6">
-           <div className="space-y-1">
-             <span className="font-tech text-gold text-[8px] font-bold">{product.brand}</span>
-             <h3 className="text-xl leading-none italic">{product.name}</h3>
-           </div>
-           <span className="font-tech text-[8px] text-text/20">SEQ_{product.id.slice(-4).toUpperCase()}</span>
+      <div className="flex flex-col flex-grow">
+        <div className="space-y-6 mb-16">
+          <span className="font-tech text-black/20 tracking-[0.5em] group-hover:text-black transition-colors duration-1000">{product.brand} // CALIBER_CORE</span>
+          <h3 className="text-6xl italic font-display leading-[0.7] tracking-tightest group-hover:text-black/80 transition-all duration-1000 uppercase">
+            {product.name}
+          </h3>
         </div>
         
-        <div className="flex items-center justify-between pt-8 border-t border-text/5 mt-auto">
+        <div className="mt-auto pt-12 border-t border-black/5 flex items-center justify-between">
           <div className="flex flex-col">
-            <p className="text-lg font-tech tracking-tight">
-              <span className="text-[10px] text-text/30 mr-2">INR_</span>
-              {discountPrice.toLocaleString()}
-            </p>
+            <span className="font-tech text-[8px] text-black/20 mb-2">VALUATION_UNIT</span>
+            <span className="text-4xl font-tech tracking-tight">INR_{discountPrice.toLocaleString()}</span>
           </div>
 
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+          <motion.button 
+            whileTap={{ scale: 0.9 }}
             onClick={(e) => {
               e.preventDefault();
-              if (!user) {
-                setIsAuthModalOpen(true);
-                return;
-              }
+              if (isOutOfStock) return;
               addToCart(product);
             }}
-            disabled={isOutOfStock}
-            className={`px-6 py-2 border transition-all duration-700 font-tech text-[10px] ${
+            className={`w-20 h-20 rounded-full border flex items-center justify-center transition-all duration-1000 ${
               isOutOfStock 
-                ? 'border-text/5 text-text/10 cursor-not-allowed' 
-                : 'border-text/10 text-text/40 hover:text-gold hover:border-gold'
+                ? 'border-black/5 text-black/10 cursor-not-allowed' 
+                : 'border-black/10 text-black/40 hover:bg-black hover:text-white hover:border-black'
             }`}
           >
-            {isOutOfStock ? 'ARCHIVED' : 'RESERVE'}
+            {isWishlisted ? (
+              <Heart fill="black" size={14} className="text-white" />
+            ) : (
+              <span className="font-tech text-[8px] tracking-widest">{isOutOfStock ? 'OFF' : 'ADD'}</span>
+            )}
           </motion.button>
         </div>
       </div>

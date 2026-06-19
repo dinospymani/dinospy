@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Heart, Loader2, ArrowLeft } from 'lucide-react';
+import { Heart, Watch, ArrowLeft } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { db } from '../context/AuthContext';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
@@ -64,7 +64,7 @@ export default function WishlistPage() {
               <p className="text-white/40 mt-2">Your curated selection of horological excellence.</p>
             </div>
             {loading && (
-              <Loader2 className="text-gold animate-spin" size={24} />
+              <Watch className="text-gold animate-pulse" size={24} />
             )}
           </div>
 

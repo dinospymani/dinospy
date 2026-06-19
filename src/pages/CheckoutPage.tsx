@@ -221,29 +221,29 @@ export default function CheckoutPage() {
 
   if (cart.length === 0) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-luxury-black">
-        <h2 className="text-2xl font-display mb-8">Your cart is empty</h2>
-        <Link to="/" className="gold-text uppercase tracking-widest font-bold">Return to Boutique</Link>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-bg shadow-inner">
+        <h2 className="text-2xl font-display mb-8 text-black/40">Your vault is empty</h2>
+        <Link to="/" className="text-black uppercase tracking-[0.4em] font-bold text-xs hover:tracking-[0.6em] transition-all duration-700">Return to Boutique</Link>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-luxury-black">
+    <div className="min-h-screen flex flex-col bg-bg">
       <Navbar />
       
       <main className="flex-grow pt-32 pb-40 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
         <div className="mb-12">
-          <Link to="/cart" className="flex items-center text-white/40 hover:text-gold transition-colors mb-12 group w-fit">
+          <Link to="/cart" className="flex items-center text-text/40 hover:text-gold transition-colors mb-12 group w-fit">
             <ChevronLeft className="mr-2 group-hover:-translate-x-1 transition-transform" size={18} />
-            Back to Vault
+            <span className="text-[10px] uppercase tracking-widest font-bold">Back to Vault</span>
           </Link>
           
           {/* Progress Tracker */}
-          <div className="flex items-center justify-between max-w-2xl mx-auto mb-16 relative">
-            <div className="absolute top-1/2 left-0 right-0 h-[1px] bg-white/5 -translate-y-1/2 z-0" />
+          <div className="flex items-center justify-between max-w-lg mx-auto mb-16 relative px-4">
+            <div className="absolute top-1/2 left-4 right-4 h-[1px] bg-black/5 -translate-y-1/2 z-0" />
             <div 
-              className="absolute top-1/2 left-0 h-[1px] bg-gold -translate-y-1/2 z-0 transition-all duration-1000" 
+              className="absolute top-1/2 left-4 h-[1px] bg-black -translate-y-1/2 z-0 transition-all duration-1000" 
               style={{ width: '50%' }}
             />
             
@@ -252,10 +252,10 @@ export default function CheckoutPage() {
               { label: 'Payment', icon: CreditCard, active: false }
             ].map((step, i) => (
               <div key={i} className="relative z-10 flex flex-col items-center">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-700 ${step.active ? 'bg-gold text-luxury-black border-gold' : 'bg-luxury-black text-white/20 border-white/5'} border`}>
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-700 ${step.active ? 'bg-black text-white border-black shadow-[0_0_20px_rgba(0,0,0,0.1)]' : 'bg-bg text-black/20 border-black/5'} border`}>
                   <step.icon size={16} />
                 </div>
-                <span className={`text-[8px] uppercase tracking-[0.3em] mt-4 font-bold ${step.active ? 'text-gold' : 'text-white/20'}`}>{step.label}</span>
+                <span className={`text-[8px] uppercase tracking-[0.3em] mt-4 font-bold ${step.active ? 'text-black' : 'text-black/20'}`}>{step.label}</span>
               </div>
             ))}
           </div>
@@ -268,35 +268,35 @@ export default function CheckoutPage() {
             className="space-y-12"
           >
             <div>
-              <h1 className="text-5xl font-display mb-4 gold-text">Acquisition</h1>
-              <p className="text-white/40 uppercase tracking-[0.2em] text-xs">Secure Checkout Terminal</p>
+              <h1 className="text-4xl md:text-5xl font-display mb-4 text-text">Acquisition</h1>
+              <p className="text-text/40 uppercase tracking-[0.2em] text-[10px]">Secure Checkout Terminal</p>
             </div>
 
-            <form onSubmit={handlePlaceOrder} className="space-y-8">
-              <div className="space-y-6">
-                <h3 className="text-lg font-bold uppercase tracking-widest flex items-center">
+            <form onSubmit={handlePlaceOrder} className="space-y-8 lg:space-y-12">
+              <div className="space-y-6 md:space-y-8">
+                <h3 className="text-lg font-bold uppercase tracking-widest flex items-center text-text/80">
                   <Truck className="mr-3 text-gold" size={20} />
                   Shipping Details
                 </h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <label className="text-[10px] uppercase tracking-widest text-white/40">Full Name</label>
+                    <label className="text-[10px] uppercase tracking-widest text-text/40 ml-1">Full Name</label>
                     <input 
                       required
                       value={formData.fullName}
                       onChange={e => setFormData({...formData, fullName: e.target.value})}
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-4 focus:border-gold outline-none text-sm transition-all"
+                      className="w-full bg-black/[0.02] border border-black/5 rounded-xl px-5 py-4 focus:border-gold outline-none text-sm transition-all"
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] uppercase tracking-widest text-white/40">Email Protocol</label>
+                    <label className="text-[10px] uppercase tracking-widest text-text/40 ml-1">Email Protocol</label>
                     <input 
                       required
                       type="email"
                       value={formData.email}
                       onChange={e => setFormData({...formData, email: e.target.value})}
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-4 focus:border-gold outline-none text-sm transition-all"
+                      className="w-full bg-black/[0.02] border border-black/5 rounded-xl px-5 py-4 focus:border-gold outline-none text-sm transition-all"
                     />
                   </div>
                 </div>

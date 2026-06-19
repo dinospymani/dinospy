@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
-import { ShoppingBag, Heart, Star, Shield, Truck, RotateCcw, ArrowLeft, ChevronRight, Play, Share2, ThumbsUp, CheckCircle2, X, ChevronLeft } from 'lucide-react';
+import { ShoppingBag, Heart, Star, Shield, Truck, RotateCcw, ArrowLeft, ChevronRight, Play, Share2, ThumbsUp, CheckCircle2, X, ChevronLeft, Watch } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import MobileNav from '../components/MobileNav';
@@ -229,17 +229,22 @@ export default function ProductDetails() {
   if (loading) return (
     <div className="flex flex-col min-h-screen bg-bg">
       <Navbar />
-      <main className="flex-grow pt-32 pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full animate-pulse">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 lg:gap-32">
-          <div className="aspect-square bg-text/[0.02] border border-white/5" />
-          <div className="space-y-12">
-            <div className="h-4 w-1/4 bg-text/[0.02]" />
-            <div className="h-24 w-3/4 bg-text/[0.02]" />
-            <div className="h-12 w-1/2 bg-text/[0.02]" />
-            <div className="space-y-4 pt-12 border-t border-white/5">
-              {[1,2,3,4].map(i => <div key={i} className="h-6 w-full bg-text/[0.02]" />)}
+      <main className="flex-grow pt-32 pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 lg:gap-32 animate-pulse">
+          <div className="aspect-square bg-slate hairline flex items-center justify-center relative overflow-hidden">
+             <Watch size={64} strokeWidth={1} className="text-text/10" />
+             <div className="absolute inset-0 bg-gradient-to-t from-bg/20 to-transparent" />
+          </div>
+          <div className="flex flex-col justify-center space-y-12">
+            <div className="space-y-4">
+               <div className="h-2 w-32 bg-text/5" />
+               <div className="h-20 w-3/4 bg-text/5" />
             </div>
-            <div className="h-20 w-full bg-text/5" />
+            <div className="h-10 w-48 bg-text/5 border-b border-text/5 pb-12" />
+            <div className="space-y-6 pt-12">
+              {[1,2,3,4].map(i => <div key={i} className="h-2 w-full bg-text/5" />)}
+            </div>
+            <div className="h-20 w-full bg-slate hairline mt-20" />
           </div>
         </div>
       </main>
@@ -265,12 +270,12 @@ export default function ProductDetails() {
           </div>
 
           {/* Breadcrumbs */}
-          <nav className="flex items-center space-x-4 font-tech text-[8px] text-text/20 mb-20 font-bold">
-            <Link to="/" className="hover:text-gold transition-colors">HOME_ARCHIVE</Link>
-            <div className="w-1 h-[1px] bg-gold/20" />
-            <Link to="/explore" className="hover:text-gold transition-colors">{product.category.toUpperCase()}_COLLECTION</Link>
-            <div className="w-1 h-[1px] bg-gold/20" />
-            <span className="text-text/60 italic">{product.name}</span>
+          <nav className="flex items-center space-x-2 md:space-x-4 font-tech text-[8px] text-text/20 mb-12 md:mb-20 font-bold overflow-hidden">
+            <Link to="/" className="hover:text-gold transition-colors shrink-0">HOME_ARCHIVE</Link>
+            <div className="w-1 h-[1px] bg-gold/20 shrink-0" />
+            <Link to="/explore" className="hover:text-gold transition-colors shrink-0">{product.category.toUpperCase()}_COLLECTION</Link>
+            <div className="w-1 h-[1px] bg-gold/20 shrink-0" />
+            <span className="text-text/60 italic truncate">{product.name}</span>
           </nav>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 lg:gap-32">
@@ -372,33 +377,33 @@ export default function ProductDetails() {
                    </span>
                    <div className="w-12 h-[1px] bg-gold/30" />
                 </div>
-                <h1 className="text-6xl md:text-[8rem] font-display mb-10 leading-[0.9] font-light italic text-text">{product.name}</h1>
+                <h1 className="text-4xl md:text-[8rem] font-display mb-8 md:mb-10 leading-[1] md:leading-[0.9] font-light italic text-text">{product.name}</h1>
                 
-                <div className="flex items-center space-x-8 mb-16 pb-12 border-b border-text/5">
+                <div className="flex flex-col md:flex-row md:items-center gap-8 md:space-x-8 mb-12 md:mb-16 pb-12 border-b border-text/5">
                    <div className="flex flex-col">
-                      <div className="text-4xl md:text-6xl font-tech tracking-tighter text-text">
-                        <span className="text-xs text-text/30 mr-4 font-bold">INR_</span>
+                      <div className="text-3xl md:text-6xl font-tech tracking-tighter text-text">
+                        <span className="text-[10px] text-text/30 mr-2 md:mr-4 font-bold">INR_</span>
                         {Math.round(product.discount ? product.price * (1 - product.discount / 100) : product.price).toLocaleString()}
                       </div>
                       {product.discount > 0 && (
-                        <p className="text-gold/60 font-tech text-[9px] font-black mt-3">
+                        <p className="text-gold/60 font-tech text-[8px] md:text-[9px] font-black mt-2 md:mt-3">
                           ACQUISITION_ADVANTAGE: -{product.discount}%
                         </p>
                       )}
                    </div>
-                   <div className="h-16 w-[1px] bg-text/10" />
+                   <div className="hidden md:block h-16 w-[1px] bg-text/10" />
                    <div className="flex flex-col">
-                      <span className="font-tech text-[10px] text-text/20 mb-1 font-bold">REGISTRY_STATUS</span>
-                      <div className="flex items-center space-x-3">
+                      <span className="font-tech text-center md:text-left text-[9px] md:text-[10px] text-text/20 mb-1 font-bold">REGISTRY_STATUS</span>
+                      <div className="flex items-center justify-center md:justify-start space-x-3">
                          <div className={`w-2 h-2 rounded-full ${product.stock > 0 ? 'bg-gold animate-pulse' : 'bg-red-950'}`} />
-                         <span className="font-tech text-[10px] font-bold text-text/60">
+                         <span className="font-tech text-[9px] md:text-[10px] font-bold text-text/60">
                             {product.stock > 0 ? 'VAULT_LOCKED' : 'NULL_STATE'}
                          </span>
                       </div>
                    </div>
                 </div>
 
-                <p className="text-text/40 leading-relaxed text-xl font-light italic mb-16 max-w-xl">
+                <p className="text-text/40 leading-relaxed text-lg md:text-xl font-light italic mb-12 md:mb-16 max-w-xl">
                   "{product.description}"
                 </p>
               </div>
