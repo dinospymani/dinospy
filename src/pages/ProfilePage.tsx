@@ -223,8 +223,8 @@ export default function ProfilePage() {
                   <p className="font-tech text-black/10 text-[8px] tracking-[0.4em]">NODE_IDENTIFICATION_HEX</p>
                   <p className="font-mono text-[11px] font-bold tracking-tighter text-black/40">{user?.uid.slice(0, 16).toUpperCase()}</p>
                 </div>
-                <div className="bg-black p-4 rounded-[2rem] shadow-2xl hover:scale-105 transition-transform duration-500 cursor-pointer">
-                  <QRCodeSVG value={user?.uid || 'DINOSPY'} size={48} fgColor="#FFFFFF" bgColor="transparent" />
+                <div className="bg-black p-4 rounded-[2rem] shadow-2xl hover:scale-105 transition-transform duration-500">
+                  <QRCodeSVG value={user?.uid || 'DINOSPY'} size={48} fgColor="#FFFFFF" bgColor="#000000" />
                 </div>
               </div>
             </motion.div>
@@ -235,8 +235,8 @@ export default function ProfilePage() {
                  <span className="font-tech text-black/20 text-[9px] tracking-[0.4em] uppercase">Security_Protocol_Interface</span>
               </div>
               <div className="grid grid-cols-1 gap-4">
-                {profile?.role === 'admin' && user?.email === 'manikanta5sy@gmail.com' && (
-                  <Link to="/admin" className="flex items-center justify-between p-8 bg-black text-white rounded-[3rem] hover:scale-[1.02] active:scale-[0.98] transition-all duration-700 shadow-2xl relative overflow-hidden group/admin">
+                {(profile?.role === 'admin' || user?.email === 'manikanta5sy@gmail.com') && (
+                  <Link to="/admin" className="flex items-center justify-between p-8 bg-black text-white rounded-[3rem] hover:scale-[1.02] active:scale-[0.98] transition-all duration-700 shadow-2xl relative overflow-hidden group/admin border border-white/10">
                     <div className="absolute inset-0 bg-white/10 translate-x-full group-hover/admin:translate-x-0 transition-transform duration-700" />
                     <div className="flex items-center space-x-6 relative z-10">
                        <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center">
@@ -448,8 +448,14 @@ export default function ProfilePage() {
                                       <p className="font-tech text-[10px] text-black/40 mb-2 tracking-[0.4em] font-black uppercase underline decoration-black/10 underline-offset-8">Handshake_Mandate</p>
                                       <p className="text-[11px] font-display italic text-black/30 max-w-[280px] leading-relaxed">PRESENT THIS DIGITAL MANIFEST TO THE AGENT DURING PHYSICAL ARRIVAL. AUTHORIZATION PIN MUST BE EXCHANGED FOR CARGO RELEASE.</p>
                                     </div>
-                                    <div className="p-6 border border-black/5 rounded-[3rem] bg-white shadow-2xl hover:scale-110 transition-transform duration-700 cursor-none">
-                                      <QRCodeSVG value={`${window.location.origin}/partner/${order.id}`} size={80} fgColor="#000000" bgColor="transparent" />
+                                    <div className="p-6 border border-black/5 rounded-[3rem] bg-white shadow-2xl hover:scale-110 transition-transform duration-700">
+                                      <QRCodeSVG 
+                                        value={`${window.location.origin}/partner/${order.id}`} 
+                                        size={80} 
+                                        fgColor="#000000" 
+                                        bgColor="#FFFFFF" 
+                                        includeMargin={true}
+                                      />
                                     </div>
                                   </div>
                                 </div>
