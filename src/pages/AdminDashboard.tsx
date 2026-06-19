@@ -221,15 +221,21 @@ export default function AdminDashboard() {
     setIsTogglingMaintenance(true);
     const mid = 'maint-toggle';
     try {
+      // Use the actual current state value to toggle
       const newStatus = !maintenanceStatus;
+      
       await setDoc(doc(db, 'settings', 'maintenance'), { 
         status: newStatus,
         updatedAt: new Date().toISOString()
       }, { merge: true });
+      
+      // Update local state immediately for better UX
+      setMaintenanceStatus(newStatus);
+      
       toast.success(newStatus ? 'SYSTEMS ENTERING STANDBY: Maintenance mode active' : 'SYSTEMS RESTORED: Storefront online', { id: mid });
     } catch (err) {
-      console.error(err);
-      toast.error('Maintenance state coordination failed', { id: mid });
+      console.error('Maintenance Toggle Error:', err);
+      toast.error('Maintenance state coordination failed. Auth permission issue?', { id: mid });
     } finally {
       setIsTogglingMaintenance(false);
     }
@@ -865,28 +871,30 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen bg-[#fafafa] flex flex-col pt-16 md:pt-24 selection:bg-black selection:text-white">
       <Navbar />
-      <main className="flex-grow pt-24 md:pt-32 pb-10 md:pb-20 max-w-[98%] md:max-w-[95%] mx-auto px-4 w-full bg-bg">
-        <div className="mb-4 md:mb-6">
+      <main className="flex-grow pt-8 md:pt-16 pb-32 max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-12 w-full">
+        <div className="mb-8 md:mb-12">
           <button 
               onClick={() => window.location.href = '/'}
-              className="flex items-center space-x-2 text-text/40 hover:text-text transition-all duration-500 p-2 -ml-2"
+              className="group flex items-center space-x-3 text-text/30 hover:text-text transition-all duration-700 p-3 -ml-3"
           >
-              <ArrowLeft size={16} />
-              <span className="font-tech text-xs">EXIT_TERMINAL</span>
+              <div className="w-8 h-8 rounded-full border border-black/5 flex items-center justify-center group-hover:bg-black group-hover:text-white transition-all duration-700">
+                <ArrowLeft size={14} />
+              </div>
+              <span className="font-tech text-[10px] tracking-widest font-black">EXIT_TERMINAL</span>
           </button>
         </div>
-        <div className="flex flex-col xl:flex-row justify-between items-start xl:items-end gap-12 mb-16 border-b border-black/5 pb-16">
-          <div className="max-w-3xl space-y-6">
+        <div className="flex flex-col xl:flex-row justify-between items-start xl:items-end gap-12 mb-20 md:mb-32 border-b border-black/5 pb-16 md:pb-24">
+          <div className="max-w-4xl space-y-8">
             <div className="flex items-center space-x-6">
               <div className="w-3 h-3 bg-black rounded-full animate-pulse shadow-2xl" />
               <span className="font-tech text-black/20 text-[11px] tracking-[0.4em] uppercase font-black">Sys_Root@DINOSPY_Terminal // ACCESS_LEVEL_01</span>
             </div>
-            <h1 className="text-6xl md:text-9xl font-display italic tracking-tightest leading-none">
+            <h1 className="text-6xl md:text-9xl xl:text-[12rem] font-display italic tracking-tightest leading-none">
               Control <span className="opacity-20 font-sans italic">Core.</span>
             </h1>
-            <div className="flex flex-wrap gap-8 font-tech text-[9px] text-black/20 font-bold uppercase tracking-[0.3em]">
+            <div className="flex flex-wrap gap-8 md:gap-12 font-tech text-[9px] md:text-[11px] text-black/20 font-bold uppercase tracking-[0.3em]">
               <div className="flex items-center space-x-3">
                  <div className="w-1.5 h-1.5 bg-black/10 rounded-full" />
                  <span>LOC: NEW_DELHI_HUB</span>

@@ -50,7 +50,8 @@ export default function Navbar() {
             {[
               { to: "/explore", label: "REFERENCE_INDEX" },
               { to: "/wishlist", label: "SAVED_ARTIFACTS" },
-              { to: "/explore", label: "MECHANICAL_CORE" }
+              { to: "/explore", label: "MECHANICAL_CORE" },
+              ...(profile?.role === 'admin' || user?.email === 'manikanta5sy@gmail.com' ? [{ to: "/admin", label: "ADMIN_CONSOLE" }] : [])
             ].map((link) => (
               <Link 
                 key={link.label}
@@ -138,7 +139,8 @@ export default function Navbar() {
                  { to: "/explore", label: "REFERENCE_INDEX" },
                  { to: "/wishlist", label: "SAVED_ARTIFACTS" },
                  { to: "/explore", label: "MECHANICAL_CORE" },
-                 { to: "/profile", label: "USER_PROTOCOL" }
+                 { to: "/profile", label: "USER_PROTOCOL" },
+                 ...(profile?.role === 'admin' || user?.email === 'manikanta5sy@gmail.com' ? [{ to: "/admin", label: "ADMIN_OVERRIDE" }] : [])
                ].map((item, i) => (
                  <motion.div
                    key={item.label}

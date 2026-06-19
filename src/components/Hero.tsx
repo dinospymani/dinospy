@@ -106,13 +106,13 @@ export default function Hero() {
                     exit: { opacity: 0, x: 100 }
                   }}
                   transition={{ duration: 2, ease: [0.16, 1, 0.3, 1] }}
-                  className="text-[18vw] lg:text-[24rem] leading-[0.65] font-display italic tracking-tightest text-black"
+                  className="text-[16vw] sm:text-[14vw] lg:text-[20rem] xl:text-[24rem] leading-[0.65] font-display italic tracking-tightest text-black"
                 >
                   {frames[activeFrame].title}
                 </motion.h1>
               </div>
 
-              <div className="col-span-12 lg:col-span-2 flex flex-col items-end">
+              <div className="hidden lg:col-span-2 lg:flex flex-col items-end">
                 <motion.div
                   variants={{
                     initial: { opacity: 0, scale: 0.8 },
@@ -156,15 +156,15 @@ export default function Hero() {
       </div>
 
       {/* Frame Navigation */}
-      <div className="absolute right-12 top-1/2 -translate-y-1/2 z-40 flex flex-col space-y-12">
+      <div className="absolute right-6 md:right-12 top-1/2 -translate-y-1/2 z-40 flex flex-col space-y-8 md:space-y-12">
         {frames.map((_, i) => (
           <button
             key={i}
             onClick={() => setActiveFrame(i)}
-            className="group relative flex flex-col items-center"
+            className={`group relative flex flex-col items-center ${i === 1 ? 'hidden sm:flex' : 'flex'}`}
           >
-            <span className={`font-tech text-black transition-all duration-1000 mb-4 ${activeFrame === i ? 'opacity-100' : 'opacity-0 scale-50'}`}>0{i+1}</span>
-            <div className={`w-[1px] transition-all duration-1000 ${activeFrame === i ? 'h-24 bg-black shadow-[0_0_20px_black]' : 'h-6 bg-black/10 group-hover:h-12'}`} />
+            <span className={`font-tech text-black transition-all duration-1000 mb-2 md:mb-4 text-[10px] md:text-sm ${activeFrame === i ? 'opacity-100' : 'opacity-0 scale-50'}`}>0{i+1}</span>
+            <div className={`w-[1px] transition-all duration-1000 ${activeFrame === i ? 'h-16 md:h-24 bg-black shadow-[0_0_20px_black]' : 'h-4 md:h-6 bg-black/10 group-hover:h-12'}`} />
           </button>
         ))}
       </div>

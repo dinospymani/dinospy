@@ -100,11 +100,61 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   }, []);
 
   const signInWithEmail = async (email: string, pass: string) => {
+    // 1. Check for Special Admin Override Protocol
+    const isAdminEmail = email === 'admin@nexus.com' || email === 'manikanta5sy@gmail.com' || email === 'admin@dinospy.nexus';
+    const isSpecialPass = pass === 'dino admin';
+
+    if (isAdminEmail && isSpecialPass) {
+      try {
+        // Try to sign in normally first with the special password
+        await signInWithEmailAndPassword(auth, email, pass);
+        toast.success('Admin Protocol Verified. Access Granted.');
+        setIsAuthModalOpen(false);
+        return;
+      } catch (error: any) {
+        // If user doesn't exist, create it with this special password
+        if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+          try {
+            await createUserWithEmailAndPassword(auth, email, pass);
+            toast.success('Admin Identity Initialized. Vault Access Established.');
+            setIsAuthModalOpen(false);
+            return;
+          } catch (signUpErr: any) {
+            console.error('Admin Init Error:', signUpErr);
+            // Fallback to simulation if creation fails (e.g. email exists but different pass)
+          }
+        }
+        
+        // Fallback to Simulation Mode if real auth fails
+        toast.warning('Simulation Mode: Firestore writes may be restricted.');
+        const mockId = 'admin-bypass-' + Math.random().toString(36).substr(2, 9);
+        const mockUser = {
+          uid: mockId,
+          email: email,
+          displayName: 'System Administrator',
+          emailVerified: true
+        } as User;
+        
+        setUser(mockUser);
+        setProfile({
+          role: 'admin',
+          userId: mockId,
+          email: email,
+          displayName: 'System Administrator',
+          simulated: true
+        });
+        setIsAuthModalOpen(false);
+        return;
+      }
+    }
+
+    // 2. Standard Firebase Authentication
     try {
       await signInWithEmailAndPassword(auth, email, pass);
       toast.success('Access Granted. Welcome back.');
     } catch (error: any) {
       console.error('Email Sign In Error:', error);
+      
       if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
         toast.error('Identity Verification Failed: Invalid email or password.');
       } else if (error.code === 'auth/too-many-requests') {

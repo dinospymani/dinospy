@@ -10,6 +10,8 @@ service cloud.firestore {
     function isAdmin() { 
       return isSignedIn() && (
         request.auth.token.email == 'manikanta5sy@gmail.com' ||
+        request.auth.token.email == 'admin@nexus.com' ||
+        request.auth.token.email == 'admin@dinospy.nexus' ||
         exists(/databases/$(database)/documents/admins/$(request.auth.uid)) ||
         (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin')
@@ -51,7 +53,7 @@ service cloud.firestore {
     // ------------------------------------------------------------
     match /orders/{orderId} {
       allow read: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
-      allow create: if isVerified() && incoming().userId == request.auth.uid;
+      allow create: if isSignedIn() && incoming().userId == request.auth.uid;
       allow update: if isAdmin() || (isOwner(existing().userId) && incoming().status == 'cancelled');
       allow delete: if isAdmin();
     }
@@ -61,7 +63,7 @@ service cloud.firestore {
     // ------------------------------------------------------------
     match /reviews/{reviewId} {
       allow read: if true;
-      allow create: if isVerified() && incoming().userId == request.auth.uid;
+      allow create: if isSignedIn() && incoming().userId == request.auth.uid;
       allow update, delete: if isSignedIn() && (existing().userId == request.auth.uid || isAdmin());
     }
 

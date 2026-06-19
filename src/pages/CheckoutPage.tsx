@@ -232,45 +232,48 @@ export default function CheckoutPage() {
     <div className="min-h-screen flex flex-col bg-bg">
       <Navbar />
       
-      <main className="flex-grow pt-24 md:pt-40 pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-        <div className="mb-20">
-          <Link to="/cart" className="flex items-center text-text/20 hover:text-black transition-all mb-16 group w-fit">
-            <ChevronLeft className="mr-3 group-hover:-translate-x-2 transition-transform" size={20} />
-            <span className="text-[10px] uppercase tracking-[0.4em] font-tech font-bold">TERMINAL_VAULT // REVERSE</span>
-          </Link>
-          
-          {/* Progress Tracker */}
-          <div className="flex items-center justify-between max-w-xl mx-auto mb-24 relative px-8">
-            <div className="absolute top-1/2 left-8 right-8 h-[1px] bg-black/[0.03] -translate-y-1/2 z-0" />
-            <div 
-              className="absolute top-1/2 left-8 h-[1px] bg-black -translate-y-1/2 z-0 transition-all duration-1000" 
-              style={{ width: '50%' }}
-            />
-            
-            {[
-              { label: 'MANIFEST', icon: Mail, active: true },
-              { label: 'HANDSHAKE', icon: CreditCard, active: false }
-            ].map((step, i) => (
-              <div key={i} className="relative z-10 flex flex-col items-center">
-                <div className={`w-14 h-14 rounded-full flex items-center justify-center transition-all duration-1000 ${step.active ? 'bg-black text-white border-black shadow-2xl scale-110' : 'bg-white text-black/10 border-black/5'} border`}>
-                  <step.icon size={20} strokeWidth={1} />
-                </div>
-                <span className={`text-[9px] uppercase tracking-[0.4em] mt-6 font-tech font-black ${step.active ? 'text-black' : 'text-black/10'}`}>{step.label}</span>
+      <main className="flex-grow pt-24 md:pt-40 pb-24 w-full">
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12">
+          <div className="mb-16 md:mb-24">
+            <Link to="/cart" className="flex items-center text-text/30 hover:text-black transition-all mb-12 md:mb-20 group w-fit">
+              <div className="w-10 h-10 rounded-full border border-black/5 flex items-center justify-center group-hover:bg-black group-hover:text-white transition-all duration-700 mr-4">
+                <ChevronLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
               </div>
-            ))}
-          </div>
-        </div>
-        
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-20">
-          <motion.div 
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="space-y-12"
-          >
-            <div>
-              <h1 className="text-4xl md:text-5xl font-display mb-4 text-text">ACQUISITION_INITIALIZE</h1>
-              <p className="text-text/40 uppercase tracking-[0.2em] text-[10px]">Secure Checkout Terminal</p>
+              <span className="text-[10px] uppercase tracking-[0.4em] font-tech font-black">TERMINAL_VAULT // REVERSE</span>
+            </Link>
+            
+            {/* Progress Tracker */}
+            <div className="flex items-center justify-between max-w-xl mx-auto relative px-4 md:px-12">
+              <div className="absolute top-1/2 left-12 right-12 h-[1px] bg-black/[0.03] -translate-y-1/2 z-0 hidden md:block" />
+              <div 
+                className="absolute top-1/2 left-12 h-[1px] bg-black -translate-y-1/2 z-0 transition-all duration-1000 hidden md:block" 
+                style={{ width: '45%' }}
+              />
+              
+              {[
+                { label: 'MANIFEST', icon: Mail, active: true },
+                { label: 'HANDSHAKE', icon: CreditCard, active: false }
+              ].map((step, i) => (
+                <div key={i} className="relative z-10 flex flex-col items-center">
+                  <div className={`w-12 h-12 md:w-16 md:h-16 rounded-full flex items-center justify-center transition-all duration-1000 ${step.active ? 'bg-black text-white border-black shadow-2xl scale-110' : 'bg-white text-black/10 border-black/5'} border`}>
+                    <step.icon className="w-5 h-5 md:w-6 md:h-6" strokeWidth={1} />
+                  </div>
+                  <span className={`text-[8px] md:text-[10px] uppercase tracking-[0.4em] mt-4 md:mt-8 font-tech font-black ${step.active ? 'text-black' : 'text-black/10'}`}>{step.label}</span>
+                </div>
+              ))}
             </div>
+          </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 md:gap-24 items-start">
+            <motion.div 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="lg:col-span-12 xl:col-span-7 space-y-16"
+            >
+              <div>
+                <h1 className="text-5xl md:text-7xl xl:text-8xl font-display mb-6 text-text leading-none tracking-tightest italic">ACQUISITION<br /><span className="opacity-20 font-sans italic">_INITIALIZE.</span></h1>
+                <p className="text-text/40 uppercase tracking-[0.4em] text-[10px] md:text-[12px] font-tech font-black">Secure Checkout Terminal // Port_443_SSL</p>
+              </div>
 
             <form onSubmit={handlePlaceOrder} className="space-y-8 lg:space-y-12">
               <div className="space-y-6 md:space-y-8">
@@ -403,13 +406,13 @@ export default function CheckoutPage() {
             </form>
           </motion.div>
 
-          {/* Right: Summary */}
-          <motion.div 
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.2 }}
-            className="lg:col-span-5"
-          >
+            {/* Right: Summary */}
+            <motion.div 
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.2 }}
+              className="lg:col-span-12 xl:col-span-5"
+            >
             <div className="bg-white border border-black/5 p-10 rounded-[4rem] shadow-sm sticky top-32 space-y-12 overflow-hidden relative">
               <div className="absolute top-0 right-0 p-12 opacity-[0.02] pointer-events-none -rotate-12 translate-x-1/4 -translate-y-1/4">
                  <CheckCircle2 size={300} />
@@ -493,7 +496,8 @@ export default function CheckoutPage() {
                 </div>
               </div>
             </div>
-          </motion.div>
+            </motion.div>
+          </div>
         </div>
       </main>
       
