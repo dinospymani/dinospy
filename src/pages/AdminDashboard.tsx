@@ -4,7 +4,7 @@ import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc, onSnapshot, que
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import MobileNav from '../components/MobileNav';
-import { Plus, Trash2, Edit, Save, Package, QrCode, Printer, X, Truck, Loader2, ChevronLeft, TrendingUp, DollarSign, ShoppingBag, AlertCircle, BarChart2, Bell, ArrowLeft, Megaphone, Check, Zap, Clock, Shield, Lock, Eye, EyeOff } from 'lucide-react';
+import { Plus, Trash2, Edit, Save, Package, QrCode, Printer, X, Truck, Loader2, ChevronLeft, TrendingUp, DollarSign, ShoppingBag, AlertCircle, BarChart2, Bell, ArrowLeft, Megaphone, Check, Zap, Clock, Shield, Lock, Eye, EyeOff, Database, ArrowRight, ShieldAlert } from 'lucide-react';
 import { motion } from 'motion/react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { QRCodeSVG } from 'qrcode.react';
@@ -867,921 +867,670 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      <main className="flex-grow pt-32 pb-20 max-w-[95%] mx-auto px-4 w-full">
+      <main className="flex-grow pt-32 pb-20 max-w-[95%] mx-auto px-4 w-full bg-bg">
         <div className="mb-6">
           <button 
               onClick={() => window.location.href = '/'}
-              className="flex items-center space-x-2 text-white/60 hover:text-gold transition-colors p-2 -ml-2"
+              className="flex items-center space-x-2 text-text/40 hover:text-text transition-all duration-500 p-2 -ml-2"
           >
-              <ArrowLeft size={20} />
-              <span className="text-[10px] uppercase tracking-[0.2em] font-bold">Exit Terminal</span>
+              <ArrowLeft size={16} />
+              <span className="font-tech">EXIT_TERMINAL</span>
           </button>
         </div>
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 mb-12">
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8 mb-12 border-b border-black/5 pb-12">
           <div>
-            <h1 className="text-3xl md:text-4xl font-display gold-text">Admin Command Center</h1>
-            <p className="text-white/40 mt-2 text-sm">Manage your luxury empire with precision.</p>
+            <div className="flex items-center space-x-4 mb-2">
+              <div className="w-2 h-2 bg-text rounded-full animate-pulse" />
+              <span className="font-tech text-text/20">SYSTEM_ROOT // ADMIN_ACCESS</span>
+            </div>
+            <h1 className="text-4xl md:text-6xl font-display italic tracking-tightest">Command <span className="opacity-20">Center.</span></h1>
+            <p className="text-text/30 mt-4 text-xs tracking-widest font-light italic">Master control interface for the DINOSPY global ecosystem.</p>
           </div>
-          <div className="flex items-center space-x-2 sm:space-x-4 bg-white/5 p-1 rounded-2xl border border-white/10 overflow-x-auto no-scrollbar max-w-full">
-            <button 
-              onClick={() => setView('stats')}
-              className={`flex-shrink-0 px-4 sm:px-6 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${view === 'stats' ? 'gold-gradient text-luxury-black' : 'text-white/60 hover:text-white'}`}
-            >
-              Intelligence
-            </button>
-            <button 
-              onClick={() => setView('add')}
-              className={`flex-shrink-0 px-4 sm:px-6 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${view === 'add' ? 'gold-gradient text-luxury-black' : 'text-white/60 hover:text-white'}`}
-            >
-              Add Product
-            </button>
-            <button 
-              onClick={() => setView('products')}
-              className={`flex-shrink-0 px-4 sm:px-6 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${view === 'products' ? 'gold-gradient text-luxury-black' : 'text-white/60 hover:text-white'}`}
-            >
-              Products
-            </button>
-            <button 
-              onClick={() => setView('orders')}
-              className={`flex-shrink-0 px-4 sm:px-6 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${view === 'orders' ? 'gold-gradient text-luxury-black' : 'text-white/60 hover:text-white'}`}
-            >
-              Orders
-            </button>
-            <button 
-              onClick={() => setView('notifications')}
-              className={`flex-shrink-0 px-4 sm:px-6 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all relative ${view === 'notifications' ? 'gold-gradient text-luxury-black' : 'text-white/60 hover:text-white'}`}
-            >
-              Alerts
-              {notifications.some(n => !n.read) && (
-                <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full border border-luxury-black animate-pulse" />
-              )}
-            </button>
-            <button 
-              onClick={() => setView('broadcast')}
-              className={`flex-shrink-0 px-4 sm:px-6 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${view === 'broadcast' ? 'gold-gradient text-luxury-black' : 'text-white/60 hover:text-white'}`}
-            >
-              Broadcast
-            </button>
-            <button 
-              onClick={() => setView('banners')}
-              className={`flex-shrink-0 px-4 sm:px-6 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${view === 'banners' ? 'gold-gradient text-luxury-black' : 'text-white/60 hover:text-white'}`}
-            >
-              Banners
-            </button>
-            <button 
-              onClick={() => setView('coupons')}
-              className={`flex-shrink-0 px-4 sm:px-6 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${view === 'coupons' ? 'gold-gradient text-luxury-black' : 'text-white/60 hover:text-white'}`}
-            >
-              Coupons
-            </button>
-            <button 
-              onClick={() => setView('security')}
-              className={`flex-shrink-0 px-4 sm:px-6 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${view === 'security' ? 'gold-gradient text-luxury-black' : 'text-white/60 hover:text-white'}`}
-            >
-              <Shield size={14} className="inline mr-2" />
-              Security
-            </button>
+          <div className="flex items-center space-x-1 p-1 bg-black/[0.02] rounded-full border border-black/5 overflow-x-auto no-scrollbar max-w-full">
+            {[
+              { id: 'stats', label: 'INTELLIGENCE' },
+              { id: 'add', label: 'ARCHIVE_NEW' },
+              { id: 'products', label: 'INVENTORY' },
+              { id: 'orders', label: 'ACQUISITIONS' },
+              { id: 'notifications', label: 'ALERTS', urgent: notifications.some(n => !n.read) },
+              { id: 'broadcast', label: 'TRANSMIT' },
+              { id: 'banners', label: 'VISUALS' },
+              { id: 'coupons', label: 'PROTOCOLS' },
+              { id: 'security', label: 'SECURITY' },
+            ].map((tab) => (
+              <button 
+                key={tab.id}
+                onClick={() => setView(tab.id as any)}
+                className={`flex-shrink-0 px-6 py-2.5 rounded-full text-[10px] font-tech transition-all duration-700 relative ${view === tab.id ? 'bg-text text-bg shadow-xl' : 'text-text/40 hover:text-text hover:bg-black/5'}`}
+              >
+                {tab.label}
+                {tab.id === 'notifications' && tab.urgent && (
+                  <span className="absolute top-2 right-4 w-1 h-1 bg-red-500 rounded-full animate-pulse" />
+                )}
+              </button>
+            ))}
           </div>
         </div>
         
-        <div className="glass p-8 rounded-3xl border border-white/10">
+        <div className="min-h-[60vh] relative">
           {view === 'stats' && (
-            <div className="space-y-12">
+            <div className="space-y-16 animate-in fade-in duration-1000">
                {/* Stats Cards */}
-               <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                 <div className="glass p-6 rounded-2xl border border-white/5 bg-gradient-to-br from-gold/10 to-transparent">
-                   <div className="flex justify-between items-start mb-4">
-                     <div className="p-2 bg-gold/20 rounded-lg text-gold">
-                       <DollarSign size={20} />
+               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                 {[
+                   { label: 'GROSS_REVENUE', value: `₹${stats.revenue.toLocaleString()}`, icon: DollarSign, trend: '+12%', color: 'from-black/5 to-transparent' },
+                   { label: 'MANIFESTS_LOGGED', value: stats.ordersCount, icon: ShoppingBag, color: 'bg-black/[0.02]' },
+                   { label: 'MARKET_TRACTION', value: `${stats.conversionRate}%`, icon: TrendingUp, color: 'bg-black/[0.02]' },
+                   { label: 'INVENTORY_ALERTS', value: stats.lowStock, icon: AlertCircle, color: 'bg-black/[0.02]', alert: stats.lowStock > 0 },
+                 ].map((stat, i) => (
+                   <div key={i} className={`p-8 rounded-3xl border border-black/5 flex flex-col justify-between h-48 transition-all duration-700 hover:border-black/20 group ${stat.color}`}>
+                     <div className="flex justify-between items-start">
+                       <div className="w-10 h-10 bg-text text-bg rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-700">
+                         <stat.icon size={18} />
+                       </div>
+                       {stat.trend && <span className="font-tech text-green-600">{stat.trend}</span>}
+                       {stat.alert && <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />}
                      </div>
-                     <span className="text-[10px] bg-green-500/20 text-green-500 px-2 py-1 rounded-full font-bold">+12%</span>
-                   </div>
-                   <p className="text-[10px] uppercase tracking-widest text-white/40">Total Revenue</p>
-                   <h3 className="text-2xl font-mono mt-1">₹{stats.revenue.toLocaleString()}</h3>
-                 </div>
-
-                 <div className="glass p-6 rounded-2xl border border-white/5">
-                   <div className="flex justify-between items-start mb-4">
-                     <div className="p-2 bg-blue-500/20 rounded-lg text-blue-400">
-                       <ShoppingBag size={20} />
-                     </div>
-                   </div>
-                   <p className="text-[10px] uppercase tracking-widest text-white/40">Manifests Logged</p>
-                   <h3 className="text-2xl font-mono mt-1">{stats.ordersCount}</h3>
-                 </div>
-
-                 <div className="glass p-6 rounded-2xl border border-white/5">
-                   <div className="flex justify-between items-start mb-4">
-                     <div className="p-2 bg-purple-500/20 rounded-lg text-purple-400">
-                       <TrendingUp size={20} />
+                     <div>
+                       <p className="font-tech text-text/20 mb-1">{stat.label}</p>
+                       <h3 className="text-3xl font-display">{stat.value}</h3>
                      </div>
                    </div>
-                   <p className="text-[10px] uppercase tracking-widest text-white/40">Market Traction</p>
-                   <h3 className="text-2xl font-mono mt-1">{stats.conversionRate}%</h3>
-                 </div>
-
-                 <div className="glass p-6 rounded-2xl border border-white/5">
-                   <div className="flex justify-between items-start mb-4">
-                     <div className="p-2 bg-red-500/20 rounded-lg text-red-500">
-                       <AlertCircle size={20} />
-                     </div>
-                   </div>
-                   <p className="text-[10px] uppercase tracking-widest text-white/40">Inventory Warnings</p>
-                   <h3 className={`text-2xl font-mono mt-1 ${stats.lowStock > 0 ? 'text-red-500' : ''}`}>{stats.lowStock}</h3>
-                 </div>
+                 ))}
                </div>
 
                {/* Chart */}
-               <div className="glass p-8 rounded-2xl border border-white/5 h-[400px]">
-                  <div className="flex justify-between items-center mb-8">
+               <div className="p-8 rounded-[2.5rem] border border-black/5 bg-black/[0.01] h-[500px]">
+                  <div className="flex justify-between items-center mb-12">
                      <div>
-                       <h3 className="text-lg font-bold flex items-center">
-                         <BarChart2 className="mr-2 text-gold" size={18} />
-                         Revenue Intelligence
-                       </h3>
-                       <p className="text-xs text-white/40 uppercase tracking-widest mt-1">Last 7 Days Acquisition Trend</p>
+                        <div className="flex items-center space-x-3 mb-2">
+                           <div className="w-1 h-1 bg-text rounded-full" />
+                           <span className="font-tech text-text/20">DATA_VISUALIZATION // METRICS</span>
+                        </div>
+                        <h3 className="text-2xl font-display">Revenue <span className="opacity-20 italic">Intelligence.</span></h3>
                      </div>
                   </div>
                   <ResponsiveContainer width="100%" height="80%">
                     <AreaChart data={chartData}>
                       <defs>
                         <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#D4AF37" stopOpacity={0.3}/>
-                          <stop offset="95%" stopColor="#D4AF37" stopOpacity={0}/>
+                          <stop offset="5%" stopColor="#000000" stopOpacity={0.05}/>
+                          <stop offset="95%" stopColor="#000000" stopOpacity={0}/>
                         </linearGradient>
                       </defs>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" />
-                      <XAxis dataKey="name" stroke="#ffffff40" fontSize={10} />
-                      <YAxis stroke="#ffffff40" fontSize={10} />
-                      <Tooltip 
-                        contentStyle={{ backgroundColor: '#111', border: '1px solid #ffffff10', borderRadius: '12px' }}
-                        itemStyle={{ color: '#D4AF37' }}
+                      <CartesianGrid strokeDasharray="3 3" stroke="#00000005" vertical={false} />
+                      <XAxis 
+                        dataKey="name" 
+                        stroke="#00000020" 
+                        fontSize={10} 
+                        tickLine={false}
+                        axisLine={false}
+                        tick={{ dy: 10 }}
                       />
-                      <Area type="monotone" dataKey="sales" stroke="#D4AF37" fillOpacity={1} fill="url(#colorSales)" />
+                      <YAxis 
+                        stroke="#00000020" 
+                        fontSize={10} 
+                        tickLine={false}
+                        axisLine={false}
+                        tickFormatter={(value) => `₹${value >= 1000 ? (value/1000).toFixed(0) + 'k' : value}`}
+                      />
+                      <Tooltip 
+                        contentStyle={{ 
+                          backgroundColor: 'rgba(255, 255, 255, 0.95)', 
+                          backdropFilter: 'blur(10px)',
+                          border: '1px solid rgba(0, 0, 0, 0.05)', 
+                          borderRadius: '16px',
+                          boxShadow: '0 20px 40px rgba(0, 0, 0, 0.05)'
+                        }}
+                        itemStyle={{ color: '#000', fontWeight: 'bold' }}
+                      />
+                      <Area 
+                        type="monotone" 
+                        dataKey="sales" 
+                        stroke="#000000" 
+                        strokeWidth={2}
+                        fillOpacity={1} 
+                        fill="url(#colorSales)" 
+                      />
                     </AreaChart>
                   </ResponsiveContainer>
                </div>
 
-               {/* System Utilities */}
-               <div className="pt-12 border-t border-white/5">
-                 <div className="flex items-center justify-between mb-8">
-                   <div>
-                     <h3 className="text-lg font-bold">System Utilities</h3>
-                     <p className="text-xs text-white/40 uppercase tracking-widest mt-1">Core cache and manifest management</p>
-                   </div>
-                 </div>
-                 
-                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                   <div className="glass p-8 rounded-2xl border border-white/5 hover:border-gold/10 transition-all flex flex-col justify-between">
-                     <div>
-                       <h4 className="text-sm font-bold text-white/80 mb-2">Internal Cache Flush</h4>
-                       <p className="text-xs text-white/40 leading-relaxed mb-6 italic">
-                         Clears all local storage, including cached product list, banner states, and acquisition metadata. 
-                         Forces a complete hard sync with the horological database.
-                       </p>
+               {/* System Diagnostics Output */}
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-10 border-t border-black/5 pt-16">
+                  <div className="space-y-6">
+                     <div className="flex items-center space-x-3">
+                        <Database size={16} className="text-text/20" />
+                        <h4 className="font-tech text-text/40 text-[10px]">CORE_DATABASE // MAINTENANCE</h4>
+                     </div>
+                     <div className="space-y-4">
+                        <button onClick={handleClearCache} className="w-full flex items-center justify-between p-6 bg-black/[0.02] border border-black/5 rounded-[2rem] hover:bg-black hover:text-bg transition-all duration-700">
+                           <span className="font-tech text-[10px]">EXECUTE_CACHE_PURGE</span>
+                           <ArrowRight size={14} />
+                        </button>
+                        <button onClick={handlePurgeOrders} className="w-full flex items-center justify-between p-6 border border-red-500/10 text-red-500/40 hover:bg-red-500 hover:text-white rounded-[2rem] transition-all duration-700">
+                           <span className="font-tech text-[10px]">ERASE_ALL_MANIFESTS</span>
+                           <Zap size={14} />
+                        </button>
+                     </div>
+                  </div>
+                  
+                  <div className="space-y-6">
+                     <div className="flex items-center space-x-3">
+                        <ShieldAlert size={16} className="text-text/20" />
+                        <h4 className="font-tech text-text/40 text-[10px]">SECURITY_OVERRIDE // VAULT_LOCK</h4>
                      </div>
                      <button 
-                       onClick={handleClearCache}
-                       className="w-full py-4 bg-white/5 hover:bg-white/10 text-white/60 hover:text-gold border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-[0.3em] transition-all"
+                       onClick={handleToggleMaintenance} 
+                       className={`w-full p-10 rounded-[2.5rem] border transition-all duration-1000 flex flex-col items-center justify-center space-y-4 ${maintenanceStatus ? 'bg-black text-white border-black' : 'bg-transparent border-black/5 hover:border-black'}`}
                      >
-                       Execute Cache Purge
+                        <Lock size={32} />
+                        <div className="text-center">
+                           <p className="font-tech text-[10px] uppercase tracking-[0.3em]">{maintenanceStatus ? 'TERMINATE_LOCKDOWN' : 'INITIATE_VAULT_LOCK'}</p>
+                           <p className="text-[8px] opacity-40 mt-1 font-tech uppercase tracking-widest">{maintenanceStatus ? 'SYSTEM_IS_CURRENTLY_RESTRICTED' : 'SECURE_THE_COLLECTION_FROM_PUBLIC'}</p>
+                        </div>
                      </button>
-                   </div>
+                  </div>
+               </div>
+            </div>
+          )}
 
-                   <div className="glass p-8 rounded-2xl border border-red-500/5 hover:border-red-500/20 transition-all flex flex-col justify-between">
-                     <div>
-                       <h4 className="text-sm font-bold text-red-500/80 mb-2">Manifest Expungement</h4>
-                       <p className="text-xs text-white/40 leading-relaxed mb-6 italic">
-                         Permanently deletes all order records from the live database. This operation is irreversible 
-                         and will result in a total loss of acquisition history.
-                       </p>
-                     </div>
-                     <button 
-                       onClick={handlePurgeOrders}
-                       className="w-full py-4 bg-red-500/5 hover:bg-red-500/10 text-red-500/60 hover:text-red-500 border border-red-500/10 rounded-xl text-[10px] font-black uppercase tracking-[0.3em] transition-all"
-                     >
-                       Purge All Live Data
-                     </button>
-                   </div>
-                 </div>                 {/* Maintenance Control */}
-                 <div className="mt-8">
-                   <div className={`glass p-8 rounded-[2rem] border transition-all flex flex-col md:flex-row justify-between items-center gap-6 ${maintenanceStatus ? 'border-orange-500/30 bg-orange-500/10 backdrop-blur-xl shadow-2xl shadow-orange-500/10' : 'border-white/5 bg-white/[0.02]'}`}>
-                     <div className="flex items-start space-x-6">
-                       <div className={`p-4 rounded-2xl ${maintenanceStatus ? 'bg-orange-500/20 text-orange-500' : 'bg-white/5 text-white/40'}`}>
-                         <Shield size={24} className={maintenanceStatus ? 'animate-pulse' : ''} />
+          {view === 'products' && (
+            <div className="space-y-12 animate-in fade-in duration-1000">
+               <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+                  <div>
+                    <div className="flex items-center space-x-3 mb-2">
+                       <div className="w-1 h-1 bg-text rounded-full" />
+                       <span className="font-tech text-text/20">ASSET_REGISTER // CURATION</span>
+                    </div>
+                    <h2 className="text-3xl font-display">Inventory <span className="opacity-20 italic">Manifest.</span></h2>
+                  </div>
+                  <button onClick={handleSeed} className="font-tech text-text/30 hover:text-text text-[10px] underline decoration-black/10 underline-offset-4">GENERATE_SAMPLE_DATA</button>
+               </div>
+
+               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                  {products.map((p) => (
+                    <div key={p.id} className="group p-6 rounded-[2.5rem] border border-black/5 bg-white hover:shadow-2xl transition-all duration-700">
+                       <div className="aspect-square rounded-3xl overflow-hidden bg-black/5 mb-6 relative">
+                          <img src={p.images[0]} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" alt={p.name} />
+                          <div className="absolute top-4 right-4 h-3 w-3 rounded-full border-2 border-white shadow-sm" style={{ backgroundColor: p.stock < 5 ? '#ef4444' : '#22c55e' }} />
                        </div>
-                       <div>
-                         <h4 className="text-sm font-bold flex items-center">
-                           Vault Lockout Protocol
-                           {maintenanceStatus && (
-                             <span className="ml-3 px-2 py-0.5 rounded bg-orange-500/20 text-orange-500 text-[8px] uppercase tracking-widest font-black animate-pulse">
-                               Active Standby
-                             </span>
-                           )}
-                         </h4>
-                         <p className="text-xs text-white/40 max-w-md mt-2 italic leading-relaxed">
-                           When enabled, the storefront will be inaccessible to standard visitors. Admins will retain 
-                           full command access to perform updates and restorations.
-                         </p>
+                       <div className="space-y-1 mb-6">
+                          <p className="font-tech text-text/20 text-[8px]">{p.category.toUpperCase()} // STOCK_{p.stock}</p>
+                          <h4 className="text-lg font-bold truncate">{p.name}</h4>
+                          <p className="font-mono text-xl opacity-60">₹{p.price.toLocaleString()}</p>
                        </div>
-                     </div>
-                     <button 
-                       onClick={handleToggleMaintenance}
-                       disabled={isTogglingMaintenance}
-                       className={`px-8 py-4 rounded-xl text-[10px] font-black uppercase tracking-[0.3em] transition-all w-full md:w-fit flex items-center justify-center ${maintenanceStatus ? 'bg-orange-500 text-luxury-black shadow-[0_0_30px_rgba(249,115,22,0.3)]' : 'bg-white/5 text-white/60 border border-white/10 hover:border-gold hover:text-gold'}`}
-                     >
-                       {isTogglingMaintenance ? (
-                         <>
-                           <Loader2 size={14} className="mr-2 animate-spin" />
-                           Coordinating...
-                         </>
-                       ) : (
-                         <>
-                           <Lock size={14} className="mr-2" />
-                           {maintenanceStatus ? 'Terminate Protocol' : 'Initiate Maintenance'}
-                         </>
-                       )}
-                     </button>
-                   </div>
-                 </div>
+                       <div className="flex items-center justify-between pt-6 border-t border-black/5">
+                          <div className="flex space-x-2">
+                             <button onClick={() => {setEditingStockId(p.id); setNewStockValue(p.stock.toString());}} className="w-10 h-10 rounded-full border border-black/5 flex items-center justify-center hover:bg-black hover:text-white transition-all duration-500"><Edit size={16} /></button>
+                             <button onClick={() => handleDelete(p.id)} className="w-10 h-10 rounded-full bg-red-50 text-red-500/40 hover:text-red-500 hover:bg-red-100 flex items-center justify-center transition-all duration-500"><Trash2 size={16} /></button>
+                          </div>
+                          {editingStockId === p.id && (
+                             <div className="flex items-center space-x-2 animate-in slide-in-from-right-4 duration-500">
+                                <input type="number" value={newStockValue} onChange={e => setNewStockValue(e.target.value)} className="w-16 bg-black/[0.02] border border-black/10 rounded-lg px-2 py-1 font-mono text-xs outline-none focus:border-black" />
+                                <button onClick={() => handleUpdateStock(p.id)} className="font-tech text-text hover:underline text-[10px]">SYNC</button>
+                             </div>
+                          )}
+                       </div>
+                    </div>
+                  ))}
+               </div>
+            </div>
+          )}
+
+          {view === 'orders' && (
+            <div className="space-y-12 animate-in fade-in duration-1000">
+               <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12">
+                  <div>
+                    <div className="flex items-center space-x-3 mb-2">
+                       <div className="w-1 h-1 bg-text rounded-full" />
+                       <span className="font-tech text-text/20">SALES_MANIFEST // TRANSACTION_LOGS</span>
+                    </div>
+                    <h2 className="text-3xl font-display">Global <span className="opacity-20 italic">Acquisitions.</span></h2>
+                  </div>
+               </div>
+
+               <div className="space-y-6">
+                  {orders.length === 0 && <p className="text-text/20 font-tech text-[10px] py-20 text-center">NO_TRANSACTIONS_DETECTED</p>}
+                  {orders.map((o) => (
+                    <div key={o.id} className="p-8 rounded-[2.5rem] border border-black/5 bg-white hover:shadow-xl transition-all duration-700 grid grid-cols-1 lg:grid-cols-4 gap-8 items-center relative overflow-hidden group">
+                       <div className="lg:col-span-1">
+                          <p className="font-tech text-text/20 text-[8px] mb-2">MANIFEST_ID // {o.id.slice(-8)}</p>
+                          <h4 className="text-xl font-bold italic">{o.customerName}</h4>
+                          <p className="text-text/40 text-xs font-tech mt-1">{o.customerEmail}</p>
+                       </div>
+                       <div className="lg:col-span-1">
+                          <p className="font-tech text-text/20 text-[8px] mb-2">ACQUISITION_VALUE</p>
+                          <p className="text-2xl font-mono">₹{o.total.toLocaleString()}</p>
+                       </div>
+                       <div className="lg:col-span-1">
+                          <p className="font-tech text-text/20 text-[8px] mb-2">STATUS_PROTOCOL</p>
+                          <div className="flex items-center space-x-3">
+                             <div className={`px-3 py-1 rounded-full text-[8px] font-tech border ${o.status === 'delivered' ? 'bg-green-100 border-green-200 text-green-700' : 'bg-black/5 border-black/10 text-text/60'}`}>
+                                {o.status.toUpperCase()}
+                             </div>
+                          </div>
+                       </div>
+                       <div className="lg:col-span-1 flex flex-wrap justify-end gap-3">
+                          <button onClick={() => setSelectedOrder(o)} className="px-6 py-3 rounded-full border border-black/10 font-tech text-[10px] hover:bg-black hover:text-bg transition-all duration-700">MANIFEST_DETAILS</button>
+                          <select 
+                            value={o.status} 
+                            onChange={(e) => {
+                              const newStatus = e.target.value as AdminOrder['status'];
+                              handleUpdateOrderStatus(o.id, newStatus);
+                            }}
+                            className="bg-black/[0.02] border border-black/5 rounded-full px-4 py-3 font-tech text-[9px] focus:border-black outline-none cursor-pointer"
+                          >
+                             {['pending', 'processing', 'shipped', 'delivered'].map(s => <option key={s} value={s}>{s.toUpperCase()}</option>)}
+                          </select>
+                       </div>
+                    </div>
+                  ))}
                </div>
             </div>
           )}
 
           {view === 'banners' && (
-            <div className="space-y-12">
-               <div>
-                  <h2 className="text-xl font-bold mb-8">Home Page Banner Controls</h2>
-                  <form onSubmit={handleAddBanner} className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div>
-                        <label className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block">Banner Title (Optional)</label>
-                        <input value={bannerTitle} onChange={e => setBannerTitle(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none" placeholder="e.g. Summer Collection" />
+            <div className="space-y-16 animate-in fade-in duration-1000">
+               <div className="max-w-4xl">
+                  <div className="flex items-center space-x-3 mb-4">
+                     <div className="w-1 h-1 bg-text rounded-full" />
+                     <span className="font-tech text-text/20">VISUAL_ASSETS // BRAND_EXPOSURE</span>
+                  </div>
+                  <h2 className="text-4xl font-display mb-12 italic">Promotional <span className="opacity-20">Banners.</span></h2>
+                  
+                  <form onSubmit={handleAddBanner} className="space-y-10 p-10 rounded-[2.5rem] border border-black/5 bg-black/[0.01]">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                      <div className="space-y-4">
+                        <label className="font-tech text-text/30">HEADLINE_TXT</label>
+                        <input value={bannerTitle} onChange={e => setBannerTitle(e.target.value)} className="w-full bg-transparent border-b border-black/10 py-3 italic text-xl focus:border-black outline-none transition-all" placeholder="e.g. THE_LOST_COLLECTION" />
                       </div>
-                      <div>
-                        <label className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block">Subtitle (Offer Text)</label>
-                        <input value={bannerSubtitle} onChange={e => setBannerSubtitle(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none" placeholder="e.g. Flat 30% Off" />
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div>
-                        <label className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block">Desktop Banner Upload</label>
-                        <input 
-                          type="file" accept="image/*" onChange={handleBannerFileChange}
-                          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-gold outline-none file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-gold file:text-luxury-black hover:file:bg-gold/80"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block">Desktop Image URL</label>
-                        <input 
-                          value={bannerImage} 
-                          onChange={e => {
-                            setBannerImage(e.target.value);
-                            if (e.target.value) {
-                              setBannerDisplayDesktop(true);
-                              if (!bannerMobileImageFile && !bannerMobileImage) setBannerDisplayMobile(false);
-                            }
-                          }} 
-                          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none" 
-                          placeholder="https://..." 
-                        />
+                      <div className="space-y-4">
+                        <label className="font-tech text-text/30">SUBHEAD_TXT</label>
+                        <input value={bannerSubtitle} onChange={e => setBannerSubtitle(e.target.value)} className="w-full bg-transparent border-b border-black/10 py-3 italic text-sm focus:border-black outline-none transition-all" placeholder="e.g. ARCHIVAL_RELEASE_2026" />
                       </div>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div>
-                        <label className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block">Mobile Banner Upload (9:16 approx)</label>
-                        <input 
-                          type="file" accept="image/*" onChange={handleBannerMobileFileChange}
-                          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-gold outline-none file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-gold file:text-luxury-black hover:file:bg-gold/80"
-                        />
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                      <div className="space-y-4">
+                        <label className="font-tech text-text/30">DESKTOP_ASSET</label>
+                        <input type="file" accept="image/*" onChange={handleBannerFileChange} className="w-full text-xs font-tech text-text/40 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-text file:text-bg cursor-pointer" />
                       </div>
-                      <div>
-                        <label className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block">Mobile Image URL</label>
-                        <input 
-                          value={bannerMobileImage} 
-                          onChange={e => {
-                            setBannerMobileImage(e.target.value);
-                            if (e.target.value) {
-                              setBannerDisplayMobile(true);
-                              if (!bannerImageFile && !bannerImage) setBannerDisplayDesktop(false);
-                            }
-                          }} 
-                          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none" 
-                          placeholder="https://..." 
-                        />
+                      <div className="space-y-4">
+                        <label className="font-tech text-text/30">MOBILE_ASSET</label>
+                        <input type="file" accept="image/*" onChange={handleBannerMobileFileChange} className="w-full text-xs font-tech text-text/40 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-text file:text-bg cursor-pointer" />
                       </div>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                      <div>
-                        <label className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block">Link Path (Optional)</label>
-                        <input value={bannerLink} onChange={e => setBannerLink(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none" placeholder="/#new" />
-                      </div>
-                      <div>
-                        <label className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block">Offer Expiry (Optional)</label>
-                        <input 
-                          type="datetime-local" 
-                          value={bannerExpiry} 
-                          onChange={e => setBannerExpiry(e.target.value)}
-                          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-gold outline-none text-white/60"
-                        />
-                      </div>
-                      <div className="flex items-center space-x-6 h-full pt-6">
-                        <label className="flex items-center space-x-3 cursor-pointer group">
-                          <input 
-                            type="checkbox" 
-                            checked={bannerDisplayDesktop} 
-                            onChange={e => setBannerDisplayDesktop(e.target.checked)} 
-                            className="accent-gold h-4 w-4" 
-                          />
-                          <div className="flex flex-col">
-                            <span className="text-[10px] uppercase font-bold tracking-widest text-white/60 group-hover:text-gold transition-colors">Desktop</span>
-                            <span className="text-[8px] text-white/20 uppercase tracking-[0.2em]">Large Screen</span>
-                          </div>
-                        </label>
-                        <label className="flex items-center space-x-3 cursor-pointer group">
-                          <input 
-                            type="checkbox" 
-                            checked={bannerDisplayMobile} 
-                            onChange={e => setBannerDisplayMobile(e.target.checked)} 
-                            className="accent-gold h-4 w-4" 
-                          />
-                          <div className="flex flex-col">
-                            <span className="text-[10px] uppercase font-bold tracking-widest text-white/60 group-hover:text-gold transition-colors">Mobile</span>
-                            <span className="text-[8px] text-white/20 uppercase tracking-[0.2em]">Pocket Display</span>
-                          </div>
-                        </label>
-                      </div>
-                    </div>
-                    <button type="submit" disabled={isSaving} className="w-full py-4 gold-gradient text-luxury-black font-bold uppercase tracking-widest rounded-xl hover:scale-[1.01] transition-all disabled:opacity-50">
-                      Deploy Banner
+
+                    <button type="submit" disabled={isSaving} className="w-full py-6 bg-text text-bg font-tech text-[10px] tracking-[0.4em] rounded-full hover:scale-[1.02] transition-all">
+                      {isSaving ? 'UPLOADING_VISUALS...' : 'DEPLOY_BRAND_ASSET'}
                     </button>
                   </form>
                </div>
 
-               <div>
-                 <h3 className="text-[10px] uppercase tracking-widest text-white/40 mb-6">Current active banners</h3>
-                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                   {banners.map((b, index) => (
-                     <div key={b.id} className="glass rounded-2xl overflow-hidden border border-white/10 hover:border-gold/30 transition-all group p-4">
-                       <div className="grid grid-cols-2 gap-4 aspect-[21/9] mb-4">
-                         <div className="relative rounded-xl overflow-hidden bg-black/40">
-                            <img src={b.imageUrl} className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity" alt="Desktop Preview" />
-                            <div className="absolute top-2 left-2 bg-luxury-black/80 text-[8px] text-gold px-1.5 py-0.5 rounded border border-gold/20 font-bold uppercase">Desk</div>
-                         </div>
-                         <div className="relative rounded-xl overflow-hidden bg-black/40">
-                            <img src={b.mobileImageUrl || b.imageUrl} className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity" alt="Mobile Preview" />
-                            <div className="absolute top-2 left-2 bg-luxury-black/80 text-[8px] text-gold px-1.5 py-0.5 rounded border border-gold/20 font-bold uppercase">Mob</div>
-                            {!b.mobileImageUrl && <div className="absolute inset-0 flex items-center justify-center text-[8px] text-white/20 uppercase tracking-widest bg-black/40">No Mobile Asset</div>}
-                         </div>
+               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  {banners.length === 0 && <p className="text-text/20 font-tech text-[10px] py-20 text-center col-span-2">NO_ACTIVE_BANNERS_IN_FEED</p>}
+                  {banners.map((b, index) => (
+                    <div key={b.id} className="group relative p-6 rounded-[2.5rem] border border-black/5 bg-white hover:shadow-2xl transition-all duration-700">
+                       <div className="aspect-[21/9] rounded-2xl overflow-hidden bg-black/5 mb-6 relative">
+                          <img src={b.imageUrl} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" alt={b.title} />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                          <div className="absolute bottom-4 left-6">
+                             <p className="font-tech text-white/40 text-[8px] mb-1">PROMO_ID_{b.id.slice(-4)}</p>
+                             <h4 className="text-white text-lg font-display italic">{b.title}</h4>
+                          </div>
                        </div>
-
-                       <div className="flex justify-between items-start">
-                         <div className="min-w-0 flex-grow mr-4">
-                            <span className="text-[10px] font-mono text-gold/60">Slide #{index + 1}</span>
-                            <h4 className="font-display text-sm text-gold truncate">{b.title}</h4>
-                            <p className="text-white/40 text-[10px] truncate">{b.subtitle}</p>
-                         </div>
-                         <div className="flex space-x-2 flex-shrink-0">
-                            <div className="flex flex-col space-y-1">
-                              <button 
-                                type="button"
-                                onClick={() => handleMoveBanner(index, 'up')} 
-                                disabled={index === 0}
-                                className="p-1.5 bg-black/60 text-white rounded-lg hover:bg-gold hover:text-luxury-black transition-all disabled:opacity-20"
-                              >
-                                <ChevronLeft size={14} className="rotate-90" />
-                              </button>
-                              <button 
-                                type="button"
-                                onClick={() => handleMoveBanner(index, 'down')} 
-                                disabled={index === banners.length - 1}
-                                className="p-1.5 bg-black/60 text-white rounded-lg hover:bg-gold hover:text-luxury-black transition-all disabled:opacity-20"
-                              >
-                                <ChevronLeft size={14} className="-rotate-90" />
-                              </button>
-                            </div>
-                            <button 
-                              type="button"
-                              onClick={() => handleDeleteBanner(b.id)} 
-                              className="p-2 bg-red-600/20 text-red-500 rounded-lg scale-90 hover:scale-100 hover:bg-red-600 hover:text-white transition-all"
-                            >
-                               <Trash2 size={16} />
-                            </button>
-                         </div>
+                       <div className="flex items-center justify-between">
+                          <div className="flex space-x-2">
+                             <button onClick={() => handleMoveBanner(index, 'up')} disabled={index === 0} className="w-10 h-10 rounded-full border border-black/5 flex items-center justify-center text-text/20 hover:text-text disabled:opacity-10"><ChevronLeft size={18} className="rotate-90" /></button>
+                             <button onClick={() => handleMoveBanner(index, 'down')} disabled={index === banners.length - 1} className="w-10 h-10 rounded-full border border-black/5 flex items-center justify-center text-text/20 hover:text-text disabled:opacity-10"><ChevronLeft size={18} className="-rotate-90" /></button>
+                          </div>
+                          <button onClick={() => handleDeleteBanner(b.id)} className="w-10 h-10 rounded-full bg-red-50 text-red-500/40 hover:text-red-500 hover:bg-red-100 flex items-center justify-center transition-all"><Trash2 size={18} /></button>
                        </div>
-                     </div>
-                   ))}
-                   {banners.length === 0 && <p className="text-white/20 text-xs py-10 text-center col-span-2">No promotional banners active.</p>}
-                 </div>
+                    </div>
+                  ))}
                </div>
             </div>
           )}
 
           {view === 'broadcast' && (
-            <div className="space-y-12">
+            <div className="max-w-4xl animate-in fade-in duration-1000 space-y-16">
                <div>
-                  <h2 className="text-xl font-bold mb-8 flex items-center">
-                    <Megaphone className="mr-3 text-gold" size={24} />
-                    Global Transmission System
-                  </h2>
-                  <form onSubmit={handleBroadcast} className="space-y-6 max-w-2xl">
-                    <div className="space-y-4">
-                      <div>
-                        <label className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block">Transmission Title</label>
+                  <div className="flex items-center space-x-3 mb-4">
+                     <div className="w-1 h-1 bg-text rounded-full" />
+                     <span className="font-tech text-text/20">COMMS_TERMINAL // GLOBAL_PULSE</span>
+                  </div>
+                  <h2 className="text-4xl font-display mb-12 italic">Transmit <span className="opacity-20">Broadcast.</span></h2>
+                  
+                  <form onSubmit={handleBroadcast} className="space-y-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                      <div className="space-y-2">
+                        <label className="font-tech text-text/20">TRANSMISSION_TITLE</label>
                         <input 
                           value={broadcastTitle} 
                           onChange={e => setBroadcastTitle(e.target.value)} 
-                          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-gold" 
-                          placeholder="e.g. Exclusive Weekend Offer" 
+                          className="w-full bg-black/[0.02] border-b border-black/10 py-4 focus:border-black outline-none transition-all font-display italic text-xl" 
+                          placeholder="e.g. EXCLUSIVE_HOROLOGY_EVENT" 
                           required
                         />
                       </div>
-                      <div>
-                        <label className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block">Category</label>
-                        <div className="flex flex-wrap gap-4">
+                      <div className="space-y-2">
+                        <label className="font-tech text-text/20">SIGNAL_TYPE</label>
+                        <div className="flex flex-wrap gap-2 pt-2">
                           {['offer', 'trending', 'new_arrival', 'general'].map((type) => (
                             <button
                               key={type}
                               type="button"
                               onClick={() => setBroadcastType(type as any)}
-                              className={`px-4 py-2 rounded-lg text-[10px] uppercase font-bold tracking-widest border transition-all ${broadcastType === type ? 'bg-gold/10 border-gold text-gold' : 'border-white/5 text-white/40'}`}
+                              className={`px-4 py-2 rounded-full text-[8px] font-tech transition-all border ${broadcastType === type ? 'bg-text text-bg border-text' : 'border-black/10 text-text/40 hover:border-text'}`}
                             >
                               {type}
                             </button>
                           ))}
                         </div>
                       </div>
-                      <div>
-                        <label className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block">Transmission Manifest (Message)</label>
-                        <textarea 
-                          value={broadcastMessage} 
-                          onChange={e => setBroadcastMessage(e.target.value)} 
-                          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-gold h-32" 
-                          placeholder="Detailed announcement for all elite members..."
-                          required
-                        />
-                      </div>
-                      <div>
-                        <label className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block">Link Target (Optional)</label>
-                        <input 
-                          value={broadcastLink} 
-                          onChange={e => setBroadcastLink(e.target.value)} 
-                          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-gold" 
-                          placeholder="e.g. /explore or /product/ID" 
-                        />
-                      </div>
                     </div>
+                    
+                    <div className="space-y-2">
+                      <label className="font-tech text-text/20">MANIFEST_BODY</label>
+                      <textarea 
+                        value={broadcastMessage} 
+                        onChange={e => setBroadcastMessage(e.target.value)} 
+                        className="w-full bg-black/[0.02] border border-black/5 rounded-2xl p-6 focus:border-black outline-none transition-all h-40 italic text-lg shadow-inner" 
+                        placeholder="Detail the acquisition opportunity..."
+                        required
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="font-tech text-text/20">TARGET_LINK_URI</label>
+                      <input 
+                        value={broadcastLink} 
+                        onChange={e => setBroadcastLink(e.target.value)} 
+                        className="w-full bg-black/[0.02] border-b border-black/10 py-4 focus:border-black outline-none transition-all font-tech text-[10px]" 
+                        placeholder="/MASTERPIECE/ID_00X" 
+                      />
+                    </div>
+
                     <button 
                       type="submit" 
                       disabled={isSaving} 
-                      className="w-full py-4 gold-gradient text-luxury-black font-black uppercase tracking-[0.3em] rounded-xl hover:scale-[1.01] transition-all disabled:opacity-50 shadow-xl shadow-gold/10"
+                      className="w-full py-6 bg-text text-bg font-tech text-xs tracking-[0.5em] rounded-full hover:scale-[1.02] transition-all duration-700 shadow-2xl"
                     >
-                      {isSaving ? 'Initiating Broadcast...' : 'Execute Pulse'}
+                      {isSaving ? 'TRANSMITTING...' : 'EXECUTE_GLOBAL_PULSE'}
                     </button>
                   </form>
-               </div>
-
-               <div className="pt-12 border-t border-white/5">
-                 <h3 className="text-[10px] uppercase tracking-widest text-white/20 mb-6">Historical Transmissions</h3>
-                 <p className="text-white/40 text-xs italic">Pulse history is managed via the database console.</p>
                </div>
             </div>
           )}
 
           {view === 'add' && (
-            <>
-              <h2 className="text-xl font-bold mb-8 flex items-center">
-                <Plus className="mr-2 text-gold" size={20} />
-                Quick Catalog Addition
-              </h2>
+            <div className="max-w-4xl animate-in fade-in slide-in-from-bottom-8 duration-1000">
+              <div className="flex items-center space-x-3 mb-10">
+                 <div className="w-1 h-1 bg-text rounded-full" />
+                 <span className="font-tech text-text/20">PROTOCOL // ARCHIVE_INITIATION</span>
+              </div>
+              <h2 className="text-4xl font-display mb-12 italic">Register <span className="opacity-20">New Asset.</span></h2>
               
-              <form onSubmit={handleAddProduct} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block">Product Name</label>
+              <form onSubmit={handleAddProduct} className="space-y-12">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                  <div className="space-y-4">
+                    <label className="font-tech text-text/30">IDENTIFIER_NAME</label>
                     <input 
                       value={name} onChange={e => setName(e.target.value)}
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-gold outline-none"
-                      placeholder="e.g. Zenith Black" required
+                      className="w-full bg-black/[0.02] border-b border-black/10 px-0 py-4 focus:border-black outline-none transition-all font-display italic text-2xl"
+                      placeholder="e.g. PHANTOM_GHOST" required
                     />
                   </div>
-                  <div>
-                    <label className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block">Base Price (INR)</label>
+                  <div className="space-y-4">
+                    <label className="font-tech text-text/30">VALUATION_INR</label>
                     <input 
                       type="number" value={price} onChange={e => setPrice(e.target.value)}
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-gold outline-none"
-                      placeholder="e.g. 150000" required
+                      className="w-full bg-black/[0.02] border-b border-black/10 px-0 py-4 focus:border-black outline-none transition-all font-mono text-2xl"
+                      placeholder="00.00" required
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div>
-                    <label className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block">Stock Quantity</label>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-10">
+                  <div className="space-y-4">
+                    <label className="font-tech text-text/30">UNITS_AVAIL</label>
                     <input 
                       type="number" value={stock} onChange={e => setStock(e.target.value)}
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-gold outline-none"
-                      placeholder="e.g. 10" required
+                      className="w-full bg-black/[0.02] border-b border-black/10 px-0 py-4 focus:border-black outline-none transition-all font-mono"
+                      required
                     />
                   </div>
-                  <div>
-                    <label className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block">Discount (%)</label>
+                  <div className="space-y-4">
+                    <label className="font-tech text-text/30">DISCOUNT_%</label>
                     <input 
                       type="number" value={discount} onChange={e => setDiscount(e.target.value)}
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-gold outline-none"
-                      placeholder="e.g. 10"
+                      className="w-full bg-black/[0.02] border-b border-black/10 px-0 py-4 focus:border-black outline-none transition-all font-mono"
                     />
                   </div>
-                  <div>
-                    <label className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block">Category</label>
+                  <div className="col-span-2 space-y-4">
+                    <label className="font-tech text-text/30">CLASSIFICATION</label>
                     <select 
                       value={category} onChange={e => setCategory(e.target.value)}
-                      className="w-full bg-[#1A1A1A] text-white border border-white/20 rounded-xl px-4 py-3 focus:border-gold outline-none cursor-pointer focus:ring-1 focus:ring-gold"
+                      className="w-full bg-black/[0.02] border-b border-black/10 px-0 py-4 focus:border-black outline-none transition-all cursor-pointer font-tech"
                     >
-                      <option value="Grand Complications" className="bg-[#1A1A1A] text-white py-2">Grand Complications</option>
-                      <option value="Heritage" className="bg-[#1A1A1A] text-white py-2">Heritage</option>
-                      <option value="Avant-Garde" className="bg-[#1A1A1A] text-white py-2">Avant-Garde</option>
-                      <option value="Deep Sea" className="bg-[#1A1A1A] text-white py-2">Deep Sea</option>
+                      {['Grand Complications', 'Heritage', 'Avant-Garde', 'Deep Sea'].map(cat => (
+                        <option key={cat} value={cat}>{cat.toUpperCase()}</option>
+                      ))}
                     </select>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block">Direct Photo Upload</label>
-                    <input 
-                      type="file" multiple accept="image/*" onChange={handleFileChange}
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-gold outline-none file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-gold file:text-luxury-black hover:file:bg-gold/80"
-                    />
-                    <p className="text-[8px] text-white/20 mt-1">Uploaded photos are stored locally in the database.</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                  <div className="space-y-4">
+                    <label className="font-tech text-text/30">VISUAL_ASSETS</label>
+                    <div className="relative">
+                      <input 
+                        type="file" multiple accept="image/*" onChange={handleFileChange}
+                        className="opacity-0 absolute inset-0 cursor-pointer z-10"
+                      />
+                      <div className="border border-dashed border-black/10 rounded-2xl p-8 text-center bg-black/[0.01] group-hover:border-black transition-all">
+                         <Plus className="mx-auto mb-2 opacity-20" />
+                         <p className="text-[10px] font-tech text-text/40">UPLOAD_IMAGES</p>
+                         {imageFiles.length > 0 && <p className="text-[8px] text-green-600 mt-2">{imageFiles.length} ASSETS_STAGED</p>}
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <label className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block">Or Image URL (Optional)</label>
+                  <div className="space-y-4">
+                    <label className="font-tech text-text/30">SOURCE_URL_REDIRECT</label>
                     <input 
                       value={image} onChange={e => setImage(e.target.value)}
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-gold outline-none"
-                      placeholder="https://..."
+                      className="w-full bg-black/[0.02] border-b border-black/10 px-0 py-4 focus:border-black outline-none transition-all font-tech text-[10px]"
+                      placeholder="HTTPS://..."
                     />
                   </div>
                 </div>
 
-                <div>
-                  <label className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block">Description</label>
+                <div className="space-y-4">
+                  <label className="font-tech text-text/30">CRITICAL_DESCRIPTION</label>
                   <textarea 
                     value={description} onChange={e => setDescription(e.target.value)}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-gold outline-none h-32"
-                    placeholder="Exquisite detailing..." required
+                    className="w-full bg-black/[0.02] border border-black/5 rounded-2xl p-6 focus:border-black outline-none transition-all h-32 italic text-lg"
+                    placeholder="Describe the masterpiece detailing..." required
                   />
                 </div>
 
-                <div className="flex space-x-8">
-                  <label className="flex items-center space-x-3 cursor-pointer">
-                    <input type="checkbox" checked={isTrending} onChange={e => setIsTrending(e.target.checked)} className="accent-gold h-4 w-4" />
-                    <span className="text-sm text-white/60">Trending</span>
-                  </label>
-                  <label className="flex items-center space-x-3 cursor-pointer">
-                    <input type="checkbox" checked={isNewArrival} onChange={e => setIsNewArrival(e.target.checked)} className="accent-gold h-4 w-4" />
-                    <span className="text-sm text-white/60">New Arrival</span>
-                  </label>
-                  <label className="flex items-center space-x-3 cursor-pointer">
-                    <input type="checkbox" checked={isOffer} onChange={e => setIsOffer(e.target.checked)} className="accent-gold h-4 w-4" />
-                    <span className="text-sm text-white/60">Active Offer</span>
-                  </label>
-                  <div className="h-6 w-[1px] bg-white/10 mx-2" />
-                  <label className="flex items-center space-x-3 cursor-pointer">
-                    <input type="checkbox" checked={shouldAutoBroadcast} onChange={e => setShouldAutoBroadcast(e.target.checked)} className="accent-gold h-4 w-4" />
-                    <div className="flex flex-col">
-                      <span className="text-sm text-gold font-bold">Auto-Broadcast</span>
-                      <span className="text-[8px] text-white/40 uppercase tracking-widest">Pulse to all collectors</span>
-                    </div>
-                  </label>
+                <div className="flex flex-wrap gap-8 items-center border-t border-black/5 pt-10">
+                  {[
+                    { label: 'TRENDING', state: isTrending, set: setIsTrending },
+                    { label: 'NEW_ARRIVAL', state: isNewArrival, set: setIsNewArrival },
+                    { label: 'ACTIVE_OFFER', state: isOffer, set: setIsOffer },
+                    { label: 'AUTO_BROADCAST', state: shouldAutoBroadcast, set: setShouldAutoBroadcast, urgent: true },
+                  ].map((check, i) => (
+                    <label key={i} className="flex items-center space-x-3 cursor-pointer group">
+                      <div className={`w-4 h-4 rounded border flex items-center justify-center transition-all ${check.state ? 'bg-text border-text' : 'border-black/20 group-hover:border-black'}`}>
+                         {check.state && <Check size={10} className="text-bg" />}
+                      </div>
+                      <input type="checkbox" className="hidden" checked={check.state} onChange={e => check.set(e.target.checked)} />
+                      <span className={`font-tech text-[10px] ${check.state ? 'text-text' : 'text-text/30'} ${check.urgent && 'text-red-500/60'}`}>{check.label}</span>
+                    </label>
+                  ))}
                 </div>
 
-                <button type="submit" disabled={isSaving} className="w-full py-4 gold-gradient text-luxury-black font-bold uppercase tracking-widest rounded-xl hover:scale-[1.01] transition-all disabled:opacity-50">
-                  {isSaving ? 'Archiving...' : 'Save to Catalog'}
+                <button type="submit" disabled={isSaving} className="w-full py-6 bg-text text-bg font-tech text-xs tracking-[0.5em] rounded-full hover:scale-[1.02] transition-all duration-700 disabled:opacity-50 shadow-2xl">
+                  {isSaving ? 'EXECUTING_SYNC...' : 'ARCHIVE_COLLECTION_DATA'}
                 </button>
               </form>
-            </>
+            </div>
           )}
 
           {view === 'notifications' && (
-            <div className="space-y-8">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-8">
-                <div>
-                   <h2 className="text-xl font-bold">Intelligence Feed</h2>
-                   <p className="text-[10px] text-white/40 uppercase tracking-widest mt-1">Real-time ecosystem monitoring</p>
-                </div>
-                <div className="flex items-center space-x-2 bg-white/5 p-1 rounded-xl border border-white/10">
-                   {(['all', 'orders', 'inventory'] as const).map((f) => (
-                     <button
-                       key={f}
-                       onClick={() => setNotificationFilter(f)}
-                       className={`px-4 py-1.5 rounded-lg text-[10px] uppercase font-bold tracking-widest transition-all ${notificationFilter === f ? 'bg-gold/20 text-gold shadow-sm' : 'text-white/40 hover:text-white'}`}
+            <div className="space-y-12 animate-in fade-in duration-1000">
+               <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6 mb-12">
+                  <div>
+                    <div className="flex items-center space-x-3 mb-2">
+                       <div className="w-1 h-1 bg-text rounded-full" />
+                       <span className="font-tech text-text/20">INTELLIGENCE_FEED // SYSTEM_SCAN</span>
+                    </div>
+                    <h2 className="text-3xl font-display">System <span className="opacity-20">Alerts.</span></h2>
+                  </div>
+                  <div className="flex items-center space-x-4">
+                     <div className="flex items-center p-1 bg-black/[0.02] border border-black/5 rounded-lg">
+                        {(['all', 'orders', 'inventory'] as const).map((f) => (
+                          <button
+                            key={f}
+                            onClick={() => setNotificationFilter(f)}
+                            className={`px-3 py-1 rounded text-[8px] font-tech transition-all ${notificationFilter === f ? 'bg-text text-bg shadow-sm' : 'text-text/40 hover:text-text'}`}
+                          >
+                            {f}
+                          </button>
+                        ))}
+                     </div>
+                     <button 
+                       onClick={() => setNotifications(notifications.map(n => ({...n, read: true})))}
+                       className="font-tech text-[8px] text-text/30 hover:text-text"
                      >
-                       {f}
+                       MARK_READ_ALL
                      </button>
-                   ))}
-                </div>
-                <button 
-                  onClick={() => setNotifications(notifications.map(n => ({...n, read: true})))}
-                  className="text-[10px] uppercase font-black text-gold/60 hover:text-gold tracking-widest transition-colors ml-auto sm:ml-0"
-                >
-                  Clear All Unread
-                </button>
-              </div>
-
-              <div className="space-y-4">
-                {notifications.filter(n => notificationFilter === 'all' || n.type === notificationFilter).length === 0 ? (
-                  <div className="text-center py-20 bg-white/5 rounded-3xl border border-dashed border-white/10">
-                    <Bell className="mx-auto text-white/10 mb-4" size={48} />
-                    <p className="text-[10px] uppercase tracking-[0.3em] font-bold text-white/20">No active signals in this frequency</p>
                   </div>
-                ) : (
-                  notifications
-                    .filter(n => notificationFilter === 'all' || n.type === notificationFilter)
-                    .map((n) => (
-                    <motion.div 
-                      key={n.id} 
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      className={`glass p-6 rounded-2xl border transition-all duration-500 relative overflow-hidden group ${n.read ? 'border-white/5 opacity-50 gray' : 'border-gold/20 bg-gradient-to-r from-gold/5 to-transparent'}`}
-                    >
-                      {!n.read && <div className="absolute top-0 left-0 w-1 h-full bg-gold shadow-[0_0_10px_#D4AF37]" />}
-                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                        <div className="flex items-start space-x-4">
-                          <div className={`mt-1 p-3 rounded-xl ${n.type === 'orders' ? 'bg-gold/20 text-gold' : 'bg-red-500/20 text-red-500'}`}>
-                            {n.type === 'orders' ? <ShoppingBag size={20} /> : <AlertCircle size={20} />}
-                          </div>
-                          <div>
-                            <div className="flex items-center space-x-3 mb-1">
-                               <span className={`text-[8px] px-2 py-0.5 rounded font-black uppercase tracking-widest ${n.type === 'orders' ? 'bg-gold/10 text-gold' : 'bg-red-500/10 text-red-500'}`}>
-                                 {n.type} Signal
-                               </span>
-                               <p className="text-[10px] text-white/20 font-mono">
-                                 {new Date(n.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-                               </p>
-                            </div>
-                            <h4 className="text-sm font-bold text-white/90">{n.message}</h4>
-                            {n.total && <p className="text-xs text-gold/60 font-mono mt-1">Value: ₹{n.total.toLocaleString()}</p>}
-                          </div>
-                        </div>
-                        
-                        <div className="flex items-center space-x-4">
-                          {n.orderId && (
-                            <button 
-                              onClick={() => {
-                                const order = orders.find(o => o.id === n.orderId);
-                                if (order) {
-                                  setSelectedOrder(order);
-                                  setView('orders');
-                                }
-                              }}
-                              className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-[10px] font-black uppercase tracking-widest text-white/60 hover:text-gold transition-all"
-                            >
-                              Inspect Manifest
-                            </button>
-                          )}
-                          {n.productId && (
-                            <button 
-                              onClick={() => setView('products')}
-                              className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-[10px] font-black uppercase tracking-widest text-white/60 hover:text-red-400 transition-all"
-                            >
-                              Restock Unit
-                            </button>
-                          )}
-                          {!n.read && (
-                            <button 
-                              onClick={() => setNotifications(notifications.map(notif => notif.id === n.id ? {...notif, read: true} : notif))}
-                              className="p-2 text-white/20 hover:text-gold transition-colors"
-                              title="Archive Signal"
-                            >
-                              <Check size={18} />
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    </motion.div>
-                  ))
-                )}
-              </div>
-            </div>
-          )}
+               </div>
 
-          {view === 'products' && (
-            <div className="space-y-4">
-              <h2 className="text-xl font-bold mb-8">Current Inventory</h2>
-              <div className="grid grid-cols-1 gap-4">
-                {products.length === 0 && (
-                  <div className="text-center py-20 bg-white/5 rounded-3xl border border-dashed border-white/10">
-                    <Package className="mx-auto text-white/20 mb-4" size={48} />
-                    <p className="text-white/40 mb-8">No products found in catalog.</p>
-                    <button 
-                      onClick={handleSeed}
-                      disabled={isSaving}
-                      className="px-8 py-4 gold-gradient text-luxury-black font-bold uppercase tracking-widest rounded-xl hover:scale-[1.05] transition-all disabled:opacity-50"
-                    >
-                      {isSaving ? 'Initializing...' : 'Seed Sample Collection'}
-                    </button>
-                  </div>
-                )}
-                {products.map((p) => (
-                  <div key={p.id} className="flex items-center space-x-4 glass p-4 rounded-2xl border border-white/5">
-                    <img src={p.images[0]} className="w-16 h-16 object-cover rounded-lg" alt={p.name} />
-                    <div className="flex-grow">
-                      <div className="flex items-center space-x-2">
-                        <h4 className="font-bold">{p.name}</h4>
-                        {p.stock < 5 && (
-                          <div className="flex items-center text-red-500 bg-red-500/10 px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest animate-pulse">
-                            <AlertCircle size={10} className="mr-1" />
-                            Low Stock
-                          </div>
-                        )}
-                      </div>
-                      <p className="text-xs text-white/40">₹{p.price.toLocaleString()} • {p.category} • <span className={p.stock < 5 ? 'text-red-500 font-bold' : ''}>{p.stock} units</span></p>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                       {editingStockId === p.id ? (
-                         <div className="flex items-center space-x-2">
-                            <input 
-                              type="number" 
-                              value={newStockValue} 
-                              onChange={e => setNewStockValue(e.target.value)}
-                              className="w-20 bg-white/5 border border-white/10 rounded px-2 py-1 text-xs outline-none focus:border-gold"
-                              placeholder="New Stock"
-                              autoFocus
-                            />
-                            <button onClick={() => handleUpdateStock(p.id)} className="text-[10px] font-bold text-gold uppercase tracking-widest hover:underline">Sync</button>
-                            <button onClick={() => setEditingStockId(null)} className="text-[10px] font-bold text-white/40 uppercase tracking-widest hover:underline">X</button>
-                         </div>
-                       ) : (
-                         <button 
-                           onClick={() => {
-                             setEditingStockId(p.id);
-                             setNewStockValue(p.stock.toString());
-                           }} 
-                           className="flex items-center text-[10px] font-bold text-white/40 uppercase tracking-widest hover:text-gold transition-colors"
-                         >
-                           <Edit size={12} className="mr-1" />
-                           Inventory
-                         </button>
-                       )}
-                       <button onClick={() => handleDelete(p.id)} className="p-2 hover:text-red-400 transition-colors">
-                         <Trash2 size={18} />
-                       </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {view === 'orders' && (
-            <div className="space-y-4">
-              <div className="flex justify-between items-center mb-8">
-                <h2 className="text-xl font-bold">Global Sales Manifest</h2>
-                {orders.length > 0 && (
-                  <button 
-                    onClick={handlePurgeOrders}
-                    disabled={isSaving}
-                    className="flex items-center space-x-2 text-[10px] font-black uppercase tracking-widest text-red-500 hover:text-red-400 bg-red-500/10 px-4 py-2 rounded-xl border border-red-500/20 transition-all hover:scale-105 active:scale-95"
-                  >
-                    <Trash2 size={14} />
-                    <span>Purge All Records</span>
-                  </button>
-                )}
-              </div>
-              <div className="space-y-6">
-                {orders.length === 0 && <p className="text-white/40 text-center py-20">No orders received yet.</p>}
-                {orders.map((o) => (
-                  <div key={o.id} className="glass p-6 rounded-2xl border border-white/5 space-y-4">
-                    <div className="flex justify-between items-start">
-                      <div className="flex items-start space-x-4">
-                        <div className={`p-3 rounded-full ${o.status === 'shipped' ? 'bg-blue-500/20 text-blue-500' : o.status === 'delivered' ? 'bg-green-500/20 text-green-500' : 'bg-gold/20 text-gold'}`}>
-                          <Package size={20} />
-                        </div>
-                        <div>
-                          <p className="text-[10px] uppercase tracking-widest text-white/40">Order #{o.id.slice(-6)}</p>
-                          <h4 className="font-bold text-white">{o.customerName}</h4>
-                          <p className="text-xs text-white/60">{o.customerEmail}</p>
-                          <div className="mt-2 flex items-center space-x-2">
-                             <span className={`text-[8px] font-bold uppercase px-2 py-1 rounded tracking-widest ${o.status === 'delivered' ? 'bg-green-600' : 'bg-gold text-luxury-black'}`}>
-                               {o.status}
-                             </span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-mono text-xl">₹{o.total.toLocaleString()}</p>
-                        <p className="text-[10px] uppercase tracking-widest text-white/40">{new Date(o.createdAt).toLocaleDateString()}</p>
-                        <button 
-                          onClick={() => setSelectedOrder(o)}
-                          className="mt-4 flex items-center text-gold text-[10px] font-bold uppercase tracking-widest hover:underline"
-                        >
-                          <QrCode size={14} className="mr-1" />
-                          View Tracking & Label
-                        </button>
-                      </div>
-                    </div>
-                    <div className="pt-4 border-t border-white/5 flex justify-between items-center">
-                       <div className="flex flex-wrap gap-2">
-                         {o.items.map((item: any, idx: number) => (
-                           <span key={idx} className="bg-white/5 px-3 py-1 rounded-full text-xs border border-white/10">
-                              {item.name} x{item.quantity}
-                           </span>
-                         ))}
-                       </div>
-                       <select 
-                         value={o.status} 
-                         onChange={(e) => {
-                           const newStatus = e.target.value as AdminOrder['status'];
-                           if (newStatus === 'shipped') {
-                             const trackingId = prompt("Enter Tracking ID:");
-                             const carrier = prompt("Enter Carrier:", "DHL Global");
-                             if (trackingId) {
-                               handleUpdateOrderStatus(o.id, newStatus, { trackingId, carrier: carrier || 'Premium Logistics' });
-                             }
-                           } else {
-                             handleUpdateOrderStatus(o.id, newStatus);
-                           }
-                         }}
-                         className="bg-[#1A1A1A] text-[10px] font-bold uppercase tracking-widest text-white border border-white/20 rounded px-3 py-2 focus:border-gold outline-none cursor-pointer"
-                       >
-                         <option value="pending">Pending</option>
-                         <option value="processing">Processing</option>
-                         <option value="quality_check">Quality Check</option>
-                         <option value="shipped">Shipped</option>
-                         <option value="out_for_delivery">Out for Delivery</option>
-                         <option value="delivered">Delivered</option>
-                       </select>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Shipping Label Modal */}
-          {selectedOrder && (
-            <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm">
-              <div className="glass w-full max-w-2xl rounded-[2.5rem] overflow-hidden border border-gold/30">
-                <div className="p-8 border-b border-white/10 flex justify-between items-start">
-                   <div>
-                     <h2 className="text-2xl font-display gold-text">Order Manifest</h2>
-                     <p className="text-xs text-white/40 uppercase tracking-widest mt-1">Order Tracking & Fulfillment</p>
+               <div className="space-y-4">
+                 {notifications.filter(n => notificationFilter === 'all' || n.type === notificationFilter).length === 0 ? (
+                   <div className="text-center py-32 rounded-[2rem] border border-dashed border-black/5">
+                     <Bell className="mx-auto text-black/5 mb-4" size={48} />
+                     <p className="font-tech text-[8px] text-text/20">NO_ACTIVE_SIGNALS</p>
                    </div>
-                   <button onClick={() => setSelectedOrder(null)} className="p-2 hover:text-gold transition-colors">
-                     <X size={24} />
+                 ) : (
+                   notifications
+                     .filter(n => notificationFilter === 'all' || n.type === notificationFilter)
+                     .map((n) => (
+                     <motion.div 
+                       key={n.id} 
+                       initial={{ opacity: 0, y: 10 }}
+                       animate={{ opacity: 1, y: 0 }}
+                       className={`p-6 rounded-[2rem] border transition-all duration-700 group flex items-center justify-between ${n.read ? 'border-black/5 bg-transparent opacity-60' : 'border-black/10 bg-black/[0.03] shadow-lg'}`}
+                     >
+                        <div className="flex items-center space-x-6">
+                           <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${n.type === 'orders' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                              {n.type === 'orders' ? <ShoppingBag size={20} /> : <AlertCircle size={20} />}
+                           </div>
+                           <div>
+                              <div className="flex items-center space-x-3 mb-1">
+                                 <span className="font-tech text-text/20 text-[8px]">{n.type}</span>
+                                 <span className="font-tech text-text/20 text-[8px] opacity-40">{new Date(n.timestamp).toLocaleTimeString()}</span>
+                              </div>
+                              <h4 className="text-sm font-bold text-text">{n.message}</h4>
+                              {n.total && <p className="font-tech text-[9px] text-text/40 mt-1">LOGGED_VALUE: ₹{n.total.toLocaleString()}</p>}
+                           </div>
+                        </div>
+                        <div className="flex items-center space-x-3">
+                           {n.orderId && (
+                             <button onClick={() => {const o = orders.find(ord => ord.id === n.orderId); if (o) {setSelectedOrder(o); setView('orders');}}} className="w-10 h-10 rounded-full border border-black/10 flex items-center justify-center hover:bg-text hover:text-bg transition-all duration-500">
+                                <Eye size={18} />
+                             </button>
+                           )}
+                           {!n.read && (
+                             <button onClick={() => setNotifications(notifications.map(notif => notif.id === n.id ? {...notif, read: true} : notif))} className="w-10 h-10 rounded-full bg-text text-bg flex items-center justify-center hover:scale-110 transition-all duration-500">
+                                <Check size={18} />
+                             </button>
+                           )}
+                        </div>
+                     </motion.div>
+                   ))
+                 )}
+               </div>
+            </div>
+
+          )}
+
+          {/* Shipping Manifest Terminal */}
+          {selectedOrder && (
+            <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/40 backdrop-blur-xl animate-in fade-in duration-500">
+              <div className="bg-white max-w-2xl w-full rounded-[3rem] shadow-2xl overflow-hidden border border-black/5 animate-in zoom-in-95 duration-700">
+                <div className="p-10 border-b border-black/5 flex justify-between items-start">
+                   <div>
+                     <div className="flex items-center space-x-2 mb-1">
+                        <div className="w-1 h-1 bg-text rounded-full" />
+                        <p className="font-tech text-text/20 text-[8px]">LOGISTICS_MANIFEST // ID_{selectedOrder.id.slice(-6)}</p>
+                     </div>
+                     <h2 className="text-3xl font-display italic">Fulfillment <span className="opacity-20">Terminal.</span></h2>
+                   </div>
+                   <button onClick={() => setSelectedOrder(null)} className="w-12 h-12 rounded-full bg-black/5 flex items-center justify-center hover:bg-black hover:text-white transition-all duration-500">
+                     <X size={20} />
                    </button>
                 </div>
                 
-                <div className="p-8 space-y-8 max-h-[70vh] overflow-y-auto custom-scrollbar">
-                   {/* Label Component */}
-                   <div id="shipping-label" className="bg-white text-black p-8 rounded-lg shadow-2xl relative">
-                      <div className="flex justify-between items-start border-b-2 border-black pb-4 mb-4">
+                <div className="p-10 space-y-10 max-h-[70vh] overflow-y-auto custom-scrollbar">
+                   {/* Industrial Shipping Label */}
+                   <div id="shipping-label" className="bg-black text-white p-12 rounded-[2rem] shadow-2xl relative border-8 border-black font-mono">
+                      <div className="flex justify-between items-start border-b border-white/20 pb-6 mb-8">
                          <div>
-                            <p className="text-[10px] font-bold uppercase tracking-wider text-black/50">Sender</p>
-                            <h3 className="text-lg font-bold">DINOSPY LUXURY WATCHES</h3>
-                            <p className="text-xs">Rue de l'Horloge, Geneva (Distribution India)</p>
-                            <p className="text-xs">contact@dinospy.com</p>
+                            <p className="text-[10px] text-white/40 mb-1">ORIGIN_FACILITY</p>
+                            <h3 className="text-sm font-black italic tracking-widest underline decoration-2 underline-offset-4">DINOSPY_EXECUTIVE_HUB</h3>
+                            <p className="text-[10px] mt-2 opacity-60">Rue de l'Horloge, Geneva // IND_DIST</p>
                          </div>
-                         <div className="text-right">
-                           <QRCodeSVG value={`https://ais-dev-wty7sygzhusofsxwhxmva3-281798882282.run.app/tracking/${selectedOrder.id}`} size={80} />
+                         <div className="p-2 bg-white rounded-lg">
+                            <QRCodeSVG value={`https://ais-dev-wty7sygzhusofsxwhxmva3-281798882282.run.app/tracking/${selectedOrder.id}`} size={60} />
                          </div>
                       </div>
 
-                      <div className="mb-8">
-                         <p className="text-[10px] font-bold uppercase tracking-wider text-black/50">Ship To</p>
-                         <h3 className="text-2xl font-bold">{selectedOrder.customerName}</h3>
-                         <p className="text-lg">{selectedOrder.shippingAddress.address}</p>
-                         <p className="text-lg font-bold">{selectedOrder.shippingAddress.city}, IND - {selectedOrder.shippingAddress.zip}</p>
-                         <p className="text-lg font-bold">INDIA</p>
+                      <div className="mb-12">
+                         <p className="text-[10px] text-white/40 mb-2">DELIVERY_TARGET</p>
+                         <h3 className="text-3xl font-black italic mb-2 uppercase tracking-tighter">{selectedOrder.customerName}</h3>
+                         <div className="space-y-1 opacity-80 text-lg">
+                            <p>{selectedOrder.shippingAddress.address}</p>
+                            <p className="font-black">{selectedOrder.shippingAddress.city}, IND - {selectedOrder.shippingAddress.zip}</p>
+                         </div>
                       </div>
 
-                      <div className="flex justify-between items-end border-t-2 border-black pt-4">
-                         <div className="space-y-1">
-                            <p className="text-[10px] font-bold">PACKAGE CONTENTS</p>
-                            <div className="text-xs uppercase">
-                               {selectedOrder.items.map((it: any) => `${it.name} (x${it.quantity})`).join(', ')}
+                      <div className="flex justify-between items-end border-t border-white/20 pt-8">
+                         <div className="space-y-4">
+                            <div>
+                               <p className="text-[8px] text-white/20 mb-1">CARGO_MANIFEST</p>
+                               <div className="text-[10px] space-y-1">
+                                  {selectedOrder.items.map((it: any, idx: number) => (
+                                     <div key={idx} className="flex space-x-2">
+                                        <span className="opacity-40">[{it.quantity}X]</span>
+                                        <span className="font-bold italic">{it.name.toUpperCase()}</span>
+                                     </div>
+                                  ))}
+                               </div>
                             </div>
                          </div>
                          <div className="text-right">
-                            <p className="text-[10px] font-bold">LOGISTICS ID</p>
-                            <p className="text-xl font-mono">DNX-{selectedOrder.id.slice(0, 8).toUpperCase()}</p>
+                            <p className="text-[8px] text-white/20 mb-1">AUTHENTICATION_TAG</p>
+                            <p className="text-2xl font-black italic tracking-tighter shadow-sm">DNX-{selectedOrder.id.slice(0, 8).toUpperCase()}</p>
                          </div>
                       </div>
                    </div>
 
-                   <div className="grid grid-cols-2 gap-4">
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <button 
                         onClick={() => window.print()}
-                        className="flex items-center justify-center space-x-2 py-4 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-colors uppercase tracking-widest text-[10px] font-bold"
+                        className="flex items-center justify-center space-x-3 py-6 rounded-full border border-black/10 hover:bg-black/[0.02] transition-all font-tech text-[10px]"
                       >
-                        <Printer size={16} />
-                        <span>Print Shipping Label</span>
+                        <Printer size={18} />
+                        <span>GENERATE_PHYSICAL_MANIFEST</span>
                       </button>
-                      <button className="flex items-center justify-center space-x-2 py-4 bg-gold text-luxury-black rounded-2xl hover:scale-[1.02] transition-transform uppercase tracking-widest text-[10px] font-bold">
-                        <Truck size={16} />
-                        <span>Dispatch via DINOSPY Logistics</span>
+                      <button className="flex items-center justify-center space-x-3 py-6 rounded-full bg-text text-bg hover:scale-[1.02] transition-all font-tech text-[10px]">
+                        <Package size={18} />
+                        <span>INITIATE_DISPATCH_PROTOCOL</span>
                       </button>
                    </div>
                 </div>
@@ -1790,250 +1539,101 @@ export default function AdminDashboard() {
           )}
 
           {view === 'coupons' && (
-            <div className="space-y-12">
-              <div>
-                <h2 className="text-xl font-bold mb-8">Coupon System Management</h2>
-                <form onSubmit={handleAddCoupon} className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block">Coupon Code</label>
-                      <input 
-                        value={couponCode} 
-                        onChange={e => setCouponCode(e.target.value)} 
-                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-gold uppercase" 
-                        placeholder="e.g. HERITAGE30" 
-                      />
+            <div className="space-y-16 animate-in fade-in duration-1000">
+               <div className="flex justify-between items-end">
+                  <div>
+                    <div className="flex items-center space-x-3 mb-2">
+                       <div className="w-1 h-1 bg-text rounded-full" />
+                       <span className="font-tech text-text/20">MERCH_PROTOCOLS // VOUCHERS</span>
                     </div>
-                    <div>
-                      <label className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block">Discount Type</label>
-                      <select 
-                        value={couponType} 
-                        onChange={e => setCouponType(e.target.value as any)} 
-                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-gold appearance-none"
-                      >
-                        <option value="percentage">Percentage (%)</option>
-                        <option value="fixed">Fixed Amount (₹)</option>
+                    <h2 className="text-4xl font-display italic">Promo <span className="opacity-20">Protocols.</span></h2>
+                  </div>
+               </div>
+
+               <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+                  <form onSubmit={handleAddCoupon} className="lg:col-span-1 space-y-8 p-10 rounded-[2.5rem] border border-black/5 bg-black/[0.01]">
+                    <div className="space-y-4">
+                      <label className="font-tech text-text/30">CODE_IDENTIFIER</label>
+                      <input value={couponCode} onChange={e => setCouponCode(e.target.value)} className="w-full bg-transparent border-b border-black/10 py-3 uppercase font-mono text-xl focus:border-black outline-none transition-all" placeholder="E.G._NOIR30" />
+                    </div>
+                    <div className="space-y-4">
+                      <label className="font-tech text-text/30">BENEFIT_TYPE</label>
+                      <select value={couponType} onChange={e => setCouponType(e.target.value as any)} className="w-full bg-transparent border-b border-black/10 py-3 font-tech text-[10px] focus:border-black outline-none transition-all cursor-pointer">
+                        <option value="percentage">PERCENTAGE (%)</option>
+                        <option value="fixed">FIXED_AMOUNT (₹)</option>
                       </select>
                     </div>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div>
-                      <label className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block">Discount Value</label>
-                      <input 
-                        type="number"
-                        value={couponDiscount} 
-                        onChange={e => setCouponDiscount(e.target.value)} 
-                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-gold" 
-                        placeholder="30" 
-                      />
+                    <div className="space-y-4">
+                      <label className="font-tech text-text/30">VALUE_UNIT</label>
+                      <input type="number" value={couponDiscount} onChange={e => setCouponDiscount(e.target.value)} className="w-full bg-transparent border-b border-black/10 py-3 font-mono focus:border-black outline-none transition-all" />
                     </div>
-                    <div>
-                      <label className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block">Min Purchase (₹)</label>
-                      <input 
-                        type="number"
-                        value={couponMinAmount} 
-                        onChange={e => setCouponMinAmount(e.target.value)} 
-                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-gold" 
-                        placeholder="10000" 
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block">Expiry Date</label>
-                      <input 
-                        type="date"
-                        value={couponExpiry} 
-                        onChange={e => setCouponExpiry(e.target.value)} 
-                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-gold" 
-                      />
-                    </div>
-                  </div>
-                  <button type="submit" disabled={isSaving} className="w-full py-4 gold-gradient text-luxury-black font-bold uppercase tracking-widest rounded-xl hover:scale-[1.01] transition-all disabled:opacity-50">
-                    Add New Coupon
-                  </button>
-                </form>
-              </div>
+                    <button type="submit" disabled={isSaving} className="w-full py-5 bg-text text-bg font-tech text-[10px] tracking-[0.4em] rounded-full">EXECUTE_PROTOCOL</button>
+                  </form>
 
-              <div>
-                 <h3 className="text-[10px] uppercase tracking-widest text-white/40 mb-6">Active Promotions</h3>
-                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
                     {coupons.map(c => (
-                      <div key={c.id} className="glass p-6 rounded-2xl border border-gold/10 relative group overflow-hidden">
-                         <div className="absolute top-0 right-0 p-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button onClick={() => handleDeleteCoupon(c.id)} className="p-2 text-white/20 hover:text-red-500 transition-colors">
-                               <Trash2 size={16} />
-                            </button>
-                         </div>
-                         <div className="flex items-center space-x-4 mb-4">
-                            <div className="w-10 h-10 bg-gold/10 rounded-xl flex items-center justify-center text-gold">
-                               <Megaphone size={18} />
-                            </div>
-                            <div>
-                               <h4 className="font-mono text-lg font-bold gold-text">{c.code}</h4>
-                               <p className="text-[10px] text-white/40 uppercase tracking-widest">Valid Coupon</p>
-                            </div>
-                         </div>
-                         <div className="space-y-2 pt-4 border-t border-white/5">
-                            <div className="flex justify-between items-center text-xs">
-                               <span className="text-white/40">Benefit</span>
-                               <span className="font-bold text-white">{c.type === 'percentage' ? `${c.discount}% Off` : `₹${c.discount.toLocaleString()} Off`}</span>
-                            </div>
-                            {c.minAmount > 0 && (
-                              <div className="flex justify-between items-center text-xs">
-                                 <span className="text-white/40">Threshold</span>
-                                 <span className="text-white">₹{c.minAmount.toLocaleString()}</span>
-                              </div>
-                            )}
-                            {c.expiry && (
-                              <div className="flex justify-between items-center text-xs">
-                                 <span className="text-white/40">valid Until</span>
-                                 <span className={new Date(c.expiry) < new Date() ? 'text-red-500' : 'text-white'}>{new Date(c.expiry).toLocaleDateString()}</span>
-                              </div>
-                            )}
-                         </div>
+                      <div key={c.id} className="p-8 rounded-[2rem] border border-black/5 bg-white relative group">
+                        <div className="flex justify-between items-start mb-6">
+                           <div className="font-mono text-2xl font-black">{c.code}</div>
+                           <button onClick={() => handleDeleteCoupon(c.id)} className="text-text/20 hover:text-red-500 transition-colors"><Trash2 size={16} /></button>
+                        </div>
+                        <div className="space-y-2">
+                           <div className="flex justify-between text-[10px] font-tech text-text/40"><span>BENEFIT</span><span className="text-text">{c.type === 'percentage' ? `${c.discount}% OFF` : `₹${c.discount} OFF`}</span></div>
+                           <div className="flex justify-between text-[10px] font-tech text-text/40"><span>THRESHOLD</span><span className="text-text">₹{c.minAmount}</span></div>
+                        </div>
                       </div>
                     ))}
-                 </div>
-              </div>
+                  </div>
+               </div>
             </div>
           )}
           {view === 'security' && (
-            <div className="space-y-12">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="glass p-8 rounded-3xl border border-white/5 space-y-6">
-                  <div className="flex items-center space-x-4 mb-4">
-                    <div className="p-3 bg-gold/10 rounded-2xl text-gold">
-                      <Lock size={24} />
+            <div className="space-y-16 animate-in fade-in duration-1000">
+               <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                  <div className="p-10 rounded-[2.5rem] border border-black/5 bg-black/[0.01]">
+                    <div className="flex items-center space-x-4 mb-10">
+                       <Lock size={20} className="text-text/40" />
+                       <h3 className="text-2xl font-display italic">Protocol <span className="opacity-20">Overrides.</span></h3>
                     </div>
-                    <div>
-                      <h3 className="text-xl font-bold">Protocol Overrides</h3>
-                      <p className="text-[10px] text-white/40 uppercase tracking-widest mt-1">Platform-wide visibility toggles</p>
-                    </div>
-                  </div>
-
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5">
-                      <div>
-                        <p className="text-sm font-bold uppercase tracking-widest">Maintenance Mode</p>
-                        <p className="text-[10px] text-white/40 mt-1 italic">Public access restricted to "Celestial Alignment" screen</p>
-                      </div>
-                      <button 
-                        onClick={handleToggleMaintenance}
-                        disabled={isTogglingMaintenance}
-                        className={`px-6 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${maintenanceStatus ? 'gold-gradient text-luxury-black' : 'bg-white/10 text-white/40 hover:bg-white/20'}`}
-                      >
-                        {isTogglingMaintenance ? 'Syncing...' : (maintenanceStatus ? 'ACTIVE' : 'INACTIVE')}
-                      </button>
-                    </div>
-
-                    <div className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5">
-                      <div>
-                        <p className="text-sm font-bold uppercase tracking-widest">Test Protocol</p>
-                        <p className="text-[10px] text-white/40 mt-1 italic">Sandbox environment for data verification</p>
-                      </div>
-                      <button 
-                        onClick={handleToggleTestMode}
-                        disabled={isTogglingTestMode}
-                        className={`px-6 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${testMode ? 'gold-gradient text-luxury-black' : 'bg-white/10 text-white/40 hover:bg-white/20'}`}
-                      >
-                        {isTogglingTestMode ? 'Syncing...' : (testMode ? 'ACTIVE' : 'INACTIVE')}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="glass p-8 rounded-3xl border border-white/5 space-y-6">
-                  <div className="flex items-center space-x-4 mb-4">
-                    <div className="p-3 bg-green-500/10 rounded-2xl text-green-500">
-                      <Shield size={24} />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold">Firewall Infrastructure</h3>
-                      <p className="text-[10px] text-white/40 uppercase tracking-widest mt-1">Real-time protection stats</p>
+                    <div className="space-y-6">
+                       {[
+                         { label: 'MAINTENANCE_MODE', state: maintenanceStatus, action: handleToggleMaintenance, toggle: isTogglingMaintenance, desc: 'RESTRICTS_PUBLIC_ACCESS_TO_GRID' },
+                         { label: 'TEST_ENVIRONMENT', state: testMode, action: handleToggleTestMode, toggle: isTogglingTestMode, desc: 'ISOLATES_ACQUISITION_LOGIC' }
+                       ].map((item, i) => (
+                         <div key={i} className="flex items-center justify-between p-6 bg-white border border-black/5 rounded-2xl">
+                           <div>
+                              <p className="font-tech text-text text-[10px]">{item.label}</p>
+                              <p className="text-[8px] font-tech text-text/20 mt-1">{item.desc}</p>
+                           </div>
+                           <button onClick={item.action} disabled={item.toggle} className={`px-5 py-2 rounded-full font-tech text-[8px] transition-all ${item.state ? 'bg-text text-bg' : 'bg-black/5 text-text/40'}`}>
+                             {item.toggle ? 'SYNCING...' : (item.state ? 'ACTIVE' : 'STANDBY')}
+                           </button>
+                         </div>
+                       ))}
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="p-4 bg-white/5 rounded-2xl border border-white/5">
-                      <p className="text-[9px] text-white/40 uppercase tracking-widest mb-1 italic">Headers</p>
-                      <p className="text-xs font-bold text-green-500 uppercase tracking-widest">HELMET: ON</p>
+                  <div className="p-10 rounded-[2.5rem] border border-black/5 bg-black/[0.01]">
+                    <div className="flex items-center space-x-4 mb-10">
+                       <Shield size={20} className="text-green-600/60" />
+                       <h3 className="text-2xl font-display italic">Firewall <span className="opacity-20">Status.</span></h3>
                     </div>
-                    <div className="p-4 bg-white/5 rounded-2xl border border-white/5">
-                      <p className="text-[9px] text-white/40 uppercase tracking-widest mb-1 italic">Proxying</p>
-                      <p className="text-xs font-bold text-green-500 uppercase tracking-widest">ENCRYPTED</p>
+                    <div className="grid grid-cols-2 gap-4">
+                       {[
+                         { l: 'HELMET_PROTOCOL', v: 'ACTIVE', s: 'text-green-600' },
+                         { l: 'SSL_ENCRYPTION', v: 'VERIFIED', s: 'text-green-600' },
+                         { l: 'RATE_LIMITING', v: '100/15M', s: 'text-text/60' },
+                         { l: 'AUDIT_LOGGING', v: 'SYNCED', s: 'text-text/60' }
+                       ].map((stat, i) => (
+                         <div key={i} className="p-5 bg-white border border-black/5 rounded-2xl">
+                            <p className="font-tech text-text/20 text-[8px] mb-2">{stat.l}</p>
+                            <p className={`font-tech text-[9px] ${stat.s}`}>{stat.v}</p>
+                         </div>
+                       ))}
                     </div>
-                    <div className="p-4 bg-white/5 rounded-2xl border border-white/5">
-                      <p className="text-[9px] text-white/40 uppercase tracking-widest mb-1 italic">Rate Limits</p>
-                      <p className="text-xs font-bold text-white uppercase tracking-widest">100 req/15m</p>
-                    </div>
-                    <div className="p-4 bg-white/5 rounded-2xl border border-white/5">
-                      <p className="text-[9px] text-white/40 uppercase tracking-widest mb-1 italic">Audit Log</p>
-                      <p className="text-xs font-bold text-white uppercase tracking-widest">CONNECTED</p>
-                    </div>
+                    <button onClick={() => toast.success('Diagnostics successful')} className="w-full mt-8 py-4 border border-black/10 rounded-full font-tech text-[8px] hover:bg-black/5 transition-all">TERMINAL_DIAGNOSTICS</button>
                   </div>
-
-                  <button 
-                    onClick={() => toast.success('Platform security parameters verified. No breaches detected.')}
-                    className="w-full py-4 border border-white/10 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-white/5 transition-all"
-                  >
-                    Run Security Diagnostics
-                  </button>
-                </div>
-              </div>
-
-              <div className="glass p-8 rounded-3xl border border-white/5 bg-red-500/5">
-                <div className="flex items-center justify-between">
-                   <div className="flex items-center space-x-4">
-                      <div className="p-3 bg-red-500/10 rounded-2xl text-red-500">
-                        <AlertCircle size={24} />
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-bold text-red-100">Critical session termination</h3>
-                        <p className="text-[10px] text-white/40 uppercase tracking-widest mt-1 italic">Immediate sign-out of all current active admin sessions</p>
-                      </div>
-                   </div>
-                   <button 
-                    onClick={() => {
-                      if (window.confirm('Are you sure you want to invalidate all current admin tokens? This will log you out immediately.')) {
-                        toast.info('Session termination initiated.');
-                        setTimeout(() => window.location.reload(), 2000);
-                      }
-                    }}
-                    className="px-8 py-4 bg-red-500/20 border border-red-500/30 text-red-500 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all shadow-[0_0_30px_rgba(239,68,68,0.1)]"
-                   >
-                     Terminate All Sessions
-                   </button>
-                </div>
-              </div>
-
-              <div className="pt-8 border-t border-white/5">
-                 <button 
-                    onClick={async () => {
-                      const demo = [
-                        { name: "Dinospy Celestia", price: 185000, category: "Luxury", img: "https://images.unsplash.com/photo-1542496658-e33a6d0d50f6?auto=format&fit=crop&q=80&w=2070", trending: true },
-                        { name: "Monarch Chrono", price: 129000, category: "Luxury", img: "https://images.unsplash.com/photo-1508685096489-7aac29a23fce?auto=format&fit=crop&q=80&w=1978", trending: false },
-                        { name: "Nero Sport", price: 65000, category: "Sport", img: "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?auto=format&fit=crop&q=80&w=2080", trending: true },
-                        { name: "Heritage Classic", price: 42000, category: "Classic", img: "https://images.unsplash.com/photo-1524592094714-0f0654e20314?auto=format&fit=crop&q=80&w=2018", trending: false }
-                      ];
-                      
-                      const promise = async () => {
-                        for (const p of demo) {
-                          await addDoc(collection(db, 'products'), {
-                            ...p, brand: 'DINOSPY', images: [p.img], isTrending: p.trending, isNewArrival: true, stock: 10, rating: 5.0, reviewCount: 0, createdAt: new Date().toISOString(), specs: { Movement: 'Automatic', Case: 'Gold/Steel', Crystal: 'Sapphire' }, description: 'A masterpiece of precision craftsmanship and timeless elegance.'
-                          });
-                        }
-                      };
-
-                      toast.promise(promise(), {
-                        loading: 'Seeding demo catalog...',
-                        success: 'Boutique populated successfully!',
-                        error: 'Seeding failed.'
-                      });
-                    }}
-                    className="text-[9px] uppercase tracking-widest text-white/20 hover:text-white/60 transition-all font-bold"
-                 >
-                    Advanced: Seed Catalog
-                 </button>
-              </div>
+               </div>
             </div>
           )}
         </div>
