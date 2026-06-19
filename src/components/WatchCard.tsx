@@ -35,10 +35,10 @@ export default function WatchCard({ product }: WatchCardProps) {
       initial={{ opacity: 0 }}
       whileInView={{ opacity: 1 }}
       viewport={{ once: true }}
-      className="group flex flex-col h-full bg-white border border-black/5 p-8 transition-all duration-1000 hover:border-black/20 relative"
+      className="group flex flex-col h-full bg-white border border-black/5 p-6 md:p-8 transition-all duration-1000 hover:border-black/20 relative"
     >
       {/* Identification Header */}
-      <div className="flex items-center justify-between mb-12 opacity-40 group-hover:opacity-100 transition-opacity duration-1000">
+      <div className="flex items-center justify-between mb-8 md:mb-12 opacity-40 group-hover:opacity-100 transition-opacity duration-1000">
         <div className="flex items-center space-x-6">
           <div className="w-2 h-2 bg-black rounded-full animate-pulse" />
           <span className="font-tech">REF_{product.id.slice(-6).toUpperCase()}</span>
@@ -46,7 +46,7 @@ export default function WatchCard({ product }: WatchCardProps) {
         <span className="font-tech">CHAPTER_0{product.category === 'classic' ? '1' : '2'}</span>
       </div>
 
-      <Link to={`/product/${product.id}`} className="block aspect-[3/4] overflow-hidden relative mb-16 bg-[#F9F9F9] group/img">
+      <Link to={`/product/${product.id}`} className="block aspect-[3/4] overflow-hidden relative mb-10 md:mb-16 bg-[#F9F9F9] group/img">
         <motion.img 
           src={product.images[0]} 
           alt={product.name}
@@ -69,23 +69,27 @@ export default function WatchCard({ product }: WatchCardProps) {
       </Link>
 
       <div className="flex flex-col flex-grow">
-        <div className="space-y-6 mb-16">
-          <span className="font-tech text-black/20 tracking-[0.5em] group-hover:text-black transition-colors duration-1000">{product.brand} // CALIBER_CORE</span>
-          <h3 className="text-6xl italic font-display leading-[0.7] tracking-tightest group-hover:text-black/80 transition-all duration-1000 uppercase">
+        <div className="space-y-4 md:space-y-6 mb-10 md:mb-16">
+          <span className="font-tech text-black/20 tracking-[0.3em] md:tracking-[0.5em] group-hover:text-black transition-colors duration-1000 text-[8px] md:text-[10px]">{product.brand} // CALIBER_CORE</span>
+          <h3 className="text-4xl md:text-6xl italic font-display leading-[0.8] md:leading-[0.7] tracking-tightest group-hover:text-black/80 transition-all duration-1000 uppercase">
             {product.name}
           </h3>
         </div>
         
-        <div className="mt-auto pt-12 border-t border-black/5 flex items-center justify-between">
+        <div className="mt-auto pt-8 md:pt-12 border-t border-black/5 flex items-center justify-between">
           <div className="flex flex-col">
-            <span className="font-tech text-[8px] text-black/20 mb-2">VALUATION_UNIT</span>
-            <span className="text-4xl font-tech tracking-tight">INR_{discountPrice.toLocaleString()}</span>
+            <span className="font-tech text-[8px] text-black/20 mb-1 md:mb-2">VALUATION_UNIT</span>
+            <span className="text-2xl md:text-4xl font-tech tracking-tight">INR_{discountPrice.toLocaleString()}</span>
           </div>
 
           <motion.button 
             whileTap={{ scale: 0.9 }}
             onClick={(e) => {
               e.preventDefault();
+              if (!user) {
+                setIsAuthModalOpen(true);
+                return;
+              }
               if (isOutOfStock) return;
               addToCart(product);
             }}

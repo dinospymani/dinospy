@@ -106,23 +106,34 @@ export default function Navbar() {
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
-            initial={{ opacity: 0, x: '100%' }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: '100%' }}
-            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed inset-0 z-[200] bg-white flex flex-col p-8"
+            initial={{ opacity: 0, scale: 1.1 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 1.1 }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            className="fixed inset-0 z-[200] bg-white flex flex-col p-12"
           >
-            <div className="flex items-center justify-between mb-20">
-               <span className="font-tech text-black text-sm tracking-[1em]">DINOSPY.</span>
+            <div className="absolute inset-0 opacity-[0.03] pointer-events-none overflow-hidden">
+               <div className="grid grid-cols-12 h-full">
+                  {[...Array(12)].map((_, i) => (
+                    <div key={i} className="border-r border-black h-full" />
+                  ))}
+               </div>
+            </div>
+
+            <div className="flex items-center justify-between mb-24 relative z-10">
+               <div className="flex flex-col">
+                  <span className="font-tech text-black text-sm tracking-[1em]">DINOSPY.</span>
+                  <span className="font-tech text-[6px] text-black/20 tracking-tighter">MOBILE_TERMINAL_V3</span>
+               </div>
                <button 
                  onClick={() => setIsMobileMenuOpen(false)}
-                 className="w-12 h-12 flex items-center justify-center border border-black/10 rounded-full"
+                 className="w-16 h-16 flex items-center justify-center border border-black/10 rounded-full bg-white shadow-xl active:scale-90 transition-transform"
                >
-                 <X size={20} />
+                 <X size={24} strokeWidth={1} />
                </button>
             </div>
 
-            <nav className="flex flex-col space-y-8 mt-12">
+            <nav className="flex flex-col space-y-12 relative z-10">
                {[
                  { to: "/explore", label: "REFERENCE_INDEX" },
                  { to: "/wishlist", label: "SAVED_ARTIFACTS" },
@@ -131,30 +142,47 @@ export default function Navbar() {
                ].map((item, i) => (
                  <motion.div
                    key={item.label}
-                   initial={{ opacity: 0, y: 20 }}
-                   animate={{ opacity: 1, y: 0 }}
-                   transition={{ delay: i * 0.1 }}
+                   initial={{ opacity: 0, x: -40 }}
+                   animate={{ opacity: 1, x: 0 }}
+                   transition={{ delay: 0.2 + (i * 0.1), duration: 0.8, ease: "easeOut" }}
                  >
                    <Link 
                      to={item.to} 
-                     className="text-4xl font-display italic text-black/40 hover:text-black transition-all duration-500"
+                     className="block group"
                      onClick={() => setIsMobileMenuOpen(false)}
                    >
-                     {item.label.split('_').join(' ')}
+                     <div className="flex flex-col">
+                        <span className="text-[10px] font-tech text-black/20 tracking-[0.5em] mb-4">0{i+1}__{item.label}</span>
+                        <span className="text-5xl font-display italic text-black leading-none group-active:translate-x-4 transition-transform duration-500">
+                          {item.label.split('_')[0]} <span className="opacity-10">{item.label.split('_')[1] || ''}</span>
+                        </span>
+                     </div>
                    </Link>
                  </motion.div>
                ))}
             </nav>
 
-            <div className="mt-auto pt-12 border-t border-black/5 flex flex-col space-y-4 font-tech text-[10px] text-black/20">
-               <div className="flex justify-between">
-                  <span>SYSTEM_STATUS</span>
-                  <span className="text-black/60">ACTIVE_ENCRYPTED</span>
+            <div className="mt-auto relative z-10 space-y-10">
+               <div className="grid grid-cols-2 gap-8 pt-12 border-t border-black/5">
+                  <div className="space-y-2">
+                     <span className="font-tech text-[8px] text-black/20 tracking-widest block">SYSTEM_AUTH</span>
+                     <span className="font-tech text-[10px] text-black font-black">L3_ENCRYPTED</span>
+                  </div>
+                  <div className="space-y-2">
+                     <span className="font-tech text-[8px] text-black/20 tracking-widest block">TIME_SYNC</span>
+                     <span className="font-tech text-[10px] text-black font-black uppercase">{new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' })}_UTC</span>
+                  </div>
                </div>
-               <div className="flex justify-between">
-                  <span>LOCATION</span>
-                  <span className="text-black/60">GLOBAL_V3</span>
-               </div>
+               
+               <button 
+                 onClick={() => {
+                   setIsMobileMenuOpen(false);
+                   setIsAuthModalOpen(true);
+                 }}
+                 className="w-full py-6 bg-black text-white font-tech text-[10px] tracking-[0.5em] rounded-full shadow-2xl active:scale-95 transition-all"
+               >
+                 IDENT_AUTHORIZATION
+               </button>
             </div>
           </motion.div>
         )}

@@ -50,116 +50,153 @@ export default function AuthModal() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setIsAuthModalOpen(false)}
-            className="fixed inset-0 bg-black/95 backdrop-blur-2xl"
+            className="fixed inset-0 bg-white/20 backdrop-blur-[100px]"
           />
           
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            initial={{ opacity: 0, scale: 0.95, y: 30 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="relative w-full max-w-md glass rounded-[2.5rem] border border-white/10 overflow-hidden shadow-[0_40px_80px_rgba(0,0,0,0.9)] my-auto"
+            exit={{ opacity: 0, scale: 0.95, y: 30 }}
+            className="relative w-full max-w-xl bg-white rounded-[4rem] border border-black/5 overflow-hidden shadow-[0_80px_160px_-40px_rgba(0,0,0,0.15)] my-auto"
           >
-            <div className="absolute top-0 left-0 w-full h-1 gold-gradient animate-pulse" />
+            {/* Terminal Top Bar */}
+            <div className="h-2 w-full bg-black flex space-x-1 px-10 items-center justify-end">
+               <div className="w-1 h-1 rounded-full bg-white/20" />
+               <div className="w-1 h-1 rounded-full bg-white/20" />
+               <div className="w-1 h-1 rounded-full bg-white/20" />
+            </div>
             
             <button 
               onClick={() => setIsAuthModalOpen(false)}
-              className="absolute top-6 right-6 p-2 text-white/40 hover:text-white transition-colors z-10"
+              className="absolute top-10 right-10 p-4 text-black/10 hover:text-black transition-colors z-10 hover:rotate-90 duration-500"
             >
-              <X size={20} />
+              <X size={24} strokeWidth={1} />
             </button>
 
-            <div className="p-8 pt-12 sm:p-10 sm:pt-14">
-              <div className="text-center mb-8">
-                <div className="w-16 h-16 glass rounded-2xl flex items-center justify-center mx-auto mb-6 border border-gold/30 shadow-[0_0_30px_rgba(212,175,55,0.2)]">
-                  <ShieldCheck size={32} className="text-gold" />
+            <div className="p-12 sm:p-20">
+              <div className="flex flex-col items-center text-center mb-16">
+                <div className="w-20 h-20 bg-black text-white rounded-full flex items-center justify-center mb-10 shadow-2xl">
+                  <ShieldCheck size={32} strokeWidth={1} />
                 </div>
-                <h2 className="text-2xl font-display uppercase tracking-[0.2em] mb-2">
-                  {mode === 'login' ? 'Member Access' : 'New Acquisition'}
-                </h2>
-                <p className="text-white/40 text-[10px] uppercase tracking-[0.1em] font-medium leading-relaxed max-w-[240px] mx-auto">
-                  {mode === 'login' ? 'Authorized personnel login via secure credentials.' : 'Establish your identity for the acquisition database.'}
-                </p>
+                <div className="space-y-4">
+                  <span className="font-tech text-black/20 text-[10px] tracking-[0.6em] uppercase flex items-center justify-center">
+                    <div className="w-2 h-2 bg-black rounded-full mr-4 animate-pulse" />
+                    Protocol_Authorized_Only
+                  </span>
+                  <h2 className="text-5xl md:text-6xl font-display italic tracking-tightest leading-none">
+                    {mode === 'login' ? 'Access' : 'Register'} <span className="opacity-20 font-sans italic">{mode === 'login' ? 'Vault.' : 'Node.'}</span>
+                  </h2>
+                </div>
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-4">
-                {mode === 'signup' && (
-                  <>
-                    <div className="relative group">
-                      <User className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-gold/50 transition-colors" size={16} />
-                      <input 
-                        type="text"
-                        placeholder="FULL NAME"
-                        required
-                        className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-xs font-mono tracking-widest text-white focus:border-gold/50 focus:bg-white/10 outline-none transition-all"
-                        value={formData.name}
-                        onChange={(e) => setFormData({...formData, name: e.target.value})}
-                      />
-                    </div>
-                    <div className="relative group">
-                      <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-gold/50 transition-colors" size={16} />
-                      <input 
-                        type="tel"
-                        placeholder="MOBILE NO."
-                        required
-                        className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-xs font-mono tracking-widest text-white focus:border-gold/50 focus:bg-white/10 outline-none transition-all"
-                        value={formData.phone}
-                        onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                      />
-                    </div>
-                  </>
-                )}
-                
-                <div className="relative group">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-gold/50 transition-colors" size={16} />
-                  <input 
-                    type="email"
-                    placeholder="EMAIL ADDRESS"
-                    required
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-xs font-mono tracking-widest text-white focus:border-gold/50 focus:bg-white/10 outline-none transition-all"
-                    value={formData.email}
-                    onChange={(e) => setFormData({...formData, email: e.target.value})}
-                  />
-                </div>
-
-                <div className="relative group">
-                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-gold/50 transition-colors" size={16} />
-                  <input 
-                    type="password"
-                    placeholder="SECURE PASSWORD"
-                    required
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-xs font-mono tracking-widest text-white focus:border-gold/50 focus:bg-white/10 outline-none transition-all"
-                    value={formData.password}
-                    onChange={(e) => setFormData({...formData, password: e.target.value})}
-                  />
-                </div>
-
-                <button 
-                  type="submit"
-                  disabled={loading}
-                  className="w-full py-5 mt-4 gold-gradient text-luxury-black font-black uppercase tracking-[0.2em] rounded-2xl text-xs flex items-center justify-center shadow-[0_20px_40px_rgba(212,175,55,0.3)] hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
-                >
-                  {loading ? (
-                    <div className="w-5 h-5 border-2 border-luxury-black border-t-transparent rounded-full animate-spin" />
-                  ) : (
-                    <>
-                      {mode === 'login' ? 'Authorize Access' : 'Join Collection'}
-                      <ArrowRight className="ml-3" size={16} />
-                    </>
+              <form onSubmit={handleSubmit} className="space-y-10">
+                <div className="space-y-6">
+                  {mode === 'signup' && (
+                    <motion.div 
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      className="space-y-6"
+                    >
+                      <div className="space-y-3 group">
+                        <label className="text-[10px] uppercase tracking-[0.4em] text-black/20 ml-6 font-tech font-black group-focus-within:text-black transition-colors">IDENTITY_MANIFEST</label>
+                        <div className="relative">
+                          <User className="absolute left-8 top-1/2 -translate-y-1/2 text-black/10" size={18} strokeWidth={1} />
+                          <input 
+                            type="text"
+                            placeholder="Authorized Full Name..."
+                            required
+                            className="w-full bg-black/[0.01] border border-black/5 rounded-[2.5rem] py-6 pl-20 pr-8 text-sm font-display italic tracking-tight text-black focus:border-black outline-none transition-all placeholder:text-black/10"
+                            value={formData.name}
+                            onChange={(e) => setFormData({...formData, name: e.target.value})}
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-3 group">
+                        <label className="text-[10px] uppercase tracking-[0.4em] text-black/20 ml-6 font-tech font-black group-focus-within:text-black transition-colors">SECURE_TELEMETRY</label>
+                        <div className="relative">
+                          <Phone className="absolute left-8 top-1/2 -translate-y-1/2 text-black/10" size={18} strokeWidth={1} />
+                          <input 
+                            type="tel"
+                            placeholder="+91 . . . . . . . . . ."
+                            required
+                            className="w-full bg-black/[0.01] border border-black/5 rounded-[2.5rem] py-6 pl-20 pr-8 text-sm font-mono text-black focus:border-black outline-none transition-all placeholder:text-black/10"
+                            value={formData.phone}
+                            onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                          />
+                        </div>
+                      </div>
+                    </motion.div>
                   )}
-                </button>
+                  
+                  <div className="space-y-3 group">
+                    <label className="text-[10px] uppercase tracking-[0.4em] text-black/20 ml-6 font-tech font-black group-focus-within:text-black transition-colors">ACCOUNT_NODE_ID</label>
+                    <div className="relative">
+                      <Mail className="absolute left-8 top-1/2 -translate-y-1/2 text-black/10" size={18} strokeWidth={1} />
+                      <input 
+                        type="email"
+                        placeholder="operator@network.nexus"
+                        required
+                        className="w-full bg-black/[0.01] border border-black/5 rounded-[2.5rem] py-6 pl-20 pr-8 text-sm font-mono text-black focus:border-black outline-none transition-all placeholder:text-black/10"
+                        value={formData.email}
+                        onChange={(e) => setFormData({...formData, email: e.target.value})}
+                      />
+                    </div>
+                  </div>
 
-                <div className="text-center pt-6">
+                  <div className="space-y-3 group">
+                    <label className="text-[10px] uppercase tracking-[0.4em] text-black/20 ml-6 font-tech font-black group-focus-within:text-black transition-colors">ENCRYPTION_KEY</label>
+                    <div className="relative">
+                      <Lock className="absolute left-8 top-1/2 -translate-y-1/2 text-black/10" size={18} strokeWidth={1} />
+                      <input 
+                        type="password"
+                        placeholder="••••••••••••"
+                        required
+                        className="w-full bg-black/[0.01] border border-black/5 rounded-[2.5rem] py-6 pl-20 pr-8 text-sm font-mono text-black focus:border-black outline-none transition-all placeholder:text-black/10"
+                        value={formData.password}
+                        onChange={(e) => setFormData({...formData, password: e.target.value})}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-10 pt-4">
                   <button 
-                    type="button"
-                    onClick={toggleMode}
-                    className="text-[9px] uppercase tracking-[0.3em] font-black text-white/20 hover:text-gold transition-colors flex items-center justify-center mx-auto"
+                    type="submit"
+                    disabled={loading}
+                    className="w-full py-10 bg-black text-white font-tech font-black uppercase tracking-[0.8em] rounded-[3rem] text-[11px] flex items-center justify-center shadow-2xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-700 disabled:opacity-50 relative overflow-hidden group/btn"
                   >
-                    {mode === 'login' ? (
-                      <>New Member? <span className="text-gold/60 ml-2">Register Proposal</span></>
-                    ) : (
-                      <>Registered? <span className="text-gold/60 ml-2">Login Credentials</span></>
-                    )}
+                    <div className="absolute inset-0 bg-white/10 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-700" />
+                    <span className="relative z-10 flex items-center">
+                      {loading ? (
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      ) : (
+                        <>
+                          {mode === 'login' ? 'INITIALIZE_AUTH' : 'CREATE_MANIFEST'}
+                          <LogIn className="ml-6 opacity-40 group-hover/btn:translate-x-2 transition-transform" size={18} />
+                        </>
+                      )}
+                    </span>
                   </button>
+
+                  <div className="flex flex-col items-center space-y-4">
+                    <button 
+                      type="button"
+                      onClick={toggleMode}
+                      className="text-[10px] uppercase tracking-[0.4em] font-black text-black/20 hover:text-black transition-all"
+                    >
+                      {mode === 'login' ? (
+                        <>NO_NODE_FOUND? <span className="underline underline-offset-8 ml-2 font-display italic tracking-tight">ESTABLISH_IDENTITY</span></>
+                      ) : (
+                        <>NODE_EXISTS? <span className="underline underline-offset-8 ml-2 font-display italic tracking-tight">ACCESS_TERMINAL</span></>
+                      )}
+                    </button>
+                    
+                    <div className="flex items-center space-x-6 pt-10 opacity-10">
+                       <ShieldCheck size={20} strokeWidth={1} />
+                       <div className="w-10 h-[1px] bg-black" />
+                       <span className="font-tech text-[8px] tracking-[0.4em] font-black uppercase">DINOSPY_SECURE_VAULT_v3.42</span>
+                    </div>
+                  </div>
                 </div>
               </form>
 

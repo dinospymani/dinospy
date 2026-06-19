@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ChevronLeft, CreditCard, ShieldCheck, Truck, Phone, CheckCircle2, AlertTriangle, Key, Mail } from 'lucide-react';
+import { ChevronLeft, CreditCard, ShieldCheck, Truck, Phone, CheckCircle2, AlertTriangle, Key, Mail, User } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth, db } from '../context/AuthContext';
@@ -232,30 +232,30 @@ export default function CheckoutPage() {
     <div className="min-h-screen flex flex-col bg-bg">
       <Navbar />
       
-      <main className="flex-grow pt-32 pb-40 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-        <div className="mb-12">
-          <Link to="/cart" className="flex items-center text-text/40 hover:text-gold transition-colors mb-12 group w-fit">
-            <ChevronLeft className="mr-2 group-hover:-translate-x-1 transition-transform" size={18} />
-            <span className="text-[10px] uppercase tracking-widest font-bold">Back to Vault</span>
+      <main className="flex-grow pt-24 md:pt-40 pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+        <div className="mb-20">
+          <Link to="/cart" className="flex items-center text-text/20 hover:text-black transition-all mb-16 group w-fit">
+            <ChevronLeft className="mr-3 group-hover:-translate-x-2 transition-transform" size={20} />
+            <span className="text-[10px] uppercase tracking-[0.4em] font-tech font-bold">TERMINAL_VAULT // REVERSE</span>
           </Link>
           
           {/* Progress Tracker */}
-          <div className="flex items-center justify-between max-w-lg mx-auto mb-16 relative px-4">
-            <div className="absolute top-1/2 left-4 right-4 h-[1px] bg-black/5 -translate-y-1/2 z-0" />
+          <div className="flex items-center justify-between max-w-xl mx-auto mb-24 relative px-8">
+            <div className="absolute top-1/2 left-8 right-8 h-[1px] bg-black/[0.03] -translate-y-1/2 z-0" />
             <div 
-              className="absolute top-1/2 left-4 h-[1px] bg-black -translate-y-1/2 z-0 transition-all duration-1000" 
+              className="absolute top-1/2 left-8 h-[1px] bg-black -translate-y-1/2 z-0 transition-all duration-1000" 
               style={{ width: '50%' }}
             />
             
             {[
-              { label: 'Details', icon: Mail, active: true },
-              { label: 'Payment', icon: CreditCard, active: false }
+              { label: 'MANIFEST', icon: Mail, active: true },
+              { label: 'HANDSHAKE', icon: CreditCard, active: false }
             ].map((step, i) => (
               <div key={i} className="relative z-10 flex flex-col items-center">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-700 ${step.active ? 'bg-black text-white border-black shadow-[0_0_20px_rgba(0,0,0,0.1)]' : 'bg-bg text-black/20 border-black/5'} border`}>
-                  <step.icon size={16} />
+                <div className={`w-14 h-14 rounded-full flex items-center justify-center transition-all duration-1000 ${step.active ? 'bg-black text-white border-black shadow-2xl scale-110' : 'bg-white text-black/10 border-black/5'} border`}>
+                  <step.icon size={20} strokeWidth={1} />
                 </div>
-                <span className={`text-[8px] uppercase tracking-[0.3em] mt-4 font-bold ${step.active ? 'text-black' : 'text-black/20'}`}>{step.label}</span>
+                <span className={`text-[9px] uppercase tracking-[0.4em] mt-6 font-tech font-black ${step.active ? 'text-black' : 'text-black/10'}`}>{step.label}</span>
               </div>
             ))}
           </div>
@@ -268,225 +268,228 @@ export default function CheckoutPage() {
             className="space-y-12"
           >
             <div>
-              <h1 className="text-4xl md:text-5xl font-display mb-4 text-text">Acquisition</h1>
+              <h1 className="text-4xl md:text-5xl font-display mb-4 text-text">ACQUISITION_INITIALIZE</h1>
               <p className="text-text/40 uppercase tracking-[0.2em] text-[10px]">Secure Checkout Terminal</p>
             </div>
 
             <form onSubmit={handlePlaceOrder} className="space-y-8 lg:space-y-12">
               <div className="space-y-6 md:space-y-8">
-                <h3 className="text-lg font-bold uppercase tracking-widest flex items-center text-text/80">
-                  <Truck className="mr-3 text-gold" size={20} />
-                  Shipping Details
+                <h3 className="text-xl font-display italic tracking-tight uppercase flex items-center mb-10 border-b border-black/5 pb-6">
+                  <Truck className="mr-4 opacity-20" size={24} />
+                  Logistics <span className="opacity-20 ml-2">Manifest</span>
                 </h3>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-[10px] uppercase tracking-widest text-text/40 ml-1">Full Name</label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+                  <div className="space-y-3">
+                    <label className="text-[10px] uppercase tracking-[0.4em] text-black/20 ml-1 font-tech font-bold">IDENTITY_MANIFEST</label>
                     <input 
                       required
                       value={formData.fullName}
                       onChange={e => setFormData({...formData, fullName: e.target.value})}
-                      className="w-full bg-black/[0.02] border border-black/5 rounded-xl px-5 py-4 focus:border-gold outline-none text-sm transition-all"
+                      className="w-full bg-black/[0.01] border border-black/5 rounded-[2rem] px-8 py-6 focus:border-black outline-none text-sm transition-all font-medium font-display italic tracking-tight"
+                      placeholder="Full Name..."
                     />
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] uppercase tracking-widest text-text/40 ml-1">Email Protocol</label>
+                  <div className="space-y-3">
+                    <label className="text-[10px] uppercase tracking-[0.4em] text-black/20 ml-1 font-tech font-bold">AUTH_EMAIL_PROTOCOL</label>
                     <input 
                       required
                       type="email"
                       value={formData.email}
                       onChange={e => setFormData({...formData, email: e.target.value})}
-                      className="w-full bg-black/[0.02] border border-black/5 rounded-xl px-5 py-4 focus:border-gold outline-none text-sm transition-all"
+                      className="w-full bg-black/[0.01] border border-black/5 rounded-[2rem] px-8 py-6 focus:border-black outline-none text-sm transition-all font-mono"
+                      placeholder="email@network.nexus"
                     />
                   </div>
                 </div>
 
-                <div className="space-y-6 pt-6 border-t border-white/5">
-                  <h3 className="text-lg font-bold uppercase tracking-widest flex items-center">
-                    <Phone className="mr-3 text-gold" size={20} />
-                    Contact Coordinates
-                  </h3>
-                  
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <label className="text-[10px] uppercase tracking-widest text-white/40">WhatsApp Number</label>
+                <div className="space-y-12">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="space-y-3">
+                      <label className="text-[10px] uppercase tracking-[0.4em] text-black/20 ml-1 font-tech font-bold">SECURE_TEL</label>
                       <div className="relative">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 text-sm font-mono">+91</span>
+                        <span className="absolute left-8 top-1/2 -translate-y-1/2 text-black/20 text-sm font-mono">+91</span>
                         <input 
                           required
                           type="tel"
                           value={formData.phone}
                           onChange={e => setFormData({...formData, phone: e.target.value.replace(/\D/g, '').slice(0, 10)})}
-                          className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-5 py-4 focus:border-gold outline-none text-sm transition-all"
+                          className="w-full bg-black/[0.01] border border-black/5 rounded-[2rem] pl-20 pr-8 py-6 focus:border-black outline-none text-sm transition-all font-mono"
                           placeholder="99999 99999"
                         />
                       </div>
                     </div>
+                    <div className="space-y-3">
+                      <label className="text-[10px] uppercase tracking-[0.4em] text-black/20 ml-1 font-tech font-bold">POSTAL_INDEX</label>
+                      <input 
+                        required
+                        value={formData.zip}
+                        onChange={e => setFormData({...formData, zip: e.target.value})}
+                        className="w-full bg-black/[0.01] border border-black/5 rounded-[2rem] px-8 py-6 focus:border-black outline-none text-sm transition-all font-mono"
+                        placeholder="000 000"
+                      />
+                    </div>
                   </div>
-                </div>
 
-                <div className="space-y-2 pt-6 border-t border-white/5">
-                  <label className="text-[10px] uppercase tracking-widest text-white/40">Residence Address</label>
-                  <input 
-                    required
-                    value={formData.address}
-                    onChange={e => setFormData({...formData, address: e.target.value})}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-4 focus:border-gold outline-none text-sm transition-all"
-                    placeholder="Penthouse 42, Marble Towers..."
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-[10px] uppercase tracking-widest text-white/40">City</label>
-                    <input 
+                  <div className="space-y-3">
+                    <label className="text-[10px] uppercase tracking-[0.4em] text-black/20 ml-1 font-tech font-bold">PHYSICAL_DROP_POINT</label>
+                    <textarea 
                       required
-                      value={formData.city}
-                      onChange={e => setFormData({...formData, city: e.target.value})}
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-4 focus:border-gold outline-none text-sm transition-all"
+                      value={formData.address}
+                      onChange={e => setFormData({...formData, address: e.target.value})}
+                      className="w-full bg-black/[0.01] border border-black/5 rounded-[2rem] px-8 py-6 focus:border-black outline-none text-sm transition-all min-h-[120px] font-display italic tracking-tight"
+                      placeholder="Building, Street, Landmark..."
                     />
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] uppercase tracking-widest text-white/40">Postal Code</label>
-                    <input 
-                      required
-                      value={formData.zip}
-                      onChange={e => setFormData({...formData, zip: e.target.value})}
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-4 focus:border-gold outline-none text-sm transition-all"
-                    />
-                  </div>
-                  <div className="space-y-2 md:col-span-1">
-                    <label className="text-[10px] uppercase tracking-widest text-white/40">Country</label>
-                    <select 
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-4 focus:border-gold outline-none text-sm appearance-none cursor-not-allowed"
-                      disabled
-                      value="India"
-                    >
-                      <option value="India">India</option>
-                    </select>
-                    <p className="text-[8px] text-white/20 mt-1">DINOSPY currently ships exclusively within India.</p>
+
+                  <div className="grid grid-cols-2 gap-8">
+                    <div className="space-y-3">
+                      <label className="text-[10px] uppercase tracking-[0.4em] text-black/20 ml-1 font-tech font-bold">CITY_NODE</label>
+                      <input 
+                        required
+                        value={formData.city}
+                        onChange={e => setFormData({...formData, city: e.target.value})}
+                        className="w-full bg-black/[0.01] border border-black/5 rounded-[2rem] px-8 py-6 focus:border-black outline-none text-sm transition-all uppercase font-display italic tracking-tight"
+                      />
+                    </div>
+                    <div className="space-y-3">
+                      <label className="text-[10px] uppercase tracking-[0.4em] text-black/20 ml-1 font-tech font-bold">TERRITORY</label>
+                      <div className="w-full bg-black/[0.03] border border-black/5 rounded-[2rem] px-8 py-6 text-sm text-black/40 font-display italic tracking-tight flex items-center justify-between cursor-not-allowed">
+                        <span>INDIA</span>
+                        <ShieldCheck size={16} className="opacity-40" />
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-
-              <div className="space-y-6 pt-10 border-t border-white/5">
-                <h3 className="text-lg font-bold uppercase tracking-widest flex items-center">
-                  <CreditCard className="mr-3 text-gold" size={20} />
-                  Financing Options
-                </h3>
-                <div className="glass p-6 rounded-2xl border border-gold/20 flex flex-col space-y-4">
-                   <div className="flex items-center space-x-4">
-                      <div className="w-12 h-8 bg-gold/10 rounded border border-gold/20 flex items-center justify-center text-[8px] font-bold text-gold italic">DINOSPY</div>
-                      <div>
-                        <p className="text-sm font-bold">Concierge Coordination</p>
-                        <p className="text-[10px] text-white/40">Secure checkout will be finalized via personal link.</p>
+              </div>              {/* Payment Info Notification */}
+              <div className="p-10 rounded-[3rem] bg-black text-white relative overflow-hidden group shadow-2xl">
+                 <div className="absolute top-0 right-0 p-12 opacity-[0.05] rotate-12 -translate-y-4 translate-x-4">
+                    <Key size={180} />
+                 </div>
+                 <div className="relative z-10">
+                   <div className="flex items-center space-x-4 mb-8">
+                      <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center">
+                         <CreditCard size={20} />
+                      </div>
+                      <h4 className="text-xl font-display italic tracking-tight uppercase">Encryption <span className="opacity-40">Handshake</span></h4>
+                   </div>
+                   <p className="text-white/60 leading-relaxed text-sm font-display italic tracking-tight mb-8">
+                     "Your acquisition request will be logged in the manifest. A DINOSPY terminal agent will synchronize with your provided contact coordinates to authorize the final secure handshake link."
+                   </p>
+                   <div className="flex items-center space-x-6">
+                      <div className="px-5 py-2 rounded-full border border-white/20 bg-white/5 text-[9px] font-tech tracking-[0.3em] uppercase">
+                        Protocol_Secure
+                      </div>
+                      <div className="px-5 py-2 rounded-full border border-white/20 bg-white/5 text-[9px] font-tech tracking-[0.3em] uppercase">
+                        End_to_End
                       </div>
                    </div>
-                   <div className="p-4 bg-white/5 rounded-xl border border-white/5">
-                      <p className="text-[10px] text-white/40 leading-relaxed italic">
-                        "Your acquisition request will be logged. A personal DINOSPY concierge will contact you within 2 hours to provide a bespoke secure payment link and finalize logistics."
-                      </p>
-                   </div>
-                </div>
+                 </div>
               </div>
 
               <button 
                 type="submit" 
                 disabled={isProcessing}
-                className={`w-full py-6 gold-gradient text-luxury-black font-bold uppercase tracking-[0.3em] rounded-2xl shadow-2xl shadow-gold/10 transition-all ${isProcessing ? 'opacity-50 cursor-not-allowed' : 'hover:scale-[1.02] hover:shadow-gold/20 active:scale-[0.98]'}`}
+                className={`w-full py-10 bg-black text-white rounded-[3rem] font-tech font-black uppercase tracking-[0.8em] text-[11px] shadow-2xl transition-all duration-700 relative overflow-hidden group/btn ${isProcessing ? 'opacity-50 cursor-not-allowed' : 'hover:scale-[1.02] active:scale-[0.98]'}`}
               >
-                {isProcessing ? 'Synchronizing...' : 'Initialize Concierge'}
+                <div className="absolute inset-0 bg-white/10 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-700" />
+                <span className="relative z-10">{isProcessing ? 'SYNCHRONIZING...' : 'INITIALIZE_ACQUISITION'}</span>
               </button>
               
-              <div className="flex items-center justify-center space-x-2 text-white/20">
-                <ShieldCheck size={14} />
-                <span className="text-[10px] uppercase tracking-widest">Insured and Protected by DINOSPY Securities</span>
+              <div className="flex items-center justify-center space-x-4 text-black/10">
+                <ShieldCheck size={20} strokeWidth={1} />
+                <span className="text-[10px] uppercase font-tech tracking-[0.6em] font-black">Insured Protocol by DINOSPY_SEC</span>
               </div>
             </form>
           </motion.div>
 
+          {/* Right: Summary */}
           <motion.div 
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="lg:pl-10"
+            transition={{ delay: 0.2 }}
+            className="lg:col-span-5"
           >
-            <div className="glass p-10 rounded-[3rem] border border-white/10 sticky top-32">
-              <h2 className="text-sm font-bold uppercase tracking-widest text-white/40 mb-10">Manifest</h2>
+            <div className="bg-white border border-black/5 p-10 rounded-[4rem] shadow-sm sticky top-32 space-y-12 overflow-hidden relative">
+              <div className="absolute top-0 right-0 p-12 opacity-[0.02] pointer-events-none -rotate-12 translate-x-1/4 -translate-y-1/4">
+                 <CheckCircle2 size={300} />
+              </div>
               
-              <div className="space-y-8 mb-10 overflow-y-auto max-h-[40vh] pr-4 custom-scrollbar">
-                {cart.map((item) => (
-                  <div key={item.id} className="flex space-x-4">
-                    <img src={item.images[0]} className="w-16 h-20 object-cover rounded-lg bg-white/5" alt={item.name} />
-                    <div className="flex-grow">
-                      <h4 className="text-sm font-bold">{item.name}</h4>
-                      <p className="text-xs text-white/40">Qty: {item.quantity}</p>
-                      <div className="flex items-center space-x-2 mt-1">
-                        {item.discount && (!item.offerExpiry || new Date(item.offerExpiry) > new Date()) ? (
-                          <>
-                             <span className="text-[10px] text-white/20 line-through">₹{item.price.toLocaleString()}</span>
-                             <span className="text-xs text-gold font-mono font-bold">₹{Math.round(item.price * (1 - item.discount / 100)).toLocaleString()}</span>
-                          </>
-                        ) : (
-                          <span className="text-xs text-gold font-mono">₹{item.price.toLocaleString()}</span>
-                        )}
+              <div className="relative z-10">
+                <div className="flex items-center justify-between mb-12">
+                   <h2 className="text-sm font-tech font-black uppercase tracking-[0.6em] text-black/20">MANIFEST_ARCHIVE</h2>
+                   <div className="w-12 h-[1px] bg-black/5" />
+                </div>
+                
+                <div className="space-y-10 mb-16 overflow-y-auto max-h-[35vh] pr-4 custom-scrollbar">
+                  {cart.map((item) => (
+                    <div key={item.id} className="flex space-x-6 items-center">
+                      <div className="w-20 aspect-square overflow-hidden rounded-[1.5rem] bg-black/[0.02] border border-black/5 p-2 flex-shrink-0">
+                         <img src={item.images[0]} className="w-full h-full object-cover rounded-xl grayscale opacity-80" alt={item.name} />
+                      </div>
+                      <div className="flex-grow space-y-2">
+                        <h4 className="text-lg font-display italic tracking-tight uppercase leading-none">{item.name}</h4>
+                        <div className="flex items-center justify-between">
+                           <p className="text-[10px] text-black/20 font-tech font-bold uppercase tracking-widest">U_COUNT: {item.quantity}</p>
+                           <span className="text-base font-tech tracking-tighter text-black/80">₹{Math.round(item.discount && (!item.offerExpiry || new Date(item.offerExpiry) > new Date()) ? item.price * (1 - item.discount / 100) : item.price).toLocaleString()}</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="space-y-4 pt-8 border-t border-white/5">
-                {/* Coupon Section */}
-                <div className="pb-6 border-b border-white/5">
-                   <p className="text-[10px] uppercase tracking-widest text-white/40 mb-3 ml-1">Promotional Coupon</p>
-                   {coupon ? (
-                     <div className="flex items-center justify-between bg-gold/10 border border-gold/20 p-4 rounded-xl">
-                        <div className="flex items-center space-x-3">
-                           <Key size={14} className="text-gold" />
-                           <span className="text-xs font-bold text-white uppercase tracking-widest">{coupon.code}</span>
-                        </div>
-                        <button onClick={removeCoupon} className="text-[10px] text-gold uppercase tracking-widest font-black hover:underline underline-offset-4">Remove</button>
-                     </div>
-                   ) : (
-                     <div className="flex space-x-2">
-                        <input 
-                          value={couponCode}
-                          onChange={e => setCouponCode(e.target.value)}
-                          placeholder="ENTER CODE"
-                          className="flex-grow bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-gold text-xs uppercase tracking-widest transition-all"
-                        />
-                        <button 
-                          onClick={handleApplyCoupon}
-                          disabled={isValidatingCoupon || !couponCode}
-                          className="px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-gold disabled:opacity-20 transition-all active:scale-95"
-                        >
-                          {isValidatingCoupon ? '...' : 'Verify'}
-                        </button>
-                     </div>
-                   )}
+                  ))}
                 </div>
 
-                <div className="flex justify-between text-white/40">
-                  <span className="text-xs uppercase tracking-widest">Manifest Value</span>
-                  <span className="font-mono text-white">₹{subtotal.toLocaleString()}</span>
-                </div>
-                {savings > 0 && (
-                  <div className="flex justify-between text-gold/60">
-                    <span className="text-[10px] uppercase tracking-widest font-bold">Acquisition Saved</span>
-                    <span className="font-mono font-bold">-₹{savings.toLocaleString()}</span>
+                <div className="space-y-6 pt-10 border-t border-black/5 relative">
+                  {/* Coupon Section */}
+                  <div className="pb-10 border-b border-black/5">
+                     <p className="text-[9px] uppercase tracking-[0.4em] text-black/20 mb-6 font-tech font-black">PROMOTIONAL_KEY</p>
+                     {coupon ? (
+                       <div className="flex items-center justify-between bg-black text-white p-6 rounded-[2rem] shadow-xl group">
+                          <div className="flex items-center space-x-4">
+                             <Key size={18} className="text-white/40" />
+                             <span className="text-sm font-tech font-bold uppercase tracking-[0.3em]">{coupon.code}</span>
+                          </div>
+                          <button onClick={removeCoupon} className="text-[10px] font-tech uppercase tracking-widest font-black opacity-40 hover:opacity-100 transition-opacity">REVOKE</button>
+                       </div>
+                     ) : (
+                       <div className="flex bg-black/[0.03] border border-black/5 rounded-[2rem] p-1">
+                          <input 
+                            value={couponCode}
+                            onChange={e => setCouponCode(e.target.value)}
+                            placeholder="INPUT KEY..."
+                            className="flex-grow bg-transparent px-6 py-4 outline-none text-xs uppercase tracking-[0.3em] font-tech"
+                          />
+                          <button 
+                            onClick={handleApplyCoupon}
+                            disabled={isValidatingCoupon || !couponCode}
+                            className="px-8 bg-black text-white rounded-full text-[10px] font-tech font-black uppercase tracking-widest disabled:opacity-20 transition-all active:scale-95 py-4"
+                          >
+                            {isValidatingCoupon ? '...' : 'SYNC'}
+                          </button>
+                       </div>
+                     )}
                   </div>
-                )}
-                <div className="flex justify-between text-white/40">
-                  <span className="text-xs uppercase tracking-widest">Shipping</span>
-                  <span className="text-gold uppercase text-[10px] font-bold tracking-widest">Complimentary</span>
-                </div>
-                <div className="flex justify-between text-white/40">
-                  <span className="text-xs uppercase tracking-widest">Insurance</span>
-                  <span className="text-gold uppercase text-[10px] font-bold tracking-widest">Complimentary</span>
-                </div>
-                <div className="flex justify-between items-end pt-6 mt-4 border-t border-gold/10">
-                  <span className="text-lg font-bold uppercase tracking-widest">Grand Total</span>
-                  <span className="text-3xl font-mono gold-text">₹{cartTotal.toLocaleString()}</span>
+
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center text-black/40">
+                      <span className="text-[11px] uppercase tracking-[0.4em] font-tech">NET_VALUATION</span>
+                      <span className="font-tech text-base tracking-tighter">₹{subtotal.toLocaleString()}</span>
+                    </div>
+                    {savings > 0 && (
+                      <div className="flex justify-between items-center text-black">
+                        <span className="text-[11px] uppercase tracking-[0.4em] font-black font-tech">ACQUISITION_GAINS</span>
+                        <span className="font-tech text-base tracking-tighter">-₹{savings.toLocaleString()}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between items-center text-black/40">
+                      <span className="text-[11px] uppercase tracking-[0.4em] font-tech">LOGISTICS_FEES</span>
+                      <span className="font-tech text ocean font-black uppercase tracking-[0.2em] px-3 py-1 bg-black/[0.05] rounded-full">NOMINAL_WAIVED</span>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col items-end pt-12 mt-6 border-t-[3px] border-black">
+                    <span className="text-[10px] font-tech font-black uppercase tracking-[0.6em] text-black/20 mb-2">GRAND_MANIFEST_TOTAL</span>
+                    <span className="text-6xl md:text-7xl font-tech tracking-tightest leading-none font-black">₹{cartTotal.toLocaleString()}</span>
+                  </div>
                 </div>
               </div>
             </div>

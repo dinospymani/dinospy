@@ -877,131 +877,147 @@ export default function AdminDashboard() {
               <span className="font-tech text-xs">EXIT_TERMINAL</span>
           </button>
         </div>
-        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8 mb-12 border-b border-black/5 pb-12">
-          <div className="max-w-2xl">
-            <div className="flex items-center space-x-3 md:space-x-4 mb-4">
-              <div className="w-1.5 h-1.5 md:w-2 md:h-2 bg-text rounded-full animate-pulse shadow-[0_0_10px_rgba(0,0,0,0.5)]" />
-              <span className="font-tech text-text/20 text-[10px] md:text-xs">ROOT@DINOSPY: ~ // ADMIN_AUTHORIZATION_ACTIVE</span>
+        <div className="flex flex-col xl:flex-row justify-between items-start xl:items-end gap-12 mb-16 border-b border-black/5 pb-16">
+          <div className="max-w-3xl space-y-6">
+            <div className="flex items-center space-x-6">
+              <div className="w-3 h-3 bg-black rounded-full animate-pulse shadow-2xl" />
+              <span className="font-tech text-black/20 text-[11px] tracking-[0.4em] uppercase font-black">Sys_Root@DINOSPY_Terminal // ACCESS_LEVEL_01</span>
             </div>
-            <h1 className="text-4xl md:text-7xl font-display italic tracking-tightest mb-4">Command <span className="opacity-20">Locus.</span></h1>
-            <div className="flex flex-wrap gap-3 font-tech text-[8px] opacity-30">
-              <span>LAT: 28.6139° N</span>
-              <span>•</span>
-              <span>LONG: 77.2090° E</span>
-              <span>•</span>
-              <span>NODE: APAC-S1</span>
-              <span>•</span>
-              <span>UPTIME: 99.99%</span>
+            <h1 className="text-6xl md:text-9xl font-display italic tracking-tightest leading-none">
+              Control <span className="opacity-20 font-sans italic">Core.</span>
+            </h1>
+            <div className="flex flex-wrap gap-8 font-tech text-[9px] text-black/20 font-bold uppercase tracking-[0.3em]">
+              <div className="flex items-center space-x-3">
+                 <div className="w-1.5 h-1.5 bg-black/10 rounded-full" />
+                 <span>LOC: NEW_DELHI_HUB</span>
+              </div>
+              <div className="flex items-center space-x-3">
+                 <div className="w-1.5 h-1.5 bg-black/10 rounded-full" />
+                 <span>NODE: APAC_SOUTH_SYNC</span>
+              </div>
+              <div className="flex items-center space-x-3">
+                 <div className="w-1.5 h-1.5 bg-green-500 rounded-full" />
+                 <span>UPTIME: 99.998%</span>
+              </div>
             </div>
           </div>
-          <div className="grid grid-cols-3 sm:grid-cols-5 lg:flex items-center gap-2 p-2 bg-black/[0.02] rounded-3xl border border-black/5 w-full lg:w-fit overflow-hidden">
-            {[
-              { id: 'stats', label: 'METRICS', icon: BarChart2 },
-              { id: 'orders', label: 'LOGISTICS', icon: Truck },
-              { id: 'products', label: 'INVENTORY', icon: Package },
-              { id: 'add', label: 'ARCHIVE', icon: Plus },
-              { id: 'notifications', label: 'FEED', icon: Bell, urgent: notifications.some(n => !n.read) },
-              { id: 'broadcast', label: 'SIGNAL', icon: Megaphone },
-              { id: 'banners', label: 'VISUALS', icon: Eye },
-              { id: 'coupons', label: 'PROTOCOLS', icon: Zap },
-              { id: 'security', label: 'SECURE', icon: Shield },
-            ].map((tab) => (
-              <button 
-                key={tab.id}
-                onClick={() => setView(tab.id as any)}
-                className={`flex flex-col items-center justify-center px-4 py-3 rounded-2xl transition-all duration-700 relative group min-w-[70px] ${view === tab.id ? 'bg-text text-bg shadow-2xl scale-105' : 'text-text/30 hover:text-text hover:bg-black/5'}`}
-              >
-                <tab.icon size={14} className={`mb-1.5 transition-transform duration-700 ${view === tab.id ? 'scale-110' : 'group-hover:scale-110'}`} />
-                <span className="text-[7px] font-tech tracking-normal">{tab.label}</span>
-                {tab.id === 'notifications' && tab.urgent && (
-                  <span className="absolute top-2 right-2 w-1 h-1 bg-red-500 rounded-full animate-pulse shadow-[0_0_5px_rgba(239,68,68,1)]" />
-                )}
-              </button>
-            ))}
+
+          <div className="w-full xl:w-auto overflow-x-auto no-scrollbar -mx-4 px-4 xl:mx-0 xl:px-0">
+            <div className="flex items-center space-x-2 p-2 bg-black/[0.02] rounded-[2.5rem] border border-black/5 min-w-max">
+              {[
+                { id: 'stats', label: 'METRICS', icon: BarChart2 },
+                { id: 'orders', label: 'LOGISTICS', icon: Truck },
+                { id: 'products', label: 'INVENTORY', icon: Package },
+                { id: 'add', label: 'ARCHIVE', icon: Plus },
+                { id: 'notifications', label: 'FEED', icon: Bell, urgent: notifications.some(n => !n.read) },
+                { id: 'broadcast', label: 'SIGNAL', icon: Megaphone },
+                { id: 'banners', label: 'VISUALS', icon: Eye },
+                { id: 'coupons', label: 'PROTOCOLS', icon: Zap },
+                { id: 'security', label: 'SECURE', icon: Shield },
+              ].map((tab) => (
+                <button 
+                  key={tab.id}
+                  onClick={() => setView(tab.id as any)}
+                  className={`flex items-center space-x-3 px-8 py-4 rounded-[1.5rem] transition-all duration-700 relative group ${view === tab.id ? 'bg-black text-white shadow-2xl scale-105' : 'text-black/30 hover:bg-black/5'}`}
+                >
+                  <tab.icon size={16} strokeWidth={view === tab.id ? 2 : 1} className={`transition-transform duration-700 ${view === tab.id ? 'scale-110' : 'group-hover:scale-110'}`} />
+                  <span className="text-[10px] font-tech font-black uppercase tracking-[0.2em]">{tab.label}</span>
+                  {tab.id === 'notifications' && tab.urgent && (
+                    <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse absolute -top-1 -right-1 shadow-lg" />
+                  )}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
         
         <div className="min-h-[60vh] relative">
           {view === 'stats' && (
-            <div className="space-y-12 animate-in fade-in duration-1000">
+            <div className="space-y-16 animate-in fade-in slide-in-from-bottom-10 duration-1000">
                {/* High Density Stats */}
-               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                  {[
-                   { label: 'NET_ACQUISITIONS_VAL', value: `₹${stats.revenue.toLocaleString()}`, icon: DollarSign, trend: '+12.4%', detail: 'LAST_24H_CYCLE' },
-                   { label: 'ACTIVE_MANIFESTS', value: stats.ordersCount, icon: ShoppingBag, trend: '+3', detail: 'PROCESSING_PENDING' },
-                   { label: 'CONVERSION_EFFICIENCY', value: `${stats.conversionRate}%`, icon: TrendingUp, trend: 'OPTIMIZED', detail: 'ALGORITHMIC_TARGET: 4.0%' },
-                   { label: 'INVENTORY_HEALTH', value: `${products.length - stats.lowStock}/${products.length}`, icon: Database, alert: stats.lowStock > 0, detail: `${stats.lowStock} CRITICAL_ASSETS` },
+                   { label: 'NET_REVENUE_STREAM', value: `₹${stats.revenue.toLocaleString()}`, icon: DollarSign, trend: '+14.2%', detail: 'CYCLE_STATUS: OPTIMAL' },
+                   { label: 'ARCHIVE_MANIFESTS', value: stats.ordersCount, icon: ShoppingBag, trend: '+5', detail: 'QUEUED: 12' },
+                   { label: 'NODE_EFFICIENCY', value: `${stats.conversionRate}%`, icon: TrendingUp, trend: 'SYNCHRONIZED', detail: 'NETWORK_STABLE' },
+                   { label: 'INVENTORY_RESERVE', value: `${products.length - stats.lowStock}/${products.length}`, icon: Database, alert: stats.lowStock > 0, detail: `${stats.lowStock} CRITICAL_NODES` },
                  ].map((stat, i) => (
-                   <div key={i} className={`p-8 rounded-[2rem] border border-black/5 flex flex-col justify-between h-56 transition-all duration-700 hover:shadow-2xl hover:border-black/20 group relative overflow-hidden bg-white`}>
-                     <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                        <stat.icon size={80} />
+                   <div key={i} className={`p-10 rounded-[3rem] border border-black/5 flex flex-col justify-between h-72 transition-all duration-700 hover:shadow-[0_80px_160px_-40px_rgba(0,0,0,0.1)] hover:border-black/10 group relative overflow-hidden bg-white`}>
+                     <div className="absolute top-0 right-0 p-8 opacity-[0.02] group-hover:opacity-[0.05] transition-opacity duration-1000 rotate-12 scale-150">
+                        <stat.icon size={120} strokeWidth={1} />
                      </div>
                      <div className="relative z-10 flex justify-between items-start">
-                       <div className="w-12 h-12 bg-black text-white rounded-2xl flex items-center justify-center group-hover:rotate-12 transition-all duration-700 shadow-lg">
-                         <stat.icon size={20} />
+                       <div className="w-16 h-16 bg-black text-white rounded-[1.5rem] flex items-center justify-center group-hover:rotate-12 transition-all duration-700 shadow-2xl">
+                         <stat.icon size={24} strokeWidth={1} />
                        </div>
                        <div className="text-right">
-                          <p className={`font-tech text-[10px] ${stat.alert ? 'text-red-500 animate-pulse' : 'text-green-600'}`}>{stat.trend || (stat.alert ? 'CRITICAL' : 'STABLE')}</p>
-                          <p className="font-tech text-text/10 text-[7px] mt-1">STATUS_VERIFIED</p>
+                          <p className={`font-tech text-[10px] tracking-[0.2em] font-black ${stat.alert ? 'text-red-500 animate-pulse' : 'text-black'}`}>{stat.trend || (stat.alert ? 'CRITICAL' : 'NOMINAL')}</p>
+                          <p className="font-tech text-black/10 text-[8px] mt-1 uppercase">Metric_Verified</p>
                        </div>
                      </div>
                      <div className="relative z-10">
-                       <p className="font-tech text-text/30 mb-2 text-[9px] tracking-widest">{stat.label}</p>
-                       <h3 className="text-4xl font-display italic tracking-tightest mb-2">{stat.value}</h3>
-                       <p className="font-tech text-text/20 text-[7px] border-t border-black/5 pt-3">{stat.detail}</p>
+                       <p className="font-tech text-black/20 mb-3 text-[10px] tracking-[0.4em] font-black uppercase">{stat.label}</p>
+                       <h3 className="text-5xl font-display italic tracking-tightest mb-4">{stat.value}</h3>
+                       <div className="w-12 h-[1px] bg-black/5 mb-4" />
+                       <p className="font-tech text-black/20 text-[8px] tracking-[0.2em] font-bold uppercase">{stat.detail}</p>
                      </div>
                    </div>
                  ))}
                </div>
 
-               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+               <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
                   {/* Main Chart */}
-                  <div className="lg:col-span-2 p-8 rounded-[2.5rem] border border-black/5 bg-white shadow-sm overflow-hidden group">
-                    <div className="flex justify-between items-center mb-12">
-                       <div>
-                          <div className="flex items-center space-x-3 mb-3">
-                             <div className="w-1.5 h-1.5 bg-black rounded-full shadow-[0_0_5px_rgba(0,0,0,0.3)]" />
-                             <span className="font-tech text-text/30 text-[10px]">REALTIME_DATA // REVENUE_STREAM</span>
+                  <div className="lg:col-span-2 p-12 rounded-[4rem] border border-black/5 bg-white shadow-sm overflow-hidden group relative">
+                    <div className="absolute top-0 right-0 p-12 opacity-[0.01] pointer-events-none">
+                       <TrendingUp size={400} strokeWidth={1} />
+                    </div>
+                    
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-16 gap-8 relative z-10">
+                       <div className="space-y-4">
+                          <div className="flex items-center space-x-4">
+                             <div className="w-2 h-2 bg-black rounded-full animate-pulse shadow-2xl" />
+                             <span className="font-tech text-black/20 text-[11px] tracking-[0.4em] font-black uppercase">TELEMETRY_SYNC // REVENUE_DYNAMICS</span>
                           </div>
-                          <h3 className="text-3xl font-display italic">Growth <span className="opacity-20">Analytics.</span></h3>
+                          <h3 className="text-5xl font-display italic tracking-tightest leading-none">Stream <span className="opacity-20 font-sans italic">Analytics.</span></h3>
                        </div>
-                       <div className="flex items-center space-x-2">
-                          <div className="px-4 py-2 bg-black/[0.02] border border-black/5 rounded-xl text-[10px] font-tech text-text/40">7_DAY_CYCLE</div>
+                       <div className="flex items-center space-x-4">
+                          <div className="px-6 py-3 bg-black text-white rounded-full text-[10px] font-tech font-black tracking-widest uppercase shadow-xl">7_DAY_PERSPECTIVE</div>
                        </div>
                     </div>
-                    <div className="h-[350px]">
+                    <div className="h-[400px] relative z-10">
                       <ResponsiveContainer width="100%" height="100%">
                         <AreaChart data={chartData}>
                           <defs>
                             <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="5%" stopColor="#000000" stopOpacity={0.08}/>
+                              <stop offset="5%" stopColor="#000000" stopOpacity={0.05}/>
                               <stop offset="95%" stopColor="#000000" stopOpacity={0}/>
                             </linearGradient>
                           </defs>
-                          <CartesianGrid strokeDasharray="3 3" stroke="#00000005" vertical={false} />
+                          <CartesianGrid strokeDasharray="6 6" stroke="#00000005" vertical={false} />
                           <XAxis 
                             dataKey="name" 
-                            stroke="#00000010" 
+                            stroke="#00000015" 
                             fontSize={10} 
                             tickLine={false}
                             axisLine={false}
-                            tick={{ dy: 10, fontStyle: 'italic' }}
+                            tick={{ dy: 15, fontStyle: 'italic', fontWeight: 'bold', fill: '#00000030' }}
                           />
                           <YAxis 
-                            stroke="#00000010" 
+                            stroke="#00000015" 
                             fontSize={10} 
                             tickLine={false}
                             axisLine={false}
                             tickFormatter={(value) => `₹${value >= 1000 ? (value/1000).toFixed(0) + 'k' : value}`}
+                            tick={{ dx: -10, fontStyle: 'italic', fontWeight: 'bold', fill: '#00000030' }}
                           />
                           <Tooltip 
-                            cursor={{ stroke: '#000', strokeWidth: 0.5, strokeDasharray: '4 4' }}
+                            cursor={{ stroke: '#000', strokeWidth: 1, strokeDasharray: '8 8' }}
                             content={({ active, payload }) => {
                               if (active && payload && payload.length) {
                                 return (
-                                  <div className="bg-black text-white p-4 rounded-2xl shadow-2xl border border-white/10 backdrop-blur-xl">
-                                    <p className="font-tech text-[8px] text-white/40 mb-1">{payload[0].payload.name.toUpperCase()}</p>
-                                    <p className="font-display text-lg italic">₹{payload[0].value?.toLocaleString()}</p>
+                                  <div className="bg-black text-white p-8 rounded-[2rem] shadow-2xl border border-white/10 backdrop-blur-xl space-y-2">
+                                    <p className="font-tech text-[9px] text-white/40 tracking-[0.4em] mb-2">{payload[0].payload.name.toUpperCase()}</p>
+                                    <p className="text-3xl font-display italic tracking-tightest leading-none">₹{payload[0].value?.toLocaleString()}</p>
                                   </div>
                                 );
                               }
@@ -1012,10 +1028,10 @@ export default function AdminDashboard() {
                             type="monotone" 
                             dataKey="sales" 
                             stroke="#000000" 
-                            strokeWidth={3}
+                            strokeWidth={4}
                             fillOpacity={1} 
                             fill="url(#colorSales)" 
-                            animationDuration={2000}
+                            animationDuration={2500}
                           />
                         </AreaChart>
                       </ResponsiveContainer>
@@ -1023,31 +1039,35 @@ export default function AdminDashboard() {
                   </div>
 
                   {/* Terminal Log / Activity */}
-                  <div className="p-8 rounded-[2.5rem] border border-black/5 bg-black text-white shadow-2xl flex flex-col h-[500px] lg:h-auto">
-                    <div className="flex items-center justify-between mb-8 pb-6 border-b border-white/10">
-                      <div className="flex items-center space-x-3">
-                         <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-ping" />
-                         <span className="font-tech text-white/40 text-[10px]">LIVE_ACTIVITY_LOG</span>
-                      </div>
-                      <span className="font-tech text-white/20 text-[8px]">BUFFER_SYNCED</span>
+                  <div className="p-12 rounded-[4rem] border border-black/5 bg-black text-white shadow-2xl flex flex-col h-[600px] lg:h-auto relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-12 opacity-[0.05] pointer-events-none -rotate-12 translate-x-4 -translate-y-4">
+                       <Zap size={300} strokeWidth={1} />
                     </div>
-                    <div className="flex-grow space-y-4 overflow-y-auto no-scrollbar font-mono text-[9px] text-white/50">
-                       {notifications.slice(0, 15).map((n, i) => (
-                         <div key={i} className="flex space-x-4 group border-l border-white/5 pl-4 hover:border-white/20 transition-colors">
-                           <span className="text-white/20 whitespace-nowrap">{new Date(n.timestamp).toLocaleTimeString([], { hour12: false })}</span>
-                           <span className={n.type === 'orders' ? 'text-green-400' : 'text-red-400'}>
+                    
+                    <div className="flex items-center justify-between mb-12 pb-8 border-b border-white/10 relative z-10">
+                      <div className="flex items-center space-x-4">
+                         <div className="w-2 h-2 bg-green-500 rounded-full animate-ping" />
+                         <span className="font-tech text-white/40 text-[11px] tracking-[0.4em] font-black uppercase">LIVE_SIGNAL_DECODE</span>
+                      </div>
+                      <span className="font-tech text-white/20 text-[9px] font-bold">BUFFER_SECURE</span>
+                    </div>
+                    <div className="flex-grow space-y-6 overflow-y-auto no-scrollbar font-mono text-[10px] text-white/40 relative z-10">
+                       {notifications.slice(0, 12).map((n, i) => (
+                         <div key={i} className="flex space-x-6 group border-l-2 border-white/5 pl-6 hover:border-white/40 transition-all duration-500">
+                           <span className="text-white/10 whitespace-nowrap font-tech">{new Date(n.timestamp).toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit' })}</span>
+                           <span className={`font-tech font-black tracking-widest ${n.type === 'orders' ? 'text-green-400' : 'text-red-400'}`}>
                              {`[${n.type.toUpperCase()}]`}
                            </span>
-                           <span className="group-hover:text-white transition-colors">{n.message}</span>
+                           <span className="group-hover:text-white transition-colors tracking-tight leading-relaxed">{n.message}</span>
                          </div>
                        ))}
                     </div>
-                    <div className="mt-8 pt-6 border-t border-white/10">
+                    <div className="mt-12 pt-8 border-t border-white/10 relative z-10">
                       <button 
                         onClick={() => setView('notifications')}
-                        className="w-full py-4 border border-white/10 rounded-2xl font-tech text-[8px] hover:bg-white hover:text-black transition-all duration-700"
+                        className="w-full py-6 bg-white/5 border border-white/10 rounded-[2rem] font-tech text-[10px] font-black tracking-[0.4em] uppercase hover:bg-white hover:text-black transition-all duration-700 active:scale-[0.98]"
                       >
-                         ANALYZE_FULL_LOGS
+                         SYNCHRONIZE_FULL_METRICS
                       </button>
                     </div>
                   </div>
@@ -1056,152 +1076,184 @@ export default function AdminDashboard() {
           )}
 
           {view === 'products' && (
-            <div className="space-y-12 animate-in fade-in duration-1000">
-               <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12">
-                  <div>
-                    <div className="flex items-center space-x-3 mb-3">
-                       <div className="w-1.5 h-1.5 bg-black rounded-full" />
-                       <span className="font-tech text-text/20 text-[10px]">ASSET_REGISTER // CURATION_SYSTEM</span>
+            <div className="space-y-16 animate-in fade-in slide-in-from-bottom-10 duration-1000">
+               <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 mb-16">
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-4">
+                       <div className="w-2 h-2 bg-black rounded-full" />
+                       <span className="font-tech text-black/20 text-[11px] tracking-[0.4em] font-black uppercase">ASSET_REGISTER // CURATION_SYSTEM</span>
                     </div>
-                    <h2 className="text-4xl font-display italic tracking-tightest">Collection <span className="opacity-20">Manifest.</span></h2>
+                    <h2 className="text-5xl md:text-7xl font-display italic tracking-tightest leading-none">Collection <span className="opacity-20 font-sans italic">Manifest.</span></h2>
                   </div>
-                  <button onClick={handleSeed} className="px-6 py-3 border border-black/5 rounded-full font-tech text-[10px] text-text/30 hover:bg-black hover:text-white transition-all duration-700">GENERATE_SAMPLE_DATA</button>
+                  <div className="flex gap-4 w-full md:w-auto">
+                    <button onClick={handleSeed} className="flex-grow md:flex-grow-0 px-8 py-4 border border-black/5 rounded-full font-tech text-[10px] font-black tracking-widest text-black/40 hover:bg-black hover:text-white transition-all duration-700 active:scale-95 uppercase">GENERATE_SAMPLE_DATA</button>
+                  </div>
                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-8">
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-12">
                   {products.map((p) => (
-                    <div key={p.id} className="group p-6 rounded-[2.5rem] border border-black/5 bg-white hover:shadow-2xl transition-all duration-700 flex flex-col h-full relative overflow-hidden">
-                       <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
-                          <span className="font-tech text-[40px]">{p.id.slice(0, 2).toUpperCase()}</span>
+                    <motion.div 
+                      layout
+                      key={p.id} 
+                      className="group p-8 rounded-[4rem] border border-black/5 bg-white hover:shadow-[0_80px_160px_-40px_rgba(0,0,0,0.1)] transition-all duration-1000 flex flex-col h-full relative overflow-hidden"
+                    >
+                       <div className="absolute top-0 right-0 p-10 opacity-[0.03] group-hover:opacity-[0.06] transition-opacity duration-1000 rotate-12 scale-150 pointer-events-none">
+                          <span className="font-display italic text-9xl leading-none">{p.name.slice(0, 1)}</span>
                        </div>
                        
-                       <div className="aspect-[4/5] rounded-3xl overflow-hidden bg-black/5 mb-6 relative group">
-                          <img src={p.images?.[0] || ''} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 grayscale" alt={p.name} />
-                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-700 flex items-center justify-center backdrop-blur-sm">
-                             <div className="text-center p-4">
-                               <p className="font-tech text-[8px] text-white/60 mb-2">ROI_ESTIMATE</p>
-                               <p className="text-white text-xl font-display italic">STABLE_VALUE</p>
+                       <div className="aspect-square rounded-[2.5rem] overflow-hidden bg-black/5 mb-8 relative">
+                          <img src={p.images?.[0] || ''} className="w-full h-full object-cover grayscale brightness-110 group-hover:scale-110 group-hover:grayscale-0 transition-all duration-1000" alt={p.name} />
+                          <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 flex items-center justify-center backdrop-blur-sm">
+                             <div className="text-center p-8 space-y-4">
+                                <p className="font-tech text-[10px] text-white/40 tracking-[0.4em] font-black uppercase">ASSET_VALUATION</p>
+                                <p className="text-white text-3xl font-display italic tracking-tightest">STABLE_ROI</p>
                              </div>
                           </div>
-                          <div className={`absolute top-4 right-4 px-3 py-1 rounded-full text-[7px] font-tech border backdrop-blur-md ${p.stock < 5 ? 'bg-red-500/10 border-red-500/20 text-red-600' : 'bg-green-500/10 border-green-500/20 text-green-600'}`}>
-                            {p.stock < 5 ? 'CRITICAL_STOCK' : 'OPTIMAL_LEVEL'}
+                          <div className={`absolute top-6 right-6 px-4 py-2 rounded-full text-[8px] font-tech font-black tracking-widest border backdrop-blur-xl transition-colors duration-700 ${p.stock < 5 ? 'bg-red-500/10 border-red-500/20 text-red-600' : 'bg-white/80 border-black/5 text-black'}`}>
+                            {p.stock < 5 ? 'LOW_RESERVE' : 'OPTIMAL_SY'}
                           </div>
                        </div>
 
-                       <div className="space-y-2 mb-8 flex-grow">
-                          <div className="flex items-center space-x-2">
-                             <span className="font-tech text-text/20 text-[8px]">{p.category.toUpperCase()}</span>
-                             <span className="w-1 h-1 bg-black/10 rounded-full" />
-                             <span className="font-tech text-text/20 text-[8px]">INV_0{p.stock}</span>
+                       <div className="space-y-4 mb-10 flex-grow relative z-10">
+                          <div className="flex items-center space-x-3">
+                             <span className="font-tech text-black/20 text-[9px] font-bold tracking-[0.2em] uppercase">{p.category}</span>
+                             <span className="w-1.5 h-1.5 bg-black/10 rounded-full" />
+                             <span className="font-tech text-black/20 text-[9px] font-bold tracking-[0.2em] uppercase">STOCK_LVL: {p.stock}</span>
                           </div>
-                          <h4 className="text-xl font-display italic tracking-tight">{p.name}</h4>
-                          <div className="flex items-end justify-between">
-                             <p className="font-mono text-2xl tracking-tighter">₹{p.price.toLocaleString()}</p>
-                             <div className="text-right">
-                                <p className="font-tech text-[7px] text-black/20">VALUATION</p>
-                             </div>
+                          <h4 className="text-3xl font-display italic tracking-tightest leading-tight group-hover:tracking-tight transition-all duration-700">{p.name}</h4>
+                          <div className="flex items-baseline space-x-3">
+                             <p className="font-display text-4xl italic tracking-tightest leading-none">₹{p.price.toLocaleString()}</p>
+                             <p className="font-tech text-[8px] text-black/10 font-bold tracking-[0.4em] uppercase">VALUATION_UNIT</p>
                           </div>
                        </div>
 
-                       <div className="flex items-center justify-between pt-6 border-t border-black/5 mt-auto">
-                          <div className="flex space-x-2">
-                             <button onClick={() => {setEditingStockId(p.id); setNewStockValue(p.stock.toString());}} className="w-12 h-12 rounded-full border border-black/5 flex items-center justify-center hover:bg-black hover:text-white transition-all duration-700">
-                                <Edit size={16} />
+                       <div className="flex items-center justify-between pt-8 border-t border-black/5 mt-auto relative z-10">
+                          <div className="flex space-x-3">
+                             <button onClick={() => {setEditingStockId(p.id); setNewStockValue(p.stock.toString());}} className="w-14 h-14 rounded-full border border-black/5 flex items-center justify-center hover:bg-black hover:text-white transition-all duration-700 active:scale-90 group/edit">
+                                <Edit size={18} strokeWidth={1} className="group-hover/edit:rotate-12 transition-transform" />
                              </button>
-                             <button onClick={() => handleDelete(p.id)} className="w-12 h-12 rounded-full bg-red-50 text-red-500/40 hover:text-red-500 hover:bg-red-100 flex items-center justify-center transition-all duration-700">
-                                <Trash2 size={16} />
+                             <button onClick={() => handleDelete(p.id)} className="w-14 h-14 rounded-full bg-red-500/5 text-red-500/30 hover:bg-red-500 hover:text-white flex items-center justify-center transition-all duration-700 active:scale-90 group/del">
+                                <Trash2 size={18} strokeWidth={1} className="group-hover/del:scale-110 transition-transform" />
                              </button>
                           </div>
                           {editingStockId === p.id ? (
-                             <div className="flex items-center space-x-2 animate-in slide-in-from-right-4">
-                                <input 
-                                  type="number" value={newStockValue} onChange={e => setNewStockValue(e.target.value)} 
-                                  className="w-16 bg-black/[0.02] border border-black/10 rounded-xl px-3 py-2 font-mono text-xs outline-none focus:border-black" 
-                                />
-                                <button onClick={() => handleUpdateStock(p.id)} className="font-tech text-text hover:underline text-[9px]">COMMIT</button>
+                             <div className="flex items-center space-x-4 animate-in fade-in slide-in-from-right-8 duration-700">
+                                <div className="space-y-1">
+                                   <input 
+                                     autoFocus
+                                     type="number" 
+                                     value={newStockValue} 
+                                     onChange={e => setNewStockValue(e.target.value)} 
+                                     className="w-20 bg-black text-white rounded-2xl px-5 py-3 font-mono text-xs outline-none shadow-2xl" 
+                                   />
+                                </div>
+                                <button 
+                                  onClick={() => handleUpdateStock(p.id)} 
+                                  className="font-tech text-black text-[10px] font-black tracking-widest uppercase hover:underline underline-offset-8"
+                                >
+                                  COMMIT
+                                </button>
                              </div>
                           ) : (
                              <div className="text-right">
-                                <p className="font-tech text-[8px] text-black/30">LST_MOD: {new Date().toLocaleDateString()}</p>
+                                <p className="font-tech text-[8px] text-black/10 font-bold tracking-[0.2em] uppercase">LAST_SYNC: 0.1ms</p>
                              </div>
                           )}
                        </div>
-                    </div>
+                    </motion.div>
                   ))}
                </div>
             </div>
           )}
 
           {view === 'orders' && (
-            <div className="space-y-12 animate-in fade-in duration-1000">
-               <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12">
-                  <div>
-                    <div className="flex items-center space-x-3 mb-2">
-                       <div className="w-1 h-1 bg-text rounded-full" />
-                       <span className="font-tech text-text/20">SALES_MANIFEST // TRANSACTION_LOGS</span>
+            <div className="space-y-16 animate-in fade-in slide-in-from-bottom-10 duration-1000">
+               <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 mb-16">
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-4">
+                       <div className="w-2 h-2 bg-black rounded-full shadow-2xl" />
+                       <span className="font-tech text-black/20 text-[11px] tracking-[0.4em] font-black uppercase">SALES_MANIFEST // TRANSACTION_LOGS</span>
                     </div>
-                    <h2 className="text-3xl font-display">Global <span className="opacity-20 italic">Acquisitions.</span></h2>
+                    <h2 className="text-5xl md:text-7xl font-display italic tracking-tightest leading-none">Global <span className="opacity-20 font-sans italic">Acquisitions.</span></h2>
+                  </div>
+                  <div className="flex gap-4">
+                     <div className="px-6 py-3 bg-black/5 rounded-full text-[10px] font-tech font-black tracking-widest text-black/40 uppercase">ACTIVE_COUNT: {orders.length}</div>
                   </div>
                </div>
 
-               <div className="overflow-x-auto no-scrollbar">
-                 <table className="w-full border-collapse">
-                   <thead>
-                     <tr className="border-b border-black/5">
-                       <th className="font-tech text-[9px] text-text/30 text-left pb-6 pl-4">IDENT_HEX</th>
-                       <th className="font-tech text-[9px] text-text/30 text-left pb-6">CLIENT_ENTITY</th>
-                       <th className="font-tech text-[9px] text-text/30 text-left pb-6">VALUATION</th>
-                       <th className="font-tech text-[9px] text-text/30 text-left pb-6">STATUS_CODE</th>
-                       <th className="font-tech text-[9px] text-text/30 text-right pb-6 pr-4">ACTIONS</th>
-                     </tr>
-                   </thead>
-                   <tbody className="divide-y divide-black/5">
-                     {orders.length === 0 ? (
-                       <tr>
-                         <td colSpan={5} className="py-32 text-center text-text/20 font-tech text-[10px]">
-                            NO_ACQUISITIONS_PENDING
-                         </td>
-                       </tr>
-                     ) : (
-                       orders.map((o) => (
-                         <tr key={o.id} className="group hover:bg-black/[0.01] transition-all">
-                           <td className="py-8 pl-4">
-                              <p className="font-mono text-[10px] text-black/40">#{o.id.slice(-8).toUpperCase()}</p>
-                              <p className="font-tech text-[7px] text-black/10 mt-1">{new Date(o.createdAt).toLocaleDateString()}</p>
-                           </td>
-                           <td className="py-8">
-                              <p className="font-display italic text-lg leading-none">{o.customerName}</p>
-                              <p className="font-tech text-[8px] text-black/20 mt-1">{o.customerEmail || 'GUEST_USER'}</p>
-                           </td>
-                           <td className="py-8">
-                              <p className="font-mono text-xl tracking-tighter">₹{o.total.toLocaleString()}</p>
-                           </td>
-                           <td className="py-8">
-                              <div className={`inline-flex items-center space-x-2`}>
-                                 <div className={`px-4 py-1.5 rounded-full text-[9px] font-tech border ${o.status === 'delivered' ? 'bg-green-100 border-green-200 text-green-700' : 'bg-black/5 border-black/10 text-black/40'}`}>
-                                    {o.status.toUpperCase()}
+               <div className="overflow-x-auto no-scrollbar -mx-4 px-4">
+                  <div className="inline-block min-w-full align-middle">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="border-b border-black/5">
+                          <th className="font-tech text-[10px] text-black/20 text-left pb-10 pl-8 tracking-[0.4em] font-black uppercase">IDENT_HEX</th>
+                          <th className="font-tech text-[10px] text-black/20 text-left pb-10 tracking-[0.4em] font-black uppercase">CLIENT_ENTITY</th>
+                          <th className="font-tech text-[10px] text-black/20 text-left pb-10 tracking-[0.4em] font-black uppercase">VALUATION</th>
+                          <th className="font-tech text-[10px] text-black/20 text-left pb-10 tracking-[0.4em] font-black uppercase">STATUS_CODE</th>
+                          <th className="font-tech text-[10px] text-black/20 text-right pb-10 pr-8 tracking-[0.4em] font-black uppercase">ACTIONS</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-black/5">
+                        {orders.length === 0 ? (
+                          <tr>
+                            <td colSpan={5} className="py-48 text-center text-black/10 font-tech text-[11px] tracking-[0.4em] font-black uppercase">
+                               NO_ACQUISITIONS_PENDING_IN_BUFFER
+                            </td>
+                          </tr>
+                        ) : (
+                          orders.map((o) => (
+                            <tr key={o.id} className="group hover:bg-black/[0.01] transition-all duration-500">
+                              <td className="py-12 pl-8">
+                                 <div className="flex items-center space-x-4">
+                                    <div className="w-1.5 h-1.5 bg-black/10 rounded-full group-hover:bg-black group-hover:animate-pulse transition-colors" />
+                                    <div>
+                                       <p className="font-mono text-[12px] font-bold text-black/60 tracking-tighter">#{o.id.slice(-10).toUpperCase()}</p>
+                                       <p className="font-tech text-[8px] text-black/20 mt-1 uppercase font-bold tracking-widest">{new Date(o.createdAt).toLocaleDateString([], { day: '2-digit', month: 'short', year: 'numeric' })}</p>
+                                    </div>
                                  </div>
-                                 <select 
-                                   value={o.status} 
-                                   onChange={(e) => handleUpdateOrderStatus(o.id, e.target.value as any)}
-                                   className="bg-transparent font-tech text-[8px] opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer border-none outline-none"
-                                 >
-                                    {['pending', 'processing', 'shipped', 'delivered'].map(s => <option key={s} value={s}>{s.toUpperCase()}</option>)}
-                                 </select>
-                              </div>
-                           </td>
-                           <td className="py-8 pr-4 text-right">
-                             <button 
-                               onClick={() => setSelectedOrder(o)}
-                               className="p-4 rounded-2xl border border-black/5 hover:bg-black hover:text-white transition-all duration-700"
-                             >
-                               <Eye size={16} />
-                             </button>
-                           </td>
-                         </tr>
-                       ))
-                     )}
-                   </tbody>
-                 </table>
+                              </td>
+                              <td className="py-12">
+                                 <div className="space-y-1">
+                                    <p className="font-display italic text-2xl leading-none tracking-tight">{o.customerName}</p>
+                                    <p className="font-tech text-[9px] text-black/30 uppercase font-bold tracking-widest">{o.customerEmail || 'ANONYMOUS_ACQUISITION'}</p>
+                                 </div>
+                              </td>
+                              <td className="py-12">
+                                 <p className="font-display text-2xl italic tracking-tightest leading-none">₹{o.total.toLocaleString()}</p>
+                                 <p className="font-tech text-[8px] text-black/20 mt-2 uppercase font-bold tracking-widest">INR_CURRENCY_NODE</p>
+                              </td>
+                              <td className="py-12">
+                                 <div className="flex items-center space-x-4">
+                                    <div className={`px-6 py-2 rounded-full text-[9px] font-tech font-black tracking-widest border transition-all duration-700 ${
+                                      o.status === 'delivered' ? 'bg-black text-white border-black' : 
+                                      o.status === 'shipped' ? 'bg-black/5 border-black/20 text-black' : 
+                                      o.status === 'processing' ? 'bg-black/2 border-black/10 text-black/60' : 'bg-transparent border-black/5 text-black/20'
+                                    }`}>
+                                       {o.status.toUpperCase()}
+                                    </div>
+                                    <select 
+                                      value={o.status} 
+                                      onChange={(e) => handleUpdateOrderStatus(o.id, e.target.value as any)}
+                                      className="bg-transparent font-tech text-[10px] font-black tracking-widest opacity-0 group-hover:opacity-40 hover:opacity-100 transition-all cursor-pointer border-none outline-none appearance-none uppercase"
+                                    >
+                                       {['pending', 'processing', 'shipped', 'delivered'].map(s => <option key={s} value={s} className="bg-white text-black">{s.toUpperCase()}</option>)}
+                                    </select>
+                                 </div>
+                              </td>
+                              <td className="py-12 pr-8 text-right">
+                                <button 
+                                  onClick={() => setSelectedOrder(o)}
+                                  className="w-14 h-14 rounded-full border border-black/5 flex items-center justify-center hover:bg-black hover:shadow-2xl hover:text-white transition-all duration-700 group/btn active:scale-95"
+                                >
+                                  <Eye size={18} strokeWidth={1} className="group-hover/btn:scale-110 transition-transform duration-700" />
+                                </button>
+                              </td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
                </div>
             </div>
           )}
@@ -1536,82 +1588,96 @@ export default function AdminDashboard() {
 
           {/* Shipping Manifest Terminal */}
           {selectedOrder && (
-            <div className="fixed inset-0 z-[60] flex items-center justify-center p-3 md:p-4 bg-black/40 backdrop-blur-xl animate-in fade-in duration-500">
-              <div className="bg-white max-w-2xl w-full rounded-[2rem] md:rounded-[3rem] shadow-2xl overflow-hidden border border-black/5 animate-in zoom-in-95 duration-700">
-                <div className="p-6 md:p-10 border-b border-black/5 flex justify-between items-start">
-                   <div>
-                     <div className="flex items-center space-x-2 mb-1">
-                        <div className="w-1 h-1 bg-text rounded-full" />
-                        <p className="font-tech text-text/20 text-[7px] md:text-[8px]">LOGISTICS_MANIFEST // ID_{selectedOrder.id.slice(-6)}</p>
+            <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-white/60 backdrop-blur-3xl animate-in fade-in duration-1000">
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                className="bg-white max-w-4xl w-full rounded-[4rem] shadow-[0_80px_160px_-40px_rgba(0,0,0,0.2)] overflow-hidden border border-black/5 relative"
+              >
+                <div className="p-12 border-b border-black/5 flex justify-between items-start">
+                   <div className="space-y-4">
+                     <div className="flex items-center space-x-4">
+                        <div className="w-2 h-2 bg-black rounded-full animate-pulse shadow-2xl" />
+                        <p className="font-tech text-black/20 text-[11px] tracking-[0.4em] font-black uppercase">LOGISTICS_MANIFEST // ID_{selectedOrder.id.slice(-10).toUpperCase()}</p>
                      </div>
-                     <h2 className="text-xl md:text-3xl font-display italic">Fulfillment <span className="opacity-20">Terminal.</span></h2>
+                     <h2 className="text-5xl font-display italic tracking-tightest leading-none">Fulfillment <span className="opacity-20 font-sans italic">Center.</span></h2>
                    </div>
-                   <button onClick={() => setSelectedOrder(null)} className="w-8 h-8 md:w-12 md:h-12 rounded-full bg-black/5 flex items-center justify-center hover:bg-black hover:text-white transition-all duration-500">
-                     <X size={16} className="md:w-5" />
+                   <button 
+                     onClick={() => setSelectedOrder(null)} 
+                     className="w-16 h-16 rounded-full bg-black/5 flex items-center justify-center hover:bg-black hover:text-white transition-all duration-700 group/close active:scale-90 shadow-sm"
+                   >
+                     <X size={24} strokeWidth={1} className="group-hover/close:rotate-90 transition-transform duration-700" />
                    </button>
                 </div>
                 
-                <div className="p-6 md:p-10 space-y-6 md:space-y-10 max-h-[75vh] overflow-y-auto custom-scrollbar">
+                <div className="p-12 space-y-12 max-h-[70vh] overflow-y-auto no-scrollbar">
                    {/* Industrial Shipping Label */}
-                   <div id="shipping-label" className="bg-black text-white p-6 md:p-12 rounded-2xl md:rounded-[2rem] shadow-2xl relative border-4 md:border-8 border-black font-mono">
-                      <div className="flex justify-between items-start border-b border-white/20 pb-4 md:pb-6 mb-6 md:mb-8">
-                         <div>
-                            <p className="text-[8px] md:text-[10px] text-white/40 mb-1">ORIGIN_FACILITY</p>
-                            <h3 className="text-[10px] md:text-sm font-black italic tracking-widest underline decoration-2 underline-offset-4">DINOSPY_EXECUTIVE_HUB</h3>
-                            <p className="text-[8px] md:text-[10px] mt-2 opacity-60">Rue de l'Horloge, Geneva // IND_DIST</p>
+                   <div id="shipping-label" className="bg-black text-white p-16 rounded-[3rem] shadow-2xl relative border-[12px] border-black font-mono overflow-hidden group/label">
+                      <div className="absolute top-0 right-0 p-16 opacity-[0.03] group-hover/label:opacity-[0.08] transition-opacity duration-1000 rotate-12 scale-150 pointer-events-none">
+                         <Truck size={300} strokeWidth={1} />
+                      </div>
+                      
+                      <div className="flex justify-between items-start border-b border-white/10 pb-10 mb-10 relative z-10">
+                         <div className="space-y-1">
+                            <p className="text-[10px] text-white/20 tracking-[0.4em] font-black uppercase mb-4">ORIGIN_PROTOCOL</p>
+                            <h3 className="text-xl font-black italic tracking-widest decoration-2 underline-offset-8">DINOSPY_EXECUTIVE_HUB</h3>
+                            <p className="text-[10px] mt-4 opacity-40 font-tech">SYSTEMS_VERIFIED // GENEVA_DIST_01</p>
                          </div>
-                         <div className="p-1 md:p-2 bg-white rounded-lg">
-                            <QRCodeSVG value={`https://ais-dev-wty7sygzhusofsxwhxmva3-281798882282.run.app/tracking/${selectedOrder.id}`} size={40} className="md:w-[60px]" />
+                         <div className="p-4 bg-white rounded-2xl shadow-2xl">
+                            <QRCodeSVG value={`https://ais-dev-wty7sygzhusofsxwhxmva3-281798882282.run.app/tracking/${selectedOrder.id}`} size={80} fgColor="#000000" bgColor="transparent" />
                          </div>
                       </div>
 
-                      <div className="mb-8 md:mb-12">
-                         <p className="text-[8px] md:text-[10px] text-white/40 mb-1 md:mb-2 text-[8px]">DELIVERY_TARGET</p>
-                         <h3 className="text-xl md:text-3xl font-black italic mb-2 uppercase tracking-tighter leading-tight">{selectedOrder.customerName}</h3>
-                         <div className="space-y-1 opacity-80 text-sm md:text-lg">
+                      <div className="mb-16 relative z-10">
+                         <p className="text-[10px] text-white/20 tracking-[0.4em] font-black uppercase mb-6">TARGET_CLIENT_ENTITY</p>
+                         <h3 className="text-6xl font-black italic mb-6 uppercase tracking-tightest leading-none drop-shadow-2xl">{selectedOrder.customerName}</h3>
+                         <div className="space-y-3 opacity-60 text-2xl font-bold tracking-tighter">
                             <p className="truncate">{selectedOrder.shippingAddress.address}</p>
-                            <p className="font-black">{selectedOrder.shippingAddress.city}, IND - {selectedOrder.shippingAddress.zip}</p>
+                            <p className="font-black text-white">{selectedOrder.shippingAddress.city}, IND - {selectedOrder.shippingAddress.zip}</p>
                          </div>
                       </div>
 
-                      <div className="flex justify-between items-end border-t border-white/20 pt-6 md:pt-8">
-                         <div className="space-y-3 md:space-y-4">
+                      <div className="flex justify-between items-end border-t border-white/10 pt-10 relative z-10">
+                         <div className="space-y-6">
                             <div>
-                               <p className="text-[7px] md:text-[8px] text-white/20 mb-1">CARGO_MANIFEST</p>
-                               <div className="text-[8px] md:text-[10px] space-y-1">
+                               <p className="text-[10px] text-white/20 tracking-[0.4em] font-black uppercase mb-4">CARGO_MANIFEST_CONTENT</p>
+                               <div className="text-[11px] space-y-3 font-tech">
                                   {selectedOrder.items.map((it: any, idx: number) => (
-                                     <div key={idx} className="flex space-x-2">
-                                        <span className="opacity-40">[{it.quantity}X]</span>
-                                        <span className="font-bold italic truncate max-w-[100px] md:max-w-none">{it.name.toUpperCase()}</span>
+                                     <div key={idx} className="flex space-x-4 items-baseline group/item">
+                                        <span className="opacity-20 font-black">[{String(it.quantity).padStart(2, '0')}X]</span>
+                                        <span className="font-black italic tracking-widest group-hover/item:text-white transition-colors uppercase">{it.name}</span>
                                      </div>
                                   ))}
                                </div>
                             </div>
                          </div>
                          <div className="text-right">
-                            <p className="text-[7px] md:text-[8px] text-white/20 mb-1">AUTH_TAG</p>
-                            <p className="text-base md:text-2xl font-black italic tracking-tighter shadow-sm">DNX-{selectedOrder.id.slice(0, 6).toUpperCase()}</p>
+                            <p className="text-[10px] text-white/20 tracking-[0.4em] font-black uppercase mb-4">AUTHENTICATION_TAG</p>
+                            <p className="text-5xl font-black italic tracking-tightest shadow-sm drop-shadow-2xl">DNX-{selectedOrder.id.slice(0, 8).toUpperCase()}</p>
                          </div>
                       </div>
                    </div>
 
-                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <button 
-                        onClick={() => window.print()}
-                        className="flex items-center justify-center space-x-3 py-4 md:py-6 rounded-full border border-black/10 hover:bg-black/[0.02] transition-all font-tech text-[8px] md:text-[10px]"
-                      >
-                        <Printer size={16} className="md:w-4" />
-                        <span>GENERATE_PHYSICAL_MANIFEST</span>
-                      </button>
-                      <button className="flex items-center justify-center space-x-3 py-4 md:py-6 rounded-full bg-text text-bg hover:scale-[1.02] transition-all font-tech text-[8px] md:text-[10px]">
-                        <Package size={16} className="md:w-4" />
-                        <span>INITIATE_DISPATCH_PROTOCOL</span>
-                      </button>
-                   </div>
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                       <button 
+                         onClick={() => window.print()}
+                         className="flex items-center justify-center space-x-6 py-8 rounded-[2rem] border border-black/5 bg-black/[0.02] hover:bg-black hover:text-white transition-all duration-700 font-tech text-[10px] font-black tracking-[0.4em] group/print"
+                       >
+                         <Printer size={20} strokeWidth={1} className="group-hover/print:scale-110 transition-transform" />
+                         <span>EXECUTE_PHYSICAL_PRINT</span>
+                       </button>
+                       <button className="flex items-center justify-center space-x-6 py-8 rounded-[2rem] bg-black text-white hover:shadow-2xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-700 font-tech text-[10px] font-black tracking-[0.4em] group/dispatch">
+                         <Package size={20} strokeWidth={1} className="group-hover/dispatch:animate-bounce transition-transform" />
+                         <span>INITIATE_DISPATCH_PROTOCOL</span>
+                       </button>
+                    </div>
                 </div>
-              </div>
+              </motion.div>
             </div>
           )}
+                
+
+
 
           {view === 'coupons' && (
             <div className="space-y-12 animate-in fade-in duration-1000">

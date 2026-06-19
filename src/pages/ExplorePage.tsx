@@ -53,19 +53,19 @@ export default function ExplorePage() {
                 <span className="text-[10px] uppercase tracking-[0.2em] font-bold">Return</span>
             </button>
         </div>
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-16 mb-24">
-            <div className="max-w-2xl">
-              <span className="text-gold font-sans text-[10px] uppercase tracking-[0.8em] mb-8 block font-bold">Archives</span>
-              <h1 className="text-6xl md:text-9xl font-display font-light leading-none tracking-tighter text-text">Collection</h1>
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 md:gap-16 mb-12 md:mb-24">
+            <div className="max-w-2xl text-left">
+              <span className="text-gold font-sans text-[8px] md:text-[10px] uppercase tracking-[0.5em] md:tracking-[0.8em] mb-4 md:mb-8 block font-bold">Archives</span>
+              <h1 className="text-5xl md:text-9xl font-display font-light leading-none tracking-tightest md:tracking-tighter text-text">Collection</h1>
             </div>
         </div>
 
-        <div className="flex space-x-12 mb-24 overflow-x-auto pb-4 scrollbar-hide border-b border-white/5">
+        <div className="flex space-x-8 md:space-x-12 mb-12 md:mb-24 overflow-x-auto pb-4 scrollbar-hide border-b border-white/5 no-scrollbar">
             {['All', 'Grand Complications', 'Heritage', 'Avant-Garde', 'Deep Sea'].map(cat => (
                 <button
                     key={cat}
                     onClick={() => setFilter(cat)}
-                    className={`pb-4 text-[10px] font-bold uppercase tracking-[0.4em] transition-all duration-700 whitespace-nowrap relative ${filter === cat ? 'text-gold' : 'text-text/20 hover:text-text'}`}
+                    className={`pb-4 text-[8px] md:text-[10px] font-bold uppercase tracking-[0.2em] md:tracking-[0.4em] transition-all duration-700 whitespace-nowrap relative ${filter === cat ? 'text-gold' : 'text-text/20 hover:text-text'}`}
                 >
                     {cat}
                     {filter === cat && (
@@ -79,7 +79,7 @@ export default function ExplorePage() {
         </div>
 
         {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-5 gap-6 sm:gap-x-8 md:gap-y-16 lg:gap-y-24">
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-5 gap-4 md:gap-x-8 md:gap-y-16 lg:gap-y-24">
                 {[1,2,3,4,5,6,7,8].map(i => (
                   <ProductSkeleton key={i} />
                 ))}
@@ -99,7 +99,7 @@ export default function ExplorePage() {
                    }
                  }
                }}
-               className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-5 gap-6 sm:gap-x-8 md:gap-y-16 lg:gap-y-24"
+               className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-5 gap-4 md:gap-x-8 md:gap-y-16 lg:gap-y-24"
             >
                 {filtered.map(product => (
                     <motion.div
