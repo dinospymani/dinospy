@@ -867,45 +867,54 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      <main className="flex-grow pt-32 pb-20 max-w-[95%] mx-auto px-4 w-full bg-bg">
-        <div className="mb-6">
+      <main className="flex-grow pt-24 md:pt-32 pb-10 md:pb-20 max-w-[98%] md:max-w-[95%] mx-auto px-4 w-full bg-bg">
+        <div className="mb-4 md:mb-6">
           <button 
               onClick={() => window.location.href = '/'}
               className="flex items-center space-x-2 text-text/40 hover:text-text transition-all duration-500 p-2 -ml-2"
           >
               <ArrowLeft size={16} />
-              <span className="font-tech">EXIT_TERMINAL</span>
+              <span className="font-tech text-xs">EXIT_TERMINAL</span>
           </button>
         </div>
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8 mb-12 border-b border-black/5 pb-12">
-          <div>
-            <div className="flex items-center space-x-4 mb-2">
-              <div className="w-2 h-2 bg-text rounded-full animate-pulse" />
-              <span className="font-tech text-text/20">SYSTEM_ROOT // ADMIN_ACCESS</span>
+          <div className="max-w-2xl">
+            <div className="flex items-center space-x-3 md:space-x-4 mb-4">
+              <div className="w-1.5 h-1.5 md:w-2 md:h-2 bg-text rounded-full animate-pulse shadow-[0_0_10px_rgba(0,0,0,0.5)]" />
+              <span className="font-tech text-text/20 text-[10px] md:text-xs">ROOT@DINOSPY: ~ // ADMIN_AUTHORIZATION_ACTIVE</span>
             </div>
-            <h1 className="text-4xl md:text-6xl font-display italic tracking-tightest">Command <span className="opacity-20">Center.</span></h1>
-            <p className="text-text/30 mt-4 text-xs tracking-widest font-light italic">Master control interface for the DINOSPY global ecosystem.</p>
+            <h1 className="text-4xl md:text-7xl font-display italic tracking-tightest mb-4">Command <span className="opacity-20">Locus.</span></h1>
+            <div className="flex flex-wrap gap-3 font-tech text-[8px] opacity-30">
+              <span>LAT: 28.6139° N</span>
+              <span>•</span>
+              <span>LONG: 77.2090° E</span>
+              <span>•</span>
+              <span>NODE: APAC-S1</span>
+              <span>•</span>
+              <span>UPTIME: 99.99%</span>
+            </div>
           </div>
-          <div className="flex items-center space-x-1 p-1 bg-black/[0.02] rounded-full border border-black/5 overflow-x-auto no-scrollbar max-w-full">
+          <div className="grid grid-cols-3 sm:grid-cols-5 lg:flex items-center gap-2 p-2 bg-black/[0.02] rounded-3xl border border-black/5 w-full lg:w-fit overflow-hidden">
             {[
-              { id: 'stats', label: 'INTELLIGENCE' },
-              { id: 'add', label: 'ARCHIVE_NEW' },
-              { id: 'products', label: 'INVENTORY' },
-              { id: 'orders', label: 'ACQUISITIONS' },
-              { id: 'notifications', label: 'ALERTS', urgent: notifications.some(n => !n.read) },
-              { id: 'broadcast', label: 'TRANSMIT' },
-              { id: 'banners', label: 'VISUALS' },
-              { id: 'coupons', label: 'PROTOCOLS' },
-              { id: 'security', label: 'SECURITY' },
+              { id: 'stats', label: 'METRICS', icon: BarChart2 },
+              { id: 'orders', label: 'LOGISTICS', icon: Truck },
+              { id: 'products', label: 'INVENTORY', icon: Package },
+              { id: 'add', label: 'ARCHIVE', icon: Plus },
+              { id: 'notifications', label: 'FEED', icon: Bell, urgent: notifications.some(n => !n.read) },
+              { id: 'broadcast', label: 'SIGNAL', icon: Megaphone },
+              { id: 'banners', label: 'VISUALS', icon: Eye },
+              { id: 'coupons', label: 'PROTOCOLS', icon: Zap },
+              { id: 'security', label: 'SECURE', icon: Shield },
             ].map((tab) => (
               <button 
                 key={tab.id}
                 onClick={() => setView(tab.id as any)}
-                className={`flex-shrink-0 px-6 py-2.5 rounded-full text-[10px] font-tech transition-all duration-700 relative ${view === tab.id ? 'bg-text text-bg shadow-xl' : 'text-text/40 hover:text-text hover:bg-black/5'}`}
+                className={`flex flex-col items-center justify-center px-4 py-3 rounded-2xl transition-all duration-700 relative group min-w-[70px] ${view === tab.id ? 'bg-text text-bg shadow-2xl scale-105' : 'text-text/30 hover:text-text hover:bg-black/5'}`}
               >
-                {tab.label}
+                <tab.icon size={14} className={`mb-1.5 transition-transform duration-700 ${view === tab.id ? 'scale-110' : 'group-hover:scale-110'}`} />
+                <span className="text-[7px] font-tech tracking-normal">{tab.label}</span>
                 {tab.id === 'notifications' && tab.urgent && (
-                  <span className="absolute top-2 right-4 w-1 h-1 bg-red-500 rounded-full animate-pulse" />
+                  <span className="absolute top-2 right-2 w-1 h-1 bg-red-500 rounded-full animate-pulse shadow-[0_0_5px_rgba(239,68,68,1)]" />
                 )}
               </button>
             ))}
@@ -914,122 +923,133 @@ export default function AdminDashboard() {
         
         <div className="min-h-[60vh] relative">
           {view === 'stats' && (
-            <div className="space-y-16 animate-in fade-in duration-1000">
-               {/* Stats Cards */}
-               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="space-y-12 animate-in fade-in duration-1000">
+               {/* High Density Stats */}
+               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                  {[
-                   { label: 'GROSS_REVENUE', value: `₹${stats.revenue.toLocaleString()}`, icon: DollarSign, trend: '+12%', color: 'from-black/5 to-transparent' },
-                   { label: 'MANIFESTS_LOGGED', value: stats.ordersCount, icon: ShoppingBag, color: 'bg-black/[0.02]' },
-                   { label: 'MARKET_TRACTION', value: `${stats.conversionRate}%`, icon: TrendingUp, color: 'bg-black/[0.02]' },
-                   { label: 'INVENTORY_ALERTS', value: stats.lowStock, icon: AlertCircle, color: 'bg-black/[0.02]', alert: stats.lowStock > 0 },
+                   { label: 'NET_ACQUISITIONS_VAL', value: `₹${stats.revenue.toLocaleString()}`, icon: DollarSign, trend: '+12.4%', detail: 'LAST_24H_CYCLE' },
+                   { label: 'ACTIVE_MANIFESTS', value: stats.ordersCount, icon: ShoppingBag, trend: '+3', detail: 'PROCESSING_PENDING' },
+                   { label: 'CONVERSION_EFFICIENCY', value: `${stats.conversionRate}%`, icon: TrendingUp, trend: 'OPTIMIZED', detail: 'ALGORITHMIC_TARGET: 4.0%' },
+                   { label: 'INVENTORY_HEALTH', value: `${products.length - stats.lowStock}/${products.length}`, icon: Database, alert: stats.lowStock > 0, detail: `${stats.lowStock} CRITICAL_ASSETS` },
                  ].map((stat, i) => (
-                   <div key={i} className={`p-8 rounded-3xl border border-black/5 flex flex-col justify-between h-48 transition-all duration-700 hover:border-black/20 group ${stat.color}`}>
-                     <div className="flex justify-between items-start">
-                       <div className="w-10 h-10 bg-text text-bg rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-700">
-                         <stat.icon size={18} />
-                       </div>
-                       {stat.trend && <span className="font-tech text-green-600">{stat.trend}</span>}
-                       {stat.alert && <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />}
+                   <div key={i} className={`p-8 rounded-[2rem] border border-black/5 flex flex-col justify-between h-56 transition-all duration-700 hover:shadow-2xl hover:border-black/20 group relative overflow-hidden bg-white`}>
+                     <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                        <stat.icon size={80} />
                      </div>
-                     <div>
-                       <p className="font-tech text-text/20 mb-1">{stat.label}</p>
-                       <h3 className="text-3xl font-display">{stat.value}</h3>
+                     <div className="relative z-10 flex justify-between items-start">
+                       <div className="w-12 h-12 bg-black text-white rounded-2xl flex items-center justify-center group-hover:rotate-12 transition-all duration-700 shadow-lg">
+                         <stat.icon size={20} />
+                       </div>
+                       <div className="text-right">
+                          <p className={`font-tech text-[10px] ${stat.alert ? 'text-red-500 animate-pulse' : 'text-green-600'}`}>{stat.trend || (stat.alert ? 'CRITICAL' : 'STABLE')}</p>
+                          <p className="font-tech text-text/10 text-[7px] mt-1">STATUS_VERIFIED</p>
+                       </div>
+                     </div>
+                     <div className="relative z-10">
+                       <p className="font-tech text-text/30 mb-2 text-[9px] tracking-widest">{stat.label}</p>
+                       <h3 className="text-4xl font-display italic tracking-tightest mb-2">{stat.value}</h3>
+                       <p className="font-tech text-text/20 text-[7px] border-t border-black/5 pt-3">{stat.detail}</p>
                      </div>
                    </div>
                  ))}
                </div>
 
-               {/* Chart */}
-               <div className="p-8 rounded-[2.5rem] border border-black/5 bg-black/[0.01] h-[500px]">
-                  <div className="flex justify-between items-center mb-12">
-                     <div>
-                        <div className="flex items-center space-x-3 mb-2">
-                           <div className="w-1 h-1 bg-text rounded-full" />
-                           <span className="font-tech text-text/20">DATA_VISUALIZATION // METRICS</span>
-                        </div>
-                        <h3 className="text-2xl font-display">Revenue <span className="opacity-20 italic">Intelligence.</span></h3>
-                     </div>
+               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                  {/* Main Chart */}
+                  <div className="lg:col-span-2 p-8 rounded-[2.5rem] border border-black/5 bg-white shadow-sm overflow-hidden group">
+                    <div className="flex justify-between items-center mb-12">
+                       <div>
+                          <div className="flex items-center space-x-3 mb-3">
+                             <div className="w-1.5 h-1.5 bg-black rounded-full shadow-[0_0_5px_rgba(0,0,0,0.3)]" />
+                             <span className="font-tech text-text/30 text-[10px]">REALTIME_DATA // REVENUE_STREAM</span>
+                          </div>
+                          <h3 className="text-3xl font-display italic">Growth <span className="opacity-20">Analytics.</span></h3>
+                       </div>
+                       <div className="flex items-center space-x-2">
+                          <div className="px-4 py-2 bg-black/[0.02] border border-black/5 rounded-xl text-[10px] font-tech text-text/40">7_DAY_CYCLE</div>
+                       </div>
+                    </div>
+                    <div className="h-[350px]">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart data={chartData}>
+                          <defs>
+                            <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor="#000000" stopOpacity={0.08}/>
+                              <stop offset="95%" stopColor="#000000" stopOpacity={0}/>
+                            </linearGradient>
+                          </defs>
+                          <CartesianGrid strokeDasharray="3 3" stroke="#00000005" vertical={false} />
+                          <XAxis 
+                            dataKey="name" 
+                            stroke="#00000010" 
+                            fontSize={10} 
+                            tickLine={false}
+                            axisLine={false}
+                            tick={{ dy: 10, fontStyle: 'italic' }}
+                          />
+                          <YAxis 
+                            stroke="#00000010" 
+                            fontSize={10} 
+                            tickLine={false}
+                            axisLine={false}
+                            tickFormatter={(value) => `₹${value >= 1000 ? (value/1000).toFixed(0) + 'k' : value}`}
+                          />
+                          <Tooltip 
+                            cursor={{ stroke: '#000', strokeWidth: 0.5, strokeDasharray: '4 4' }}
+                            content={({ active, payload }) => {
+                              if (active && payload && payload.length) {
+                                return (
+                                  <div className="bg-black text-white p-4 rounded-2xl shadow-2xl border border-white/10 backdrop-blur-xl">
+                                    <p className="font-tech text-[8px] text-white/40 mb-1">{payload[0].payload.name.toUpperCase()}</p>
+                                    <p className="font-display text-lg italic">₹{payload[0].value?.toLocaleString()}</p>
+                                  </div>
+                                );
+                              }
+                              return null;
+                            }}
+                          />
+                          <Area 
+                            type="monotone" 
+                            dataKey="sales" 
+                            stroke="#000000" 
+                            strokeWidth={3}
+                            fillOpacity={1} 
+                            fill="url(#colorSales)" 
+                            animationDuration={2000}
+                          />
+                        </AreaChart>
+                      </ResponsiveContainer>
+                    </div>
                   </div>
-                  <ResponsiveContainer width="100%" height="80%">
-                    <AreaChart data={chartData}>
-                      <defs>
-                        <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#000000" stopOpacity={0.05}/>
-                          <stop offset="95%" stopColor="#000000" stopOpacity={0}/>
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#00000005" vertical={false} />
-                      <XAxis 
-                        dataKey="name" 
-                        stroke="#00000020" 
-                        fontSize={10} 
-                        tickLine={false}
-                        axisLine={false}
-                        tick={{ dy: 10 }}
-                      />
-                      <YAxis 
-                        stroke="#00000020" 
-                        fontSize={10} 
-                        tickLine={false}
-                        axisLine={false}
-                        tickFormatter={(value) => `₹${value >= 1000 ? (value/1000).toFixed(0) + 'k' : value}`}
-                      />
-                      <Tooltip 
-                        contentStyle={{ 
-                          backgroundColor: 'rgba(255, 255, 255, 0.95)', 
-                          backdropFilter: 'blur(10px)',
-                          border: '1px solid rgba(0, 0, 0, 0.05)', 
-                          borderRadius: '16px',
-                          boxShadow: '0 20px 40px rgba(0, 0, 0, 0.05)'
-                        }}
-                        itemStyle={{ color: '#000', fontWeight: 'bold' }}
-                      />
-                      <Area 
-                        type="monotone" 
-                        dataKey="sales" 
-                        stroke="#000000" 
-                        strokeWidth={2}
-                        fillOpacity={1} 
-                        fill="url(#colorSales)" 
-                      />
-                    </AreaChart>
-                  </ResponsiveContainer>
-               </div>
 
-               {/* System Diagnostics Output */}
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-10 border-t border-black/5 pt-16">
-                  <div className="space-y-6">
-                     <div className="flex items-center space-x-3">
-                        <Database size={16} className="text-text/20" />
-                        <h4 className="font-tech text-text/40 text-[10px]">CORE_DATABASE // MAINTENANCE</h4>
-                     </div>
-                     <div className="space-y-4">
-                        <button onClick={handleClearCache} className="w-full flex items-center justify-between p-6 bg-black/[0.02] border border-black/5 rounded-[2rem] hover:bg-black hover:text-bg transition-all duration-700">
-                           <span className="font-tech text-[10px]">EXECUTE_CACHE_PURGE</span>
-                           <ArrowRight size={14} />
-                        </button>
-                        <button onClick={handlePurgeOrders} className="w-full flex items-center justify-between p-6 border border-red-500/10 text-red-500/40 hover:bg-red-500 hover:text-white rounded-[2rem] transition-all duration-700">
-                           <span className="font-tech text-[10px]">ERASE_ALL_MANIFESTS</span>
-                           <Zap size={14} />
-                        </button>
-                     </div>
-                  </div>
-                  
-                  <div className="space-y-6">
-                     <div className="flex items-center space-x-3">
-                        <ShieldAlert size={16} className="text-text/20" />
-                        <h4 className="font-tech text-text/40 text-[10px]">SECURITY_OVERRIDE // VAULT_LOCK</h4>
-                     </div>
-                     <button 
-                       onClick={handleToggleMaintenance} 
-                       className={`w-full p-10 rounded-[2.5rem] border transition-all duration-1000 flex flex-col items-center justify-center space-y-4 ${maintenanceStatus ? 'bg-black text-white border-black' : 'bg-transparent border-black/5 hover:border-black'}`}
-                     >
-                        <Lock size={32} />
-                        <div className="text-center">
-                           <p className="font-tech text-[10px] uppercase tracking-[0.3em]">{maintenanceStatus ? 'TERMINATE_LOCKDOWN' : 'INITIATE_VAULT_LOCK'}</p>
-                           <p className="text-[8px] opacity-40 mt-1 font-tech uppercase tracking-widest">{maintenanceStatus ? 'SYSTEM_IS_CURRENTLY_RESTRICTED' : 'SECURE_THE_COLLECTION_FROM_PUBLIC'}</p>
-                        </div>
-                     </button>
+                  {/* Terminal Log / Activity */}
+                  <div className="p-8 rounded-[2.5rem] border border-black/5 bg-black text-white shadow-2xl flex flex-col h-[500px] lg:h-auto">
+                    <div className="flex items-center justify-between mb-8 pb-6 border-b border-white/10">
+                      <div className="flex items-center space-x-3">
+                         <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-ping" />
+                         <span className="font-tech text-white/40 text-[10px]">LIVE_ACTIVITY_LOG</span>
+                      </div>
+                      <span className="font-tech text-white/20 text-[8px]">BUFFER_SYNCED</span>
+                    </div>
+                    <div className="flex-grow space-y-4 overflow-y-auto no-scrollbar font-mono text-[9px] text-white/50">
+                       {notifications.slice(0, 15).map((n, i) => (
+                         <div key={i} className="flex space-x-4 group border-l border-white/5 pl-4 hover:border-white/20 transition-colors">
+                           <span className="text-white/20 whitespace-nowrap">{new Date(n.timestamp).toLocaleTimeString([], { hour12: false })}</span>
+                           <span className={n.type === 'orders' ? 'text-green-400' : 'text-red-400'}>
+                             {`[${n.type.toUpperCase()}]`}
+                           </span>
+                           <span className="group-hover:text-white transition-colors">{n.message}</span>
+                         </div>
+                       ))}
+                    </div>
+                    <div className="mt-8 pt-6 border-t border-white/10">
+                      <button 
+                        onClick={() => setView('notifications')}
+                        className="w-full py-4 border border-white/10 rounded-2xl font-tech text-[8px] hover:bg-white hover:text-black transition-all duration-700"
+                      >
+                         ANALYZE_FULL_LOGS
+                      </button>
+                    </div>
                   </div>
                </div>
             </div>
@@ -1037,38 +1057,71 @@ export default function AdminDashboard() {
 
           {view === 'products' && (
             <div className="space-y-12 animate-in fade-in duration-1000">
-               <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+               <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12">
                   <div>
-                    <div className="flex items-center space-x-3 mb-2">
-                       <div className="w-1 h-1 bg-text rounded-full" />
-                       <span className="font-tech text-text/20">ASSET_REGISTER // CURATION</span>
+                    <div className="flex items-center space-x-3 mb-3">
+                       <div className="w-1.5 h-1.5 bg-black rounded-full" />
+                       <span className="font-tech text-text/20 text-[10px]">ASSET_REGISTER // CURATION_SYSTEM</span>
                     </div>
-                    <h2 className="text-3xl font-display">Inventory <span className="opacity-20 italic">Manifest.</span></h2>
+                    <h2 className="text-4xl font-display italic tracking-tightest">Collection <span className="opacity-20">Manifest.</span></h2>
                   </div>
-                  <button onClick={handleSeed} className="font-tech text-text/30 hover:text-text text-[10px] underline decoration-black/10 underline-offset-4">GENERATE_SAMPLE_DATA</button>
+                  <button onClick={handleSeed} className="px-6 py-3 border border-black/5 rounded-full font-tech text-[10px] text-text/30 hover:bg-black hover:text-white transition-all duration-700">GENERATE_SAMPLE_DATA</button>
                </div>
-
-               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-8">
                   {products.map((p) => (
-                    <div key={p.id} className="group p-6 rounded-[2.5rem] border border-black/5 bg-white hover:shadow-2xl transition-all duration-700">
-                       <div className="aspect-square rounded-3xl overflow-hidden bg-black/5 mb-6 relative">
-                          <img src={p.images[0]} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" alt={p.name} />
-                          <div className="absolute top-4 right-4 h-3 w-3 rounded-full border-2 border-white shadow-sm" style={{ backgroundColor: p.stock < 5 ? '#ef4444' : '#22c55e' }} />
+                    <div key={p.id} className="group p-6 rounded-[2.5rem] border border-black/5 bg-white hover:shadow-2xl transition-all duration-700 flex flex-col h-full relative overflow-hidden">
+                       <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
+                          <span className="font-tech text-[40px]">{p.id.slice(0, 2).toUpperCase()}</span>
                        </div>
-                       <div className="space-y-1 mb-6">
-                          <p className="font-tech text-text/20 text-[8px]">{p.category.toUpperCase()} // STOCK_{p.stock}</p>
-                          <h4 className="text-lg font-bold truncate">{p.name}</h4>
-                          <p className="font-mono text-xl opacity-60">₹{p.price.toLocaleString()}</p>
-                       </div>
-                       <div className="flex items-center justify-between pt-6 border-t border-black/5">
-                          <div className="flex space-x-2">
-                             <button onClick={() => {setEditingStockId(p.id); setNewStockValue(p.stock.toString());}} className="w-10 h-10 rounded-full border border-black/5 flex items-center justify-center hover:bg-black hover:text-white transition-all duration-500"><Edit size={16} /></button>
-                             <button onClick={() => handleDelete(p.id)} className="w-10 h-10 rounded-full bg-red-50 text-red-500/40 hover:text-red-500 hover:bg-red-100 flex items-center justify-center transition-all duration-500"><Trash2 size={16} /></button>
+                       
+                       <div className="aspect-[4/5] rounded-3xl overflow-hidden bg-black/5 mb-6 relative group">
+                          <img src={p.images?.[0] || ''} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 grayscale" alt={p.name} />
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-700 flex items-center justify-center backdrop-blur-sm">
+                             <div className="text-center p-4">
+                               <p className="font-tech text-[8px] text-white/60 mb-2">ROI_ESTIMATE</p>
+                               <p className="text-white text-xl font-display italic">STABLE_VALUE</p>
+                             </div>
                           </div>
-                          {editingStockId === p.id && (
-                             <div className="flex items-center space-x-2 animate-in slide-in-from-right-4 duration-500">
-                                <input type="number" value={newStockValue} onChange={e => setNewStockValue(e.target.value)} className="w-16 bg-black/[0.02] border border-black/10 rounded-lg px-2 py-1 font-mono text-xs outline-none focus:border-black" />
-                                <button onClick={() => handleUpdateStock(p.id)} className="font-tech text-text hover:underline text-[10px]">SYNC</button>
+                          <div className={`absolute top-4 right-4 px-3 py-1 rounded-full text-[7px] font-tech border backdrop-blur-md ${p.stock < 5 ? 'bg-red-500/10 border-red-500/20 text-red-600' : 'bg-green-500/10 border-green-500/20 text-green-600'}`}>
+                            {p.stock < 5 ? 'CRITICAL_STOCK' : 'OPTIMAL_LEVEL'}
+                          </div>
+                       </div>
+
+                       <div className="space-y-2 mb-8 flex-grow">
+                          <div className="flex items-center space-x-2">
+                             <span className="font-tech text-text/20 text-[8px]">{p.category.toUpperCase()}</span>
+                             <span className="w-1 h-1 bg-black/10 rounded-full" />
+                             <span className="font-tech text-text/20 text-[8px]">INV_0{p.stock}</span>
+                          </div>
+                          <h4 className="text-xl font-display italic tracking-tight">{p.name}</h4>
+                          <div className="flex items-end justify-between">
+                             <p className="font-mono text-2xl tracking-tighter">₹{p.price.toLocaleString()}</p>
+                             <div className="text-right">
+                                <p className="font-tech text-[7px] text-black/20">VALUATION</p>
+                             </div>
+                          </div>
+                       </div>
+
+                       <div className="flex items-center justify-between pt-6 border-t border-black/5 mt-auto">
+                          <div className="flex space-x-2">
+                             <button onClick={() => {setEditingStockId(p.id); setNewStockValue(p.stock.toString());}} className="w-12 h-12 rounded-full border border-black/5 flex items-center justify-center hover:bg-black hover:text-white transition-all duration-700">
+                                <Edit size={16} />
+                             </button>
+                             <button onClick={() => handleDelete(p.id)} className="w-12 h-12 rounded-full bg-red-50 text-red-500/40 hover:text-red-500 hover:bg-red-100 flex items-center justify-center transition-all duration-700">
+                                <Trash2 size={16} />
+                             </button>
+                          </div>
+                          {editingStockId === p.id ? (
+                             <div className="flex items-center space-x-2 animate-in slide-in-from-right-4">
+                                <input 
+                                  type="number" value={newStockValue} onChange={e => setNewStockValue(e.target.value)} 
+                                  className="w-16 bg-black/[0.02] border border-black/10 rounded-xl px-3 py-2 font-mono text-xs outline-none focus:border-black" 
+                                />
+                                <button onClick={() => handleUpdateStock(p.id)} className="font-tech text-text hover:underline text-[9px]">COMMIT</button>
+                             </div>
+                          ) : (
+                             <div className="text-right">
+                                <p className="font-tech text-[8px] text-black/30">LST_MOD: {new Date().toLocaleDateString()}</p>
                              </div>
                           )}
                        </div>
@@ -1090,42 +1143,65 @@ export default function AdminDashboard() {
                   </div>
                </div>
 
-               <div className="space-y-6">
-                  {orders.length === 0 && <p className="text-text/20 font-tech text-[10px] py-20 text-center">NO_TRANSACTIONS_DETECTED</p>}
-                  {orders.map((o) => (
-                    <div key={o.id} className="p-8 rounded-[2.5rem] border border-black/5 bg-white hover:shadow-xl transition-all duration-700 grid grid-cols-1 lg:grid-cols-4 gap-8 items-center relative overflow-hidden group">
-                       <div className="lg:col-span-1">
-                          <p className="font-tech text-text/20 text-[8px] mb-2">MANIFEST_ID // {o.id.slice(-8)}</p>
-                          <h4 className="text-xl font-bold italic">{o.customerName}</h4>
-                          <p className="text-text/40 text-xs font-tech mt-1">{o.customerEmail}</p>
-                       </div>
-                       <div className="lg:col-span-1">
-                          <p className="font-tech text-text/20 text-[8px] mb-2">ACQUISITION_VALUE</p>
-                          <p className="text-2xl font-mono">₹{o.total.toLocaleString()}</p>
-                       </div>
-                       <div className="lg:col-span-1">
-                          <p className="font-tech text-text/20 text-[8px] mb-2">STATUS_PROTOCOL</p>
-                          <div className="flex items-center space-x-3">
-                             <div className={`px-3 py-1 rounded-full text-[8px] font-tech border ${o.status === 'delivered' ? 'bg-green-100 border-green-200 text-green-700' : 'bg-black/5 border-black/10 text-text/60'}`}>
-                                {o.status.toUpperCase()}
-                             </div>
-                          </div>
-                       </div>
-                       <div className="lg:col-span-1 flex flex-wrap justify-end gap-3">
-                          <button onClick={() => setSelectedOrder(o)} className="px-6 py-3 rounded-full border border-black/10 font-tech text-[10px] hover:bg-black hover:text-bg transition-all duration-700">MANIFEST_DETAILS</button>
-                          <select 
-                            value={o.status} 
-                            onChange={(e) => {
-                              const newStatus = e.target.value as AdminOrder['status'];
-                              handleUpdateOrderStatus(o.id, newStatus);
-                            }}
-                            className="bg-black/[0.02] border border-black/5 rounded-full px-4 py-3 font-tech text-[9px] focus:border-black outline-none cursor-pointer"
-                          >
-                             {['pending', 'processing', 'shipped', 'delivered'].map(s => <option key={s} value={s}>{s.toUpperCase()}</option>)}
-                          </select>
-                       </div>
-                    </div>
-                  ))}
+               <div className="overflow-x-auto no-scrollbar">
+                 <table className="w-full border-collapse">
+                   <thead>
+                     <tr className="border-b border-black/5">
+                       <th className="font-tech text-[9px] text-text/30 text-left pb-6 pl-4">IDENT_HEX</th>
+                       <th className="font-tech text-[9px] text-text/30 text-left pb-6">CLIENT_ENTITY</th>
+                       <th className="font-tech text-[9px] text-text/30 text-left pb-6">VALUATION</th>
+                       <th className="font-tech text-[9px] text-text/30 text-left pb-6">STATUS_CODE</th>
+                       <th className="font-tech text-[9px] text-text/30 text-right pb-6 pr-4">ACTIONS</th>
+                     </tr>
+                   </thead>
+                   <tbody className="divide-y divide-black/5">
+                     {orders.length === 0 ? (
+                       <tr>
+                         <td colSpan={5} className="py-32 text-center text-text/20 font-tech text-[10px]">
+                            NO_ACQUISITIONS_PENDING
+                         </td>
+                       </tr>
+                     ) : (
+                       orders.map((o) => (
+                         <tr key={o.id} className="group hover:bg-black/[0.01] transition-all">
+                           <td className="py-8 pl-4">
+                              <p className="font-mono text-[10px] text-black/40">#{o.id.slice(-8).toUpperCase()}</p>
+                              <p className="font-tech text-[7px] text-black/10 mt-1">{new Date(o.createdAt).toLocaleDateString()}</p>
+                           </td>
+                           <td className="py-8">
+                              <p className="font-display italic text-lg leading-none">{o.customerName}</p>
+                              <p className="font-tech text-[8px] text-black/20 mt-1">{o.customerEmail || 'GUEST_USER'}</p>
+                           </td>
+                           <td className="py-8">
+                              <p className="font-mono text-xl tracking-tighter">₹{o.total.toLocaleString()}</p>
+                           </td>
+                           <td className="py-8">
+                              <div className={`inline-flex items-center space-x-2`}>
+                                 <div className={`px-4 py-1.5 rounded-full text-[9px] font-tech border ${o.status === 'delivered' ? 'bg-green-100 border-green-200 text-green-700' : 'bg-black/5 border-black/10 text-black/40'}`}>
+                                    {o.status.toUpperCase()}
+                                 </div>
+                                 <select 
+                                   value={o.status} 
+                                   onChange={(e) => handleUpdateOrderStatus(o.id, e.target.value as any)}
+                                   className="bg-transparent font-tech text-[8px] opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer border-none outline-none"
+                                 >
+                                    {['pending', 'processing', 'shipped', 'delivered'].map(s => <option key={s} value={s}>{s.toUpperCase()}</option>)}
+                                 </select>
+                              </div>
+                           </td>
+                           <td className="py-8 pr-4 text-right">
+                             <button 
+                               onClick={() => setSelectedOrder(o)}
+                               className="p-4 rounded-2xl border border-black/5 hover:bg-black hover:text-white transition-all duration-700"
+                             >
+                               <Eye size={16} />
+                             </button>
+                           </td>
+                         </tr>
+                       ))
+                     )}
+                   </tbody>
+                 </table>
                </div>
             </div>
           )}
@@ -1137,32 +1213,32 @@ export default function AdminDashboard() {
                      <div className="w-1 h-1 bg-text rounded-full" />
                      <span className="font-tech text-text/20">VISUAL_ASSETS // BRAND_EXPOSURE</span>
                   </div>
-                  <h2 className="text-4xl font-display mb-12 italic">Promotional <span className="opacity-20">Banners.</span></h2>
+                  <h2 className="text-3xl md:text-4xl font-display mb-8 md:mb-12 italic">Promotional <span className="opacity-20">Banners.</span></h2>
                   
-                  <form onSubmit={handleAddBanner} className="space-y-10 p-10 rounded-[2.5rem] border border-black/5 bg-black/[0.01]">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                      <div className="space-y-4">
-                        <label className="font-tech text-text/30">HEADLINE_TXT</label>
-                        <input value={bannerTitle} onChange={e => setBannerTitle(e.target.value)} className="w-full bg-transparent border-b border-black/10 py-3 italic text-xl focus:border-black outline-none transition-all" placeholder="e.g. THE_LOST_COLLECTION" />
+                  <form onSubmit={handleAddBanner} className="space-y-6 md:space-y-10 p-6 md:p-10 rounded-3xl md:rounded-[2.5rem] border border-black/5 bg-black/[0.01]">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
+                      <div className="space-y-3 md:space-y-4">
+                        <label className="font-tech text-text/30 text-[10px]">HEADLINE_TXT</label>
+                        <input value={bannerTitle} onChange={e => setBannerTitle(e.target.value)} className="w-full bg-transparent border-b border-black/10 py-2 md:py-3 italic text-lg md:text-xl focus:border-black outline-none transition-all" placeholder="e.g. THE_LOST_COLLECTION" />
                       </div>
-                      <div className="space-y-4">
-                        <label className="font-tech text-text/30">SUBHEAD_TXT</label>
-                        <input value={bannerSubtitle} onChange={e => setBannerSubtitle(e.target.value)} className="w-full bg-transparent border-b border-black/10 py-3 italic text-sm focus:border-black outline-none transition-all" placeholder="e.g. ARCHIVAL_RELEASE_2026" />
+                      <div className="space-y-3 md:space-y-4">
+                        <label className="font-tech text-text/30 text-[10px]">SUBHEAD_TXT</label>
+                        <input value={bannerSubtitle} onChange={e => setBannerSubtitle(e.target.value)} className="w-full bg-transparent border-b border-black/10 py-2 md:py-3 italic text-xs md:text-sm focus:border-black outline-none transition-all" placeholder="e.g. ARCHIVAL_RELEASE_2026" />
                       </div>
                     </div>
                     
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                      <div className="space-y-4">
-                        <label className="font-tech text-text/30">DESKTOP_ASSET</label>
-                        <input type="file" accept="image/*" onChange={handleBannerFileChange} className="w-full text-xs font-tech text-text/40 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-text file:text-bg cursor-pointer" />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
+                      <div className="space-y-3 md:space-y-4">
+                        <label className="font-tech text-text/30 text-[10px]">DESKTOP_ASSET</label>
+                        <input type="file" accept="image/*" onChange={handleBannerFileChange} className="w-full text-[10px] font-tech text-text/40 file:mr-4 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:bg-text file:text-bg cursor-pointer" />
                       </div>
-                      <div className="space-y-4">
-                        <label className="font-tech text-text/30">MOBILE_ASSET</label>
-                        <input type="file" accept="image/*" onChange={handleBannerMobileFileChange} className="w-full text-xs font-tech text-text/40 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-text file:text-bg cursor-pointer" />
+                      <div className="space-y-3 md:space-y-4">
+                        <label className="font-tech text-text/30 text-[10px]">MOBILE_ASSET</label>
+                        <input type="file" accept="image/*" onChange={handleBannerMobileFileChange} className="w-full text-[10px] font-tech text-text/40 file:mr-4 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:bg-text file:text-bg cursor-pointer" />
                       </div>
                     </div>
 
-                    <button type="submit" disabled={isSaving} className="w-full py-6 bg-text text-bg font-tech text-[10px] tracking-[0.4em] rounded-full hover:scale-[1.02] transition-all">
+                    <button type="submit" disabled={isSaving} className="w-full py-4 md:py-6 bg-text text-bg font-tech text-[8px] md:text-[10px] tracking-[0.2em] md:tracking-[0.4em] rounded-full hover:scale-[1.02] transition-all">
                       {isSaving ? 'UPLOADING_VISUALS...' : 'DEPLOY_BRAND_ASSET'}
                     </button>
                   </form>
@@ -1266,53 +1342,53 @@ export default function AdminDashboard() {
 
           {view === 'add' && (
             <div className="max-w-4xl animate-in fade-in slide-in-from-bottom-8 duration-1000">
-              <div className="flex items-center space-x-3 mb-10">
+              <div className="flex items-center space-x-3 mb-6 md:mb-10">
                  <div className="w-1 h-1 bg-text rounded-full" />
-                 <span className="font-tech text-text/20">PROTOCOL // ARCHIVE_INITIATION</span>
+                 <span className="font-tech text-text/20 text-[10px] md:text-xs">PROTOCOL // ARCHIVE_INITIATION</span>
               </div>
-              <h2 className="text-4xl font-display mb-12 italic">Register <span className="opacity-20">New Asset.</span></h2>
+              <h2 className="text-2xl md:text-4xl font-display mb-8 md:mb-12 italic">Register <span className="opacity-20">New Asset.</span></h2>
               
-              <form onSubmit={handleAddProduct} className="space-y-12">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                  <div className="space-y-4">
-                    <label className="font-tech text-text/30">IDENTIFIER_NAME</label>
+              <form onSubmit={handleAddProduct} className="space-y-8 md:space-y-12">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
+                  <div className="space-y-3 md:space-y-4">
+                    <label className="font-tech text-text/30 text-[10px]">IDENTIFIER_NAME</label>
                     <input 
                       value={name} onChange={e => setName(e.target.value)}
-                      className="w-full bg-black/[0.02] border-b border-black/10 px-0 py-4 focus:border-black outline-none transition-all font-display italic text-2xl"
+                      className="w-full bg-black/[0.02] border-b border-black/10 px-0 py-3 md:py-4 focus:border-black outline-none transition-all font-display italic text-xl md:text-2xl"
                       placeholder="e.g. PHANTOM_GHOST" required
                     />
                   </div>
-                  <div className="space-y-4">
-                    <label className="font-tech text-text/30">VALUATION_INR</label>
+                  <div className="space-y-3 md:space-y-4">
+                    <label className="font-tech text-text/30 text-[10px]">VALUATION_INR</label>
                     <input 
                       type="number" value={price} onChange={e => setPrice(e.target.value)}
-                      className="w-full bg-black/[0.02] border-b border-black/10 px-0 py-4 focus:border-black outline-none transition-all font-mono text-2xl"
+                      className="w-full bg-black/[0.02] border-b border-black/10 px-0 py-3 md:py-4 focus:border-black outline-none transition-all font-mono text-xl md:text-2xl"
                       placeholder="00.00" required
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-10">
-                  <div className="space-y-4">
-                    <label className="font-tech text-text/30">UNITS_AVAIL</label>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-10">
+                  <div className="space-y-3 md:space-y-4">
+                    <label className="font-tech text-text/30 text-[10px]">UNITS_AVAIL</label>
                     <input 
                       type="number" value={stock} onChange={e => setStock(e.target.value)}
-                      className="w-full bg-black/[0.02] border-b border-black/10 px-0 py-4 focus:border-black outline-none transition-all font-mono"
+                      className="w-full bg-black/[0.02] border-b border-black/10 px-0 py-3 md:py-4 focus:border-black outline-none transition-all font-mono"
                       required
                     />
                   </div>
-                  <div className="space-y-4">
-                    <label className="font-tech text-text/30">DISCOUNT_%</label>
+                  <div className="space-y-3 md:space-y-4">
+                    <label className="font-tech text-text/30 text-[10px]">DISCOUNT_%</label>
                     <input 
                       type="number" value={discount} onChange={e => setDiscount(e.target.value)}
-                      className="w-full bg-black/[0.02] border-b border-black/10 px-0 py-4 focus:border-black outline-none transition-all font-mono"
+                      className="w-full bg-black/[0.02] border-b border-black/10 px-0 py-3 md:py-4 focus:border-black outline-none transition-all font-mono"
                     />
                   </div>
-                  <div className="col-span-2 space-y-4">
-                    <label className="font-tech text-text/30">CLASSIFICATION</label>
+                  <div className="col-span-2 space-y-3 md:space-y-4">
+                    <label className="font-tech text-text/30 text-[10px]">CLASSIFICATION</label>
                     <select 
                       value={category} onChange={e => setCategory(e.target.value)}
-                      className="w-full bg-black/[0.02] border-b border-black/10 px-0 py-4 focus:border-black outline-none transition-all cursor-pointer font-tech"
+                      className="w-full bg-black/[0.02] border-b border-black/10 px-0 py-3 md:py-4 focus:border-black outline-none transition-all cursor-pointer font-tech text-[10px] md:text-xs"
                     >
                       {['Grand Complications', 'Heritage', 'Avant-Garde', 'Deep Sea'].map(cat => (
                         <option key={cat} value={cat}>{cat.toUpperCase()}</option>
@@ -1321,41 +1397,41 @@ export default function AdminDashboard() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                  <div className="space-y-4">
-                    <label className="font-tech text-text/30">VISUAL_ASSETS</label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
+                  <div className="space-y-3 md:space-y-4">
+                    <label className="font-tech text-text/30 text-[10px]">VISUAL_ASSETS</label>
                     <div className="relative">
                       <input 
                         type="file" multiple accept="image/*" onChange={handleFileChange}
                         className="opacity-0 absolute inset-0 cursor-pointer z-10"
                       />
-                      <div className="border border-dashed border-black/10 rounded-2xl p-8 text-center bg-black/[0.01] group-hover:border-black transition-all">
-                         <Plus className="mx-auto mb-2 opacity-20" />
+                      <div className="border border-dashed border-black/10 rounded-2xl p-6 md:p-8 text-center bg-black/[0.01] group-hover:border-black transition-all">
+                         <Plus className="mx-auto mb-2 opacity-20" size={16} />
                          <p className="text-[10px] font-tech text-text/40">UPLOAD_IMAGES</p>
                          {imageFiles.length > 0 && <p className="text-[8px] text-green-600 mt-2">{imageFiles.length} ASSETS_STAGED</p>}
                       </div>
                     </div>
                   </div>
-                  <div className="space-y-4">
-                    <label className="font-tech text-text/30">SOURCE_URL_REDIRECT</label>
+                  <div className="space-y-3 md:space-y-4">
+                    <label className="font-tech text-text/30 text-[10px]">SOURCE_URL_REDIRECT</label>
                     <input 
                       value={image} onChange={e => setImage(e.target.value)}
-                      className="w-full bg-black/[0.02] border-b border-black/10 px-0 py-4 focus:border-black outline-none transition-all font-tech text-[10px]"
+                      className="w-full bg-black/[0.02] border-b border-black/10 px-0 py-3 md:py-4 focus:border-black outline-none transition-all font-tech text-[10px]"
                       placeholder="HTTPS://..."
                     />
                   </div>
                 </div>
 
-                <div className="space-y-4">
-                  <label className="font-tech text-text/30">CRITICAL_DESCRIPTION</label>
+                <div className="space-y-3 md:space-y-4">
+                  <label className="font-tech text-text/30 text-[10px]">CRITICAL_DESCRIPTION</label>
                   <textarea 
                     value={description} onChange={e => setDescription(e.target.value)}
-                    className="w-full bg-black/[0.02] border border-black/5 rounded-2xl p-6 focus:border-black outline-none transition-all h-32 italic text-lg"
+                    className="w-full bg-black/[0.02] border border-black/5 rounded-2xl p-4 md:p-6 focus:border-black outline-none transition-all h-32 italic text-base md:text-lg"
                     placeholder="Describe the masterpiece detailing..." required
                   />
                 </div>
 
-                <div className="flex flex-wrap gap-8 items-center border-t border-black/5 pt-10">
+                <div className="flex flex-wrap gap-4 md:gap-8 items-center border-t border-black/5 pt-6 md:pt-10">
                   {[
                     { label: 'TRENDING', state: isTrending, set: setIsTrending },
                     { label: 'NEW_ARRIVAL', state: isNewArrival, set: setIsNewArrival },
@@ -1363,16 +1439,16 @@ export default function AdminDashboard() {
                     { label: 'AUTO_BROADCAST', state: shouldAutoBroadcast, set: setShouldAutoBroadcast, urgent: true },
                   ].map((check, i) => (
                     <label key={i} className="flex items-center space-x-3 cursor-pointer group">
-                      <div className={`w-4 h-4 rounded border flex items-center justify-center transition-all ${check.state ? 'bg-text border-text' : 'border-black/20 group-hover:border-black'}`}>
-                         {check.state && <Check size={10} className="text-bg" />}
+                      <div className={`w-3.5 h-3.5 md:w-4 md:h-4 rounded border flex items-center justify-center transition-all ${check.state ? 'bg-text border-text' : 'border-black/20 group-hover:border-black'}`}>
+                         {check.state && <Check size={8} className="text-bg md:w-2.5" />}
                       </div>
                       <input type="checkbox" className="hidden" checked={check.state} onChange={e => check.set(e.target.checked)} />
-                      <span className={`font-tech text-[10px] ${check.state ? 'text-text' : 'text-text/30'} ${check.urgent && 'text-red-500/60'}`}>{check.label}</span>
+                      <span className={`font-tech text-[8px] md:text-[10px] ${check.state ? 'text-text' : 'text-text/30'} ${check.urgent && 'text-red-500/60'}`}>{check.label}</span>
                     </label>
                   ))}
                 </div>
 
-                <button type="submit" disabled={isSaving} className="w-full py-6 bg-text text-bg font-tech text-xs tracking-[0.5em] rounded-full hover:scale-[1.02] transition-all duration-700 disabled:opacity-50 shadow-2xl">
+                <button type="submit" disabled={isSaving} className="w-full py-5 md:py-6 bg-text text-bg font-tech text-[10px] md:text-xs tracking-[0.3em] md:tracking-[0.5em] rounded-full hover:scale-[1.02] transition-all duration-700 disabled:opacity-50 shadow-2xl">
                   {isSaving ? 'EXECUTING_SYNC...' : 'ARCHIVE_COLLECTION_DATA'}
                 </button>
               </form>
@@ -1456,66 +1532,65 @@ export default function AdminDashboard() {
                  )}
                </div>
             </div>
-
           )}
 
           {/* Shipping Manifest Terminal */}
           {selectedOrder && (
-            <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/40 backdrop-blur-xl animate-in fade-in duration-500">
-              <div className="bg-white max-w-2xl w-full rounded-[3rem] shadow-2xl overflow-hidden border border-black/5 animate-in zoom-in-95 duration-700">
-                <div className="p-10 border-b border-black/5 flex justify-between items-start">
+            <div className="fixed inset-0 z-[60] flex items-center justify-center p-3 md:p-4 bg-black/40 backdrop-blur-xl animate-in fade-in duration-500">
+              <div className="bg-white max-w-2xl w-full rounded-[2rem] md:rounded-[3rem] shadow-2xl overflow-hidden border border-black/5 animate-in zoom-in-95 duration-700">
+                <div className="p-6 md:p-10 border-b border-black/5 flex justify-between items-start">
                    <div>
                      <div className="flex items-center space-x-2 mb-1">
                         <div className="w-1 h-1 bg-text rounded-full" />
-                        <p className="font-tech text-text/20 text-[8px]">LOGISTICS_MANIFEST // ID_{selectedOrder.id.slice(-6)}</p>
+                        <p className="font-tech text-text/20 text-[7px] md:text-[8px]">LOGISTICS_MANIFEST // ID_{selectedOrder.id.slice(-6)}</p>
                      </div>
-                     <h2 className="text-3xl font-display italic">Fulfillment <span className="opacity-20">Terminal.</span></h2>
+                     <h2 className="text-xl md:text-3xl font-display italic">Fulfillment <span className="opacity-20">Terminal.</span></h2>
                    </div>
-                   <button onClick={() => setSelectedOrder(null)} className="w-12 h-12 rounded-full bg-black/5 flex items-center justify-center hover:bg-black hover:text-white transition-all duration-500">
-                     <X size={20} />
+                   <button onClick={() => setSelectedOrder(null)} className="w-8 h-8 md:w-12 md:h-12 rounded-full bg-black/5 flex items-center justify-center hover:bg-black hover:text-white transition-all duration-500">
+                     <X size={16} className="md:w-5" />
                    </button>
                 </div>
                 
-                <div className="p-10 space-y-10 max-h-[70vh] overflow-y-auto custom-scrollbar">
+                <div className="p-6 md:p-10 space-y-6 md:space-y-10 max-h-[75vh] overflow-y-auto custom-scrollbar">
                    {/* Industrial Shipping Label */}
-                   <div id="shipping-label" className="bg-black text-white p-12 rounded-[2rem] shadow-2xl relative border-8 border-black font-mono">
-                      <div className="flex justify-between items-start border-b border-white/20 pb-6 mb-8">
+                   <div id="shipping-label" className="bg-black text-white p-6 md:p-12 rounded-2xl md:rounded-[2rem] shadow-2xl relative border-4 md:border-8 border-black font-mono">
+                      <div className="flex justify-between items-start border-b border-white/20 pb-4 md:pb-6 mb-6 md:mb-8">
                          <div>
-                            <p className="text-[10px] text-white/40 mb-1">ORIGIN_FACILITY</p>
-                            <h3 className="text-sm font-black italic tracking-widest underline decoration-2 underline-offset-4">DINOSPY_EXECUTIVE_HUB</h3>
-                            <p className="text-[10px] mt-2 opacity-60">Rue de l'Horloge, Geneva // IND_DIST</p>
+                            <p className="text-[8px] md:text-[10px] text-white/40 mb-1">ORIGIN_FACILITY</p>
+                            <h3 className="text-[10px] md:text-sm font-black italic tracking-widest underline decoration-2 underline-offset-4">DINOSPY_EXECUTIVE_HUB</h3>
+                            <p className="text-[8px] md:text-[10px] mt-2 opacity-60">Rue de l'Horloge, Geneva // IND_DIST</p>
                          </div>
-                         <div className="p-2 bg-white rounded-lg">
-                            <QRCodeSVG value={`https://ais-dev-wty7sygzhusofsxwhxmva3-281798882282.run.app/tracking/${selectedOrder.id}`} size={60} />
+                         <div className="p-1 md:p-2 bg-white rounded-lg">
+                            <QRCodeSVG value={`https://ais-dev-wty7sygzhusofsxwhxmva3-281798882282.run.app/tracking/${selectedOrder.id}`} size={40} className="md:w-[60px]" />
                          </div>
                       </div>
 
-                      <div className="mb-12">
-                         <p className="text-[10px] text-white/40 mb-2">DELIVERY_TARGET</p>
-                         <h3 className="text-3xl font-black italic mb-2 uppercase tracking-tighter">{selectedOrder.customerName}</h3>
-                         <div className="space-y-1 opacity-80 text-lg">
-                            <p>{selectedOrder.shippingAddress.address}</p>
+                      <div className="mb-8 md:mb-12">
+                         <p className="text-[8px] md:text-[10px] text-white/40 mb-1 md:mb-2 text-[8px]">DELIVERY_TARGET</p>
+                         <h3 className="text-xl md:text-3xl font-black italic mb-2 uppercase tracking-tighter leading-tight">{selectedOrder.customerName}</h3>
+                         <div className="space-y-1 opacity-80 text-sm md:text-lg">
+                            <p className="truncate">{selectedOrder.shippingAddress.address}</p>
                             <p className="font-black">{selectedOrder.shippingAddress.city}, IND - {selectedOrder.shippingAddress.zip}</p>
                          </div>
                       </div>
 
-                      <div className="flex justify-between items-end border-t border-white/20 pt-8">
-                         <div className="space-y-4">
+                      <div className="flex justify-between items-end border-t border-white/20 pt-6 md:pt-8">
+                         <div className="space-y-3 md:space-y-4">
                             <div>
-                               <p className="text-[8px] text-white/20 mb-1">CARGO_MANIFEST</p>
-                               <div className="text-[10px] space-y-1">
+                               <p className="text-[7px] md:text-[8px] text-white/20 mb-1">CARGO_MANIFEST</p>
+                               <div className="text-[8px] md:text-[10px] space-y-1">
                                   {selectedOrder.items.map((it: any, idx: number) => (
                                      <div key={idx} className="flex space-x-2">
                                         <span className="opacity-40">[{it.quantity}X]</span>
-                                        <span className="font-bold italic">{it.name.toUpperCase()}</span>
+                                        <span className="font-bold italic truncate max-w-[100px] md:max-w-none">{it.name.toUpperCase()}</span>
                                      </div>
                                   ))}
                                </div>
                             </div>
                          </div>
                          <div className="text-right">
-                            <p className="text-[8px] text-white/20 mb-1">AUTHENTICATION_TAG</p>
-                            <p className="text-2xl font-black italic tracking-tighter shadow-sm">DNX-{selectedOrder.id.slice(0, 8).toUpperCase()}</p>
+                            <p className="text-[7px] md:text-[8px] text-white/20 mb-1">AUTH_TAG</p>
+                            <p className="text-base md:text-2xl font-black italic tracking-tighter shadow-sm">DNX-{selectedOrder.id.slice(0, 6).toUpperCase()}</p>
                          </div>
                       </div>
                    </div>
@@ -1523,13 +1598,13 @@ export default function AdminDashboard() {
                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <button 
                         onClick={() => window.print()}
-                        className="flex items-center justify-center space-x-3 py-6 rounded-full border border-black/10 hover:bg-black/[0.02] transition-all font-tech text-[10px]"
+                        className="flex items-center justify-center space-x-3 py-4 md:py-6 rounded-full border border-black/10 hover:bg-black/[0.02] transition-all font-tech text-[8px] md:text-[10px]"
                       >
-                        <Printer size={18} />
+                        <Printer size={16} className="md:w-4" />
                         <span>GENERATE_PHYSICAL_MANIFEST</span>
                       </button>
-                      <button className="flex items-center justify-center space-x-3 py-6 rounded-full bg-text text-bg hover:scale-[1.02] transition-all font-tech text-[10px]">
-                        <Package size={18} />
+                      <button className="flex items-center justify-center space-x-3 py-4 md:py-6 rounded-full bg-text text-bg hover:scale-[1.02] transition-all font-tech text-[8px] md:text-[10px]">
+                        <Package size={16} className="md:w-4" />
                         <span>INITIATE_DISPATCH_PROTOCOL</span>
                       </button>
                    </div>
@@ -1539,47 +1614,72 @@ export default function AdminDashboard() {
           )}
 
           {view === 'coupons' && (
-            <div className="space-y-16 animate-in fade-in duration-1000">
-               <div className="flex justify-between items-end">
+            <div className="space-y-12 animate-in fade-in duration-1000">
+               <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12">
                   <div>
-                    <div className="flex items-center space-x-3 mb-2">
-                       <div className="w-1 h-1 bg-text rounded-full" />
-                       <span className="font-tech text-text/20">MERCH_PROTOCOLS // VOUCHERS</span>
+                    <div className="flex items-center space-x-3 mb-3">
+                       <div className="w-1.5 h-1.5 bg-black rounded-full" />
+                       <span className="font-tech text-text/20 text-[10px]">MERCH_PROTOCOLS // VOUCHERS</span>
                     </div>
-                    <h2 className="text-4xl font-display italic">Promo <span className="opacity-20">Protocols.</span></h2>
+                    <h2 className="text-4xl font-display italic tracking-tightest">Discount <span className="opacity-20">Protocols.</span></h2>
                   </div>
                </div>
 
-               <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-                  <form onSubmit={handleAddCoupon} className="lg:col-span-1 space-y-8 p-10 rounded-[2.5rem] border border-black/5 bg-black/[0.01]">
-                    <div className="space-y-4">
-                      <label className="font-tech text-text/30">CODE_IDENTIFIER</label>
-                      <input value={couponCode} onChange={e => setCouponCode(e.target.value)} className="w-full bg-transparent border-b border-black/10 py-3 uppercase font-mono text-xl focus:border-black outline-none transition-all" placeholder="E.G._NOIR30" />
+               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                  <div className="lg:col-span-1 p-8 rounded-[2.5rem] border border-black/5 bg-black text-white shadow-2xl h-fit">
+                    <div className="flex items-center space-x-3 mb-8">
+                       <Zap size={18} className="text-white/40" />
+                       <span className="font-tech text-[10px]">INITIATE_VOUCHER</span>
                     </div>
-                    <div className="space-y-4">
-                      <label className="font-tech text-text/30">BENEFIT_TYPE</label>
-                      <select value={couponType} onChange={e => setCouponType(e.target.value as any)} className="w-full bg-transparent border-b border-black/10 py-3 font-tech text-[10px] focus:border-black outline-none transition-all cursor-pointer">
-                        <option value="percentage">PERCENTAGE (%)</option>
-                        <option value="fixed">FIXED_AMOUNT (₹)</option>
-                      </select>
-                    </div>
-                    <div className="space-y-4">
-                      <label className="font-tech text-text/30">VALUE_UNIT</label>
-                      <input type="number" value={couponDiscount} onChange={e => setCouponDiscount(e.target.value)} className="w-full bg-transparent border-b border-black/10 py-3 font-mono focus:border-black outline-none transition-all" />
-                    </div>
-                    <button type="submit" disabled={isSaving} className="w-full py-5 bg-text text-bg font-tech text-[10px] tracking-[0.4em] rounded-full">EXECUTE_PROTOCOL</button>
-                  </form>
+                    <form onSubmit={handleAddCoupon} className="space-y-8">
+                      <div className="space-y-3">
+                        <label className="font-tech text-white/20 text-[9px]">IDENT_CODE</label>
+                        <input value={couponCode} onChange={e => setCouponCode(e.target.value)} className="w-full bg-transparent border-b border-white/10 py-3 uppercase font-mono text-xl focus:border-white outline-none transition-all placeholder:text-white/5" placeholder="E.G._NOIR40" />
+                      </div>
+                      <div className="space-y-3">
+                        <label className="font-tech text-white/20 text-[9px]">VALUATION_TYPE</label>
+                        <select value={couponType} onChange={e => setCouponType(e.target.value as any)} className="w-full bg-transparent border-b border-white/10 py-3 font-tech text-[10px] focus:border-white outline-none transition-all cursor-pointer">
+                          <option value="percentage">PERCENTAGE (%)</option>
+                          <option value="fixed">FIXED_AMOUNT (₹)</option>
+                        </select>
+                      </div>
+                      <div className="space-y-3">
+                        <label className="font-tech text-white/20 text-[9px]">BENEFIT_MAGNITUDE</label>
+                        <input type="number" value={couponDiscount} onChange={e => setCouponDiscount(e.target.value)} className="w-full bg-transparent border-b border-white/10 py-3 font-mono text-xl focus:border-white outline-none transition-all" />
+                      </div>
+                      <button type="submit" disabled={isSaving} className="w-full py-5 bg-white text-black font-tech text-[10px] tracking-[0.4em] rounded-full hover:scale-105 transition-all duration-700 shadow-xl">
+                        {isSaving ? 'EXECUTING...' : 'DEPLOY_PROTOCOL'}
+                      </button>
+                    </form>
+                  </div>
 
                   <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
                     {coupons.map(c => (
-                      <div key={c.id} className="p-8 rounded-[2rem] border border-black/5 bg-white relative group">
-                        <div className="flex justify-between items-start mb-6">
-                           <div className="font-mono text-2xl font-black">{c.code}</div>
-                           <button onClick={() => handleDeleteCoupon(c.id)} className="text-text/20 hover:text-red-500 transition-colors"><Trash2 size={16} /></button>
+                      <div key={c.id} className="group p-8 rounded-[2.5rem] border border-black/5 bg-white relative overflow-hidden flex flex-col justify-between hover:shadow-2xl transition-all duration-700 h-64">
+                        <div className="absolute top-0 right-0 p-6 opacity-5 rotate-12">
+                           <Zap size={100} />
                         </div>
-                        <div className="space-y-2">
-                           <div className="flex justify-between text-[10px] font-tech text-text/40"><span>BENEFIT</span><span className="text-text">{c.type === 'percentage' ? `${c.discount}% OFF` : `₹${c.discount} OFF`}</span></div>
-                           <div className="flex justify-between text-[10px] font-tech text-text/40"><span>THRESHOLD</span><span className="text-text">₹{c.minAmount}</span></div>
+                        <div className="relative z-10 flex justify-between items-start">
+                           <div>
+                              <div className="flex items-center space-x-2 mb-2">
+                                 <span className="font-tech text-text/20 text-[8px]">ACTIVE_VOUCHER</span>
+                                 <div className="w-1 h-1 bg-green-500 rounded-full animate-pulse" />
+                              </div>
+                              <h3 className="text-3xl font-mono font-black italic tracking-tighter">{c.code}</h3>
+                           </div>
+                           <button onClick={() => handleDeleteCoupon(c.id)} className="w-10 h-10 rounded-full border border-black/5 flex items-center justify-center text-black/20 hover:text-red-500 hover:bg-red-50 transition-all duration-700">
+                             <Trash2 size={16} />
+                           </button>
+                        </div>
+                        <div className="relative z-10 grid grid-cols-2 gap-4 pb-2">
+                           <div className="p-4 bg-black/[0.02] rounded-2xl border border-black/5">
+                              <p className="font-tech text-[7px] text-black/20 mb-1">MAGNITUDE</p>
+                              <p className="font-display italic text-lg">{c.type === 'percentage' ? `${c.discount}%` : `₹${c.discount}`}</p>
+                           </div>
+                           <div className="p-4 bg-black/[0.02] rounded-2xl border border-black/5">
+                              <p className="font-tech text-[7px] text-black/20 mb-1">THRESHOLD</p>
+                              <p className="font-mono text-lg">₹{c.minAmount}</p>
+                           </div>
                         </div>
                       </div>
                     ))}
@@ -1588,50 +1688,88 @@ export default function AdminDashboard() {
             </div>
           )}
           {view === 'security' && (
-            <div className="space-y-16 animate-in fade-in duration-1000">
-               <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-                  <div className="p-10 rounded-[2.5rem] border border-black/5 bg-black/[0.01]">
-                    <div className="flex items-center space-x-4 mb-10">
-                       <Lock size={20} className="text-text/40" />
-                       <h3 className="text-2xl font-display italic">Protocol <span className="opacity-20">Overrides.</span></h3>
+            <div className="space-y-12 animate-in fade-in duration-1000">
+               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                  {/* Master Overrides */}
+                  <div className="lg:col-span-1 space-y-8">
+                    <div className="p-8 rounded-[2.5rem] border border-black/5 bg-white group hover:shadow-2xl transition-all duration-700">
+                       <div className="flex items-center space-x-3 mb-8">
+                          <div className="w-12 h-12 rounded-2xl bg-black text-white flex items-center justify-center group-hover:rotate-12 transition-transform duration-700">
+                             <Lock size={18} />
+                          </div>
+                          <div>
+                             <p className="font-tech text-[10px] text-black/20 mb-0.5">SECURITY_OVERRIDE</p>
+                             <h3 className="text-2xl font-display italic">Vault <span className="opacity-20 text-black">Lock.</span></h3>
+                          </div>
+                       </div>
+                       
+                       <p className="text-[10px] font-tech text-black/30 mb-8 leading-relaxed">
+                         INITIATING THE VAULT LOCK WILL RESTRICT ALL PUBLIC ACCESS TO THE COLLECTIONS. ONLY AUTHORIZED PERSONNEL TERMINALS WILL REMAIN OPERATIONAL.
+                       </p>
+
+                       <button 
+                         onClick={handleToggleMaintenance} 
+                         disabled={isTogglingMaintenance}
+                         className={`w-full py-6 rounded-full font-tech text-[10px] tracking-[0.4em] transition-all duration-700 ${maintenanceStatus ? 'bg-red-500 text-white shadow-[0_0_20px_rgba(239,68,68,0.4)]' : 'bg-black text-white'}`}
+                       >
+                         {maintenanceStatus ? 'DEACTIVATE_LOCKDOWN' : 'INITIATE_VAULT_LOCK'}
+                       </button>
                     </div>
-                    <div className="space-y-6">
-                       {[
-                         { label: 'MAINTENANCE_MODE', state: maintenanceStatus, action: handleToggleMaintenance, toggle: isTogglingMaintenance, desc: 'RESTRICTS_PUBLIC_ACCESS_TO_GRID' },
-                         { label: 'TEST_ENVIRONMENT', state: testMode, action: handleToggleTestMode, toggle: isTogglingTestMode, desc: 'ISOLATES_ACQUISITION_LOGIC' }
-                       ].map((item, i) => (
-                         <div key={i} className="flex items-center justify-between p-6 bg-white border border-black/5 rounded-2xl">
-                           <div>
-                              <p className="font-tech text-text text-[10px]">{item.label}</p>
-                              <p className="text-[8px] font-tech text-text/20 mt-1">{item.desc}</p>
-                           </div>
-                           <button onClick={item.action} disabled={item.toggle} className={`px-5 py-2 rounded-full font-tech text-[8px] transition-all ${item.state ? 'bg-text text-bg' : 'bg-black/5 text-text/40'}`}>
-                             {item.toggle ? 'SYNCING...' : (item.state ? 'ACTIVE' : 'STANDBY')}
-                           </button>
-                         </div>
-                       ))}
+
+                    <div className="p-8 rounded-[2.5rem] border border-black/5 bg-white group hover:shadow-2xl transition-all duration-700">
+                       <div className="flex justify-between items-center mb-6">
+                          <span className="font-tech text-[9px] text-black/20">TEST_ISOLATION</span>
+                          <div className={`w-2 h-2 rounded-full ${testMode ? 'bg-green-500' : 'bg-black/10'}`} />
+                       </div>
+                       <div className="flex items-center justify-between">
+                          <h4 className="font-display italic text-xl">Sandbox <span className="opacity-20 text-black">Mode.</span></h4>
+                          <button 
+                            onClick={handleToggleTestMode} 
+                            disabled={isTogglingTestMode}
+                            className={`w-12 h-6 rounded-full relative transition-all duration-500 ${testMode ? 'bg-black' : 'bg-black/10'}`}
+                          >
+                             <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all duration-500 ${testMode ? 'left-7' : 'left-1'}`} />
+                          </button>
+                       </div>
                     </div>
                   </div>
 
-                  <div className="p-10 rounded-[2.5rem] border border-black/5 bg-black/[0.01]">
-                    <div className="flex items-center space-x-4 mb-10">
-                       <Shield size={20} className="text-green-600/60" />
-                       <h3 className="text-2xl font-display italic">Firewall <span className="opacity-20">Status.</span></h3>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                       {[
-                         { l: 'HELMET_PROTOCOL', v: 'ACTIVE', s: 'text-green-600' },
-                         { l: 'SSL_ENCRYPTION', v: 'VERIFIED', s: 'text-green-600' },
-                         { l: 'RATE_LIMITING', v: '100/15M', s: 'text-text/60' },
-                         { l: 'AUDIT_LOGGING', v: 'SYNCED', s: 'text-text/60' }
-                       ].map((stat, i) => (
-                         <div key={i} className="p-5 bg-white border border-black/5 rounded-2xl">
-                            <p className="font-tech text-text/20 text-[8px] mb-2">{stat.l}</p>
-                            <p className={`font-tech text-[9px] ${stat.s}`}>{stat.v}</p>
-                         </div>
-                       ))}
-                    </div>
-                    <button onClick={() => toast.success('Diagnostics successful')} className="w-full mt-8 py-4 border border-black/10 rounded-full font-tech text-[8px] hover:bg-black/5 transition-all">TERMINAL_DIAGNOSTICS</button>
+                  {/* Firewall & Signals */}
+                  <div className="lg:col-span-2 p-10 rounded-[3rem] border border-black/5 bg-black text-white shadow-2xl relative overflow-hidden">
+                     <div className="absolute top-0 right-0 p-8 opacity-5">
+                        <Shield size={200} />
+                     </div>
+                     
+                     <div className="relative z-10">
+                        <div className="flex items-center space-x-3 mb-12">
+                           <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(34,197,94,1)]" />
+                           <span className="font-tech text-white/40 text-[10px]">CORE_FIREWALL_TERMINAL // STATUS_NOMINAL</span>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+                           {[
+                             { label: 'ENC_HANDSHAKE', value: 'ECC_PRIME_256', detail: 'SECURE_CHANNEL' },
+                             { label: 'ACCESS_LIST_RL', value: '45_ACTIVE_NODES', detail: 'AUTO_FILTER_ENABLE' },
+                             { label: 'THREAT_SCAN', value: 'ZERO_BREACH', detail: 'LAST_SCAN: 200MS_AGO' },
+                             { label: 'LATENCY_SYNC', value: '14MS', detail: 'REGION: APAC_S1' }
+                           ].map((s, i) => (
+                             <div key={i} className="p-6 rounded-2xl bg-white/5 border border-white/5 group hover:border-white/20 transition-all">
+                                <p className="font-tech text-[8px] text-white/20 mb-2">{s.label}</p>
+                                <div className="flex items-end justify-between">
+                                  <p className="font-mono text-lg">{s.value}</p>
+                                  <p className="font-tech text-[7px] text-green-500">{s.detail}</p>
+                                </div>
+                             </div>
+                           ))}
+                        </div>
+
+                        <div className="p-8 rounded-2xl bg-white/5 border border-white/5 font-mono text-[9px] text-white/30 space-y-2">
+                           <p className="text-green-500">{`> [SYS_OK] SECURE_SOCKET_ESTABLISHED`}</p>
+                           <p>{`> [INFO] CLOUD_SYNC_COMPLETED_SUCCESSFULLY`}</p>
+                           <p>{`> [WARN] UNIDENTIFIED_SCAN_DETECTED_FROM_IP: 192.168.X.X (BLOCKED)`}</p>
+                           <p className="animate-pulse">{`> [LIVE] MONITORING_IN_PROGRESS...`}</p>
+                        </div>
+                     </div>
                   </div>
                </div>
             </div>
