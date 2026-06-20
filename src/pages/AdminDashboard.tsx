@@ -871,7 +871,7 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-noir flex flex-col pt-24 md:pt-32 selection:bg-gold selection:text-noir">
+    <div className="min-h-screen bg-noir flex flex-col pt-24 md:pt-32 selection:bg-primary selection:text-noir">
       <Navbar />
       <main className="flex-grow pt-8 md:pt-16 pb-40 max-w-[1600px] mx-auto px-6 md:px-12 w-full">
         <div className="mb-12 md:mb-20">

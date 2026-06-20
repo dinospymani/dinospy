@@ -64,7 +64,7 @@ export default function CartPage() {
   const hasOutOfStock = cart.some(item => item.stock <= 0);
 
   return (
-    <div className="min-h-screen flex flex-col bg-noir text-text selection:bg-gold selection:text-noir">
+    <div className="min-h-screen flex flex-col bg-white text-black selection:bg-black selection:text-white">
       <Navbar />
       
       <main className="flex-grow pt-40 pb-40 max-w-7xl mx-auto px-6 lg:px-12 w-full">
@@ -75,9 +75,9 @@ export default function CartPage() {
           <div className="mb-12">
             <button 
               onClick={() => window.history.back()}
-              className="flex items-center space-x-3 text-text/40 hover:text-gold transition-all duration-500 p-2 -ml-2 group"
+              className="flex items-center space-x-3 text-black/40 hover:text-black transition-all duration-500 p-2 -ml-2 group"
             >
-              <div className="w-8 h-8 rounded-full border border-white/5 flex items-center justify-center group-hover:border-gold transition-colors">
+              <div className="w-8 h-8 rounded-full border border-black/5 flex items-center justify-center group-hover:border-black transition-colors">
                 <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
               </div>
               <span className="text-[10px] uppercase tracking-[0.4em] font-black">RETURN_ARCHIVE</span>
@@ -86,26 +86,26 @@ export default function CartPage() {
           
           <div className="flex flex-col md:flex-row justify-between items-end mb-24 gap-12">
             <div className="space-y-8">
-              <div className="flex items-center space-x-6 opacity-40">
-                <div className="w-1.5 h-1.5 bg-gold rounded-full shadow-[0_0_10px_#c5a059]" />
-                <span className="font-tech text-xs tracking-widest uppercase text-gold">ACQUISITION_MANIFEST</span>
+              <div className="flex items-center space-x-6">
+                <div className="w-1.5 h-1.5 bg-black rounded-full" />
+                <span className="font-mono text-xs tracking-widest uppercase text-black font-bold">ACQUISITION_MANIFEST</span>
               </div>
-              <h1 className="text-6xl md:text-9xl font-display italic leading-none tracking-tightest">Your <span className="opacity-10">Vault.</span></h1>
+              <h1 className="text-6xl md:text-9xl font-display leading-none tracking-tightest font-medium text-black">Your <span className="text-black/10">Vault.</span></h1>
             </div>
           </div>
 
           {cart.length === 0 ? (
-            <div className="glass p-20 rounded-[4rem] text-center border border-white/5 relative overflow-hidden group">
-              <div className="absolute inset-0 bg-gold opacity-0 group-hover:opacity-[0.02] transition-opacity duration-1000" />
-              <div className="w-24 h-24 bg-noir/40 rounded-full flex items-center justify-center mx-auto mb-12 border border-white/5 shadow-2xl">
-                <ShoppingBag className="text-gold opacity-20" size={32} />
+            <div className="bg-neutral-50 p-20 rounded-[4rem] text-center border border-black/5 relative overflow-hidden group">
+              <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-[0.02] transition-opacity duration-1000" />
+              <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center mx-auto mb-12 border border-black/5 shadow-2xl">
+                <ShoppingBag className="text-black opacity-20" size={32} />
               </div>
-              <h2 className="text-4xl font-display mb-6 italic">The vault is currently empty.</h2>
-              <p className="text-text/40 mb-12 max-w-sm mx-auto italic font-light leading-relaxed">
+              <h2 className="text-4xl font-display mb-6 font-medium text-black">The vault is currently empty.</h2>
+              <p className="text-black/40 mb-12 max-w-sm mx-auto font-light leading-relaxed">
                 Initialize your primary acquisition protocol by exploring our elite mechanical archives.
               </p>
               <Link to="/explore">
-                <button className="btn-luxury">Initialize_Acquisition</button>
+                <button className="bg-black text-white px-12 py-5 rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-neutral-800 transition-all">Initialize_Acquisition</button>
               </Link>
             </div>
           ) : (
@@ -119,13 +119,13 @@ export default function CartPage() {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, x: 20 }}
-                      className={`group glass p-6 md:p-10 rounded-[3.5rem] border transition-all duration-700 relative overflow-hidden flex flex-col md:flex-row items-center gap-10 ${item.stock <= 0 ? 'border-red-900/30 opacity-40 grayscale-[0.8]' : 'border-white/5 hover:border-gold/20'}`}
+                      className={`group bg-white p-6 md:p-10 rounded-[3.5rem] border transition-all duration-700 relative overflow-hidden flex flex-col md:flex-row items-center gap-10 ${item.stock <= 0 ? 'border-red-100 opacity-40 grayscale-[0.8]' : 'border-black/5 hover:border-black/10 hover:shadow-xl'}`}
                     >
                       <div className="absolute top-0 right-0 p-8 opacity-[0.02] pointer-events-none -rotate-12 translate-x-1/3 -translate-y-1/3 scale-150">
                         <Star size={200} />
                       </div>
 
-                      <div className="w-32 h-40 md:w-40 md:h-52 shrink-0 bg-noir/40 rounded-[2rem] p-4 flex items-center justify-center relative overflow-hidden border border-white/5">
+                      <div className="w-32 h-40 md:w-40 md:h-52 shrink-0 bg-neutral-50 rounded-[2rem] p-4 flex items-center justify-center relative overflow-hidden border border-black/5">
                         <img 
                           src={item.images[0]} 
                           className="w-full h-full object-contain filter group-hover:scale-110 transition-transform duration-1000" 
@@ -135,52 +135,52 @@ export default function CartPage() {
                       
                       <div className="flex-grow space-y-4 text-center md:text-left">
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
-                           <span className="font-tech text-gold tracking-widest text-[9px] font-black uppercase opacity-60">{item.brand} // REF_{item.id.slice(-8).toUpperCase()}</span>
+                           <span className="font-mono text-black tracking-widest text-[9px] font-bold uppercase opacity-40">{item.brand} // REF_{item.id.slice(-8).toUpperCase()}</span>
                            <button 
                              onClick={() => removeFromCart(item.id)}
-                             className="text-text/20 hover:text-red-500 transition-colors self-center md:self-auto"
+                             className="text-black/20 hover:text-red-500 transition-colors self-center md:self-auto"
                            >
                               <X size={18} />
                            </button>
                         </div>
-                        <h3 className="text-2xl md:text-4xl font-display italic text-text line-clamp-1">{item.name}</h3>
+                        <h3 className="text-2xl md:text-4xl font-display text-black font-medium line-clamp-1">{item.name}</h3>
                         
                         <div className="flex items-center justify-center md:justify-start gap-4">
                            {item.discount && (!item.offerExpiry || new Date(item.offerExpiry) > new Date()) ? (
                              <div className="flex items-center space-x-3">
-                               <span className="text-text/20 line-through text-xs font-light italic">₹{item.price.toLocaleString()}</span>
-                               <span className="text-gold font-display text-2xl">₹{Math.round(item.price * (1 - item.discount / 100)).toLocaleString()}</span>
-                               <span className="text-[8px] bg-gold text-noir px-2 py-0.5 rounded font-black tracking-widest">-{item.discount}%</span>
+                               <span className="text-black/20 line-through text-xs font-light italic">₹{item.price.toLocaleString()}</span>
+                               <span className="text-black font-display font-medium text-2xl">₹{Math.round(item.price * (1 - item.discount / 100)).toLocaleString()}</span>
+                               <span className="text-[8px] bg-black text-white px-2 py-0.5 rounded font-bold tracking-widest">-{item.discount}%</span>
                              </div>
                            ) : (
-                             <div className="text-gold font-display text-2xl">₹{item.price.toLocaleString()}</div>
+                             <div className="text-black font-display font-medium text-2xl">₹{item.price.toLocaleString()}</div>
                            )}
                         </div>
 
-                        <div className="flex items-center justify-between pt-6 border-t border-white/5">
-                           <div className="flex items-center glass rounded-full p-1 border border-white/10">
-                              <button onClick={() => updateQuantity(item.id, -1)} className="w-8 h-8 flex items-center justify-center hover:text-gold transition-colors">
+                        <div className="flex items-center justify-between pt-6 border-t border-black/5">
+                           <div className="flex items-center bg-neutral-50 rounded-full p-1 border border-black/5">
+                              <button onClick={() => updateQuantity(item.id, -1)} className="w-8 h-8 flex items-center justify-center hover:text-black transition-colors">
                                  <Minus size={12} />
                               </button>
-                              <span className="w-10 text-center font-mono font-black text-sm text-gold">{item.quantity}</span>
+                              <span className="w-10 text-center font-mono font-bold text-sm text-black">{item.quantity}</span>
                               <button 
                                 onClick={() => updateQuantity(item.id, 1)} 
                                 disabled={item.stock !== undefined && item.quantity >= item.stock}
-                                className="w-8 h-8 flex items-center justify-center hover:text-gold transition-colors disabled:opacity-20"
+                                className="w-8 h-8 flex items-center justify-center hover:text-black transition-colors disabled:opacity-20"
                               >
                                  <Plus size={12} />
                               </button>
                            </div>
 
                            {item.stock !== undefined && (
-                             <div className={`text-[9px] uppercase font-black tracking-widest flex items-center space-x-3 ${item.stock <= 0 ? 'text-red-500' : (item.stock <= 5 ? 'text-orange-500 bg-orange-500/5 px-3 py-1 rounded-full' : 'text-text/30')}`}>
+                             <div className={`text-[9px] uppercase font-bold tracking-widest flex items-center space-x-3 ${item.stock <= 0 ? 'text-red-500' : (item.stock <= 5 ? 'text-orange-500 bg-orange-50 px-3 py-1 rounded-full' : 'text-black/30')}`}>
                                 {item.stock > 0 ? (
                                   <>
-                                    <div className={`w-1.5 h-1.5 rounded-full ${item.stock <= 5 ? 'bg-orange-500 animate-bounce' : 'bg-green-500'}`} />
+                                    <div className={`w-1.5 h-1.5 rounded-full ${item.stock <= 5 ? 'bg-orange-500 animate-pulse' : 'bg-green-500'}`} />
                                     <span>{item.stock <= 5 ? `REMAINING: ${item.stock}` : 'VAULT_READY'}</span>
                                   </>
                                 ) : (
-                                  <span className="font-black">VAULT_DEPLETED</span>
+                                  <span className="font-bold">VAULT_DEPLETED</span>
                                 )}
                              </div>
                            )}
@@ -192,41 +192,41 @@ export default function CartPage() {
               </div>
 
               <div className="lg:col-span-4">
-                <div className="glass p-12 rounded-[4rem] border border-white/5 sticky top-32 space-y-12 luxury-shadow">
+                <div className="bg-neutral-50 p-12 rounded-[4rem] border border-black/5 sticky top-32 space-y-12 luxury-shadow">
                    <div className="space-y-4">
-                      <span className="font-tech text-gold tracking-widest text-[9px] font-black uppercase opacity-60">MANIFEST_SUMMARY</span>
-                      <h4 className="text-4xl font-display italic">Acquisition <span className="opacity-20 italic">Total.</span></h4>
+                      <span className="font-mono text-black tracking-widest text-[9px] font-bold uppercase opacity-40">MANIFEST_SUMMARY</span>
+                      <h4 className="text-4xl font-display font-medium text-black">Acquisition <span className="opacity-20 italic">Total.</span></h4>
                    </div>
 
-                   <div className="space-y-6 pt-10 border-t border-white/5">
+                   <div className="space-y-6 pt-10 border-t border-black/5">
                       <div className="flex justify-between items-center opacity-40">
-                         <span className="font-tech text-[10px] tracking-widest uppercase">Base_Subtotal</span>
-                         <span className="font-display text-xl">₹{subtotal.toLocaleString()}</span>
+                         <span className="font-mono text-[10px] tracking-widest uppercase font-bold">Base_Subtotal</span>
+                         <span className="font-display font-medium text-xl">₹{subtotal.toLocaleString()}</span>
                       </div>
                       {savings > 0 && (
-                        <div className="flex justify-between items-center text-gold">
-                           <span className="font-tech text-[10px] tracking-widest uppercase">Vault_Savings</span>
-                           <span className="font-display text-xl">-₹{savings.toLocaleString()}</span>
+                        <div className="flex justify-between items-center text-black">
+                           <span className="font-mono text-[10px] tracking-widest uppercase font-bold">Vault_Savings</span>
+                           <span className="font-display font-medium text-xl">-₹{savings.toLocaleString()}</span>
                         </div>
                       )}
                       <div className="flex justify-between items-center opacity-40">
-                         <span className="font-tech text-[10px] tracking-widest uppercase">Courier_Privilege</span>
-                         <span className="font-tech text-[10px] tracking-widest uppercase text-gold">COMPLIMENTARY</span>
+                         <span className="font-mono text-[10px] tracking-widest uppercase font-bold">Courier_Privilege</span>
+                         <span className="font-mono text-[10px] tracking-widest uppercase text-black font-bold">COMPLIMENTARY</span>
                       </div>
                       
-                      <div className="pt-10 border-t border-white/10 space-y-8">
+                      <div className="pt-10 border-t border-black/10 space-y-8">
                          <div className="flex justify-between items-end">
-                            <span className="font-tech text-[10px] tracking-[0.4em] uppercase font-black">TOTAL_CARGO_VALUE</span>
-                            <span className="text-4xl font-display text-gold leading-none tracking-tightest">₹{cartTotal.toLocaleString()}</span>
+                            <span className="font-mono text-[10px] tracking-[0.4em] uppercase font-bold">TOTAL_CARGO_VALUE</span>
+                            <span className="text-4xl font-display text-black font-medium leading-none tracking-tightest">₹{cartTotal.toLocaleString()}</span>
                          </div>
 
                          <Link to={hasOutOfStock ? "#" : "/checkout"} className="block">
                             <button 
                               onClick={() => { if (hasOutOfStock) setShowErrorPopup(true); }}
-                              className={`btn-luxury w-full flex items-center justify-center transition-all ${hasOutOfStock ? 'opacity-20 cursor-not-allowed' : 'group'}`}
+                              className={`w-full py-6 bg-black text-white rounded-full flex items-center justify-center transition-all ${hasOutOfStock ? 'opacity-20 cursor-not-allowed' : 'hover:bg-neutral-800'}`}
                             >
-                              <span>{hasOutOfStock ? 'VAULT_RESTRICTED' : 'AUTHORIZED_CHECKOUT'}</span>
-                              {!hasOutOfStock && <ArrowRight className="ml-4 group-hover:translate-x-2 transition-transform" size={16} />}
+                              <span className="text-[10px] font-bold uppercase tracking-widest">{hasOutOfStock ? 'VAULT_RESTRICTED' : 'AUTHORIZED_CHECKOUT'}</span>
+                              {!hasOutOfStock && <ArrowRight className="ml-4" size={16} />}
                             </button>
                          </Link>
                       </div>
@@ -248,34 +248,34 @@ export default function CartPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-noir/95 backdrop-blur-xl"
+            className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-white/95 backdrop-blur-xl"
           >
             <motion.div
               initial={{ scale: 0.95, opacity: 0, y: 30 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 30 }}
-              className="glass max-w-xl w-full p-12 md:p-20 rounded-[5rem] border border-red-500/10 text-center relative overflow-hidden"
+              className="bg-white max-w-xl w-full p-12 md:p-20 rounded-[5rem] border border-red-100 text-center relative overflow-hidden shadow-2xl"
             >
               <div className="absolute top-0 right-0 p-12 opacity-[0.02] pointer-events-none -rotate-12 transform scale-150">
                  <AlertCircle size={300} />
               </div>
 
-              <div className="w-24 h-24 bg-red-500/10 rounded-[2rem] flex items-center justify-center mx-auto mb-10 border border-red-500/20 shadow-[0_0_50px_rgba(239,68,68,0.1)]">
+              <div className="w-24 h-24 bg-red-50 rounded-[2rem] flex items-center justify-center mx-auto mb-10 border border-red-100">
                 <AlertCircle className="text-red-500" size={40} strokeWidth={1} />
               </div>
 
-              <h2 className="text-4xl md:text-5xl font-display mb-6 italic leading-none">Vault <span className="text-red-500/40">Restriction.</span></h2>
-              <p className="text-text/40 mb-12 text-xs md:text-sm italic font-light leading-relaxed max-w-md mx-auto">
+              <h2 className="text-4xl md:text-5xl font-display mb-6 font-medium leading-none">Vault <span className="text-red-500/40">Restriction.</span></h2>
+              <p className="text-black/40 mb-12 text-xs md:text-sm italic font-light leading-relaxed max-w-md mx-auto">
                 Primary acquisition handshake failed. Certain artifacts in your current manifest have been claimed or removed from the physical vault.
               </p>
 
               <div className="space-y-4 mb-12 text-left max-h-[30vh] overflow-y-auto no-scrollbar pr-2">
                 {cart.filter(item => item.stock <= 0).map(item => (
-                  <div key={item.id} className="flex items-center space-x-6 p-6 rounded-3xl bg-white/5 border border-white/5 group hover:border-red-500/20 transition-all">
+                  <div key={item.id} className="flex items-center space-x-6 p-6 rounded-3xl bg-neutral-50 border border-black/5 group hover:border-red-500/20 transition-all">
                     <img src={item.images[0]} className="w-16 h-16 object-cover rounded-xl opacity-30 grayscale" />
                     <div className="flex-grow">
-                       <p className="text-[10px] font-tech text-gold opacity-40 uppercase tracking-widest font-black mb-1">UNAVAILABLE_UNIT</p>
-                       <p className="text-lg font-display italic text-text opacity-60">{item.name}</p>
+                       <p className="text-[10px] font-mono text-black opacity-40 uppercase tracking-widest font-bold mb-1">UNAVAILABLE_UNIT</p>
+                       <p className="text-lg font-display font-medium text-black opacity-60">{item.name}</p>
                     </div>
                   </div>
                 ))}
@@ -283,7 +283,7 @@ export default function CartPage() {
 
               <button 
                 onClick={() => setShowErrorPopup(false)}
-                className="btn-luxury w-full bg-red-500/10 text-red-500 border-red-500/20 hover:bg-red-500 hover:text-noir"
+                className="w-full py-6 bg-red-500 text-white rounded-full font-bold uppercase tracking-widest text-[10px] hover:bg-red-600 transition-all"
               >
                 Return_To_Manifest
               </button>

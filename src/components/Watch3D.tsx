@@ -19,9 +19,9 @@ const WatchInternal = () => {
       <mesh castShadow>
         <cylinderGeometry args={[2, 2.1, 0.4, 64]} />
         <meshStandardMaterial 
-          color="#c5a059" 
-          metalness={0.9} 
-          roughness={0.1} 
+          color="#e5e5e5" 
+          metalness={0.95} 
+          roughness={0.05} 
           envMapIntensity={2}
         />
       </mesh>
@@ -59,9 +59,9 @@ export const Watch3D = () => {
     <div className="w-full h-[600px] lg:h-[800px] cursor-grab active:cursor-grabbing">
       <Canvas shadows dpr={[1, 2]}>
         <PerspectiveCamera makeDefault position={[0, 0, 8]} fov={35} />
-        <ambientLight intensity={0.2} />
-        <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={2} castShadow />
-        <pointLight position={[-10, -10, -10]} intensity={1} color="#c5a059" />
+        <ambientLight intensity={0.5} />
+        <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={1} castShadow />
+        <pointLight position={[-10, -10, -10]} intensity={0.5} color="#c0c0c0" />
         
         <PresentationControls
           global
@@ -81,10 +81,10 @@ export const Watch3D = () => {
         <Environment frames={Infinity} resolution={256}>
            <mesh scale={20}>
               <sphereGeometry />
-              <meshStandardMaterial side={THREE.BackSide} color="#1a1a1a" />
+              <meshStandardMaterial side={THREE.BackSide} color="#ffffff" />
            </mesh>
         </Environment>
-        <ContactShadows position={[0, -2.5, 0]} opacity={0.4} scale={10} blur={2.5} far={4} color="#ffffff" />
+        <ContactShadows position={[0, -2.5, 0]} opacity={0.2} scale={10} blur={2.5} far={4} color="#000000" />
       </Canvas>
     </div>
   );

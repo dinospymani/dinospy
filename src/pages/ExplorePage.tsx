@@ -40,43 +40,43 @@ export default function ExplorePage() {
   });
 
   return (
-    <div className="min-h-screen flex flex-col bg-bg">
+    <div className="min-h-screen flex flex-col bg-white">
       <Navbar />
       
-      <main className="flex-grow pt-40 pb-40 max-w-[100%] mx-auto px-6 md:px-12 lg:px-20 w-full text-center sm:text-left">
-        <div className="mb-12">
+      <main className="flex-grow pt-40 pb-40 max-w-[100%] mx-auto px-6 md:px-12 lg:px-24 w-full">
+        <div className="mb-16">
             <button 
                 onClick={() => window.history.back()}
-                className="flex items-center space-x-3 text-text/40 hover:text-gold transition-all duration-500 p-2 -ml-2 group"
+                className="flex items-center space-x-4 text-black/40 hover:text-black transition-all duration-500 p-2 -ml-2 group"
             >
-                <div className="w-8 h-8 rounded-full border border-white/5 flex items-center justify-center group-hover:border-gold transition-colors">
-                  <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
+                <div className="w-10 h-10 rounded-full border border-black/5 flex items-center justify-center group-hover:border-black transition-colors">
+                  <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
                 </div>
-                <span className="text-[10px] uppercase tracking-[0.4em] font-black">RETURN_HOME</span>
+                <span className="text-[10px] uppercase tracking-widest font-bold">BACK_TO_HOME</span>
             </button>
         </div>
         
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-12 mb-24 md:mb-32">
-            <div className="max-w-3xl text-left">
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-12 mb-24 md:mb-40">
+            <div className="max-w-4xl text-left">
               <div className="flex items-center space-x-6 mb-8 opacity-40">
-                <div className="w-1.5 h-1.5 bg-gold rounded-full shadow-[0_0_10px_#c5a059]" />
-                <span className="font-tech text-xs tracking-widest uppercase text-gold">VAULT_ARCHIVES</span>
+                <div className="w-1.5 h-1.5 bg-black rounded-full" />
+                <span className="font-mono text-xs tracking-widest uppercase text-black">GALLERY EXHIBITION</span>
               </div>
-              <h1 className="text-6xl md:text-9xl font-display italic leading-none tracking-tightest">Archive <span className="opacity-10">Collection.</span></h1>
+              <h1 className="text-7xl md:text-[10rem] font-display font-medium leading-[0.8] tracking-tightest">THE <br /> <span className="opacity-10">ARCHIVE.</span></h1>
             </div>
             
-            <div className="flex items-center space-x-12 overflow-x-auto pb-4 no-scrollbar lg:border-b lg:border-white/5">
+            <div className="flex items-center space-x-12 overflow-x-auto pb-4 no-scrollbar lg:border-b lg:border-black/5">
                 {['All', 'Grand Complications', 'Heritage', 'Avant-Garde', 'Deep Sea'].map(cat => (
                     <button
                         key={cat}
                         onClick={() => setFilter(cat)}
-                        className={`pb-4 text-[10px] font-black uppercase tracking-[0.4em] transition-all duration-700 whitespace-nowrap relative ${filter === cat ? 'text-gold' : 'text-text/20 hover:text-text'}`}
+                        className={`pb-4 text-[10px] font-bold uppercase tracking-widest transition-all duration-700 whitespace-nowrap relative ${filter === cat ? 'text-black' : 'text-black/20 hover:text-black'}`}
                     >
                         {cat}
                         {filter === cat && (
                           <motion.div 
                             layoutId="activeFilter"
-                            className="absolute bottom-0 left-0 right-0 h-[2px] bg-gold shadow-[0_0_10px_#c5a059]" 
+                            className="absolute bottom-0 left-0 right-0 h-[2px] bg-black" 
                           />
                         )}
                     </button>
@@ -85,7 +85,7 @@ export default function ExplorePage() {
         </div>
 
         {loading ? (
-            <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 md:gap-16 lg:gap-24">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-12 md:gap-16">
                 {[1,2,3,4,5,6,7,8].map(i => (
                   <ProductSkeleton key={i} />
                 ))}
@@ -105,7 +105,7 @@ export default function ExplorePage() {
                    }
                  }
                }}
-               className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 md:gap-16 lg:gap-24"
+               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-12 md:gap-16"
             >
                 {filtered.map(product => (
                     <motion.div
@@ -121,29 +121,29 @@ export default function ExplorePage() {
                 ))}
             </motion.div>
         ) : (
-            <div className="text-center py-40 md:py-60 border border-white/5 glass-card rounded-3xl">
+            <div className="text-center py-40 md:py-60 border border-black/5 rounded-[4rem]">
                 <motion.div
                    initial={{ opacity: 0 }}
                    animate={{ opacity: 1 }}
                    transition={{ duration: 2 }}
                 >
-                    <p className="text-text/20 font-display text-3xl md:text-5xl italic font-light tracking-widest mb-12">
-                      {products.length === 0 ? "Archive Empty." : "No assets matching your identity."}
+                    <p className="text-black/20 font-display text-3xl md:text-5xl font-light tracking-widest mb-12">
+                      {products.length === 0 ? "Gallery Empty." : "Selection Invalid."}
                     </p>
                     
                     {products.length === 0 ? (
                       <div className="flex flex-col items-center space-y-6">
-                        <div className="w-12 h-[1px] bg-gold/30 animate-pulse" />
-                        <p className="text-gold font-modern text-[10px] md:text-xs uppercase tracking-[0.6em] font-black leading-relaxed">
-                          The products will be added soon
+                        <div className="w-12 h-[1px] bg-black/10 animate-pulse" />
+                        <p className="text-black/40 font-mono text-[10px] md:text-xs uppercase tracking-[0.6em] font-bold leading-relaxed px-12">
+                          The vault is currently closed for inventory update.
                         </p>
                       </div>
                     ) : (
                       <button 
                         onClick={() => setFilter('All')}
-                        className="text-[10px] font-modern font-bold uppercase tracking-[0.4em] text-gold hover:text-text transition-all hover:tracking-[0.6em]"
+                        className="text-[10px] font-mono font-bold uppercase tracking-[0.4em] text-black hover:tracking-[0.6em] transition-all"
                       >
-                        Clear Parameters
+                        RESET FILTERS
                       </button>
                     )}
                 </motion.div>

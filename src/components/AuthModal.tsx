@@ -79,12 +79,12 @@ export default function AuthModal() {
                   <ShieldCheck size={32} strokeWidth={1} />
                 </div>
                 <div className="space-y-4">
-                  <span className="font-tech text-black/20 text-[10px] tracking-[0.6em] uppercase flex items-center justify-center">
+                  <span className="font-mono text-black/20 text-[10px] tracking-[0.6em] uppercase flex items-center justify-center font-bold">
                     <div className="w-2 h-2 bg-black rounded-full mr-4 animate-pulse" />
                     Protocol_Authorized_Only
                   </span>
-                  <h2 className="text-5xl md:text-6xl font-display italic tracking-tightest leading-none">
-                    {mode === 'login' ? 'Access' : 'Register'} <span className="opacity-20 font-sans italic">{mode === 'login' ? 'Vault.' : 'Node.'}</span>
+                  <h2 className="text-5xl md:text-6xl font-display font-medium tracking-tightest leading-none">
+                    {mode === 'login' ? 'Access' : 'Register'} <span className="opacity-10 text-black italic">{mode === 'login' ? 'Vault.' : 'Node.'}</span>
                   </h2>
                 </div>
               </div>
@@ -98,28 +98,28 @@ export default function AuthModal() {
                       className="space-y-6"
                     >
                       <div className="space-y-3 group">
-                        <label className="text-[10px] uppercase tracking-[0.4em] text-black/20 ml-6 font-tech font-black group-focus-within:text-black transition-colors">IDENTITY_MANIFEST</label>
+                        <label className="text-[10px] uppercase tracking-[0.4em] text-black/20 ml-6 font-mono font-bold group-focus-within:text-black transition-colors">IDENTITY_MANIFEST</label>
                         <div className="relative">
                           <User className="absolute left-8 top-1/2 -translate-y-1/2 text-black/10" size={18} strokeWidth={1} />
                           <input 
                             type="text"
                             placeholder="Authorized Full Name..."
                             required
-                            className="w-full bg-black/[0.01] border border-black/5 rounded-[2.5rem] py-6 pl-20 pr-8 text-sm font-display italic tracking-tight text-black focus:border-black outline-none transition-all placeholder:text-black/10"
+                            className="w-full bg-neutral-50 border border-black/5 rounded-[2.5rem] py-6 pl-20 pr-8 text-sm font-display font-medium tracking-tight text-black focus:border-black outline-none transition-all placeholder:text-black/10"
                             value={formData.name}
                             onChange={(e) => setFormData({...formData, name: e.target.value})}
                           />
                         </div>
                       </div>
                       <div className="space-y-3 group">
-                        <label className="text-[10px] uppercase tracking-[0.4em] text-black/20 ml-6 font-tech font-black group-focus-within:text-black transition-colors">SECURE_TELEMETRY</label>
+                        <label className="text-[10px] uppercase tracking-[0.4em] text-black/20 ml-6 font-mono font-bold group-focus-within:text-black transition-colors">SECURE_TELEMETRY</label>
                         <div className="relative">
                           <Phone className="absolute left-8 top-1/2 -translate-y-1/2 text-black/10" size={18} strokeWidth={1} />
                           <input 
                             type="tel"
                             placeholder="+91 . . . . . . . . . ."
                             required
-                            className="w-full bg-black/[0.01] border border-black/5 rounded-[2.5rem] py-6 pl-20 pr-8 text-sm font-mono text-black focus:border-black outline-none transition-all placeholder:text-black/10"
+                            className="w-full bg-neutral-50 border border-black/5 rounded-[2.5rem] py-6 pl-20 pr-8 text-sm font-mono text-black focus:border-black outline-none transition-all placeholder:text-black/10"
                             value={formData.phone}
                             onChange={(e) => setFormData({...formData, phone: e.target.value})}
                           />
@@ -129,14 +129,14 @@ export default function AuthModal() {
                   )}
                   
                   <div className="space-y-3 group">
-                    <label className="text-[10px] uppercase tracking-[0.4em] text-black/20 ml-6 font-tech font-black group-focus-within:text-black transition-colors">ACCOUNT_NODE_ID</label>
+                    <label className="text-[10px] uppercase tracking-[0.4em] text-black/20 ml-6 font-mono font-bold group-focus-within:text-black transition-colors">ACCOUNT_NODE_ID</label>
                     <div className="relative">
                       <Mail className="absolute left-8 top-1/2 -translate-y-1/2 text-black/10" size={18} strokeWidth={1} />
                       <input 
                         type="email"
                         placeholder="operator@network.nexus"
                         required
-                        className="w-full bg-black/[0.01] border border-black/5 rounded-[2.5rem] py-6 pl-20 pr-8 text-sm font-mono text-black focus:border-black outline-none transition-all placeholder:text-black/10"
+                        className="w-full bg-neutral-50 border border-black/5 rounded-[2.5rem] py-6 pl-20 pr-8 text-sm font-mono text-black focus:border-black outline-none transition-all placeholder:text-black/10"
                         value={formData.email}
                         onChange={(e) => setFormData({...formData, email: e.target.value})}
                       />
@@ -144,14 +144,14 @@ export default function AuthModal() {
                   </div>
 
                   <div className="space-y-3 group">
-                    <label className="text-[10px] uppercase tracking-[0.4em] text-black/20 ml-6 font-tech font-black group-focus-within:text-black transition-colors">ENCRYPTION_KEY</label>
+                    <label className="text-[10px] uppercase tracking-[0.4em] text-black/20 ml-6 font-mono font-bold group-focus-within:text-black transition-colors">ENCRYPTION_KEY</label>
                     <div className="relative">
                       <Lock className="absolute left-8 top-1/2 -translate-y-1/2 text-black/10" size={18} strokeWidth={1} />
                       <input 
                         type="password"
                         placeholder="••••••••••••"
                         required
-                        className="w-full bg-black/[0.01] border border-black/5 rounded-[2.5rem] py-6 pl-20 pr-8 text-sm font-mono text-black focus:border-black outline-none transition-all placeholder:text-black/10"
+                        className="w-full bg-neutral-50 border border-black/5 rounded-[2.5rem] py-6 pl-20 pr-8 text-sm font-mono text-black focus:border-black outline-none transition-all placeholder:text-black/10"
                         value={formData.password}
                         onChange={(e) => setFormData({...formData, password: e.target.value})}
                       />
@@ -163,7 +163,7 @@ export default function AuthModal() {
                   <button 
                     type="submit"
                     disabled={loading}
-                    className="w-full py-10 bg-black text-white font-tech font-black uppercase tracking-[0.8em] rounded-[3rem] text-[11px] flex items-center justify-center shadow-2xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-700 disabled:opacity-50 relative overflow-hidden group/btn"
+                    className="w-full py-10 bg-black text-white font-mono font-bold uppercase tracking-[0.8em] rounded-[3rem] text-[11px] flex items-center justify-center shadow-2xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-700 disabled:opacity-50 relative overflow-hidden group/btn"
                   >
                     <div className="absolute inset-0 bg-white/10 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-700" />
                     <span className="relative z-10 flex items-center">
@@ -182,7 +182,7 @@ export default function AuthModal() {
                     <button 
                       type="button"
                       onClick={toggleMode}
-                      className="text-[10px] uppercase tracking-[0.4em] font-black text-black/20 hover:text-black transition-all"
+                      className="text-[10px] uppercase tracking-[0.4em] font-bold text-black/20 hover:text-black transition-all"
                     >
                       {mode === 'login' ? (
                         <>NO_NODE_FOUND? <span className="underline underline-offset-8 ml-2 font-display italic tracking-tight">ESTABLISH_IDENTITY</span></>
@@ -194,20 +194,20 @@ export default function AuthModal() {
                     <div className="flex items-center space-x-6 pt-10 opacity-10">
                        <ShieldCheck size={20} strokeWidth={1} />
                        <div className="w-10 h-[1px] bg-black" />
-                       <span className="font-tech text-[8px] tracking-[0.4em] font-black uppercase">DINOSPY_SECURE_VAULT_v3.42</span>
+                       <span className="font-mono text-[8px] tracking-[0.4em] font-bold uppercase">DINOSPY_SECURE_VAULT_v3.42</span>
                     </div>
                   </div>
                 </div>
               </form>
 
-              <div className="pt-10 border-t border-white/5 mt-10">
-                 <div className="flex justify-between items-center text-[7px] uppercase tracking-[0.4em] font-black text-white/10">
+              <div className="pt-10 border-t border-black/5 mt-10">
+                 <div className="flex justify-between items-center text-[7px] uppercase tracking-[0.4em] font-bold text-black/10">
                    <div className="flex items-center">
-                     <div className="w-1 h-1 bg-gold rounded-full mr-2" />
+                     <div className="w-1 h-1 bg-black rounded-full mr-2" />
                      Encrypted
                    </div>
                    <div className="flex items-center">
-                     <div className="w-1 h-1 bg-gold rounded-full mr-2" />
+                     <div className="w-1 h-1 bg-black rounded-full mr-2" />
                      Verified
                    </div>
                  </div>

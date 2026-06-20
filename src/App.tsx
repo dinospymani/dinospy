@@ -82,9 +82,9 @@ const MaintenanceScreen = ({ isAdmin, onBypass }: { isAdmin: boolean; onBypass: 
   const { setIsAuthModalOpen } = useAuth();
   
   return (
-    <div className="h-screen w-full bg-ivory flex items-center justify-center p-6 relative overflow-hidden">
+    <div className="h-screen w-full bg-white flex items-center justify-center p-6 relative overflow-hidden">
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none" 
-           style={{ backgroundImage: 'radial-gradient(#c5a059 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
+           style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
       
       <div className="max-w-3xl w-full relative z-10 text-center">
         <motion.div
@@ -92,9 +92,9 @@ const MaintenanceScreen = ({ isAdmin, onBypass }: { isAdmin: boolean; onBypass: 
            animate={{ opacity: 1, y: 0 }}
            transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
         >
-          <span className="font-tech text-gold tracking-[0.6em] text-[10px] mb-8 block font-black uppercase">SYSTEM_CALIBRATION // STANDBY</span>
-          <h1 className="text-6xl md:text-8xl font-display mb-8 text-text italic leading-tight">Refining the <br /><span className="opacity-20 font-sans italic">Mechanical Soul.</span></h1>
-          <p className="text-text/40 text-lg md:text-xl font-light mb-16 max-w-xl mx-auto leading-relaxed">
+          <span className="font-mono text-black tracking-[0.6em] text-[10px] mb-8 block font-bold uppercase">SYSTEM_CALIBRATION // STANDBY</span>
+          <h1 className="text-6xl md:text-8xl font-display mb-8 text-black leading-tight font-medium">Refining the <br /><span className="opacity-10 text-black italic">Mechanical Soul.</span></h1>
+          <p className="text-black/40 text-lg md:text-xl font-light mb-16 max-w-xl mx-auto leading-relaxed">
             We are currently recalibrating the DINOSPY vault for an improved horological experience. The storefront will be restored momentarily.
           </p>
 
@@ -103,21 +103,21 @@ const MaintenanceScreen = ({ isAdmin, onBypass }: { isAdmin: boolean; onBypass: 
               <motion.div 
                 animate={{ x: [-100, 200] }}
                 transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                className="absolute inset-0 bg-gold/50 w-12"
+                className="absolute inset-0 bg-black/20 w-12"
               />
             </div>
             
             {isAdmin ? (
               <button 
                 onClick={onBypass}
-                className="btn-luxury px-12"
+                className="bg-black text-white px-12 py-5 rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-neutral-800 transition-all"
               >
                 BYPASS_VAULT_LOCK
               </button>
             ) : (
               <button 
                 onClick={() => setIsAuthModalOpen(true)}
-                className="font-tech text-[9px] tracking-[0.4em] text-text/40 hover:text-gold transition-colors font-bold"
+                className="font-mono text-[9px] tracking-[0.4em] text-black/40 hover:text-black transition-colors font-bold"
               >
                 SECURE_IDENTITY_VERIFICATION
               </button>
@@ -182,8 +182,8 @@ export default function App() {
             <Preloader />
             <SmoothScroll>
               <MaintenanceGuard>
-                <div className="min-h-screen bg-ivory text-text selection:bg-gold selection:text-white">
-                  <Toaster font-tech position="top-center" richColors />
+                <div className="min-h-screen bg-white text-black selection:bg-black selection:text-white">
+                  <Toaster position="top-center" richColors />
                   <AuthModal />
                   <AnimatedRoutes />
                   <FloatingBottomNav />

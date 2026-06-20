@@ -15,8 +15,8 @@ export const FloatingBottomNav = () => {
   ];
 
   return (
-    <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[45] md:hidden w-[90%] max-w-sm">
-      <div className="glass px-6 py-4 rounded-[2rem] luxury-shadow flex items-center justify-between border-white/40">
+    <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[45] md:hidden w-full px-6 max-w-md">
+      <div className="bg-black py-5 px-8 rounded-full shadow-2xl flex items-center justify-between border border-white/10">
         {navItems.map((item) => {
           const isActive = location.pathname === item.path;
           return (
@@ -26,14 +26,14 @@ export const FloatingBottomNav = () => {
                   scale: isActive ? 1.2 : 1,
                   y: isActive ? -4 : 0
                 }}
-                className={`p-2 rounded-xl transition-colors ${isActive ? 'text-gold' : 'text-text/40'}`}
+                className={`p-2 rounded-xl transition-colors ${isActive ? 'text-white' : 'text-white/40'}`}
               >
-                <item.icon size={20} strokeWidth={isActive ? 2 : 1.5} />
+                <item.icon size={18} strokeWidth={isActive ? 2.5 : 1.5} />
               </motion.div>
               {isActive && (
                 <motion.div 
                   layoutId="activeTab"
-                  className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-gold rounded-full"
+                  className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-white rounded-full"
                 />
               )}
             </Link>
@@ -42,4 +42,4 @@ export const FloatingBottomNav = () => {
       </div>
     </div>
   );
-};
+}

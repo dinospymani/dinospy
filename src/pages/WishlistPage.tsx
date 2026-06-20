@@ -41,7 +41,7 @@ export default function WishlistPage() {
   }, [wishlist]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-luxury-black">
+    <div className="min-h-screen flex flex-col bg-white text-black selection:bg-black selection:text-white">
       <Navbar />
       
       <main className="flex-grow pt-32 pb-40 max-w-[100%] mx-auto px-4 md:px-8 lg:px-10 w-full text-center sm:text-left">
@@ -52,7 +52,7 @@ export default function WishlistPage() {
           <div className="mb-8">
             <button 
               onClick={() => window.history.back()}
-              className="flex items-center space-x-2 text-white/60 hover:text-gold transition-colors p-2 -ml-2"
+              className="flex items-center space-x-2 text-black/40 hover:text-black transition-colors p-2 -ml-2"
             >
               <ArrowLeft size={20} />
               <span className="text-[10px] uppercase tracking-[0.2em] font-bold">Return</span>
@@ -60,26 +60,26 @@ export default function WishlistPage() {
           </div>
           <div className="flex justify-between items-end mb-12">
             <div>
-              <h1 className="text-5xl font-display gold-text">Private Archive</h1>
-              <p className="text-white/40 mt-2">Your curated selection of horological excellence.</p>
+              <h1 className="text-5xl font-display font-medium text-black">Private Archive</h1>
+              <p className="text-black/40 mt-2">Your curated selection of horological excellence.</p>
             </div>
             {loading && (
-              <Watch className="text-gold animate-pulse" size={24} />
+              <Watch className="text-black animate-pulse" size={24} />
             )}
           </div>
 
           {wishlist.length === 0 ? (
-            <div className="glass p-20 rounded-[3rem] text-center border border-white/5">
-              <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-8 border border-white/10">
-                <Heart className="text-white/20" size={32} />
+            <div className="bg-neutral-50 p-20 rounded-[3rem] text-center border border-black/5">
+              <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-8 border border-black/10">
+                <Heart className="text-black/10" size={32} />
               </div>
-              <h2 className="text-2xl font-display mb-4">Your wishlist is empty</h2>
-              <p className="text-white/40 mb-12 max-w-md mx-auto">
+              <h2 className="text-2xl font-display font-medium mb-4">Your wishlist is empty</h2>
+              <p className="text-black/40 mb-12 max-w-md mx-auto">
                 Save your favorite timepieces here to keep track of what moves you.
               </p>
               <Link 
-                to="/" 
-                className="inline-block px-10 py-5 glass border border-gold/20 text-gold font-bold uppercase tracking-widest hover:bg-gold hover:text-luxury-black transition-all"
+                to="/explore"
+                className="inline-block px-10 py-5 bg-black text-white font-bold uppercase tracking-widest hover:bg-neutral-800 transition-all rounded-full"
               >
                 Explore Collection
               </Link>

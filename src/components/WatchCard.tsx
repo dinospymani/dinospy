@@ -58,73 +58,77 @@ export default function WatchCard({ product }: WatchCardProps) {
       style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className="group relative h-full perspective-[1000px]"
+      className="group relative h-full perspective-[1000px] cursor-pointer"
     >
-      <div className="bg-graphite rounded-[3rem] p-8 md:p-10 luxury-shadow transition-all duration-700 hover:shadow-[0_80px_100px_-40px_rgba(0,0,0,0.4)] border border-white/5 flex flex-col h-full relative overflow-hidden">
+      <div className="bg-white rounded-[2rem] p-6 md:p-8 luxury-shadow transition-all duration-1000 hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.1)] border border-black/5 flex flex-col h-full relative overflow-hidden group/card scale-[0.98] hover:scale-100">
         
         {/* Luxury Background Detail */}
-        <div className="absolute top-0 right-0 p-8 opacity-[0.05] pointer-events-none -rotate-12 translate-x-1/4 -translate-y-1/4">
+        <div className="absolute top-0 right-0 p-8 opacity-[0.02] pointer-events-none -rotate-12 translate-x-1/4 -translate-y-1/4 group-hover/card:opacity-[0.05] transition-opacity duration-1000">
            <Star size={300} strokeWidth={1} />
         </div>
 
-        <div className="flex items-center justify-between mb-10 relative z-10 transition-transform duration-700 group-hover:translate-z-[40px]">
-          <span className="font-tech text-gold tracking-[0.4em] text-[9px] font-black uppercase">REF_{product.id.slice(-6)}</span>
-          <div className="flex items-center space-x-2">
+        <div className="flex items-center justify-between mb-8 relative z-10 transition-transform duration-700 translate-z-[40px]">
+          <span className="font-mono text-black/40 tracking-widest text-[9px] font-bold uppercase">CODE_{product.id.slice(-6)}</span>
+          <div className="flex items-center space-x-1 opacity-20">
             {[...Array(5)].map((_, i) => (
-              <Star key={i} size={8} className={`${i < Math.floor(product.rating) ? 'text-gold fill-gold' : 'text-white/5'}`} />
+              <Star key={i} size={8} className={`${i < Math.floor(product.rating) ? 'text-black fill-black' : 'text-black/10'}`} />
             ))}
           </div>
         </div>
 
         <Link 
           to={`/product/${product.id}`} 
-          className="relative aspect-[4/5] mb-12 rounded-[2rem] overflow-hidden group/img block transition-transform duration-700 group-hover:translate-z-[60px]"
+          className="relative aspect-square mb-10 rounded-2xl overflow-hidden group/img block transition-transform duration-700 translate-z-[60px] bg-[#fdfdfd]"
         >
           <motion.img 
             src={product.images[0]} 
             alt={product.name}
             className="w-full h-full object-cover transition-all duration-[2s] ease-[0.16,1,0.3,1] group-hover/img:scale-110"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover/img:opacity-100 transition-opacity duration-1000" />
+          <div className="absolute inset-0 bg-black/0 group-hover/img:bg-black/5 transition-colors duration-1000" />
           
-          <div className="absolute top-6 right-6">
-            <MagneticButton className="w-12 h-12 glass rounded-full flex items-center justify-center text-text shadow-xl">
-               <ArrowUpRight size={18} />
-            </MagneticButton>
+          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity duration-700">
+            <div className="w-16 h-16 rounded-full bg-white/90 backdrop-blur-md flex items-center justify-center text-black shadow-2xl scale-50 group-hover/img:scale-100 transition-transform duration-700">
+               <ArrowUpRight size={24} strokeWidth={1} />
+            </div>
           </div>
           
           {product.isLimited && (
-            <div className="absolute bottom-6 left-6 glass px-5 py-2 rounded-full backdrop-blur-md">
-               <span className="font-tech text-[8px] tracking-[0.2em] font-black text-text uppercase">LIMITED</span>
+            <div className="absolute bottom-6 left-6 bg-black px-5 py-2 rounded-full">
+               <span className="font-mono text-[8px] tracking-widest font-bold text-white uppercase">LIMITED</span>
             </div>
           )}
         </Link>
 
-        <div className="flex-grow space-y-6 relative z-10 transition-transform duration-700 group-hover:translate-z-[20px]">
+        <div className="flex-grow space-y-4 relative z-10 translate-z-[20px]">
           <div className="flex flex-col">
-            <span className="font-tech text-gold tracking-[0.2em] text-[10px] mb-2 uppercase">{product.brand}</span>
-            <h3 className="text-4xl font-display italic text-text leading-tight group-hover:text-gold transition-colors duration-700">
-              {product.name.split('_')[0]} <span className="opacity-20 font-sans italic">{product.name.split('_')[1] || ''}</span>
+            <span className="font-mono text-black/30 tracking-widest text-[9px] mb-2 uppercase font-bold">{product.brand}</span>
+            <h3 className="text-3xl font-display text-black leading-tight group-hover/card:translate-x-2 transition-transform duration-700">
+              {product.name}
             </h3>
           </div>
         </div>
 
-        <div className="mt-12 flex items-center justify-between relative z-10 transition-transform duration-700 group-hover:translate-z-[50px]">
+        <div className="mt-10 flex items-center justify-between relative z-10 translate-z-[50px]">
           <div className="flex flex-col">
-            <span className="font-tech text-text/30 text-[8px] mb-1 tracking-widest uppercase">VALU_VALUATION</span>
-            <span className="text-2xl font-tech tracking-tight font-black">
-               <span className="text-text/20 mr-1">INR.</span>
-               {discountPrice.toLocaleString()}
-            </span>
+            <span className="font-mono text-black/30 text-[8px] mb-1 tracking-widest uppercase font-bold">VALUATION</span>
+            <div className="flex items-baseline space-x-2">
+              <span className="text-2xl font-mono tracking-tighter font-black text-black">
+                ₹{discountPrice.toLocaleString()}
+              </span>
+              {product.discount && (
+                <span className="text-xs font-mono text-black/20 line-through">₹{product.price.toLocaleString()}</span>
+              )}
+            </div>
           </div>
 
           <MagneticButton 
             onClick={() => {
               if (!user) { setIsAuthModalOpen(true); return; }
               addToCart(product);
-              toast.success(`${product.name} added to vault`);
+              toast.success(`${product.name} Added to Vault`);
             }}
-            className="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center luxury-shadow hover:bg-gold transition-colors"
+            className="w-14 h-14 bg-black text-white rounded-full flex items-center justify-center luxury-shadow hover:bg-neutral-800 transition-all active:scale-90"
           >
             <Plus size={24} strokeWidth={1} />
           </MagneticButton>
