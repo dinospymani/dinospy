@@ -21,8 +21,8 @@ export default function Navbar() {
   const navLinks = [
     { to: "/explore", label: "COLLECTIONS" },
     { to: "/explore", label: "SHOP" },
-    { to: "/explore", label: "LIMITED EDITION" },
-    { to: "/about", label: "ABOUT" }
+    { to: "/#about", label: "ABOUT" },
+    { to: "/faq", label: "SUPPORT" }
   ];
 
   return (
@@ -35,7 +35,7 @@ export default function Navbar() {
       }}
       className="fixed top-0 left-0 w-full z-[100] flex items-center border-b transition-all duration-700"
     >
-      <div className="container mx-auto px-6 md:px-12 flex items-center justify-between">
+      <div className="w-full max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-between">
         
         {/* Left: Search & Wishlist */}
         <div className="hidden lg:flex items-center space-x-8">

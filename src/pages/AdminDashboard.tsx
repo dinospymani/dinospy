@@ -4,7 +4,7 @@ import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc, onSnapshot, que
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import MobileNav from '../components/MobileNav';
-import { Plus, Trash2, Edit, Save, Package, QrCode, Printer, X, Truck, Loader2, ChevronLeft, TrendingUp, DollarSign, ShoppingBag, AlertCircle, BarChart2, Bell, ArrowLeft, Megaphone, Check, Zap, Clock, Shield, Lock, Eye, EyeOff, Database, ArrowRight, ShieldAlert, AlertTriangle, ShieldCheck, Cpu, Activity, Wifi, Image as ImageIcon } from 'lucide-react';
+import { Plus, Trash2, Edit, Save, Package, QrCode, Printer, X, Truck, Loader2, ChevronLeft, TrendingUp, DollarSign, ShoppingBag, AlertCircle, BarChart2, Bell, ArrowLeft, Megaphone, Check, Zap, Clock, Shield, Lock, Eye, EyeOff, Database, ArrowRight, ShieldAlert, AlertTriangle, ShieldCheck, Cpu, Activity, Wifi, Image as ImageIcon, MessageSquare, Send } from 'lucide-react';
 import { motion } from 'motion/react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { QRCodeSVG } from 'qrcode.react';
@@ -54,8 +54,12 @@ export default function AdminDashboard() {
   const [orders, setOrders] = useState<AdminOrder[]>([]);
   const [notifications, setNotifications] = useState<any[]>([]);
   const [banners, setBanners] = useState<any[]>([]);
-  const [view, setView] = useState<'products' | 'orders' | 'add' | 'banners' | 'stats' | 'notifications' | 'broadcast' | 'coupons' | 'security'>('stats');
+  const [view, setView] = useState<'products' | 'orders' | 'add' | 'banners' | 'stats' | 'notifications' | 'broadcast' | 'coupons' | 'security' | 'support'>('stats');
   const [selectedOrder, setSelectedOrder] = useState<AdminOrder | null>(null);
+  const [supportChats, setSupportChats] = useState<any[]>([]);
+  const [activeSupportChat, setActiveSupportChat] = useState<string | null>(null);
+  const [supportMessages, setSupportMessages] = useState<any[]>([]);
+  const [replyText, setReplyText] = useState('');
   const [notificationFilter, setNotificationFilter] = useState<'all' | 'orders' | 'inventory'>('all');
   const [maintenanceStatus, setMaintenanceStatus] = useState(false);
   const [testMode, setTestMode] = useState(false);
@@ -210,12 +214,65 @@ export default function AdminDashboard() {
       console.warn("Coupon isolation active", error);
     });
 
+    // SUPPORT CHATS LISTENER
+    const unsubSupport = onSnapshot(collection(db, 'support_chats'), (snap) => {
+      setSupportChats(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    });
+
     return () => {
       unsubscribeOrders();
       unsubMaintenance();
       unsubCoupons();
+      unsubSupport();
     };
   }, []);
+
+  // Support Messages Effect
+  useEffect(() => {
+    if (!activeSupportChat || view !== 'support') return;
+
+    const qMsg = query(
+      collection(db, 'support_chats', activeSupportChat, 'messages'),
+      orderBy('timestamp', 'asc')
+    );
+    
+    const unsubscribe = onSnapshot(qMsg, (snap) => {
+      setSupportMessages(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    });
+
+    // Mark as read by admin
+    setDoc(doc(db, 'support_chats', activeSupportChat), { unreadByAdmin: false }, { merge: true });
+
+    return () => unsubscribe();
+  }, [activeSupportChat, view]);
+
+  const handleSendReply = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!activeSupportChat || !replyText.trim()) return;
+
+    const text = replyText.trim();
+    setReplyText('');
+
+    try {
+      await addDoc(collection(db, 'support_chats', activeSupportChat, 'messages'), {
+        text,
+        senderId: 'admin',
+        senderName: 'Vault Administrator',
+        timestamp: new Date().toISOString(),
+        isAdmin: true
+      });
+
+      await setDoc(doc(db, 'support_chats', activeSupportChat), {
+        lastMessage: text,
+        lastActive: new Date().toISOString(),
+        unreadByUser: true,
+        unreadByAdmin: false
+      }, { merge: true });
+
+    } catch (err) {
+      toast.error('Transmission failed.');
+    }
+  };
 
   const handleToggleMaintenance = async () => {
     setIsTogglingMaintenance(true);
@@ -918,6 +975,7 @@ export default function AdminDashboard() {
                 { id: 'products', label: 'INVENTORY', icon: Package },
                 { id: 'add', label: 'ARCHIVE', icon: Plus },
                 { id: 'notifications', label: 'FEED', icon: Bell, urgent: notifications.some(n => !n.read) },
+                { id: 'support', label: 'SUPPORT', icon: MessageSquare, urgent: supportChats.some(c => c.unreadByAdmin) },
                 { id: 'broadcast', label: 'SIGNAL', icon: Megaphone },
                 { id: 'banners', label: 'VISUALS', icon: Eye },
                 { id: 'coupons', label: 'PROTOCOLS', icon: Zap },
@@ -1805,6 +1863,113 @@ export default function AdminDashboard() {
                   </div>
                </div>
             </div>
+          )}
+          {view === 'support' && (
+             <div className="grid grid-cols-12 gap-12 animate-in fade-in duration-1000 h-[700px]">
+                {/* Chat List */}
+                <div className="col-span-12 lg:col-span-4 bg-charcoal/20 rounded-[4rem] border border-white/5 overflow-hidden flex flex-col luxury-shadow">
+                   <div className="p-10 border-b border-white/5 flex justify-between items-center">
+                      <h3 className="font-display italic text-2xl">Signal <span className="opacity-10 text-white font-sans italic">Hub.</span></h3>
+                      <span className="font-mono text-[9px] tracking-widest text-gold opacity-40 uppercase">{supportChats.length} NODES</span>
+                   </div>
+                   <div className="flex-grow overflow-y-auto no-scrollbar">
+                      {supportChats.sort((a,b) => {
+                        const dateA = a.lastActive?.toDate?.() || new Date(a.lastActive || 0);
+                        const dateB = b.lastActive?.toDate?.() || new Date(b.lastActive || 0);
+                        return dateB.getTime() - dateA.getTime();
+                      }).map(chat => (
+                         <button 
+                            key={chat.id}
+                            onClick={() => setActiveSupportChat(chat.id)}
+                            className={`w-full p-8 text-left border-b border-white/5 flex items-center space-x-6 transition-all duration-700 ${activeSupportChat === chat.id ? 'bg-gold/10 border-gold/20' : 'hover:bg-white/[0.02]'}`}
+                         >
+                            <div className="relative">
+                               <div className="w-14 h-14 rounded-full bg-noir flex items-center justify-center text-gold border border-white/5">
+                                  <User size={20} strokeWidth={1} />
+                               </div>
+                               {chat.unreadByAdmin && (
+                                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-gold rounded-full border-4 border-noir animate-pulse shadow-[0_0_15px_#c5a059]" />
+                               )}
+                            </div>
+                            <div className="flex-grow min-w-0">
+                               <div className="flex justify-between items-center mb-1">
+                                  <p className="font-mono text-xs text-text font-black truncate">{chat.userName || 'Anonymous Node'}</p>
+                                  <span className="font-mono text-[8px] text-text/20 uppercase">
+                                    {chat.lastActive ? (chat.lastActive.toDate?.() || new Date(chat.lastActive)).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
+                                  </span>
+                               </div>
+                               <p className="text-[11px] text-text/40 truncate italic tracking-tight">{chat.lastMessage || 'Channel established...'}</p>
+                            </div>
+                         </button>
+                      ))}
+                      {supportChats.length === 0 && (
+                         <div className="p-20 text-center opacity-20 space-y-4">
+                            <MessageSquare className="mx-auto" size={40} strokeWidth={1} />
+                            <p className="font-tech text-[9px] tracking-widest uppercase">No active signals.</p>
+                         </div>
+                      )}
+                   </div>
+                </div>
+
+                {/* Chat Window */}
+                <div className="col-span-12 lg:col-span-8 bg-noir rounded-[4rem] border border-white/5 overflow-hidden flex flex-col luxury-shadow relative">
+                   {activeSupportChat ? (
+                      <>
+                         <div className="p-10 border-b border-white/5 bg-charcoal/20 flex justify-between items-center">
+                            <div className="flex items-center space-x-6">
+                               <div className="w-12 h-12 rounded-full bg-gold/10 flex items-center justify-center text-gold">
+                                  <ShieldCheck size={20} strokeWidth={1} />
+                               </div>
+                               <div>
+                                  <p className="font-mono text-xs text-text font-black uppercase">SECURE_CHANNEL // {supportChats.find(c => c.id === activeSupportChat)?.userEmail}</p>
+                                  <p className="font-tech text-gold opacity-40 text-[9px] tracking-widest uppercase">Encryption: AES_256</p>
+                               </div>
+                            </div>
+                         </div>
+                         
+                         <div className="flex-grow p-10 overflow-y-auto space-y-8 no-scrollbar bg-charcoal/[0.02]">
+                            {supportMessages.map(msg => (
+                               <div key={msg.id} className={`flex ${msg.isAdmin ? 'justify-end' : 'justify-start'}`}>
+                                  <div className={`max-w-[70%] p-6 rounded-[2.5rem] ${msg.isAdmin ? 'bg-gold text-noir shadow-[0_0_40px_rgba(197,160,89,0.2)]' : 'bg-charcoal/40 border border-white/5 text-text'}`}>
+                                     <p className="text-sm font-light leading-relaxed">{msg.text}</p>
+                                     <p className={`text-[8px] font-mono mt-3 opacity-30 ${msg.isAdmin ? 'text-noir' : 'text-text'}`}>
+                                        {msg.timestamp ? (typeof msg.timestamp === 'string' ? new Date(msg.timestamp).toLocaleTimeString() : msg.timestamp.toDate?.().toLocaleTimeString()) : 'SYNCING'}
+                                     </p>
+                                  </div>
+                               </div>
+                            ))}
+                         </div>
+
+                         <form onSubmit={handleSendReply} className="p-8 bg-charcoal/20 border-t border-white/5">
+                            <div className="relative">
+                               <input 
+                                  type="text"
+                                  value={replyText}
+                                  onChange={(e) => setReplyText(e.target.value)}
+                                  placeholder="Broadcast signal..."
+                                  className="w-full bg-noir border border-white/5 rounded-full py-6 px-10 pr-20 text-sm font-light text-text focus:border-gold/50 outline-none transition-all"
+                               />
+                               <button 
+                                  type="submit"
+                                  disabled={!replyText.trim()}
+                                  className="absolute right-3 top-1/2 -translate-y-1/2 w-14 h-14 bg-gold text-noir rounded-full flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-xl disabled:opacity-20"
+                               >
+                                  <Send size={20} strokeWidth={2} />
+                               </button>
+                            </div>
+                         </form>
+                      </>
+                   ) : (
+                      <div className="h-full flex flex-col items-center justify-center text-center p-20 opacity-10 space-y-8">
+                         <MessageSquare size={120} strokeWidth={0.5} />
+                         <div className="space-y-4">
+                            <h3 className="text-4xl font-display italic">Awaiting Selection.</h3>
+                            <p className="font-tech text-xs tracking-widest uppercase">Select a node to initiate secure communication.</p>
+                         </div>
+                      </div>
+                   )}
+                </div>
+             </div>
           )}
           {view === 'security' && (
             <div className="space-y-20 animate-in fade-in duration-1000">

@@ -12,7 +12,7 @@ export const LuxuryStory = () => {
 
   return (
     <section ref={container} className="py-40 bg-white overflow-hidden border-y border-black/5">
-      <div className="container mx-auto px-6 md:px-12">
+      <div className="w-full max-w-7xl mx-auto px-6 md:px-12">
         <div className="grid grid-cols-12 gap-12 items-center">
           <div className="col-span-12 lg:col-span-7">
              <div className="flex items-center space-x-6 mb-12 opacity-40">

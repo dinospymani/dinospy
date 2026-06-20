@@ -119,9 +119,69 @@ export default function HomePage() {
 
         <LuxuryStory />
 
+        {/* The Heritage (About) Section */}
+        <section id="about" className="py-40 bg-neutral-50 overflow-hidden relative w-full">
+          <div className="absolute inset-0 opacity-[0.02] pointer-events-none" 
+               style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+          
+          <div className="w-full max-w-7xl mx-auto px-6 md:px-12 relative z-10">
+            <div className="grid grid-cols-12 gap-16 md:gap-24 items-center">
+              <div className="col-span-12 lg:col-span-6 order-2 lg:order-1">
+                 <div className="space-y-12">
+                   <div className="flex items-center space-x-6">
+                      <div className="w-1.5 h-1.5 bg-black rounded-full" />
+                      <span className="font-mono text-xs tracking-widest uppercase text-black font-bold">THE_HERITAGE // ABOUT_US</span>
+                   </div>
+                   <h2 className="text-6xl md:text-8xl font-display font-medium text-black leading-tight">
+                     Architects of <br /><span className="opacity-10 text-black italic">Infinite Time.</span>
+                   </h2>
+                   <div className="space-y-8 text-black/60 text-lg md:text-xl font-light leading-relaxed max-w-xl">
+                      <p>
+                        Established in the nexus of advanced metallurgy and traditional horology, DINOSPY was born from a singular vision: to liberate the timepiece from the constraints of the past.
+                      </p>
+                      <p>
+                        Our laboratory doesn't just assemble watches; we engineer mechanical philosophies. By blending aerospace-grade materials with hand-finished complications, we create instruments that don't just measure time—they command it.
+                      </p>
+                   </div>
+                   <div className="flex flex-wrap gap-12 pt-8">
+                      <div className="space-y-4">
+                         <span className="text-4xl font-display font-medium text-black">2012</span>
+                         <p className="font-mono text-[9px] tracking-widest text-black/30 uppercase font-black">ESTABLISHED</p>
+                      </div>
+                      <div className="space-y-4">
+                         <span className="text-4xl font-display font-medium text-black">18k+</span>
+                         <p className="font-mono text-[9px] tracking-widest text-black/30 uppercase font-black">COLLECTORS</p>
+                      </div>
+                      <div className="space-y-4">
+                         <span className="text-4xl font-display font-medium text-black">42</span>
+                         <p className="font-mono text-[9px] tracking-widest text-black/30 uppercase font-black">PATENTS</p>
+                      </div>
+                   </div>
+                 </div>
+              </div>
+              <div className="col-span-12 lg:col-span-6 order-1 lg:order-2">
+                 <div className="relative">
+                    <div className="absolute -inset-4 border border-black/5 rounded-[4rem] -rotate-3" />
+                    <div className="relative rounded-[3.5rem] overflow-hidden aspect-[4/5] shadow-2xl group border border-black/5">
+                       <img 
+                          src="https://images.unsplash.com/photo-1549439602-43ebca2327af?auto=format&fit=crop&q=80" 
+                          className="w-full h-full object-cover grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-110 transition-all duration-[3s]"
+                          alt="Watch engineering"
+                       />
+                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000 p-12 flex flex-col justify-end">
+                          <p className="text-white font-mono text-[10px] tracking-widest uppercase font-bold">MANUFACTORY_CENTER // SWITZERLAND</p>
+                          <p className="text-white/60 text-sm mt-4 italic font-display">Precision is our only currency.</p>
+                       </div>
+                    </div>
+                 </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Why DINOSPY: Interactive Grid */}
-        <section className="py-40 bg-white">
-          <div className="container mx-auto px-6 md:px-12">
+        <section className="py-40 bg-white w-full">
+          <div className="w-full max-w-7xl mx-auto px-6 md:px-12">
             <div className="flex flex-col items-center text-center mb-24 max-w-2xl mx-auto">
                <div className="flex items-center space-x-6 mb-8 opacity-40">
                  <div className="w-1.5 h-1.5 bg-black rounded-full shadow-[0_0_10px_rgba(0,0,0,0.1)]" />

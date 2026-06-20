@@ -19,6 +19,7 @@ import FAQPage from './pages/FAQPage';
 import { SmoothScroll } from './components/SmoothScroll';
 import { Preloader } from './components/Preloader';
 import { FloatingBottomNav } from './components/FloatingBottomNav';
+import SupportChat from './components/SupportChat';
 import GlobalLoader from './components/GlobalLoader';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from './context/AuthContext';
@@ -39,6 +40,7 @@ const PageTransition: React.FC<{ children: React.ReactNode }> = ({ children }) =
     initial={{ opacity: 0, y: 30 }}
     animate={{ opacity: 1, y: 0 }}
     exit={{ opacity: 0, y: -30 }}
+    className="w-full"
     transition={{ 
       duration: 1, 
       ease: [0.76, 0, 0.24, 1] 
@@ -53,7 +55,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode; adminOnly?: boolean 
   
   if (loading) return <GlobalLoader />;
   if (!user) return <Navigate to="/" />;
-  if (adminOnly && profile?.role !== 'admin' && user?.email !== 'manikanta5sy@gmail.com') return <Navigate to="/" />;
+  if (adminOnly && profile?.role !== 'admin' && profile?.role !== 'support' && user?.email !== 'manikanta5sy@gmail.com') return <Navigate to="/" />;
   
   return <>{children}</>;
 };
@@ -182,11 +184,12 @@ export default function App() {
             <Preloader />
             <SmoothScroll>
               <MaintenanceGuard>
-                <div className="min-h-screen bg-white text-black selection:bg-black selection:text-white">
+                <div className="min-h-screen w-full bg-white text-black selection:bg-black selection:text-white relative flex flex-col">
                   <Toaster position="top-center" richColors />
                   <AuthModal />
                   <AnimatedRoutes />
                   <FloatingBottomNav />
+                  <SupportChat />
                 </div>
               </MaintenanceGuard>
             </SmoothScroll>

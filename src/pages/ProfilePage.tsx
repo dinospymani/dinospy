@@ -182,7 +182,7 @@ export default function ProfilePage() {
     <div className="min-h-screen bg-white text-black selection:bg-black selection:text-white">
       <Navbar />
       
-      <main className="container mx-auto px-6 md:px-12 pt-40 pb-32">
+      <main className="w-full max-w-7xl mx-auto px-6 md:px-12 pt-40 pb-32">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 md:gap-24">
           
           {/* Identity Hub */}
@@ -235,15 +235,15 @@ export default function ProfilePage() {
                  <span className="font-mono text-black opacity-40 text-[10px] tracking-[0.5em] uppercase font-bold">Security_Interfaces</span>
               </div>
               <div className="grid grid-cols-1 gap-6">
-                {(profile?.role === 'admin' || user?.email === 'manikanta5sy@gmail.com') && (
+                {(profile?.role === 'admin' || profile?.role === 'support' || user?.email === 'manikanta5sy@gmail.com') && (
                   <Link to="/admin" className="flex items-center justify-between p-10 bg-black text-white rounded-[3.5rem] group/admin transition-all duration-700 hover:scale-[1.02] shadow-2xl">
                     <div className="flex items-center space-x-8">
                        <div className="w-14 h-14 rounded-full bg-white/10 text-white flex items-center justify-center">
                           <Shield size={24} strokeWidth={1} />
                        </div>
                        <div className="space-y-1">
-                          <p className="font-mono text-[10px] tracking-[0.5em] font-bold uppercase">Admin_Root</p>
-                          <p className="text-sm font-display italic opacity-60">Corporate Command Core</p>
+                          <p className="font-mono text-[10px] tracking-[0.5em] font-bold uppercase">Command_Core</p>
+                          <p className="text-sm font-display italic opacity-60">Management & Support Portals</p>
                        </div>
                     </div>
                     <ChevronRight size={24} className="group-hover:translate-x-2 transition-transform" />
@@ -276,7 +276,7 @@ export default function ProfilePage() {
               transition={{ delay: 0.3 }}
               className="space-y-16"
             >
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-10 mb-20 border-b border-black/5 pb-20">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-10 mb-20 border-b border-black/5 pb-20 w-full">
                 <div className="space-y-8">
                   <div className="flex items-center space-x-6">
                     <div className="w-4 h-4 bg-black rounded-full animate-pulse" />
