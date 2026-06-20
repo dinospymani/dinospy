@@ -1,10 +1,11 @@
-import React from 'react';
-import { motion } from 'motion/react';
-import { Heart, ShoppingBag, Star, Share2 } from 'lucide-react';
+import React, { useRef, useState } from 'react';
+import { motion, useMotionValue, useSpring, useTransform } from 'motion/react';
+import { Heart, ShoppingBag, Star, Share2, Plus, ArrowUpRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'sonner';
+import { MagneticButton } from './MagneticButton';
 
 interface WatchCardProps {
   product: {
@@ -13,98 +14,120 @@ interface WatchCardProps {
     brand: string;
     price: number;
     discount?: number;
-    isOffer?: boolean;
     images: string[];
     category: string;
     rating: number;
-    stock?: number;
     isLimited?: boolean;
+    stock?: number;
   };
 }
 
 export default function WatchCard({ product }: WatchCardProps) {
-  const { addToCart, wishlist, toggleWishlist } = useCart();
+  const { addToCart, wishlist } = useCart();
   const { user, setIsAuthModalOpen } = useAuth();
   const isWishlisted = wishlist.includes(product.id);
   const discountPrice = Math.round(product.discount ? product.price * (1 - product.discount / 100) : product.price);
-  const isLowStock = product.stock !== undefined && product.stock > 0 && product.stock <= 3;
-  const isOutOfStock = product.stock !== undefined && product.stock === 0;
+  
+  // 3D Tilt Effect
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const mouseXSpring = useSpring(x);
+  const mouseYSpring = useSpring(y);
+  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["7deg", "-7deg"]);
+  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-7deg", "7deg"]);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    const xPct = mouseX / width - 0.5;
+    const yPct = mouseY / height - 0.5;
+    x.set(xPct);
+    y.set(yPct);
+  };
+
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
 
   return (
     <motion.div 
-      initial={{ opacity: 0 }}
-      whileInView={{ opacity: 1 }}
-      viewport={{ once: true }}
-      className="group flex flex-col h-full bg-white border border-black/5 p-6 md:p-8 transition-all duration-1000 hover:border-black/20 relative"
+      style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      className="group relative h-full perspective-[1000px]"
     >
-      {/* Identification Header */}
-      <div className="flex items-center justify-between mb-8 md:mb-12 opacity-40 group-hover:opacity-100 transition-opacity duration-1000">
-        <div className="flex items-center space-x-6">
-          <div className="w-2 h-2 bg-black rounded-full animate-pulse" />
-          <span className="font-tech">REF_{product.id.slice(-6).toUpperCase()}</span>
-        </div>
-        <span className="font-tech">CHAPTER_0{product.category === 'classic' ? '1' : '2'}</span>
-      </div>
-
-      <Link to={`/product/${product.id}`} className="block aspect-[3/4] overflow-hidden relative mb-10 md:mb-16 bg-[#F9F9F9] group/img">
-        <motion.img 
-          src={product.images[0]} 
-          alt={product.name}
-          className="w-full h-full object-cover grayscale brightness-110 contrast-[1.1] transition-all duration-[3s] ease-[0.16,1,0.3,1] group-hover/img:scale-105 group-hover/img:brightness-100 group-hover/img:grayscale-0"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent opacity-40" />
+      <div className="bg-graphite rounded-[3rem] p-8 md:p-10 luxury-shadow transition-all duration-700 hover:shadow-[0_80px_100px_-40px_rgba(0,0,0,0.4)] border border-white/5 flex flex-col h-full relative overflow-hidden">
         
-        {/* Cinematic Label */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center opacity-0 group-hover/img:opacity-100 transition-all duration-1000 scale-150 group-hover/img:scale-100">
-           <span className="font-tech text-black text-[10px] tracking-[1.5em] translate-x-[0.75em] mb-4">MATERIALIZE</span>
-           <div className="w-16 h-[1px] bg-black" />
+        {/* Luxury Background Detail */}
+        <div className="absolute top-0 right-0 p-8 opacity-[0.05] pointer-events-none -rotate-12 translate-x-1/4 -translate-y-1/4">
+           <Star size={300} strokeWidth={1} />
         </div>
 
-        {/* Limited Flag */}
-        {product.isLimited && (
-          <div className="absolute top-4 left-4 bg-black text-white px-4 py-2 font-tech text-[8px] tracking-widest font-bold">
-            LTD_EDITION
+        <div className="flex items-center justify-between mb-10 relative z-10 transition-transform duration-700 group-hover:translate-z-[40px]">
+          <span className="font-tech text-gold tracking-[0.4em] text-[9px] font-black uppercase">REF_{product.id.slice(-6)}</span>
+          <div className="flex items-center space-x-2">
+            {[...Array(5)].map((_, i) => (
+              <Star key={i} size={8} className={`${i < Math.floor(product.rating) ? 'text-gold fill-gold' : 'text-white/5'}`} />
+            ))}
           </div>
-        )}
-      </Link>
-
-      <div className="flex flex-col flex-grow">
-        <div className="space-y-4 md:space-y-6 mb-10 md:mb-16">
-          <span className="font-tech text-black/20 tracking-[0.3em] md:tracking-[0.5em] group-hover:text-black transition-colors duration-1000 text-[8px] md:text-[10px]">{product.brand} // CALIBER_CORE</span>
-          <h3 className="text-4xl md:text-6xl italic font-display leading-[0.8] md:leading-[0.7] tracking-tightest group-hover:text-black/80 transition-all duration-1000 uppercase">
-            {product.name}
-          </h3>
         </div>
-        
-        <div className="mt-auto pt-8 md:pt-12 border-t border-black/5 flex items-center justify-between">
+
+        <Link 
+          to={`/product/${product.id}`} 
+          className="relative aspect-[4/5] mb-12 rounded-[2rem] overflow-hidden group/img block transition-transform duration-700 group-hover:translate-z-[60px]"
+        >
+          <motion.img 
+            src={product.images[0]} 
+            alt={product.name}
+            className="w-full h-full object-cover transition-all duration-[2s] ease-[0.16,1,0.3,1] group-hover/img:scale-110"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover/img:opacity-100 transition-opacity duration-1000" />
+          
+          <div className="absolute top-6 right-6">
+            <MagneticButton className="w-12 h-12 glass rounded-full flex items-center justify-center text-text shadow-xl">
+               <ArrowUpRight size={18} />
+            </MagneticButton>
+          </div>
+          
+          {product.isLimited && (
+            <div className="absolute bottom-6 left-6 glass px-5 py-2 rounded-full backdrop-blur-md">
+               <span className="font-tech text-[8px] tracking-[0.2em] font-black text-text uppercase">LIMITED</span>
+            </div>
+          )}
+        </Link>
+
+        <div className="flex-grow space-y-6 relative z-10 transition-transform duration-700 group-hover:translate-z-[20px]">
           <div className="flex flex-col">
-            <span className="font-tech text-[8px] text-black/20 mb-1 md:mb-2">VALUATION_UNIT</span>
-            <span className="text-2xl md:text-4xl font-tech tracking-tight">INR_{discountPrice.toLocaleString()}</span>
+            <span className="font-tech text-gold tracking-[0.2em] text-[10px] mb-2 uppercase">{product.brand}</span>
+            <h3 className="text-4xl font-display italic text-text leading-tight group-hover:text-gold transition-colors duration-700">
+              {product.name.split('_')[0]} <span className="opacity-20 font-sans italic">{product.name.split('_')[1] || ''}</span>
+            </h3>
+          </div>
+        </div>
+
+        <div className="mt-12 flex items-center justify-between relative z-10 transition-transform duration-700 group-hover:translate-z-[50px]">
+          <div className="flex flex-col">
+            <span className="font-tech text-text/30 text-[8px] mb-1 tracking-widest uppercase">VALU_VALUATION</span>
+            <span className="text-2xl font-tech tracking-tight font-black">
+               <span className="text-text/20 mr-1">INR.</span>
+               {discountPrice.toLocaleString()}
+            </span>
           </div>
 
-          <motion.button 
-            whileTap={{ scale: 0.9 }}
-            onClick={(e) => {
-              e.preventDefault();
-              if (!user) {
-                setIsAuthModalOpen(true);
-                return;
-              }
-              if (isOutOfStock) return;
+          <MagneticButton 
+            onClick={() => {
+              if (!user) { setIsAuthModalOpen(true); return; }
               addToCart(product);
+              toast.success(`${product.name} added to vault`);
             }}
-            className={`w-20 h-20 rounded-full border flex items-center justify-center transition-all duration-1000 ${
-              isOutOfStock 
-                ? 'border-black/5 text-black/10 cursor-not-allowed' 
-                : 'border-black/10 text-black/40 hover:bg-black hover:text-white hover:border-black'
-            }`}
+            className="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center luxury-shadow hover:bg-gold transition-colors"
           >
-            {isWishlisted ? (
-              <Heart fill="black" size={14} className="text-white" />
-            ) : (
-              <span className="font-tech text-[8px] tracking-widest">{isOutOfStock ? 'OFF' : 'ADD'}</span>
-            )}
-          </motion.button>
+            <Plus size={24} strokeWidth={1} />
+          </MagneticButton>
         </div>
       </div>
     </motion.div>

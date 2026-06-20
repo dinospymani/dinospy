@@ -1,190 +1,166 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence, useScroll, useTransform } from 'motion/react';
-import { Heart, User, ShoppingBag, ShieldCheck, Palette, Monitor, History, Menu, X } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { ShoppingBag, Search, Heart, User, Menu, X, Plus } from 'lucide-react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
-import { useTheme } from '../context/ThemeContext';
+import { MagneticButton } from './MagneticButton';
 
 export default function Navbar() {
-  const { user, profile, setIsAuthModalOpen } = useAuth();
+  const { user, setIsAuthModalOpen } = useAuth();
   const { cartCount } = useCart();
   const { scrollY } = useScroll();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const location = useLocation();
 
-  // Decorative scroll reactive values
-  const navPadding = useTransform(scrollY, [0, 100], ['3rem', '1.5rem']);
-  const navBlur = useTransform(scrollY, [0, 100], ['blur(0px)', 'blur(40px)']);
-  const navBg = useTransform(scrollY, [0, 100], ['rgba(255,255,255,0)', 'rgba(255,255,255,0.8)']);
+  const navHeight = useTransform(scrollY, [0, 100], ['6rem', '4.5rem']);
+  const navBg = useTransform(scrollY, [0, 100], ['rgba(10, 10, 10, 0)', 'rgba(10, 10, 10, 0.9)']);
+  const navBlur = useTransform(scrollY, [0, 100], ['blur(0px)', 'blur(20px)']);
+  const navBorder = useTransform(scrollY, [0, 100], ['rgba(255,255,255,0)', 'rgba(255,255,255,0.05)']);
+
+  const navLinks = [
+    { to: "/explore", label: "COLLECTION" },
+    { to: "/explore", label: "MECHANICAL" },
+    { to: "/faq", label: "ARCHIVE" }
+  ];
 
   return (
     <motion.nav 
       style={{ 
-        paddingTop: navPadding, 
-        paddingBottom: navPadding,
+        height: navHeight,
         backgroundColor: navBg,
-        backdropFilter: navBlur
+        backdropFilter: navBlur,
+        borderBottomColor: navBorder
       }}
-      className="fixed top-0 left-0 w-full z-[100] transition-all duration-1000 border-b border-black/0 hover:border-black/5"
+      className="fixed top-0 left-0 w-full z-[100] flex items-center border-b transition-all duration-700"
     >
-      <div className="container mx-auto px-6">
-        <div className="flex items-center justify-between">
-          <Link to="/" className="flex items-center space-x-6 group">
-            <div className="w-10 h-10 border border-black/20 flex items-center justify-center p-1 relative overflow-hidden group-hover:border-black transition-colors duration-1000">
-               <motion.div 
-                 animate={{ rotate: 360, scale: [1, 1.1, 1] }}
-                 transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                 className="w-full h-full border border-black/5 border-t-black/60 rounded-full" 
-               />
-               <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-1 h-1 bg-black rounded-full animate-pulse" />
-               </div>
-            </div>
-            <div className="flex flex-col">
-               <span className="font-tech text-black text-sm tracking-[1em] group-hover:tracking-[1.2em] transition-all duration-1000">DINOSPY.</span>
-               <span className="font-tech text-[6px] text-black/20 tracking-tighter">EST_2026 // MONOLITH_V3</span>
-            </div>
+      <div className="container mx-auto px-6 md:px-12 flex items-center justify-between">
+        
+        {/* Left: Search & Wishlist */}
+        <div className="hidden lg:flex items-center space-x-8">
+          <MagneticButton className="p-2 text-text/60 hover:text-gold transition-colors">
+            <Search size={20} strokeWidth={1.5} />
+          </MagneticButton>
+          <Link to="/wishlist">
+            <MagneticButton className="p-2 text-text/60 hover:text-gold transition-colors">
+              <Heart size={20} strokeWidth={1.5} />
+            </MagneticButton>
           </Link>
+        </div>
 
-          <div className="hidden lg:flex items-center space-x-24">
-            {[
-              { to: "/explore", label: "REFERENCE_INDEX" },
-              { to: "/wishlist", label: "SAVED_ARTIFACTS" },
-              { to: "/explore", label: "MECHANICAL_CORE" },
-              ...(profile?.role === 'admin' || user?.email === 'manikanta5sy@gmail.com' ? [{ to: "/admin", label: "ADMIN_CONSOLE" }] : [])
-            ].map((link) => (
+        {/* Center: Logo */}
+        <Link to="/" className="flex flex-col items-center group">
+          <span className="font-display text-2xl md:text-3xl tracking-[0.6em] text-text font-black uppercase transition-all duration-700 group-hover:tracking-[0.8em]">
+            DINOSPY
+          </span>
+          <div className="flex items-center space-x-2 opacity-20 group-hover:opacity-100 transition-opacity duration-700">
+             <div className="w-8 h-[1px] bg-gold" />
+             <span className="font-tech text-xs tracking-widest uppercase">HOROLOGY</span>
+             <div className="w-8 h-[1px] bg-gold" />
+          </div>
+        </Link>
+
+        {/* Right: Actions */}
+        <div className="flex items-center space-x-6 md:space-x-10">
+          <div className="hidden lg:flex items-center space-x-12 mr-12">
+            {navLinks.map((link) => (
               <Link 
                 key={link.label}
-                to={link.to} 
-                className="font-tech text-[10px] text-black/40 hover:text-black transition-all duration-1000 hover:tracking-[0.6em] relative group/link"
+                to={link.to}
+                className="font-tech text-[10px] tracking-[0.4em] text-text/40 hover:text-gold transition-all duration-500 uppercase link-hover"
               >
                 {link.label}
-                <div className="absolute -bottom-4 left-0 w-0 h-[1px] bg-black group-hover:w-full transition-all duration-1000" />
               </Link>
             ))}
           </div>
 
-          <div className="flex items-center space-x-12">
-            <div className="hidden md:flex flex-col items-end mr-8 opacity-20 hover:opacity-100 transition-opacity duration-1000">
-               <span className="font-tech text-[7px] tracking-widest">SYSTEM_STABLE</span>
-               <span className="font-tech text-[7px] text-black/60">SECURE_TRANSIT_ON</span>
-            </div>
-
+          <div className="flex items-center space-x-6">
             {user ? (
-               <Link to="/profile" className="w-12 h-12 rounded-full border border-black/10 flex items-center justify-center transition-all duration-1000 hover:bg-black hover:text-white">
-                  <User size={14} strokeWidth={1} />
+               <Link to="/profile">
+                  <MagneticButton className="w-10 h-10 rounded-full border border-black/5 flex items-center justify-center hover:bg-black hover:text-white transition-all">
+                    <User size={18} strokeWidth={1.5} />
+                  </MagneticButton>
                </Link>
             ) : (
               <button 
                 onClick={() => setIsAuthModalOpen(true)}
-                className="font-tech text-[8px] text-black/40 border border-black/10 px-10 py-4 transition-all duration-1000 hover:bg-black hover:text-white tracking-[0.5em]"
+                className="hidden md:block font-tech text-[9px] tracking-[0.3em] font-black text-text/40 hover:text-gold transition-colors"
               >
-                AUTH_L1
+                IDENTITY_VAULT
               </button>
             )}
 
-            <Link to="/cart" className="flex items-center space-x-4 group/cart">
-               <div className="w-12 h-12 rounded-full border border-black/5 flex items-center justify-center group-hover/cart:bg-black group-hover/cart:text-white transition-all duration-1000 relative">
-                  <ShoppingBag size={14} strokeWidth={1} />
-                  {cartCount > 0 && (
-                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-black text-white text-[9px] font-tech flex items-center justify-center rounded-full">
-                       {cartCount}
-                    </span>
-                  )}
-               </div>
+            <Link to="/cart">
+              <MagneticButton className="relative p-2 text-text hover:text-gold transition-colors">
+                <ShoppingBag size={22} strokeWidth={1.5} />
+                {cartCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-gold text-white text-[8px] flex items-center justify-center rounded-full font-black">
+                    {cartCount}
+                  </span>
+                )}
+              </MagneticButton>
             </Link>
 
             <button 
-              className="lg:hidden w-12 h-12 flex items-center justify-center border border-black/10 rounded-full"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="lg:hidden p-2 text-text"
+              onClick={() => setIsMobileMenuOpen(true)}
             >
-              <Menu size={16} />
+               <Menu size={24} />
             </button>
           </div>
         </div>
       </div>
 
+      {/* Mobile Drawer Navigation */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
-            initial={{ opacity: 0, scale: 1.1 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 1.1 }}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed inset-0 z-[200] bg-white flex flex-col p-12"
+            initial={{ x: '100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '100%' }}
+            transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1] }}
+            className="fixed inset-0 z-[110] bg-noir flex flex-col p-12 lg:hidden"
           >
-            <div className="absolute inset-0 opacity-[0.03] pointer-events-none overflow-hidden">
-               <div className="grid grid-cols-12 h-full">
-                  {[...Array(12)].map((_, i) => (
-                    <div key={i} className="border-r border-black h-full" />
-                  ))}
-               </div>
+            <div className="flex justify-between items-center mb-24">
+              <span className="font-display text-xl tracking-[0.6em] text-text font-black uppercase">DINOSPY</span>
+              <button 
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center"
+              >
+                <X size={20} />
+              </button>
             </div>
 
-            <div className="flex items-center justify-between mb-24 relative z-10">
-               <div className="flex flex-col">
-                  <span className="font-tech text-black text-sm tracking-[1em]">DINOSPY.</span>
-                  <span className="font-tech text-[6px] text-black/20 tracking-tighter">MOBILE_TERMINAL_V3</span>
-               </div>
-               <button 
-                 onClick={() => setIsMobileMenuOpen(false)}
-                 className="w-16 h-16 flex items-center justify-center border border-black/10 rounded-full bg-white shadow-xl active:scale-90 transition-transform"
-               >
-                 <X size={24} strokeWidth={1} />
-               </button>
-            </div>
-
-            <nav className="flex flex-col space-y-12 relative z-10">
-               {[
-                 { to: "/explore", label: "REFERENCE_INDEX" },
-                 { to: "/wishlist", label: "SAVED_ARTIFACTS" },
-                 { to: "/explore", label: "MECHANICAL_CORE" },
-                 { to: "/profile", label: "USER_PROTOCOL" },
-                 ...(profile?.role === 'admin' || user?.email === 'manikanta5sy@gmail.com' ? [{ to: "/admin", label: "ADMIN_OVERRIDE" }] : [])
-               ].map((item, i) => (
+            <nav className="flex flex-col space-y-12">
+               {navLinks.map((link, i) => (
                  <motion.div
-                   key={item.label}
-                   initial={{ opacity: 0, x: -40 }}
-                   animate={{ opacity: 1, x: 0 }}
-                   transition={{ delay: 0.2 + (i * 0.1), duration: 0.8, ease: "easeOut" }}
+                   key={link.label}
+                   initial={{ opacity: 0, y: 20 }}
+                   animate={{ opacity: 1, y: 0 }}
+                   transition={{ delay: 0.2 + i * 0.1 }}
                  >
                    <Link 
-                     to={item.to} 
-                     className="block group"
+                     to={link.to}
                      onClick={() => setIsMobileMenuOpen(false)}
+                     className="text-5xl font-display italic text-text hover:text-gold transition-colors"
                    >
-                     <div className="flex flex-col">
-                        <span className="text-[10px] font-tech text-black/20 tracking-[0.5em] mb-4">0{i+1}__{item.label}</span>
-                        <span className="text-5xl font-display italic text-black leading-none group-active:translate-x-4 transition-transform duration-500">
-                          {item.label.split('_')[0]} <span className="opacity-10">{item.label.split('_')[1] || ''}</span>
-                        </span>
-                     </div>
+                     {link.label}
                    </Link>
                  </motion.div>
                ))}
             </nav>
 
-            <div className="mt-auto relative z-10 space-y-10">
-               <div className="grid grid-cols-2 gap-8 pt-12 border-t border-black/5">
-                  <div className="space-y-2">
-                     <span className="font-tech text-[8px] text-black/20 tracking-widest block">SYSTEM_AUTH</span>
-                     <span className="font-tech text-[10px] text-black font-black">L3_ENCRYPTED</span>
-                  </div>
-                  <div className="space-y-2">
-                     <span className="font-tech text-[8px] text-black/20 tracking-widest block">TIME_SYNC</span>
-                     <span className="font-tech text-[10px] text-black font-black uppercase">{new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' })}_UTC</span>
-                  </div>
+            <div className="mt-auto grid grid-cols-2 gap-8 py-12 border-t border-black/5">
+               <div className="space-y-2">
+                 <span className="font-tech text-text/30 text-[8px] tracking-widest uppercase">HOROLOGICAL_TIME</span>
+                 <span className="text-xl font-tech text-text block uppercase">
+                   {new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' })}_UTC
+                 </span>
                </div>
-               
-               <button 
-                 onClick={() => {
-                   setIsMobileMenuOpen(false);
-                   setIsAuthModalOpen(true);
-                 }}
-                 className="w-full py-6 bg-black text-white font-tech text-[10px] tracking-[0.5em] rounded-full shadow-2xl active:scale-95 transition-all"
-               >
-                 IDENT_AUTHORIZATION
-               </button>
+               <div className="space-y-2">
+                 <span className="font-tech text-text/30 text-[8px] tracking-widest uppercase">VAULT_ENCRYPTION</span>
+                 <span className="text-xl font-tech text-text block">L2_AES.512</span>
+               </div>
             </div>
           </motion.div>
         )}

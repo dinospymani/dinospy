@@ -43,43 +43,49 @@ export default function ExplorePage() {
     <div className="min-h-screen flex flex-col bg-bg">
       <Navbar />
       
-      <main className="flex-grow pt-32 pb-40 max-w-[100%] mx-auto px-4 md:px-8 lg:px-10 w-full text-center sm:text-left">
-        <div className="mb-8">
+      <main className="flex-grow pt-40 pb-40 max-w-[100%] mx-auto px-6 md:px-12 lg:px-20 w-full text-center sm:text-left">
+        <div className="mb-12">
             <button 
                 onClick={() => window.history.back()}
-                className="flex items-center space-x-2 text-text/60 hover:text-gold transition-colors p-2 -ml-2"
+                className="flex items-center space-x-3 text-text/40 hover:text-gold transition-all duration-500 p-2 -ml-2 group"
             >
-                <ArrowLeft size={20} />
-                <span className="text-[10px] uppercase tracking-[0.2em] font-bold">Return</span>
+                <div className="w-8 h-8 rounded-full border border-white/5 flex items-center justify-center group-hover:border-gold transition-colors">
+                  <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
+                </div>
+                <span className="text-[10px] uppercase tracking-[0.4em] font-black">RETURN_HOME</span>
             </button>
         </div>
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 md:gap-16 mb-12 md:mb-24">
-            <div className="max-w-2xl text-left">
-              <span className="text-gold font-sans text-[8px] md:text-[10px] uppercase tracking-[0.5em] md:tracking-[0.8em] mb-4 md:mb-8 block font-bold">Archives</span>
-              <h1 className="text-5xl md:text-9xl font-display font-light leading-none tracking-tightest md:tracking-tighter text-text">Collection</h1>
+        
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-12 mb-24 md:mb-32">
+            <div className="max-w-3xl text-left">
+              <div className="flex items-center space-x-6 mb-8 opacity-40">
+                <div className="w-1.5 h-1.5 bg-gold rounded-full shadow-[0_0_10px_#c5a059]" />
+                <span className="font-tech text-xs tracking-widest uppercase text-gold">VAULT_ARCHIVES</span>
+              </div>
+              <h1 className="text-6xl md:text-9xl font-display italic leading-none tracking-tightest">Archive <span className="opacity-10">Collection.</span></h1>
+            </div>
+            
+            <div className="flex items-center space-x-12 overflow-x-auto pb-4 no-scrollbar lg:border-b lg:border-white/5">
+                {['All', 'Grand Complications', 'Heritage', 'Avant-Garde', 'Deep Sea'].map(cat => (
+                    <button
+                        key={cat}
+                        onClick={() => setFilter(cat)}
+                        className={`pb-4 text-[10px] font-black uppercase tracking-[0.4em] transition-all duration-700 whitespace-nowrap relative ${filter === cat ? 'text-gold' : 'text-text/20 hover:text-text'}`}
+                    >
+                        {cat}
+                        {filter === cat && (
+                          <motion.div 
+                            layoutId="activeFilter"
+                            className="absolute bottom-0 left-0 right-0 h-[2px] bg-gold shadow-[0_0_10px_#c5a059]" 
+                          />
+                        )}
+                    </button>
+                ))}
             </div>
         </div>
 
-        <div className="flex space-x-8 md:space-x-12 mb-12 md:mb-24 overflow-x-auto pb-4 scrollbar-hide border-b border-white/5 no-scrollbar">
-            {['All', 'Grand Complications', 'Heritage', 'Avant-Garde', 'Deep Sea'].map(cat => (
-                <button
-                    key={cat}
-                    onClick={() => setFilter(cat)}
-                    className={`pb-4 text-[8px] md:text-[10px] font-bold uppercase tracking-[0.2em] md:tracking-[0.4em] transition-all duration-700 whitespace-nowrap relative ${filter === cat ? 'text-gold' : 'text-text/20 hover:text-text'}`}
-                >
-                    {cat}
-                    {filter === cat && (
-                      <motion.div 
-                        layoutId="activeFilter"
-                        className="absolute bottom-0 left-0 right-0 h-[1px] bg-gold" 
-                      />
-                    )}
-                </button>
-            ))}
-        </div>
-
         {loading ? (
-            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-5 gap-4 md:gap-x-8 md:gap-y-16 lg:gap-y-24">
+            <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 md:gap-16 lg:gap-24">
                 {[1,2,3,4,5,6,7,8].map(i => (
                   <ProductSkeleton key={i} />
                 ))}
@@ -99,7 +105,7 @@ export default function ExplorePage() {
                    }
                  }
                }}
-               className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-5 gap-4 md:gap-x-8 md:gap-y-16 lg:gap-y-24"
+               className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 md:gap-16 lg:gap-24"
             >
                 {filtered.map(product => (
                     <motion.div

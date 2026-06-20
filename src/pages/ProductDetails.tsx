@@ -269,13 +269,12 @@ export default function ProductDetails() {
             </button>
           </div>
 
-          {/* Breadcrumbs */}
-          <nav className="flex items-center space-x-2 md:space-x-4 font-tech text-[8px] text-text/20 mb-12 md:mb-20 font-bold overflow-hidden">
-            <Link to="/" className="hover:text-gold transition-colors shrink-0">HOME_ARCHIVE</Link>
+          <nav className="flex items-center space-x-2 md:space-x-4 font-tech text-[7px] md:text-[8px] text-text/20 mb-8 md:mb-20 font-bold overflow-hidden whitespace-nowrap">
+            <Link to="/" className="hover:text-gold transition-colors shrink-0">HOME</Link>
             <div className="w-1 h-[1px] bg-gold/20 shrink-0" />
-            <Link to="/explore" className="hover:text-gold transition-colors shrink-0">{product.category.toUpperCase()}_COLLECTION</Link>
+            <Link to="/explore" className="hover:text-gold transition-colors shrink-0">{product.category.toUpperCase()}</Link>
             <div className="w-1 h-[1px] bg-gold/20 shrink-0" />
-            <span className="text-text/60 italic truncate">{product.name}</span>
+            <span className="text-text/60 italic truncate max-w-[100px]">{product.name}</span>
           </nav>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 lg:gap-32">
@@ -377,11 +376,11 @@ export default function ProductDetails() {
                    </span>
                    <div className="w-12 h-[1px] bg-gold/30" />
                 </div>
-                <h1 className="text-4xl md:text-[8rem] font-display mb-8 md:mb-10 leading-[1] md:leading-[0.9] font-light italic text-text">{product.name}</h1>
+                <h1 className="text-5xl md:text-[8rem] font-display mb-6 md:mb-10 leading-[1] md:leading-[0.9] font-light italic text-text break-words">{product.name}</h1>
                 
-                <div className="flex flex-col md:flex-row md:items-center gap-8 md:space-x-8 mb-12 md:mb-16 pb-12 border-b border-text/5">
+                <div className="flex flex-col md:flex-row md:items-center gap-6 md:space-x-8 mb-10 md:mb-16 pb-10 md:pb-12 border-b border-text/5">
                    <div className="flex flex-col">
-                      <div className="text-3xl md:text-6xl font-tech tracking-tighter text-text">
+                      <div className="text-4xl md:text-6xl font-tech tracking-tighter text-text">
                         <span className="text-[10px] text-text/30 mr-2 md:mr-4 font-bold">INR_</span>
                         {Math.round(product.discount ? product.price * (1 - product.discount / 100) : product.price).toLocaleString()}
                       </div>
