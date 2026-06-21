@@ -301,15 +301,26 @@ export default function ProductDetails() {
                      opacity: { duration: 1.5, ease: [0.19, 1, 0.22, 1] },
                      scale: { duration: 0.6, ease: [0.19, 1, 0.22, 1] }
                    }}
-                   className="w-full h-full flex flex-col items-center justify-center bg-white p-20"
+                   className="w-full h-full flex flex-col items-center justify-center bg-white p-0 relative"
                 >
-                  <div className="font-display text-[15rem] opacity-[0.02] select-none pointer-events-none">
-                    {product.name.split(' ').map((n: string) => n[0]).join('')}
-                  </div>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center p-20 text-center pointer-events-none">
-                    <div className="w-1/3 h-[1px] bg-black/10 mb-12" />
-                    <span className="font-mono text-[10px] tracking-[1em] text-black/20 uppercase font-black">Archive_Caliber_{activeImage}</span>
-                  </div>
+                  {product.images && product.images.length > 0 ? (
+                    <img 
+                      src={product.images[activeImage]} 
+                      alt={product.name} 
+                      className="w-full h-full object-cover"
+                      referrerPolicy="no-referrer"
+                    />
+                  ) : (
+                    <>
+                      <div className="font-display text-[15rem] opacity-[0.02] select-none pointer-events-none">
+                        {product.name.split(' ').map((n: string) => n[0]).join('')}
+                      </div>
+                      <div className="absolute inset-0 flex flex-col items-center justify-center p-20 text-center pointer-events-none">
+                        <div className="w-1/3 h-[1px] bg-black/10 mb-12" />
+                        <span className="font-mono text-[10px] tracking-[1em] text-black/20 uppercase font-black">Archive_Caliber_{activeImage}</span>
+                      </div>
+                    </>
+                  )}
                 </motion.div>
                 
                 {/* Zoom Indicator */}
@@ -360,9 +371,13 @@ export default function ProductDetails() {
                   <button 
                     key={i}
                     onClick={() => setActiveImage(i)}
-                    className={`relative w-20 aspect-square overflow-hidden rounded-2xl border transition-all duration-700 flex items-center justify-center font-mono text-[10px] font-bold ${activeImage === i ? 'border-black bg-black text-white' : 'border-black/5 bg-neutral-50 text-black/20 hover:text-black hover:bg-neutral-100'}`}
+                    className={`relative w-20 aspect-square overflow-hidden rounded-2xl border transition-all duration-700 flex items-center justify-center font-mono text-[10px] font-bold outline-none ${activeImage === i ? 'border-black ring-2 ring-black ring-offset-4 ring-offset-white' : 'border-black/5 bg-neutral-50 hover:bg-neutral-100'}`}
                   >
-                    0{i + 1}
+                    {img ? (
+                      <img src={img} alt={`Asset ${i}`} className="w-full h-full object-cover" />
+                    ) : (
+                      <span>0{i + 1}</span>
+                    )}
                   </button>
                 ))}
               </div>
@@ -729,13 +744,24 @@ export default function ProductDetails() {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ duration: 0.8, ease: [0.19, 1, 0.22, 1] }}
-              className="relative w-full max-w-5xl aspect-square p-20 flex flex-col items-center justify-center cursor-default bg-neutral-50 rounded-[4rem]"
+              className="relative w-full max-w-5xl aspect-square flex items-center justify-center cursor-default bg-neutral-50 rounded-[4rem] overflow-hidden"
             >
-              <div className="font-display text-[20rem] opacity-[0.03] select-none pointer-events-none">
-                {product.name.split(' ').map((n: string) => n[0]).join('')}
-              </div>
-              <div className="w-1/2 h-[1px] bg-black/10 my-12" />
-              <div className="font-mono text-xs tracking-[1em] text-black/20 uppercase font-black">Macro_Analysis_Core</div>
+              {product.images?.[activeImage] ? (
+                <img 
+                  src={product.images[activeImage]} 
+                  alt={product.name} 
+                  className="w-full h-full object-contain"
+                  referrerPolicy="no-referrer"
+                />
+              ) : (
+                <>
+                  <div className="font-display text-[20rem] opacity-[0.03] select-none pointer-events-none">
+                    {product.name.split(' ').map((n: string) => n[0]).join('')}
+                  </div>
+                  <div className="w-1/2 h-[1px] bg-black/10 my-12" />
+                  <div className="font-mono text-xs tracking-[1em] text-black/20 uppercase font-black">Macro_Analysis_Core</div>
+                </>
+              )}
             </motion.div>
 
             {/* Thumbnail Strip */}

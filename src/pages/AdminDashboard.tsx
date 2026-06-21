@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db, useAuth } from '../context/AuthContext';
-import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc, onSnapshot, query, orderBy, setDoc } from 'firebase/firestore';
+import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc, onSnapshot, query, orderBy, setDoc, serverTimestamp } from 'firebase/firestore';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import MobileNav from '../components/MobileNav';
@@ -226,7 +226,7 @@ export default function AdminDashboard() {
     // SUPPORT CHATS LISTENER
     const qSupport = query(collection(db, 'support_chats'), orderBy('lastActive', 'desc'));
     const unsubSupport = onSnapshot(qSupport, (snap) => {
-      setSupportChats(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      setSupportChats(snap.docs.map(doc => ({ id: doc.id, ...doc.data({ serverTimestamps: 'estimate' }) })));
     }, (error) => {
       console.warn("Support vault restricted:", error);
     });
@@ -254,7 +254,14 @@ export default function AdminDashboard() {
     );
     
     const unsubscribe = onSnapshot(qMsg, (snap) => {
-      setSupportMessages(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      const msgs = snap.docs.map(doc => ({ id: doc.id, ...doc.data({ serverTimestamps: 'estimate' }) } as any));
+      // Robust client-side sort to handle legacy mixed data (strings vs timestamps)
+      msgs.sort((a, b) => {
+        const timeA = a.timestamp?.toDate?.()?.getTime() || new Date(a.timestamp || 0).getTime();
+        const timeB = b.timestamp?.toDate?.()?.getTime() || new Date(b.timestamp || 0).getTime();
+        return timeA - timeB;
+      });
+      setSupportMessages(msgs);
     }, (error) => {
        console.error("Message relay failed:", error);
     });
@@ -277,13 +284,13 @@ export default function AdminDashboard() {
         text,
         senderId: 'admin',
         senderName: 'Vault Administrator',
-        timestamp: new Date().toISOString(),
+        timestamp: serverTimestamp(),
         isAdmin: true
       });
 
       await setDoc(doc(db, 'support_chats', activeSupportChat), {
         lastMessage: text,
-        lastActive: new Date().toISOString(),
+        lastActive: serverTimestamp(),
         unreadByUser: true,
         unreadByAdmin: false
       }, { merge: true });
@@ -1124,7 +1131,7 @@ export default function AdminDashboard() {
                   </div>
 
                   {/* Terminal Log / Activity */}
-                  <div className="p-10 md:p-14 rounded-[5rem] border border-white/5 bg-noir text-text overflow-hidden group relative flex flex-col justify-between">
+                  <div className="p-10 md:p-14 rounded-[5rem] border border-black/5 bg-slate-950 text-slate-100 overflow-hidden group relative flex flex-col justify-between">
                     <div className="absolute top-0 right-0 p-12 opacity-[0.05] pointer-events-none -rotate-12 translate-x-4 -translate-y-4">
                        <Zap className="w-80 h-80" strokeWidth={1} />
                     </div>
@@ -1132,17 +1139,17 @@ export default function AdminDashboard() {
                     <div>
                       <div className="flex items-center justify-between mb-12 pb-8 border-b border-white/10 relative z-10">
                         <div className="flex items-center space-x-6">
-                           <div className="w-2.5 h-2.5 bg-gold rounded-full animate-ping shadow-[0_0_10px_#c5a059]" />
-                           <span className="font-tech text-text/40 text-xs tracking-[0.4em] font-black uppercase">LIVE_DECODE</span>
+                           <div className="w-2.5 h-2.5 bg-indigo-600 rounded-full animate-ping shadow-[0_0_10px_rgba(79,70,229,0.5)]" />
+                           <span className="font-tech text-slate-100/40 text-xs tracking-[0.4em] font-black uppercase">LIVE_DECODE</span>
                         </div>
-                        <span className="font-tech text-gold/20 text-[10px] font-bold tracking-widest">SECURE_SYNC</span>
+                        <span className="font-tech text-indigo-600/20 text-[10px] font-bold tracking-widest">SECURE_SYNC</span>
                       </div>
                       <div className="space-y-8 max-h-[400px] overflow-y-auto no-scrollbar relative z-10 pr-4">
                          {notifications.slice(0, 8).map((n, i) => (
-                           <div key={i} className="flex gap-6 group border-l-2 border-white/5 pl-8 hover:border-gold transition-all duration-700">
+                           <div key={i} className="flex gap-6 group border-l-2 border-white/5 pl-8 hover:border-indigo-600 transition-all duration-700">
                              <div className="flex-shrink-0 space-y-3">
                                <p className="font-tech text-white/10 text-[9px] uppercase tracking-widest">{new Date(n.timestamp).toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit' })}</p>
-                               <span className={`inline-block font-tech text-[8px] font-black tracking-widest px-3 py-1 rounded-full border ${n.type === 'orders' ? 'text-gold border-gold/20' : 'text-red-400 border-red-400/20'}`}>
+                               <span className={`inline-block font-tech text-[8px] font-black tracking-widest px-3 py-1 rounded-full border ${n.type === 'orders' ? 'text-indigo-400 border-indigo-400/20' : 'text-red-400 border-red-400/20'}`}>
                                  {n.type.toUpperCase()}
                                </span>
                              </div>
@@ -1192,11 +1199,20 @@ export default function AdminDashboard() {
                        </div>
                        
                        <div className="aspect-[4/5] rounded-[3rem] overflow-hidden bg-noir mb-10 relative border border-white/5">
-                          <div className="w-full h-full flex flex-col items-center justify-center bg-black/5 p-4 relative overflow-hidden group-hover:bg-black/10 transition-colors">
-                             <span className="font-display text-2xl text-white/10 group-hover:text-white/20 transition-all font-bold uppercase">{p.name?.[0] || 'D'}</span>
-                             <div className="absolute inset-0 opacity-[0.02]" 
-                                  style={{ backgroundImage: 'radial-gradient(#fff 1px, transparent 1px)', backgroundSize: '10px 10px' }} />
-                          </div>
+                          {p.images && p.images.length > 0 ? (
+                            <img 
+                              src={p.images[0]} 
+                              alt={p.name}
+                              className="w-full h-full object-cover transition-transform duration-[2000ms] group-hover:scale-110"
+                              referrerPolicy="no-referrer"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex flex-col items-center justify-center bg-black/5 p-4 relative overflow-hidden group-hover:bg-black/10 transition-colors">
+                               <span className="font-display text-2xl text-white/10 group-hover:text-white/20 transition-all font-bold uppercase">{p.name?.[0] || 'D'}</span>
+                               <div className="absolute inset-0 opacity-[0.02]" 
+                                    style={{ backgroundImage: 'radial-gradient(#fff 1px, transparent 1px)', backgroundSize: '10px 10px' }} />
+                            </div>
+                          )}
                           <div className="absolute inset-0 bg-noir/80 opacity-0 group-hover:opacity-100 transition-all duration-1000 flex items-center justify-center backdrop-blur-sm">
                              <div className="text-center p-10 space-y-6">
                                 <p className="font-tech text-xs text-gold/40 tracking-[0.5em] font-black uppercase">ASSET_VALUATION</p>
@@ -1384,14 +1400,24 @@ export default function AdminDashboard() {
                       <div className="space-y-6">
                         <label className="font-tech text-gold/30 text-[10px] tracking-[0.4em] font-black uppercase">DESKTOP_ASSET</label>
                         <input type="file" accept="image/*" onChange={handleBannerFileChange} className="w-full text-xs font-tech text-text/40 file:mr-6 file:py-3 file:px-6 file:rounded-full file:border-white/5 file:bg-noir file:text-gold file:text-[10px] file:font-black file:tracking-widest cursor-pointer hover:file:bg-gold hover:file:text-noir transition-all" />
+                        {bannerImageFile && (
+                          <div className="mt-4 aspect-[21/9] rounded-2xl overflow-hidden border border-white/10">
+                            <img src={bannerImageFile} alt="Desktop Preview" className="w-full h-full object-cover" />
+                          </div>
+                        )}
                       </div>
                       <div className="space-y-6">
                         <label className="font-tech text-gold/30 text-[10px] tracking-[0.4em] font-black uppercase">MOBILE_ASSET</label>
                         <input type="file" accept="image/*" onChange={handleBannerMobileFileChange} className="w-full text-xs font-tech text-text/40 file:mr-6 file:py-3 file:px-6 file:rounded-full file:border-white/5 file:bg-noir file:text-gold file:text-[10px] file:font-black file:tracking-widest cursor-pointer hover:file:bg-gold hover:file:text-noir transition-all" />
+                        {bannerMobileImageFile && (
+                          <div className="mt-4 aspect-[9/16] w-32 rounded-2xl overflow-hidden border border-white/10">
+                            <img src={bannerMobileImageFile} alt="Mobile Preview" className="w-full h-full object-cover" />
+                          </div>
+                        )}
                       </div>
                     </div>
 
-                    <button type="submit" disabled={isSaving} className="w-full py-8 bg-gold text-noir font-tech text-xs tracking-[0.5em] font-black rounded-full hover:shadow-[0_0_50px_rgba(197,160,89,0.3)] transition-all duration-1000 uppercase relative z-10">
+                    <button type="submit" disabled={isSaving} className="w-full py-8 bg-indigo-600 text-white font-tech text-xs tracking-[0.5em] font-black rounded-full hover:shadow-[0_0_50px_rgba(79,70,229,0.3)] transition-all duration-1000 uppercase relative z-10">
                       {isSaving ? 'UPLOADING_VISUALS...' : 'DEPLOY_BRAND_ASSET'}
                     </button>
                   </form>
@@ -1579,6 +1605,25 @@ export default function AdminDashboard() {
                              <Plus className="mx-auto mb-6 text-gold/20 group-hover/upload:text-gold group-hover/upload:scale-125 transition-all duration-700" size={32} />
                              <p className="text-xs font-tech text-text/40 tracking-[0.3em] font-black uppercase">UPLOAD_MASTER_IMAGES</p>
                              {imageFiles.length > 0 && (
+                               <div className="mt-8 grid grid-cols-4 gap-4">
+                                 {imageFiles.map((img, i) => (
+                                   <div key={i} className="aspect-square rounded-2xl overflow-hidden border border-white/10 relative group/img">
+                                     <img src={img} alt="Staged" className="w-full h-full object-cover" />
+                                     <button 
+                                       type="button"
+                                       onClick={(e) => {
+                                         e.stopPropagation();
+                                         setImageFiles(prev => prev.filter((_, idx) => idx !== i));
+                                       }}
+                                       className="absolute top-2 right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-all text-white"
+                                     >
+                                       <X size={12} strokeWidth={3} />
+                                     </button>
+                                   </div>
+                                 ))}
+                               </div>
+                             )}
+                             {imageFiles.length > 0 && (
                                <motion.p 
                                  initial={{ opacity: 0, y: 10 }}
                                  animate={{ opacity: 1, y: 0 }}
@@ -1698,12 +1743,12 @@ export default function AdminDashboard() {
                         </div>
                         <div className="flex items-center space-x-4 ml-auto">
                            {n.orderId && (
-                             <button onClick={() => {const o = orders.find(ord => ord.id === n.orderId); if (o) {setSelectedOrder(o); setView('orders');}}} className="w-14 h-14 rounded-full border border-white/10 bg-noir flex items-center justify-center hover:bg-gold hover:text-noir transition-all duration-700 text-text/40 hover:border-gold luxury-shadow group/eye">
+                             <button onClick={() => {const o = orders.find(ord => ord.id === n.orderId); if (o) {setSelectedOrder(o); setView('orders');}}} className="w-14 h-14 rounded-full border border-white/10 bg-slate-950 flex items-center justify-center hover:bg-indigo-600 hover:text-white transition-all duration-700 text-slate-100/40 hover:border-indigo-600 luxury-shadow group/eye">
                                 <Eye size={20} strokeWidth={1} className="group-hover/eye:scale-110 transition-transform" />
                              </button>
                            )}
                            {!n.read && (
-                             <button onClick={() => setNotifications(notifications.map(notif => notif.id === n.id ? {...notif, read: true} : notif))} className="w-14 h-14 rounded-full bg-gold text-noir flex items-center justify-center hover:scale-110 hover:shadow-[0_0_25px_rgba(197,160,89,0.4)] transition-all duration-700 luxury-shadow group/check">
+                             <button onClick={() => setNotifications(notifications.map(notif => notif.id === n.id ? {...notif, read: true} : notif))} className="w-14 h-14 rounded-full bg-indigo-600 text-white flex items-center justify-center hover:scale-110 hover:shadow-[0_0_25px_rgba(79,70,229,0.4)] transition-all duration-700 luxury-shadow group/check">
                                 <Check size={20} strokeWidth={4} />
                              </button>
                            )}
@@ -1721,19 +1766,19 @@ export default function AdminDashboard() {
               <motion.div 
                 initial={{ opacity: 0, scale: 0.95, y: 50 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
-                className="bg-charcoal max-w-5xl w-full rounded-[5rem] luxury-shadow overflow-hidden border border-white/10 relative"
+                className="bg-slate-900 max-w-5xl w-full rounded-[5rem] luxury-shadow overflow-hidden border border-white/10 relative"
               >
                 <div className="p-12 md:p-16 border-b border-white/5 flex justify-between items-center bg-noir/40">
                    <div className="space-y-4">
                      <div className="flex items-center space-x-6">
-                        <div className="w-3 h-3 bg-gold rounded-full animate-pulse shadow-[0_0_15px_#c5a059]" />
-                        <p className="font-tech text-gold/40 text-xs tracking-[0.4em] font-black uppercase">LOGISTICS_MANIFEST // ID_{selectedOrder.id.slice(-12).toUpperCase()}</p>
+                        <div className="w-3 h-3 bg-indigo-600 rounded-full animate-pulse shadow-[0_0_15px_rgba(79,70,229,0.5)]" />
+                        <p className="font-tech text-indigo-600/40 text-xs tracking-[0.4em] font-black uppercase">LOGISTICS_MANIFEST // ID_{selectedOrder.id.slice(-12).toUpperCase()}</p>
                      </div>
                      <h2 className="text-5xl md:text-7xl font-display italic tracking-tightest leading-none">Fulfillment <span className="opacity-10 font-sans italic text-white">Center.</span></h2>
                    </div>
                    <button 
                      onClick={() => setSelectedOrder(null)} 
-                     className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center hover:bg-gold hover:text-noir transition-all duration-1000 group/close active:scale-95 border border-white/5"
+                     className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center hover:bg-indigo-600 hover:text-white transition-all duration-1000 group/close active:scale-95 border border-white/5"
                    >
                      <X size={32} strokeWidth={1} className="group-hover/close:rotate-90 transition-transform duration-1000" />
                    </button>
@@ -1758,18 +1803,18 @@ export default function AdminDashboard() {
                       </div>
 
                       <div className="mb-20 relative z-10">
-                         <p className="text-xs text-gold/40 tracking-[0.5em] font-black uppercase mb-10">TARGET_CLIENT_ENTITY</p>
+                         <p className="text-xs text-indigo-600/40 tracking-[0.5em] font-black uppercase mb-10">TARGET_CLIENT_ENTITY</p>
                          <h3 className="text-6xl md:text-8xl font-black italic mb-8 uppercase tracking-widest leading-none text-transparent bg-clip-text bg-gradient-to-b from-white to-white/40">{selectedOrder.customerName}</h3>
                          <div className="space-y-4 opacity-50 text-2xl md:text-3xl font-bold tracking-tighter max-w-2xl">
                             <p className="truncate">{selectedOrder.shippingAddress.address}</p>
-                            <p className="font-black text-gold tracking-widest">{selectedOrder.shippingAddress.city}_IND // {selectedOrder.shippingAddress.zip}</p>
+                            <p className="font-black text-indigo-600 tracking-widest">{selectedOrder.shippingAddress.city}_IND // {selectedOrder.shippingAddress.zip}</p>
                          </div>
                       </div>
 
                       <div className="flex flex-col md:flex-row justify-between items-end gap-12 border-t border-white/10 pt-12 relative z-10">
                          <div className="space-y-8 w-full">
                             <div>
-                               <p className="text-xs text-gold/40 tracking-[0.5em] font-black uppercase mb-8">CARGO_MANIFEST_CONTENT</p>
+                               <p className="text-xs text-indigo-600/40 tracking-[0.5em] font-black uppercase mb-8">CARGO_MANIFEST_CONTENT</p>
                                <div className="text-sm space-y-4 font-tech">
                                   {selectedOrder.items.map((it: any, idx: number) => (
                                      <div key={idx} className="flex space-x-6 items-baseline group/item">
@@ -1795,7 +1840,7 @@ export default function AdminDashboard() {
                          <Printer size={24} strokeWidth={1} className="group-hover/print:rotate-12 transition-transform" />
                          <span>EXECUTE_PHYSICAL_PRINT</span>
                        </button>
-                       <button className="flex items-center justify-center space-x-8 py-10 rounded-[3rem] bg-gold text-noir hover:shadow-[0_0_60px_rgba(197,160,89,0.4)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-1000 font-tech text-xs font-black tracking-[0.5em] group/dispatch uppercase">
+                       <button className="flex items-center justify-center space-x-8 py-10 rounded-[3rem] bg-indigo-600 text-white hover:shadow-[0_0_60px_rgba(79,70,229,0.4)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-1000 font-tech text-xs font-black tracking-[0.5em] group/dispatch uppercase">
                          <Package size={24} strokeWidth={1} className="group-hover/dispatch:translate-x-2 transition-transform" />
                          <span>INITIATE_DISPATCH_PROTOCOL</span>
                        </button>
@@ -1942,17 +1987,17 @@ export default function AdminDashboard() {
                 </div>
 
                 {/* Chat Window */}
-                <div className="col-span-12 lg:col-span-8 bg-noir rounded-[4rem] border border-white/5 overflow-hidden flex flex-col luxury-shadow relative">
+                <div className="col-span-12 lg:col-span-8 bg-slate-950 rounded-[4rem] border border-white/5 overflow-hidden flex flex-col luxury-shadow relative">
                    {activeSupportChat ? (
                       <>
-                         <div className="p-10 border-b border-white/5 bg-charcoal/20 flex justify-between items-center">
+                         <div className="p-10 border-b border-white/5 bg-slate-900/20 flex justify-between items-center">
                             <div className="flex items-center space-x-6">
-                               <div className="w-12 h-12 rounded-full bg-gold/10 flex items-center justify-center text-gold">
+                               <div className="w-12 h-12 rounded-full bg-indigo-600/10 flex items-center justify-center text-indigo-600">
                                   <ShieldCheck size={20} strokeWidth={1} />
                                </div>
                                <div>
-                                  <p className="font-mono text-xs text-text font-black uppercase">SECURE_CHANNEL // {supportChats.find(c => c.id === activeSupportChat)?.userEmail}</p>
-                                  <p className="font-tech text-gold opacity-40 text-[9px] tracking-widest uppercase">Encryption: AES_256</p>
+                                  <p className="font-mono text-xs text-slate-100 font-black uppercase">SECURE_CHANNEL // {supportChats.find(c => c.id === activeSupportChat)?.userEmail}</p>
+                                  <p className="font-tech text-indigo-600 opacity-40 text-[9px] tracking-widest uppercase">Encryption: AES_256</p>
                                </div>
                             </div>
                          </div>
@@ -1963,10 +2008,14 @@ export default function AdminDashboard() {
                          >
                             {supportMessages.map(msg => (
                                <div key={msg.id} className={`flex ${msg.isAdmin ? 'justify-end' : 'justify-start'}`}>
-                                  <div className={`max-w-[70%] p-6 rounded-[2.5rem] ${msg.isAdmin ? 'bg-indigo-600 text-white shadow-[0_0_40px_rgba(79,70,229,0.2)]' : 'bg-neutral-100 border border-black/5 text-black'}`}>
+                                  <div className={`max-w-[70%] p-6 rounded-[2.5rem] ${msg.isAdmin ? 'bg-gradient-to-br from-indigo-600 to-indigo-800 text-white shadow-[0_0_40px_rgba(79,70,229,0.2)]' : 'bg-neutral-100 border border-black/5 text-black'}`}>
                                      <p className="text-sm font-light leading-relaxed">{msg.text}</p>
                                      <p className={`text-[8px] font-mono mt-3 opacity-30 ${msg.isAdmin ? 'text-white' : 'text-black'}`}>
-                                        {msg.timestamp ? (typeof msg.timestamp === 'string' ? new Date(msg.timestamp).toLocaleTimeString() : msg.timestamp.toDate?.().toLocaleTimeString()) : 'SYNCING'}
+                                        {msg.timestamp ? (
+                                          msg.timestamp.toDate 
+                                            ? msg.timestamp.toDate().toLocaleTimeString() 
+                                            : new Date(msg.timestamp).toLocaleTimeString()
+                                        ) : 'SYNCING'}
                                      </p>
                                   </div>
                                </div>
@@ -2052,7 +2101,7 @@ export default function AdminDashboard() {
                   </div>
 
                   {/* Firewall & Signals */}
-                  <div className="lg:col-span-2 p-16 rounded-[5rem] border border-white/10 bg-noir luxury-shadow relative overflow-hidden group/firewall flex flex-col h-full">
+                  <div className="lg:col-span-2 p-16 rounded-[5rem] border border-white/10 bg-slate-950 luxury-shadow relative overflow-hidden group/firewall flex flex-col h-full text-slate-100">
                      <div className="absolute -top-20 -right-20 opacity-[0.02] group-hover/firewall:opacity-[0.06] transition-all duration-1000 rotate-12 scale-150 pointer-events-none text-gold">
                         <Shield size={500} strokeWidth={0.5} />
                      </div>
