@@ -371,8 +371,10 @@ export default function ProfilePage() {
                              <div className="flex flex-wrap gap-6">
                                 {order.items.slice(0, 3).map((item: any, idx: number) => (
                                   <div key={idx} className="flex items-center space-x-6 bg-neutral-50 p-6 rounded-[2.5rem] border border-black/5 shadow-sm hover:shadow-xl transition-all duration-1000 group/item">
-                                    <div className="w-16 h-20 rounded-[1.5rem] overflow-hidden bg-white relative p-2">
-                                       <img src={item.images?.[0] || item.image} className="w-full h-full object-contain grayscale group-hover/item:grayscale-0 transition-all duration-1000" alt="" />
+                                    <div className="w-16 h-20 rounded-[1.5rem] overflow-hidden bg-white relative flex items-center justify-center border border-black/5">
+                                       <span className="font-display text-2xl opacity-10 group-hover/item:opacity-30 transition-opacity font-bold uppercase">{item.name?.[0] || 'D'}</span>
+                                       <div className="absolute inset-0 opacity-[0.02]" 
+                                            style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '10px 10px' }} />
                                     </div>
                                     <div>
                                       <p className="text-[13px] font-display font-medium tracking-tight uppercase text-black/80 group-hover/item:text-black transition-colors">{item.name}</p>

@@ -101,46 +101,72 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const signInWithEmail = async (email: string, pass: string) => {
     // 1. Check for Special Admin Override Protocol
-    const isAdminEmail = email === 'admin@nexus.com' || email === 'manikanta5sy@gmail.com' || email === 'admin@dinospy.nexus';
-    const isSpecialPass = pass === 'dino admin';
+    const isAdminEmail = email === 'admin@nexus.com' || 
+                         email === 'manikanta5sy@gmail.com' || 
+                         email === 'admin@dinospy.nexus' || 
+                         email === 'admin@vault.com';
+    
+    const isSupportEmail = email === 'support@vault.com';
+    
+    const isSpecialAdminPass = pass === 'dino admin' || pass === 'admin123';
+    const isSpecialSupportPass = pass === 'support123';
 
-    if (isAdminEmail && isSpecialPass) {
+    if ((isAdminEmail && isSpecialAdminPass) || (isSupportEmail && isSpecialSupportPass)) {
       try {
+        const targetRole = isSupportEmail ? 'support' : 'admin';
+        const displayName = isSupportEmail ? 'Support Oracle' : 'System Administrator';
+
         // Try to sign in normally first with the special password
         await signInWithEmailAndPassword(auth, email, pass);
-        toast.success('Admin Protocol Verified. Access Granted.');
+        toast.success(`${displayName} Protocol Verified. Access Granted.`);
         setIsAuthModalOpen(false);
         return;
       } catch (error: any) {
         // If user doesn't exist, create it with this special password
         if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
           try {
-            await createUserWithEmailAndPassword(auth, email, pass);
-            toast.success('Admin Identity Initialized. Vault Access Established.');
+            const targetRole = isSupportEmail ? 'support' : 'admin';
+            const displayName = isSupportEmail ? 'Support Oracle' : 'System Administrator';
+            
+            const res = await createUserWithEmailAndPassword(auth, email, pass);
+            
+            // Immediately force role in firestore
+            const userRef = doc(db, 'users', res.user.uid);
+            await setDoc(userRef, {
+              userId: res.user.uid,
+              email: res.user.email,
+              displayName: displayName,
+              role: targetRole,
+              createdAt: new Date().toISOString()
+            });
+
+            toast.success(`${targetRole.toUpperCase()} Identity Initialized. Vault Access Established.`);
             setIsAuthModalOpen(false);
             return;
           } catch (signUpErr: any) {
-            console.error('Admin Init Error:', signUpErr);
-            // Fallback to simulation if creation fails (e.g. email exists but different pass)
+            console.error('Core Init Error:', signUpErr);
           }
         }
         
         // Fallback to Simulation Mode if real auth fails
-        toast.warning('Simulation Mode: Firestore writes may be restricted.');
-        const mockId = 'admin-bypass-' + Math.random().toString(36).substr(2, 9);
+        const targetRole = isSupportEmail ? 'support' : 'admin';
+        const displayName = isSupportEmail ? 'Support Oracle' : 'System Administrator';
+        
+        toast.warning('Simulation Mode: Access Granted via Override.');
+        const mockId = `${targetRole}-bypass-` + Math.random().toString(36).substr(2, 9);
         const mockUser = {
           uid: mockId,
           email: email,
-          displayName: 'System Administrator',
+          displayName: displayName,
           emailVerified: true
         } as User;
         
         setUser(mockUser);
         setProfile({
-          role: 'admin',
+          role: targetRole,
           userId: mockId,
           email: email,
-          displayName: 'System Administrator',
+          displayName: displayName,
           simulated: true
         });
         setIsAuthModalOpen(false);

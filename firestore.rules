@@ -12,11 +12,25 @@ service cloud.firestore {
         request.auth.token.email == 'manikanta5sy@gmail.com' ||
         request.auth.token.email == 'admin@nexus.com' ||
         request.auth.token.email == 'admin@dinospy.nexus' ||
+        request.auth.token.email == 'admin@vault.com' ||
         exists(/databases/$(database)/documents/admins/$(request.auth.uid)) ||
         (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin')
       ); 
     }
+
+    function isSupport() {
+      return isSignedIn() && (
+        request.auth.token.email == 'support@vault.com' ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'support')
+      );
+    }
+    
+    function isStaff() {
+      return isAdmin() || isSupport();
+    }
+    
     function isOwner(userId) { return isSignedIn() && request.auth.uid == userId; }
     
     function incoming() { return request.resource.data; }
@@ -34,17 +48,17 @@ service cloud.firestore {
     // USERS COLLECTION
     // ------------------------------------------------------------
     match /users/{userId} {
-      allow get: if isOwner(userId) || isAdmin();
-      allow list: if isAdmin();
+      allow get: if isSignedIn();
+      allow list: if isStaff();
       allow create: if isOwner(userId);
-      allow update: if isOwner(userId) || isAdmin();
+      allow update: if isOwner(userId) || isStaff();
       allow delete: if isAdmin();
       
       match /cart/{cartId} { allow read, write: if isOwner(userId); }
       match /wishlist/{wishlistId} { allow read, write: if isOwner(userId); }
       match /notifications/{notificationId} {
-        allow read: if isOwner(userId) || isAdmin();
-        allow write: if isAdmin() || (isOwner(userId) && incoming().keys().hasAny(['read', 'dismissedNotifications', 'updatedAt', 'lastReadNotification']));
+        allow read: if isOwner(userId) || isStaff();
+        allow write: if isStaff() || (isOwner(userId) && incoming().keys().hasAny(['read', 'dismissedNotifications', 'updatedAt', 'lastReadNotification']));
       }
     }
 
@@ -52,9 +66,9 @@ service cloud.firestore {
     // ORDERS COLLECTION
     // ------------------------------------------------------------
     match /orders/{orderId} {
-      allow read: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow read: if isSignedIn() && (resource.data.userId == request.auth.uid || isStaff());
       allow create: if isSignedIn() && incoming().userId == request.auth.uid;
-      allow update: if isAdmin() || (isOwner(existing().userId) && incoming().status == 'cancelled');
+      allow update: if isStaff() || (isOwner(existing().userId) && incoming().status == 'cancelled');
       allow delete: if isAdmin();
     }
 
@@ -72,7 +86,7 @@ service cloud.firestore {
     // ------------------------------------------------------------
     match /notifications/{notificationId} {
       allow read: if isSignedIn();
-      allow write: if isAdmin();
+      allow write: if isStaff();
     }
 
     // ------------------------------------------------------------
@@ -88,14 +102,14 @@ service cloud.firestore {
     // ------------------------------------------------------------
     match /settings/{settingId} {
       allow read: if true;
-      allow write: if isAdmin();
+      allow write: if isStaff();
     }
 
     // ------------------------------------------------------------
     // ADMINS COLLECTION
     // ------------------------------------------------------------
     match /admins/{adminId} {
-      allow read: if isAdmin();
+      allow read: if isStaff();
       allow write: if false;
     }
 
@@ -105,6 +119,19 @@ service cloud.firestore {
     match /coupons/{couponId} {
       allow read: if isSignedIn();
       allow write: if isAdmin();
+    }
+
+    // ------------------------------------------------------------
+    // SUPPORT CHATS COLLECTION
+    // ------------------------------------------------------------
+    match /support_chats/{userId} {
+      allow read: if isOwner(userId) || isStaff();
+      allow write: if isOwner(userId) || isStaff();
+      
+      match /messages/{messageId} {
+        allow read: if isOwner(userId) || isStaff();
+        allow write: if isOwner(userId) || isStaff();
+      }
     }
 
     // ------------------------------------------------------------

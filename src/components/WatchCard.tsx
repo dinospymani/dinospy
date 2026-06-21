@@ -78,14 +78,17 @@ export default function WatchCard({ product }: WatchCardProps) {
 
         <Link 
           to={`/product/${product.id}`} 
-          className="relative aspect-square mb-10 rounded-2xl overflow-hidden group/img block transition-transform duration-700 translate-z-[60px] bg-[#fdfdfd]"
+          className="relative aspect-square mb-10 rounded-2xl overflow-hidden group/img block transition-transform duration-700 translate-z-[60px] bg-[#fdfdfd] border border-black/5"
         >
-          <motion.img 
-            src={product.images[0]} 
-            alt={product.name}
-            className="w-full h-full object-cover transition-all duration-[2s] ease-[0.16,1,0.3,1] group-hover/img:scale-110"
-          />
-          <div className="absolute inset-0 bg-black/0 group-hover/img:bg-black/5 transition-colors duration-1000" />
+          <div className="w-full h-full flex flex-col items-center justify-center bg-neutral-50 group-hover/img:bg-neutral-100 transition-colors duration-1000">
+            <div className="font-display text-9xl opacity-[0.03] select-none group-hover/img:opacity-[0.08] transition-opacity duration-1000 pointer-events-none">
+              {product.name.split(' ').map(n => n[0]).join('')}
+            </div>
+            <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center">
+              <div className="w-1/4 h-[1px] bg-black/10 mb-6 scale-x-0 group-hover/img:scale-x-150 transition-transform duration-1000" />
+              <span className="font-mono text-[8px] tracking-[0.6em] text-black/30 opacity-0 group-hover/img:opacity-100 transition-opacity duration-1000 uppercase font-black">Geometric_Asset</span>
+            </div>
+          </div>
           
           <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity duration-700">
             <div className="w-16 h-16 rounded-full bg-white/90 backdrop-blur-md flex items-center justify-center text-black shadow-2xl scale-50 group-hover/img:scale-100 transition-transform duration-700">

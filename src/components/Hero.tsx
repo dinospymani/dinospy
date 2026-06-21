@@ -41,18 +41,11 @@ export default function Hero() {
   return (
     <div ref={containerRef} className="relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-white pt-24">
       
-      {/* Background Video with Cinematic Blur */}
+      {/* Ambient Background Detail */}
       <div className="absolute inset-0 z-0">
-        <video 
-          autoPlay 
-          muted 
-          loop 
-          playsInline 
-          className="w-full h-full object-cover opacity-5 scale-110 blur-3xl lg:blur-[120px]"
-        >
-          <source src="https://v.pexels.com/video-files/4440938/4440938-uhd_2160_3840_30fps.mp4" type="video/mp4" />
-        </video>
-        <div className="absolute inset-0 bg-gradient-to-b from-white via-transparent to-white" />
+        <div className="absolute inset-0 bg-gradient-to-b from-white via-neutral-50/50 to-white" />
+        <div className="absolute inset-0 opacity-[0.03] pointer-events-none" 
+             style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
       </div>
 
       <div className="container mx-auto px-6 md:px-12 grid grid-cols-12 items-center relative z-10">

@@ -49,6 +49,6 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
     operationType,
     path
   }
-  console.error('Firestore Error: ', JSON.stringify(errInfo));
-  throw new Error(JSON.stringify(errInfo));
+  console.warn('Firestore Protocol Isolation: ', JSON.stringify(errInfo));
+  // Not throwing here to prevent uncaught error in snapshot listeners
 }

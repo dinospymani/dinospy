@@ -15,12 +15,9 @@ export default function FAQPage() {
           animate={{ opacity: 1, y: 0 }}
           className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
         >
-          <div className="relative h-60 rounded-[3rem] overflow-hidden mb-20 border border-black/5 scale-[0.98] group">
-            <img 
-              src="https://images.unsplash.com/photo-1523170335258-f5ed11844a49?auto=format&fit=crop&q=80" 
-              className="w-full h-full object-cover grayscale opacity-20 group-hover:scale-110 transition-transform duration-[3s]"
-              alt="Luxury watches background"
-            />
+          <div className="relative h-60 rounded-[3rem] overflow-hidden mb-20 border border-black/5 bg-neutral-50 scale-[0.98] group flex items-center justify-center">
+            <div className="absolute inset-0 opacity-[0.03] pointer-events-none" 
+                 style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
             <div className="absolute inset-0 bg-white/40" />
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6">
               <h1 className="text-6xl font-display font-medium text-black mb-4 uppercase tracking-tightest">Support</h1>

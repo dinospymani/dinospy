@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { db } from '../context/AuthContext';
+import { db, useAuth } from '../context/AuthContext';
 import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc, onSnapshot, query, orderBy, setDoc } from 'firebase/firestore';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import MobileNav from '../components/MobileNav';
-import { Plus, Trash2, Edit, Save, Package, QrCode, Printer, X, Truck, Loader2, ChevronLeft, TrendingUp, DollarSign, ShoppingBag, AlertCircle, BarChart2, Bell, ArrowLeft, Megaphone, Check, Zap, Clock, Shield, Lock, Eye, EyeOff, Database, ArrowRight, ShieldAlert, AlertTriangle, ShieldCheck, Cpu, Activity, Wifi, Image as ImageIcon, MessageSquare, Send } from 'lucide-react';
+import { Plus, Trash2, Edit, Save, Package, QrCode, Printer, X, Truck, Loader2, ChevronLeft, TrendingUp, DollarSign, ShoppingBag, AlertCircle, BarChart2, Bell, ArrowLeft, Megaphone, Check, Zap, Clock, Shield, Lock, Eye, EyeOff, Database, ArrowRight, ShieldAlert, AlertTriangle, ShieldCheck, Cpu, Activity, Wifi, Image as ImageIcon, MessageSquare, Send, User } from 'lucide-react';
 import { motion } from 'motion/react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { QRCodeSVG } from 'qrcode.react';
@@ -37,6 +37,7 @@ interface AdminOrder {
 }
 
 export default function AdminDashboard() {
+  const { profile } = useAuth();
   const [name, setName] = useState('');
   const [brand, setBrand] = useState('DINOSPY');
   const [price, setPrice] = useState('');
@@ -60,6 +61,14 @@ export default function AdminDashboard() {
   const [activeSupportChat, setActiveSupportChat] = useState<string | null>(null);
   const [supportMessages, setSupportMessages] = useState<any[]>([]);
   const [replyText, setReplyText] = useState('');
+  const adminScrollRef = React.useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (adminScrollRef.current) {
+      adminScrollRef.current.scrollTop = adminScrollRef.current.scrollHeight;
+    }
+  }, [supportMessages]);
+
   const [notificationFilter, setNotificationFilter] = useState<'all' | 'orders' | 'inventory'>('all');
   const [maintenanceStatus, setMaintenanceStatus] = useState(false);
   const [testMode, setTestMode] = useState(false);
@@ -215,9 +224,17 @@ export default function AdminDashboard() {
     });
 
     // SUPPORT CHATS LISTENER
-    const unsubSupport = onSnapshot(collection(db, 'support_chats'), (snap) => {
+    const qSupport = query(collection(db, 'support_chats'), orderBy('lastActive', 'desc'));
+    const unsubSupport = onSnapshot(qSupport, (snap) => {
       setSupportChats(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    }, (error) => {
+      console.warn("Support vault restricted:", error);
     });
+
+    // Auto-redirect support role to support view
+    if (profile?.role === 'support') {
+      setView('support');
+    }
 
     return () => {
       unsubscribeOrders();
@@ -238,6 +255,8 @@ export default function AdminDashboard() {
     
     const unsubscribe = onSnapshot(qMsg, (snap) => {
       setSupportMessages(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    }, (error) => {
+       console.error("Message relay failed:", error);
     });
 
     // Mark as read by admin
@@ -928,68 +947,68 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-noir flex flex-col pt-24 md:pt-32 selection:bg-primary selection:text-noir">
+    <div className="min-h-screen bg-white flex flex-col pt-24 md:pt-32 selection:bg-indigo-600 selection:text-white">
       <Navbar />
       <main className="flex-grow pt-8 md:pt-16 pb-40 max-w-[1600px] mx-auto px-6 md:px-12 w-full">
         <div className="mb-12 md:mb-20">
           <button 
               onClick={() => window.location.href = '/'}
-              className="group flex items-center space-x-4 text-text/20 hover:text-gold transition-all duration-700 p-3 -ml-3"
+              className="group flex items-center space-x-4 text-black/20 hover:text-black transition-all duration-700 p-3 -ml-3"
           >
-              <div className="w-10 h-10 rounded-[1.5rem] border border-white/5 flex items-center justify-center group-hover:bg-gold group-hover:text-noir group-hover:border-gold transition-all duration-1000 shadow-2xl">
+              <div className="w-10 h-10 rounded-[1.5rem] border border-black/5 flex items-center justify-center group-hover:bg-black group-hover:text-white group-hover:border-black transition-all duration-1000 shadow-2xl">
                 <ArrowLeft size={16} />
               </div>
-              <span className="font-tech text-xs tracking-[0.5em] font-black uppercase">EXIT_TERMINAL</span>
+              <span className="font-tech text-xs tracking-[0.5em] font-black uppercase">EXIT_ADMIN</span>
           </button>
         </div>
-        <div className="flex flex-col xl:flex-row justify-between items-start xl:items-end gap-12 mb-24 md:mb-40 border-b border-white/5 pb-20 md:pb-32">
+        <div className="flex flex-col xl:flex-row justify-between items-start xl:items-end gap-12 mb-24 md:mb-40 border-b border-black/5 pb-20 md:pb-32">
           <div className="max-w-5xl space-y-10">
             <div className="flex items-center space-x-6">
-              <div className="w-3 h-3 bg-gold rounded-full animate-pulse shadow-[0_0_20px_#c5a059]" />
-              <span className="font-tech text-gold opacity-30 text-xs tracking-[0.6em] font-black uppercase">Sys_Root@DINOSPY_Vault // SEC_LEVEL_01</span>
+              <div className="w-3 h-3 bg-indigo-600 rounded-full animate-pulse shadow-[0_0_20px_rgba(79,70,229,0.4)]" />
+              <span className="font-tech text-indigo-600 opacity-60 text-xs tracking-[0.6em] font-black uppercase">VAULT_ADMIN_INTERFACE // SYNC_ACTIVE</span>
             </div>
-            <h1 className="text-7xl md:text-9xl xl:text-[14rem] font-display italic tracking-tightest leading-[0.85]">
-              Control <span className="opacity-10 text-white font-sans italic">Core.</span>
+            <h1 className="text-7xl md:text-9xl xl:text-[14rem] font-display italic tracking-tightest leading-[0.85] text-black">
+              Control <span className="opacity-10 text-black font-sans italic">Core.</span>
             </h1>
-            <div className="flex flex-wrap gap-8 md:gap-14 font-tech text-[10px] md:text-xs text-text/20 font-black uppercase tracking-[0.4em]">
+            <div className="flex flex-wrap gap-8 md:gap-14 font-tech text-[10px] md:text-xs text-black/40 font-black uppercase tracking-[0.4em]">
               <div className="flex items-center space-x-4">
-                 <div className="w-2 h-2 bg-white/10 rounded-full" />
+                 <div className="w-2 h-2 bg-black/10 rounded-full" />
                  <span>LOC: NEW_DELHI_HUB</span>
               </div>
               <div className="flex items-center space-x-4">
-                 <div className="w-2 h-2 bg-white/10 rounded-full" />
+                 <div className="w-2 h-2 bg-black/10 rounded-full" />
                  <span>NODE: APAC_SOUTH_SYNC</span>
               </div>
               <div className="flex items-center space-x-4">
-                 <div className="w-2 h-2 bg-gold rounded-full shadow-[0_0_10px_#c5a059]" />
+                 <div className="w-2 h-2 bg-indigo-600 rounded-full shadow-[0_0_10px_rgba(79,70,229,0.4)]" />
                  <span>UPTIME: 99.998%</span>
               </div>
             </div>
           </div>
 
           <div className="w-full xl:w-auto overflow-x-auto no-scrollbar -mx-6 px-6 xl:mx-0 xl:px-0">
-            <div className="flex items-center space-x-3 p-3 bg-noir/40 rounded-[3rem] border border-white/5 min-w-max shadow-inner">
+            <div className="flex items-center space-x-3 p-3 bg-neutral-50 rounded-[3rem] border border-black/5 min-w-max shadow-inner">
               {[
-                { id: 'stats', label: 'METRICS', icon: BarChart2 },
+                { id: 'stats', label: 'METRICS', icon: BarChart2, adminOnly: true },
                 { id: 'orders', label: 'LOGISTICS', icon: Truck },
-                { id: 'products', label: 'INVENTORY', icon: Package },
-                { id: 'add', label: 'ARCHIVE', icon: Plus },
+                { id: 'products', label: 'INVENTORY', icon: Package, adminOnly: true },
+                { id: 'add', label: 'ARCHIVE', icon: Plus, adminOnly: true },
                 { id: 'notifications', label: 'FEED', icon: Bell, urgent: notifications.some(n => !n.read) },
                 { id: 'support', label: 'SUPPORT', icon: MessageSquare, urgent: supportChats.some(c => c.unreadByAdmin) },
-                { id: 'broadcast', label: 'SIGNAL', icon: Megaphone },
-                { id: 'banners', label: 'VISUALS', icon: Eye },
-                { id: 'coupons', label: 'PROTOCOLS', icon: Zap },
-                { id: 'security', label: 'SECURE', icon: Shield },
-              ].map((tab) => (
+                { id: 'broadcast', label: 'SIGNAL', icon: Megaphone, adminOnly: true },
+                { id: 'banners', label: 'VISUALS', icon: Eye, adminOnly: true },
+                { id: 'coupons', label: 'PROTOCOLS', icon: Zap, adminOnly: true },
+                { id: 'security', label: 'SECURE', icon: Shield, adminOnly: true },
+              ].filter(tab => !tab.adminOnly || profile?.role === 'admin').map((tab) => (
                 <button 
                   key={tab.id}
                   onClick={() => setView(tab.id as any)}
-                  className={`flex items-center space-x-4 px-10 py-5 rounded-[1.8rem] transition-all duration-1000 relative group ${view === tab.id ? 'bg-gold text-noir shadow-[0_0_50px_rgba(197,160,89,0.3)] scale-105' : 'text-text/30 hover:bg-white/5 hover:text-text'}`}
+                  className={`flex items-center space-x-4 px-10 py-5 rounded-[1.8rem] transition-all duration-1000 relative group ${view === tab.id ? 'bg-indigo-600 text-white shadow-[0_0_50px_rgba(79,70,229,0.2)] scale-105' : 'text-black/30 hover:bg-black/5 hover:text-black'}`}
                 >
                   <tab.icon size={18} strokeWidth={view === tab.id ? 2 : 1} className={`transition-transform duration-1000 ${view === tab.id ? 'scale-110' : 'group-hover:scale-110'}`} />
-                  <span className="text-[10px] font-tech font-black uppercase tracking-[0.3em] font-black">{tab.label}</span>
-                  {tab.id === 'notifications' && tab.urgent && (
-                    <span className="w-2.5 h-2.5 bg-gold rounded-full animate-pulse absolute -top-1 -right-1 shadow-[0_0_15px_#c5a059]" />
+                  <span className="text-[10px] font-tech font-black uppercase tracking-[0.3em]">{tab.label}</span>
+                  {(tab.id === 'notifications' || tab.id === 'support') && tab.urgent && (
+                    <span className="w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse absolute -top-1 -right-1 shadow-[0_0_15px_rgba(239,68,68,0.4)]" />
                   )}
                 </button>
               ))}
@@ -1008,7 +1027,7 @@ export default function AdminDashboard() {
                    { label: 'VAULT_INDEX_RATE', value: `${stats.conversionRate}%`, icon: TrendingUp, trend: 'SYNCHRONIZED', detail: 'NETWORK_STABLE' },
                    { label: 'INVENTORY_RESERVE', value: `${products.length - stats.lowStock}/${products.length}`, icon: Database, alert: stats.lowStock > 0, detail: `${stats.lowStock} CRITICAL_NODES` },
                  ].map((stat, i) => (
-                   <div key={i} className={`p-12 rounded-[4rem] border border-white/5 flex flex-col justify-between h-80 transition-all duration-1000 hover:bg-charcoal/60 group relative overflow-hidden bg-charcoal/20 luxury-shadow`}>
+                   <div key={i} className={`p-12 rounded-[4rem] border border-black/5 flex flex-col justify-between h-80 transition-all duration-1000 hover:bg-neutral-100 group relative overflow-hidden bg-neutral-50 luxury-shadow`}>
                      <div className="absolute top-0 right-0 p-10 opacity-[0.03] group-hover:opacity-[0.08] transition-all duration-1000 rotate-12 scale-150">
                         <stat.icon size={160} strokeWidth={1} />
                      </div>
@@ -1033,21 +1052,21 @@ export default function AdminDashboard() {
 
                <div className="grid grid-cols-1 lg:grid-cols-3 gap-16">
                   {/* Main Chart */}
-                  <div className="lg:col-span-2 p-14 rounded-[5rem] border border-white/5 bg-charcoal/20 luxury-shadow overflow-hidden group relative">
+                  <div className="lg:col-span-2 p-14 rounded-[5rem] border border-black/5 bg-neutral-50 luxury-shadow overflow-hidden group relative">
                     <div className="absolute top-0 right-0 p-16 opacity-[0.02] pointer-events-none group-hover:opacity-[0.05] transition-all duration-1000">
-                       <TrendingUp size={500} strokeWidth={1} />
+                       <TrendingUp size={500} strokeWidth={1} className="text-black" />
                     </div>
                     
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-20 gap-10 relative z-10">
                        <div className="space-y-6">
                           <div className="flex items-center space-x-6">
-                             <div className="w-3 h-3 bg-gold rounded-full animate-pulse shadow-[0_0_15px_#c5a059]" />
-                             <span className="font-tech text-gold/30 text-xs tracking-[0.5em] font-black uppercase">TELEMETRY_SYNC // REVENUE_DYNAMICS</span>
+                             <div className="w-3 h-3 bg-indigo-600 rounded-full animate-pulse shadow-[0_0_15px_rgba(79,70,229,0.3)]" />
+                             <span className="font-tech text-indigo-600/30 text-xs tracking-[0.5em] font-black uppercase">TELEMETRY_SYNC // REVENUE_DYNAMICS</span>
                           </div>
-                          <h3 className="text-6xl md:text-8xl font-display italic tracking-tightest leading-none">Stream <span className="opacity-10 text-white font-sans italic">Analytics.</span></h3>
+                          <h3 className="text-6xl md:text-8xl font-display italic tracking-tightest leading-none text-black">Stream <span className="opacity-10 text-black font-sans italic">Analytics.</span></h3>
                        </div>
                        <div className="flex items-center space-x-6">
-                          <div className="px-10 py-4 bg-gold text-noir rounded-full text-xs font-tech font-black tracking-widest uppercase shadow-[0_0_30px_rgba(197,160,89,0.2)]">7_DAY_CYCLE</div>
+                          <div className="px-10 py-4 bg-indigo-600 text-white rounded-full text-xs font-tech font-black tracking-widest uppercase shadow-[0_0_30px_rgba(79,70,229,0.2)]">7_DAY_CYCLE</div>
                        </div>
                     </div>
                     <div className="h-[500px] relative z-10">
@@ -1055,34 +1074,34 @@ export default function AdminDashboard() {
                         <AreaChart data={chartData}>
                           <defs>
                             <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="5%" stopColor="#c5a059" stopOpacity={0.1}/>
-                              <stop offset="95%" stopColor="#c5a059" stopOpacity={0}/>
+                              <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.1}/>
+                              <stop offset="95%" stopColor="#4f46e5" stopOpacity={0}/>
                             </linearGradient>
                           </defs>
-                          <CartesianGrid strokeDasharray="10 10" stroke="#ffffff05" vertical={false} />
+                          <CartesianGrid strokeDasharray="10 10" stroke="#00000005" vertical={false} />
                           <XAxis 
                             dataKey="name" 
-                            stroke="#ffffff10" 
+                            stroke="#00000010" 
                             fontSize={11} 
                             tickLine={false}
                             axisLine={false}
-                            tick={{ dy: 20, fontStyle: 'italic', fontWeight: 'bold', fill: '#ffffff15' }}
+                            tick={{ dy: 20, fontStyle: 'italic', fontWeight: 'bold', fill: '#00000020' }}
                           />
                           <YAxis 
-                            stroke="#ffffff10" 
+                            stroke="#00000010" 
                             fontSize={11} 
                             tickLine={false}
                             axisLine={false}
                             tickFormatter={(value) => `₹${value >= 1000 ? (value/1000).toFixed(0) + 'k' : value}`}
-                            tick={{ dx: -15, fontStyle: 'italic', fontWeight: 'bold', fill: '#ffffff15' }}
+                            tick={{ dx: -15, fontStyle: 'italic', fontWeight: 'bold', fill: '#00000020' }}
                           />
                           <Tooltip 
-                            cursor={{ stroke: '#c5a059', strokeWidth: 1.5, strokeDasharray: '12 12' }}
+                            cursor={{ stroke: '#4f46e5', strokeWidth: 1.5, strokeDasharray: '12 12' }}
                             content={({ active, payload }) => {
                               if (active && payload && payload.length) {
                                 return (
-                                  <div className="bg-noir/90 text-text p-10 rounded-[3rem] shadow-[0_40px_80px_-20px_rgba(0,0,0,0.8)] border border-white/10 backdrop-blur-3xl space-y-3">
-                                    <p className="font-tech text-[10px] text-gold tracking-[0.5em] mb-3 uppercase font-black">{payload[0].payload.name}</p>
+                                  <div className="bg-white text-black p-10 rounded-[3rem] shadow-[0_40px_80px_-20px_rgba(0,0,0,0.1)] border border-black/5 backdrop-blur-3xl space-y-3">
+                                    <p className="font-tech text-[10px] text-indigo-600 tracking-[0.5em] mb-3 uppercase font-black">{payload[0].payload.name}</p>
                                     <p className="text-4xl font-display italic tracking-tightest leading-none">₹{payload[0].value?.toLocaleString()}</p>
                                   </div>
                                 );
@@ -1093,7 +1112,7 @@ export default function AdminDashboard() {
                           <Area 
                             type="monotone" 
                             dataKey="sales" 
-                            stroke="#c5a059" 
+                            stroke="#4f46e5" 
                             strokeWidth={5}
                             fillOpacity={1} 
                             fill="url(#colorSales)" 
@@ -1173,7 +1192,11 @@ export default function AdminDashboard() {
                        </div>
                        
                        <div className="aspect-[4/5] rounded-[3rem] overflow-hidden bg-noir mb-10 relative border border-white/5">
-                          <img src={p.images?.[0] || ''} className="w-full h-full object-contain grayscale brightness-110 group-hover:scale-110 group-hover:grayscale-0 transition-all duration-1000" alt={p.name} />
+                          <div className="w-full h-full flex flex-col items-center justify-center bg-black/5 p-4 relative overflow-hidden group-hover:bg-black/10 transition-colors">
+                             <span className="font-display text-2xl text-white/10 group-hover:text-white/20 transition-all font-bold uppercase">{p.name?.[0] || 'D'}</span>
+                             <div className="absolute inset-0 opacity-[0.02]" 
+                                  style={{ backgroundImage: 'radial-gradient(#fff 1px, transparent 1px)', backgroundSize: '10px 10px' }} />
+                          </div>
                           <div className="absolute inset-0 bg-noir/80 opacity-0 group-hover:opacity-100 transition-all duration-1000 flex items-center justify-center backdrop-blur-sm">
                              <div className="text-center p-10 space-y-6">
                                 <p className="font-tech text-xs text-gold/40 tracking-[0.5em] font-black uppercase">ASSET_VALUATION</p>
@@ -1379,7 +1402,14 @@ export default function AdminDashboard() {
                   {banners.map((b, index) => (
                     <div key={b.id} className="group relative p-8 rounded-[4rem] border border-white/5 bg-charcoal/20 hover:bg-charcoal transition-all duration-1000 luxury-shadow flex flex-col h-full">
                        <div className="aspect-[21/9] rounded-[2.5rem] overflow-hidden bg-noir mb-8 relative border border-white/5">
-                          <img src={b.imageUrl} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" alt={b.title} />
+                          <div className="w-full h-full flex items-center justify-center bg-noir/20 p-8 border border-white/5 relative overflow-hidden group-hover:bg-noir/40 transition-colors">
+                             <div className="text-center relative z-10">
+                                <p className="font-mono text-gold text-[9px] tracking-widest uppercase font-bold mb-2">BANNER_ASSET</p>
+                                <p className="font-display text-white/10 text-4xl italic font-bold">{b.title?.slice(0, 3).toUpperCase()}</p>
+                             </div>
+                             <div className="absolute inset-0 opacity-[0.05]" 
+                                  style={{ backgroundImage: 'radial-gradient(#c5a059 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
+                          </div>
                           <div className="absolute inset-0 bg-gradient-to-t from-noir via-noir/20 to-transparent opacity-60" />
                           <div className="absolute bottom-6 left-8 space-y-2">
                              <p className="font-tech text-gold/40 text-[9px] tracking-[0.3em] font-black">PROMO_ID_{b.id.slice(-6).toUpperCase()}</p>
@@ -1867,10 +1897,10 @@ export default function AdminDashboard() {
           {view === 'support' && (
              <div className="grid grid-cols-12 gap-12 animate-in fade-in duration-1000 h-[700px]">
                 {/* Chat List */}
-                <div className="col-span-12 lg:col-span-4 bg-charcoal/20 rounded-[4rem] border border-white/5 overflow-hidden flex flex-col luxury-shadow">
-                   <div className="p-10 border-b border-white/5 flex justify-between items-center">
-                      <h3 className="font-display italic text-2xl">Signal <span className="opacity-10 text-white font-sans italic">Hub.</span></h3>
-                      <span className="font-mono text-[9px] tracking-widest text-gold opacity-40 uppercase">{supportChats.length} NODES</span>
+                <div className="col-span-12 lg:col-span-4 bg-neutral-50 rounded-[4rem] border border-black/5 overflow-hidden flex flex-col luxury-shadow">
+                   <div className="p-10 border-b border-black/5 flex justify-between items-center">
+                      <h3 className="font-display italic text-2xl text-black">Signal <span className="opacity-10 text-black font-sans italic">Hub.</span></h3>
+                      <span className="font-mono text-[9px] tracking-widest text-indigo-600 opacity-60 uppercase font-black">{supportChats.length} NODES</span>
                    </div>
                    <div className="flex-grow overflow-y-auto no-scrollbar">
                       {supportChats.sort((a,b) => {
@@ -1881,24 +1911,24 @@ export default function AdminDashboard() {
                          <button 
                             key={chat.id}
                             onClick={() => setActiveSupportChat(chat.id)}
-                            className={`w-full p-8 text-left border-b border-white/5 flex items-center space-x-6 transition-all duration-700 ${activeSupportChat === chat.id ? 'bg-gold/10 border-gold/20' : 'hover:bg-white/[0.02]'}`}
+                            className={`w-full p-8 text-left border-b border-black/5 flex items-center space-x-6 transition-all duration-700 ${activeSupportChat === chat.id ? 'bg-indigo-600/10 border-indigo-600/20' : 'hover:bg-black/5'}`}
                          >
                             <div className="relative">
-                               <div className="w-14 h-14 rounded-full bg-noir flex items-center justify-center text-gold border border-white/5">
+                               <div className="w-14 h-14 rounded-full bg-white flex items-center justify-center text-indigo-600 border border-black/5 shadow-xl">
                                   <User size={20} strokeWidth={1} />
                                </div>
                                {chat.unreadByAdmin && (
-                                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-gold rounded-full border-4 border-noir animate-pulse shadow-[0_0_15px_#c5a059]" />
+                                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full border-4 border-white animate-pulse shadow-[0_0_15px_rgba(239,68,68,0.4)]" />
                                )}
                             </div>
                             <div className="flex-grow min-w-0">
                                <div className="flex justify-between items-center mb-1">
-                                  <p className="font-mono text-xs text-text font-black truncate">{chat.userName || 'Anonymous Node'}</p>
-                                  <span className="font-mono text-[8px] text-text/20 uppercase">
+                                  <p className="font-mono text-xs text-black font-black truncate">{chat.userName || 'Anonymous Node'}</p>
+                                  <span className="font-mono text-[8px] text-black/20 uppercase">
                                     {chat.lastActive ? (chat.lastActive.toDate?.() || new Date(chat.lastActive)).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
                                   </span>
                                </div>
-                               <p className="text-[11px] text-text/40 truncate italic tracking-tight">{chat.lastMessage || 'Channel established...'}</p>
+                               <p className="text-[11px] text-black/40 truncate italic tracking-tight">{chat.lastMessage || 'Channel established...'}</p>
                             </div>
                          </button>
                       ))}
@@ -1927,12 +1957,15 @@ export default function AdminDashboard() {
                             </div>
                          </div>
                          
-                         <div className="flex-grow p-10 overflow-y-auto space-y-8 no-scrollbar bg-charcoal/[0.02]">
+                         <div 
+                            ref={adminScrollRef}
+                            className="flex-grow p-10 overflow-y-auto space-y-8 no-scrollbar bg-neutral-50/20"
+                         >
                             {supportMessages.map(msg => (
                                <div key={msg.id} className={`flex ${msg.isAdmin ? 'justify-end' : 'justify-start'}`}>
-                                  <div className={`max-w-[70%] p-6 rounded-[2.5rem] ${msg.isAdmin ? 'bg-gold text-noir shadow-[0_0_40px_rgba(197,160,89,0.2)]' : 'bg-charcoal/40 border border-white/5 text-text'}`}>
+                                  <div className={`max-w-[70%] p-6 rounded-[2.5rem] ${msg.isAdmin ? 'bg-indigo-600 text-white shadow-[0_0_40px_rgba(79,70,229,0.2)]' : 'bg-neutral-100 border border-black/5 text-black'}`}>
                                      <p className="text-sm font-light leading-relaxed">{msg.text}</p>
-                                     <p className={`text-[8px] font-mono mt-3 opacity-30 ${msg.isAdmin ? 'text-noir' : 'text-text'}`}>
+                                     <p className={`text-[8px] font-mono mt-3 opacity-30 ${msg.isAdmin ? 'text-white' : 'text-black'}`}>
                                         {msg.timestamp ? (typeof msg.timestamp === 'string' ? new Date(msg.timestamp).toLocaleTimeString() : msg.timestamp.toDate?.().toLocaleTimeString()) : 'SYNCING'}
                                      </p>
                                   </div>
@@ -1947,12 +1980,12 @@ export default function AdminDashboard() {
                                   value={replyText}
                                   onChange={(e) => setReplyText(e.target.value)}
                                   placeholder="Broadcast signal..."
-                                  className="w-full bg-noir border border-white/5 rounded-full py-6 px-10 pr-20 text-sm font-light text-text focus:border-gold/50 outline-none transition-all"
+                                  className="w-full bg-white border border-black/5 rounded-full py-6 px-10 pr-20 text-sm font-light text-black focus:border-indigo-600 outline-none transition-all"
                                />
                                <button 
                                   type="submit"
                                   disabled={!replyText.trim()}
-                                  className="absolute right-3 top-1/2 -translate-y-1/2 w-14 h-14 bg-gold text-noir rounded-full flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-xl disabled:opacity-20"
+                                  className="absolute right-3 top-1/2 -translate-y-1/2 w-14 h-14 bg-indigo-600 text-white rounded-full flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-xl disabled:opacity-20"
                                >
                                   <Send size={20} strokeWidth={2} />
                                </button>

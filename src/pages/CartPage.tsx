@@ -125,12 +125,10 @@ export default function CartPage() {
                         <Star size={200} />
                       </div>
 
-                      <div className="w-32 h-40 md:w-40 md:h-52 shrink-0 bg-neutral-50 rounded-[2rem] p-4 flex items-center justify-center relative overflow-hidden border border-black/5">
-                        <img 
-                          src={item.images[0]} 
-                          className="w-full h-full object-contain filter group-hover:scale-110 transition-transform duration-1000" 
-                          alt={item.name} 
-                        />
+                      <div className="w-32 h-40 md:w-40 md:h-52 shrink-0 bg-neutral-50 rounded-[2rem] flex items-center justify-center relative overflow-hidden border border-black/5">
+                        <span className="font-display text-4xl opacity-[0.05] group-hover:opacity-[0.1] transition-opacity font-bold uppercase">{item.name?.[0] || 'D'}</span>
+                        <div className="absolute inset-0 opacity-[0.01]" 
+                             style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
                       </div>
                       
                       <div className="flex-grow space-y-4 text-center md:text-left">
@@ -272,7 +270,9 @@ export default function CartPage() {
               <div className="space-y-4 mb-12 text-left max-h-[30vh] overflow-y-auto no-scrollbar pr-2">
                 {cart.filter(item => item.stock <= 0).map(item => (
                   <div key={item.id} className="flex items-center space-x-6 p-6 rounded-3xl bg-neutral-50 border border-black/5 group hover:border-red-500/20 transition-all">
-                    <img src={item.images[0]} className="w-16 h-16 object-cover rounded-xl opacity-30 grayscale" />
+                    <div className="w-16 h-16 rounded-xl bg-white border border-black/5 flex items-center justify-center relative overflow-hidden">
+                       <span className="font-display text-xl opacity-10 font-bold uppercase">{item.name?.[0] || 'D'}</span>
+                    </div>
                     <div className="flex-grow">
                        <p className="text-[10px] font-mono text-black opacity-40 uppercase tracking-widest font-bold mb-1">UNAVAILABLE_UNIT</p>
                        <p className="text-lg font-display font-medium text-black opacity-60">{item.name}</p>

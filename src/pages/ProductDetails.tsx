@@ -291,24 +291,25 @@ export default function ProductDetails() {
               >
                 <motion.div 
                    key={activeImage}
-                   initial={{ opacity: 0, scale: 1.1 }}
+                   initial={{ opacity: 0 }}
                    animate={{ 
                      opacity: 1, 
-                     scale: isZoomed ? 2.5 : 1,
+                     scale: isZoomed ? 1.5 : 1,
                      transformOrigin: `${zoomPos.x}% ${zoomPos.y}%`
                    }}
                    transition={{ 
                      opacity: { duration: 1.5, ease: [0.19, 1, 0.22, 1] },
-                     scale: { duration: 0.6, ease: [0.19, 1, 0.22, 1] },
-                     transformOrigin: { duration: 0.1, ease: "linear" }
+                     scale: { duration: 0.6, ease: [0.19, 1, 0.22, 1] }
                    }}
-                   className="w-full h-full"
+                   className="w-full h-full flex flex-col items-center justify-center bg-white p-20"
                 >
-                  <img 
-                    src={product.images[activeImage]} 
-                    alt={product.name}
-                    className="w-full h-full object-cover"
-                  />
+                  <div className="font-display text-[15rem] opacity-[0.02] select-none pointer-events-none">
+                    {product.name.split(' ').map((n: string) => n[0]).join('')}
+                  </div>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center p-20 text-center pointer-events-none">
+                    <div className="w-1/3 h-[1px] bg-black/10 mb-12" />
+                    <span className="font-mono text-[10px] tracking-[1em] text-black/20 uppercase font-black">Archive_Caliber_{activeImage}</span>
+                  </div>
                 </motion.div>
                 
                 {/* Zoom Indicator */}
@@ -359,9 +360,9 @@ export default function ProductDetails() {
                   <button 
                     key={i}
                     onClick={() => setActiveImage(i)}
-                    className={`relative w-20 aspect-square overflow-hidden rounded-2xl border transition-all duration-700 ${activeImage === i ? 'border-black p-1' : 'border-transparent opacity-20 hover:opacity-100'}`}
+                    className={`relative w-20 aspect-square overflow-hidden rounded-2xl border transition-all duration-700 flex items-center justify-center font-mono text-[10px] font-bold ${activeImage === i ? 'border-black bg-black text-white' : 'border-black/5 bg-neutral-50 text-black/20 hover:text-black hover:bg-neutral-100'}`}
                   >
-                    <img src={img} alt="" className="w-full h-full object-contain" />
+                    0{i + 1}
                   </button>
                 ))}
               </div>
@@ -728,13 +729,13 @@ export default function ProductDetails() {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ duration: 0.8, ease: [0.19, 1, 0.22, 1] }}
-              className="relative w-full max-w-5xl aspect-square p-20 flex items-center justify-center cursor-default"
+              className="relative w-full max-w-5xl aspect-square p-20 flex flex-col items-center justify-center cursor-default bg-neutral-50 rounded-[4rem]"
             >
-              <img 
-                src={product.images[activeImage]} 
-                alt={product.name} 
-                className="w-full h-full object-contain"
-              />
+              <div className="font-display text-[20rem] opacity-[0.03] select-none pointer-events-none">
+                {product.name.split(' ').map((n: string) => n[0]).join('')}
+              </div>
+              <div className="w-1/2 h-[1px] bg-black/10 my-12" />
+              <div className="font-mono text-xs tracking-[1em] text-black/20 uppercase font-black">Macro_Analysis_Core</div>
             </motion.div>
 
             {/* Thumbnail Strip */}
@@ -743,9 +744,9 @@ export default function ProductDetails() {
                  <button 
                    key={i}
                    onClick={() => setActiveImage(i)}
-                   className={`relative w-16 aspect-square overflow-hidden rounded-xl border transition-all duration-700 ${activeImage === i ? 'border-black scale-110 shadow-xl' : 'border-black/10 opacity-30 hover:opacity-100 hover:border-black/20'}`}
+                   className={`relative w-16 aspect-square overflow-hidden rounded-xl border transition-all duration-700 flex items-center justify-center font-mono text-[9px] font-bold ${activeImage === i ? 'border-black bg-black text-white scale-110 shadow-xl' : 'border-black/10 bg-white/50 text-black/20 hover:opacity-100 hover:border-black/20'}`}
                  >
-                   <img src={img} alt="" className="w-full h-full object-contain p-1" />
+                   0{i + 1}
                  </button>
                ))}
             </div>

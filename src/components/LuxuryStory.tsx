@@ -30,15 +30,15 @@ export const LuxuryStory = () => {
           </div>
           
           <div className="col-span-12 lg:col-span-5">
-             <div className="relative aspect-[3/4] rounded-[3rem] overflow-hidden group border border-black/5">
-                <motion.video 
-                  autoPlay muted loop playsInline
-                  style={{ scale: useTransform(scrollYProgress, [0, 1], [1.2, 1]) }}
-                  className="w-full h-full object-cover grayscale opacity-90 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-[3s]"
-                >
-                  <source src="https://v.pexels.com/video-files/4441005/4441005-uhd_2160_3840_30fps.mp4" type="video/mp4" />
-                </motion.video>
-                <div className="absolute inset-24 border border-white/40 rounded-[2rem] group-hover:inset-12 transition-all duration-1000" />
+             <div className="relative aspect-[3/4] rounded-[3rem] overflow-hidden group border border-black/5 bg-neutral-50 flex items-center justify-center p-20">
+                <div className="text-center space-y-8 relative z-10 transition-transform duration-1000 group-hover:scale-110">
+                   <div className="w-24 h-[1px] bg-black/10 mx-auto" />
+                   <div className="font-display text-4xl text-black/20 italic select-none">Vault Heritage.</div>
+                   <div className="w-24 h-[1px] bg-black/10 mx-auto" />
+                </div>
+                <div className="absolute inset-0 opacity-[0.02] pointer-events-none" 
+                     style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+                <div className="absolute inset-24 border border-black/10 rounded-[2rem] group-hover:inset-12 transition-all duration-1000" />
              </div>
           </div>
         </div>

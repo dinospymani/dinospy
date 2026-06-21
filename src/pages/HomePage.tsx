@@ -162,15 +162,21 @@ export default function HomePage() {
               <div className="col-span-12 lg:col-span-6 order-1 lg:order-2">
                  <div className="relative">
                     <div className="absolute -inset-4 border border-black/5 rounded-[4rem] -rotate-3" />
-                    <div className="relative rounded-[3.5rem] overflow-hidden aspect-[4/5] shadow-2xl group border border-black/5">
-                       <img 
-                          src="https://images.unsplash.com/photo-1549439602-43ebca2327af?auto=format&fit=crop&q=80" 
-                          className="w-full h-full object-cover grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-110 transition-all duration-[3s]"
-                          alt="Watch engineering"
-                       />
-                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000 p-12 flex flex-col justify-end">
-                          <p className="text-white font-mono text-[10px] tracking-widest uppercase font-bold">MANUFACTORY_CENTER // SWITZERLAND</p>
-                          <p className="text-white/60 text-sm mt-4 italic font-display">Precision is our only currency.</p>
+                    <div className="relative rounded-[3.5rem] overflow-hidden aspect-[4/5] shadow-2xl group border border-black/5 bg-white flex flex-col items-center justify-center p-20">
+                       <div className="absolute inset-0 opacity-[0.01]" 
+                            style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
+                       <div className="relative z-10 text-center space-y-8">
+                          <Clock size={80} strokeWidth={0.5} className="mx-auto text-black/10 transition-transform duration-[3s] group-hover:rotate-[360deg]" />
+                          <div className="space-y-2">
+                             <p className="font-tech text-[10px] tracking-widest text-black/20 uppercase font-black">Engineering_Vault</p>
+                             <p className="text-2xl font-display italic text-black/10">Precision Core.</p>
+                          </div>
+                       </div>
+                       <div className="absolute bottom-12 left-12 right-12">
+                          <div className="flex justify-between items-end border-t border-black/5 pt-8">
+                            <p className="text-black font-mono text-[9px] tracking-widest uppercase font-bold">MANUFACTORY_CENTER // SWITZERLAND</p>
+                            <p className="text-black/20 text-[8px] font-mono font-black">REF_001</p>
+                          </div>
                        </div>
                     </div>
                  </div>
@@ -251,12 +257,12 @@ export default function HomePage() {
                  
                  <div className="col-span-12 lg:col-span-8">
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-                       <GalleryItem src="https://images.unsplash.com/photo-1547996160-81dfa63595aa?q=80&w=1000" aspect="aspect-square" delay={0} />
-                       <GalleryItem src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1000" aspect="aspect-[3/4]" delay={1} />
-                       <GalleryItem src="https://images.unsplash.com/photo-1508057198894-247b23fe5ade?q=80&w=1000" aspect="aspect-square" delay={2} />
-                       <GalleryItem src="https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?q=80&w=1000" aspect="aspect-[3/4]" className="md:-mt-20" delay={3} />
-                       <GalleryItem src="https://images.unsplash.com/photo-1542496658-e33a6d0d50f6?q=80&w=1000" aspect="aspect-square" delay={4} />
-                       <GalleryItem src="https://images.unsplash.com/photo-1526045431048-f857369aba09?q=80&w=1000" aspect="aspect-[4/5]" delay={5} />
+                       <GalleryItem initials="DS" aspect="aspect-square" delay={0} />
+                       <GalleryItem initials="AX" aspect="aspect-[3/4]" delay={1} />
+                       <GalleryItem initials="CT" aspect="aspect-square" delay={2} />
+                       <GalleryItem initials="MN" aspect="aspect-[3/4]" className="md:-mt-20" delay={3} />
+                       <GalleryItem initials="VA" aspect="aspect-square" delay={4} />
+                       <GalleryItem initials="LT" aspect="aspect-[4/5]" delay={5} />
                     </div>
                  </div>
               </div>
@@ -269,15 +275,16 @@ export default function HomePage() {
   );
 }
 
-const GalleryItem = ({ src, aspect, className = "", delay }) => (
+const GalleryItem = ({ aspect, className = "", delay, initials }) => (
   <motion.div
     initial={{ opacity: 0, scale: 0.9 }}
     whileInView={{ opacity: 1, scale: 1 }}
     viewport={{ once: true }}
     transition={{ delay: delay * 0.1, duration: 1 }}
-    className={`relative group overflow-hidden rounded-[2rem] ${aspect} ${className}`}
+    className={`relative group overflow-hidden rounded-[2rem] ${aspect} ${className} bg-neutral-50 border border-black/5 flex items-center justify-center`}
   >
-    <img src={src} className="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-110 transition-all duration-[2s] ease-[0.16,1,0.3,1]" alt="Gallery" />
+    <div className="font-display text-6xl opacity-[0.03] select-none group-hover:opacity-[0.08] transition-opacity duration-1000 uppercase">{initials}</div>
     <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+    <div className="absolute bottom-6 right-6 font-mono text-[8px] text-black/10 group-hover:text-black/40 transition-colors uppercase font-black">Asset_{delay}</div>
   </motion.div>
 );

@@ -29,6 +29,8 @@ export default function SupportChat() {
           scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
         }
       }, 100);
+    }, (error) => {
+      console.warn("Signal frequency interrupted:", error);
     });
 
     // Mark as read or update user chat status
@@ -90,7 +92,7 @@ export default function SupportChat() {
             className="absolute bottom-20 right-0 w-[90vw] md:w-96 h-[600px] bg-white rounded-[3rem] shadow-2xl flex flex-col overflow-hidden border border-black/5"
           >
             {/* Header */}
-            <div className="p-8 bg-black text-white flex items-center justify-between">
+            <div className="p-8 bg-indigo-600 text-white flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
                   <ShieldCheck size={20} strokeWidth={1} />
@@ -130,7 +132,7 @@ export default function SupportChat() {
                   <div className={`max-w-[80%] p-5 rounded-[2rem] text-sm leading-relaxed ${
                     msg.isAdmin 
                     ? 'bg-white border border-black/5 text-black' 
-                    : 'bg-black text-white'
+                    : 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20'
                   }`}>
                     <p>{msg.text}</p>
                     <div className={`flex items-center space-x-2 mt-2 opacity-30 ${msg.isAdmin ? 'justify-start' : 'justify-end'}`}>
@@ -157,7 +159,7 @@ export default function SupportChat() {
                 <button 
                   type="submit"
                   disabled={loading || !message.trim()}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 w-12 h-12 bg-black text-white rounded-full flex items-center justify-center hover:scale-105 active:scale-95 transition-all disabled:opacity-20"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 w-12 h-12 bg-indigo-600 text-white rounded-full flex items-center justify-center hover:scale-105 active:scale-95 transition-all disabled:opacity-20 shadow-lg shadow-indigo-600/20"
                 >
                   <Send size={18} />
                 </button>
@@ -171,7 +173,7 @@ export default function SupportChat() {
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen(!isOpen)}
-        className="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center shadow-2xl relative group"
+        className="w-16 h-16 bg-indigo-600 text-white rounded-full flex items-center justify-center shadow-2xl relative group"
       >
         <AnimatePresence mode="wait">
           {isOpen ? (

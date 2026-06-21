@@ -24,30 +24,24 @@ export default function CinematicBanner({
 }: CinematicBannerProps) {
   return (
     <section className="relative min-h-[110vh] md:min-h-screen w-full flex items-center overflow-hidden bg-white">
-      {/* Background Video */}
+      {/* Background Content */}
       <div className="absolute inset-0 z-0 px-4 md:px-24 py-12 md:py-48">
-        <div className="relative w-full h-full overflow-hidden bg-white">
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            preload="auto"
-            className="w-full h-full object-cover grayscale opacity-10 brightness-[1.1] contrast-[1.2]"
-            style={{ filter: 'grayscale(1) brightness(1.1) contrast(1.2)' }}
-          >
-            <source src={videoUrl} type="video/mp4" />
-          </video>
+        <div className="relative w-full h-full overflow-hidden bg-neutral-50 flex items-center justify-center border border-black/5">
+          <div className="font-display text-[25vw] opacity-[0.01] select-none pointer-events-none italic font-bold">
+            {title.slice(0, 3).toUpperCase()}
+          </div>
           <div className="absolute inset-0 bg-white/10 z-10" />
           
           {/* Internal Grid */}
-          <div className="absolute inset-0 z-20 pointer-events-none opacity-5">
+          <div className="absolute inset-0 z-20 pointer-events-none opacity-[0.03]">
              <div className="w-full h-full grid grid-cols-12 grid-rows-12">
                 {Array.from({ length: 144 }).map((_, i) => (
-                  <div key={i} className="border-[0.5px] border-black" />
+                   <div key={i} className="border-[0.5px] border-black" />
                 ))}
              </div>
           </div>
+          <div className="absolute inset-0 opacity-[0.02]" 
+               style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
         </div>
       </div>
 

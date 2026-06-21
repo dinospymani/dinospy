@@ -123,6 +123,32 @@
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["title", "message", "type", "createdAt"]
+    },
+    "SupportChat": {
+      "title": "Support Chat",
+      "description": "Support channel between user and admin.",
+      "type": "object",
+      "properties": {
+        "userName": { "type": "string" },
+        "userEmail": { "type": "string" },
+        "lastMessage": { "type": "string" },
+        "lastActive": { "type": "string", "format": "date-time" },
+        "unreadByAdmin": { "type": "boolean" },
+        "unreadByUser": { "type": "boolean" }
+      }
+    },
+    "SupportMessage": {
+      "title": "Support Message",
+      "description": "Individual message in a support chat.",
+      "type": "object",
+      "properties": {
+        "text": { "type": "string" },
+        "senderId": { "type": "string" },
+        "senderName": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "isAdmin": { "type": "boolean" }
+      },
+      "required": ["text", "senderId", "timestamp"]
     }
   },
   "firestore": {
@@ -157,6 +183,14 @@
     "/notifications/{notificationId}": {
       "schema": "Notification",
       "description": "Global application notifications."
+    },
+    "/support_chats/{userId}": {
+      "schema": "SupportChat",
+      "description": "Support chat metadata."
+    },
+    "/support_chats/{userId}/messages/{messageId}": {
+      "schema": "SupportMessage",
+      "description": "Support chat messages."
     }
   }
 }
