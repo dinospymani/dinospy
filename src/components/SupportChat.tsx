@@ -110,61 +110,69 @@ export default function SupportChat() {
             className="absolute bottom-20 right-0 w-[90vw] md:w-96 h-[600px] bg-white rounded-[3rem] shadow-2xl flex flex-col overflow-hidden border border-black/5"
           >
             {/* Header */}
-            <div className="p-8 bg-gradient-to-r from-slate-900 to-indigo-950 text-white flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
-                  <ShieldCheck size={20} strokeWidth={1} />
+            <div className="p-8 bg-slate-950 text-white flex items-center justify-between relative overflow-hidden">
+              <div className="absolute inset-0 bg-indigo-600/5 -skew-y-12 translate-y-8" />
+              <div className="flex items-center space-x-5 relative z-10">
+                <div className="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-600/40">
+                  <ShieldCheck size={24} strokeWidth={1.5} />
                 </div>
                 <div>
-                  <h3 className="font-display font-medium text-lg tracking-tight">Vault Support</h3>
+                  <h3 className="font-display italic text-xl tracking-tight leading-none mb-1">Vault Support</h3>
                   <div className="flex items-center space-x-2">
                     <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse shadow-[0_0_10px_rgba(52,211,153,0.5)]" />
-                    <span className="font-mono text-[9px] tracking-widest uppercase opacity-60">System Online</span>
+                    <span className="font-tech text-[8px] tracking-[0.4em] uppercase opacity-40 font-black">Link Established</span>
                   </div>
                 </div>
               </div>
               <button 
                 onClick={() => setIsOpen(false)}
-                className="p-2 hover:bg-white/10 rounded-full transition-colors"
+                className="w-10 h-10 flex items-center justify-center hover:bg-white/5 rounded-full transition-colors relative z-10 border border-white/5"
               >
-                <X size={20} />
+                <X size={20} strokeWidth={1} />
               </button>
             </div>
 
             {/* Messages */}
             <div 
               ref={scrollRef}
-              className="flex-grow p-8 overflow-y-auto space-y-6 bg-slate-50 no-scrollbar"
+              className="flex-grow p-8 overflow-y-auto space-y-8 bg-neutral-50/50 no-scrollbar"
             >
               {messages.length === 0 && (
-                <div className="h-full flex flex-col items-center justify-center text-center space-y-6 opacity-30">
-                  <MessageSquare size={48} strokeWidth={1} />
-                  <p className="font-display italic text-lg px-8">How may our support team assist your journey today?</p>
+                <div className="h-full flex flex-col items-center justify-center text-center space-y-8 opacity-20">
+                  <div className="w-24 h-24 rounded-[3rem] border border-dashed border-black/10 flex items-center justify-center">
+                    <MessageSquare size={32} strokeWidth={0.5} />
+                  </div>
+                  <div className="space-y-4">
+                    <p className="font-display italic text-2xl px-12">Universal support frequencies open.</p>
+                    <p className="font-tech text-[9px] tracking-widest uppercase">Awaiting your secure transmission...</p>
+                  </div>
                 </div>
               )}
-              {messages.map((msg) => (
-                <div 
-                  key={msg.id}
+              {messages.map((msg, i) => (
+                <motion.div 
+                  initial={{ opacity: 0, x: msg.isAdmin ? -10 : 10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  key={msg.id || i}
                   className={`flex ${msg.isAdmin ? 'justify-start' : 'justify-end'}`}
                 >
-                  <div className={`max-w-[80%] p-5 rounded-[2.5rem] text-sm leading-relaxed ${
+                  <div className={`max-w-[85%] p-6 rounded-[2.8rem] text-sm leading-relaxed shadow-sm ${
                     msg.isAdmin 
                     ? 'bg-white border border-black/5 text-black' 
-                    : 'bg-gradient-to-br from-indigo-600 to-indigo-800 text-white shadow-xl shadow-indigo-600/20'
+                    : 'bg-slate-950 text-white shadow-2xl shadow-indigo-900/10'
                   }`}>
-                    <p>{msg.text}</p>
-                    <div className={`flex items-center space-x-2 mt-2 opacity-30 ${msg.isAdmin ? 'justify-start' : 'justify-end'}`}>
+                    <p className="font-light">{msg.text}</p>
+                    <div className={`flex items-center space-x-3 mt-4 opacity-30 ${msg.isAdmin ? 'justify-start' : 'justify-end'}`}>
                       <Clock size={10} />
-                      <span className="text-[8px] font-mono uppercase">
+                      <span className="text-[8px] font-mono tracking-tighter uppercase">
                         {msg.timestamp ? (
                           msg.timestamp.toDate 
                             ? msg.timestamp.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) 
                             : new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                        ) : 'SYNCING'}
+                        ) : 'Pending Sync'}
                       </span>
                     </div>
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
 

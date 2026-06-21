@@ -103,6 +103,11 @@ export default function ProfilePage() {
   };
 
   const downloadReceipt = (order: any) => {
+    if (!order || !order.items) {
+      toast.error('Manifest data corrupted. Cannot generate archive.');
+      return;
+    }
+
     try {
       const doc = new jsPDF();
       const goldColor = [212, 175, 55]; // #D4AF37
@@ -140,10 +145,10 @@ export default function ProfilePage() {
 
       // Table of Items
       const tableData = order.items.map((item: any) => [
-        item.name,
-        `x${item.quantity}`,
-        `INR ${item.price.toLocaleString()}`,
-        `INR ${(item.price * item.quantity).toLocaleString()}`
+        item.name || 'Unknown Asset',
+        `x${item.quantity || 1}`,
+        `INR ${(item.price || 0).toLocaleString()}`,
+        `INR ${((item.price || 0) * (item.quantity || 1)).toLocaleString()}`
       ]);
 
       autoTable(doc, {
@@ -160,21 +165,24 @@ export default function ProfilePage() {
         margin: { top: 90 }
       });
 
-      const finalY = (doc as any).lastAutoTable.finalY + 15;
+      // Safely get the final Y position from autoTable
+      const lastTable = (doc as any).lastAutoTable;
+      const finalY = lastTable ? lastTable.finalY + 15 : 150;
+
       doc.setFontSize(12);
       doc.setFont('helvetica', 'bold');
-      doc.text(`FULL ACQUISITION VALUE: INR ${order.total.toLocaleString()}`, 120, finalY);
+      doc.text(`FULL ACQUISITION VALUE: INR ${(order.total || 0).toLocaleString()}`, 110, finalY);
 
       doc.setFontSize(9);
       doc.setFont('helvetica', 'italic');
       doc.setTextColor(150, 150, 150);
       doc.text('Thank you for choosing DINOSPY. Your heritage is our legacy.', 105, 280, { align: 'center' });
 
-      doc.save(`DINOSPY-Receipt-${order.id.slice(-6)}.pdf`);
+      doc.save(`DINOSPY-Receipt-${order.id.slice(-6).toUpperCase()}.pdf`);
       toast.success('Receipt localized successfully.');
     } catch (err) {
-      console.error(err);
-      toast.error('Failed to generate archive.');
+      console.error('Receipt Generation Error:', err);
+      toast.error('Internal processing failure during archive generation.');
     }
   };
 

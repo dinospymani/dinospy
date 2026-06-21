@@ -4,7 +4,7 @@ import { ChevronLeft, CreditCard, ShieldCheck, Truck, Phone, CheckCircle2, Alert
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth, db } from '../context/AuthContext';
-import { collection, doc, runTransaction, getDoc, getDocs, query, where } from 'firebase/firestore';
+import { collection, doc, runTransaction, getDoc, getDocs, query, where, addDoc } from 'firebase/firestore';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { toast } from 'sonner';
@@ -17,6 +17,7 @@ export default function CheckoutPage() {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<'card' | 'cod'>('card');
   const [couponCode, setCouponCode] = useState('');
   const [isValidatingCoupon, setIsValidatingCoupon] = useState(false);
 
@@ -134,19 +135,20 @@ export default function CheckoutPage() {
           customerEmail: formData.email,
           customerPhone: formData.phone,
           deliveryPin,
-          paymentStatus: 'pending',
+          paymentStatus: paymentMethod === 'cod' ? 'cod' : 'pending',
+          paymentMethod: paymentMethod,
           shippingAddress: { ...formData },
           items: cart,
           total: cartTotal,
-          status: 'pending_payment',
+          status: paymentMethod === 'cod' ? 'confirmed' : 'pending_payment',
           isTest: isTestOrder,
           couponUsed: coupon ? coupon.code : null,
           createdAt: new Date().toISOString(),
           timeline: [
             {
-              status: 'pending_payment',
+              status: paymentMethod === 'cod' ? 'confirmed' : 'pending_payment',
               timestamp: new Date().toISOString(),
-              message: "Order initialized. Awaiting payment authorization."
+              message: paymentMethod === 'cod' ? "Acquisition confirmed via Logistics Liquidation (COD)." : "Order initialized. Awaiting payment authorization."
             }
           ]
         };
@@ -157,7 +159,25 @@ export default function CheckoutPage() {
         return { orderId, ...orderData };
       });
 
-      // 2. Create Cashfree Session
+      // 2. If COD, finish here. Otherwise create Cashfree Session
+      if (paymentMethod === 'cod') {
+        const adminNotif = {
+           type: 'orders',
+           message: `New COD Acquisition: ${formData.fullName}`,
+           orderId: result.orderId,
+           total: cartTotal,
+           timestamp: new Date().toISOString(),
+           read: false
+        };
+        
+        await addDoc(collection(db, 'notifications'), adminNotif);
+        
+        clearCart();
+        navigate('/profile');
+        toast.success('Acquisition request confirmed. Settlement due on arrival.');
+        return true;
+      }
+
       try {
         const res = await fetch('/api/payment/create-order', {
           method: 'POST',
@@ -390,6 +410,55 @@ export default function CheckoutPage() {
                    </div>
                  </div>
               </div>
+
+               {/* Payment Method Selection */}
+               <div className="space-y-6">
+                  <h3 className="text-xl font-display font-medium tracking-tight uppercase flex items-center mb-6 border-b border-black/5 pb-6">
+                    <CreditCard className="mr-4 opacity-20" size={24} />
+                    Handshake <span className="opacity-20 ml-2">Protocol</span>
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                     <button
+                       type="button"
+                       onClick={() => setPaymentMethod('card')}
+                       className={`p-10 rounded-[3rem] border transition-all duration-700 text-left relative overflow-hidden group ${paymentMethod === 'card' ? 'border-black bg-black text-white shadow-2xl' : 'border-black/5 bg-neutral-50 text-black hover:border-black/20'}`}
+                     >
+                        <div className={`absolute top-0 right-0 p-8 opacity-[0.05] transition-transform duration-1000 ${paymentMethod === 'card' ? 'rotate-0' : 'rotate-12 group-hover:rotate-0'}`}>
+                           <CreditCard size={100} />
+                        </div>
+                        <div className="relative z-10 space-y-4">
+                           <div className={`w-10 h-10 rounded-full flex items-center justify-center ${paymentMethod === 'card' ? 'bg-white/10' : 'bg-black/5'}`}>
+                              <CreditCard size={18} />
+                           </div>
+                           <div>
+                              <p className="font-mono text-[9px] font-bold tracking-[0.3em] uppercase opacity-40 mb-2">METHOD_01</p>
+                              <h4 className="text-lg font-display font-medium">Digital Handshake</h4>
+                              <p className={`text-[10px] mt-2 leading-relaxed ${paymentMethod === 'card' ? 'text-white/40' : 'text-black/40'}`}>Authorize via secure real-time encryption gateway.</p>
+                           </div>
+                        </div>
+                     </button>
+
+                     <button
+                       type="button"
+                       onClick={() => setPaymentMethod('cod')}
+                       className={`p-10 rounded-[3rem] border transition-all duration-700 text-left relative overflow-hidden group ${paymentMethod === 'cod' ? 'border-black bg-black text-white shadow-2xl' : 'border-black/5 bg-neutral-50 text-black hover:border-black/20'}`}
+                     >
+                        <div className={`absolute top-0 right-0 p-8 opacity-[0.05] transition-transform duration-1000 ${paymentMethod === 'cod' ? 'rotate-0' : 'rotate-12 group-hover:rotate-0'}`}>
+                           <Truck size={100} />
+                        </div>
+                        <div className="relative z-10 space-y-4">
+                           <div className={`w-10 h-10 rounded-full flex items-center justify-center ${paymentMethod === 'cod' ? 'bg-white/10' : 'bg-black/5'}`}>
+                              <Truck size={18} />
+                           </div>
+                           <div>
+                              <p className="font-mono text-[9px] font-bold tracking-[0.3em] uppercase opacity-40 mb-2">METHOD_02</p>
+                              <h4 className="text-lg font-display font-medium">Logistics Liquidation</h4>
+                              <p className={`text-[10px] mt-2 leading-relaxed ${paymentMethod === 'cod' ? 'text-white/40' : 'text-black/40'}`}>Fulfill settlement upon physical asset verification.</p>
+                           </div>
+                        </div>
+                     </button>
+                  </div>
+               </div>
 
               <button 
                 type="submit" 

@@ -26,7 +26,7 @@ interface AdminProduct {
 interface AdminOrder {
   id: string;
   userId: string;
-  status: 'pending' | 'processing' | 'quality_check' | 'shipped' | 'out_for_delivery' | 'delivered';
+  status: 'pending' | 'processing' | 'quality_check' | 'shipped' | 'out_for_delivery' | 'delivered' | 'cancelled';
   total: number;
   createdAt: string;
   items: any[];
@@ -61,6 +61,10 @@ export default function AdminDashboard() {
   const [activeSupportChat, setActiveSupportChat] = useState<string | null>(null);
   const [supportMessages, setSupportMessages] = useState<any[]>([]);
   const [replyText, setReplyText] = useState('');
+  const [productSearch, setProductSearch] = useState('');
+  const [orderSearch, setOrderSearch] = useState('');
+  const [orderStatusFilter, setOrderStatusFilter] = useState<string>('all');
+  const [liveActivity, setLiveActivity] = useState<any[]>([]);
   const adminScrollRef = React.useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -160,22 +164,15 @@ export default function AdminDashboard() {
           const newOrders = fetchedOrders.filter(fo => !prevOrders.some(po => po.id === fo.id));
           newOrders.forEach((no) => {
              toast.success(`NEW ACQUISITION: ${no.customerName} just placed an order!`, {
-               icon: <Bell className="text-gold" />,
+               icon: <Bell size={18} />,
                duration: 5000
              });
-             setNotifications(prev => {
-                // Prevent duplicate notifications for the same order
-                if (prev.some(n => n.id === `noti_${no.id}`)) return prev;
-                return [{
-                  id: `noti_${no.id}`,
-                  type: 'orders',
-                  message: `New Order #${no.id.slice(-6)} received from ${no.customerName}`,
-                  total: no.total,
-                  timestamp: new Date().toISOString(),
-                  read: false,
-                  orderId: no.id
-                }, ...prev];
-             });
+             setLiveActivity(prev => [{
+               id: Date.now(),
+               type: 'order',
+               message: `New acquisition protocol for DNX-${no.id.slice(-6).toUpperCase()} initiated by ${no.customerName}`,
+               timestamp: new Date().toISOString()
+             }, ...prev].slice(0, 20));
           });
         }
         return fetchedOrders;
@@ -226,9 +223,31 @@ export default function AdminDashboard() {
     // SUPPORT CHATS LISTENER
     const qSupport = query(collection(db, 'support_chats'), orderBy('lastActive', 'desc'));
     const unsubSupport = onSnapshot(qSupport, (snap) => {
-      setSupportChats(snap.docs.map(doc => ({ id: doc.id, ...doc.data({ serverTimestamps: 'estimate' }) })));
+      const fetchedChats = snap.docs.map(doc => ({ id: doc.id, ...doc.data({ serverTimestamps: 'estimate' }) }));
+      setSupportChats(fetchedChats);
+      
+      // Live activity for new signals
+      setSupportChats(prev => {
+        if (prev.length > 0 && fetchedChats.length > prev.length) {
+           setLiveActivity(la => [{
+             id: Date.now(),
+             type: 'support',
+             message: `New secure signal frequency established`,
+             timestamp: new Date().toISOString()
+           }, ...la].slice(0, 50));
+        }
+        return fetchedChats;
+      });
     }, (error) => {
       console.warn("Support vault restricted:", error);
+    });
+
+    // NOTIFICATIONS LISTENER
+    const qNotif = query(collection(db, 'notifications'), orderBy('timestamp', 'desc'), orderBy('read', 'asc'));
+    const unsubNotif = onSnapshot(qNotif, (snap) => {
+      setNotifications(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    }, (error) => {
+      console.warn("Notification feed isolation active", error);
     });
 
     // Auto-redirect support role to support view
@@ -241,6 +260,7 @@ export default function AdminDashboard() {
       unsubMaintenance();
       unsubCoupons();
       unsubSupport();
+      unsubNotif();
     };
   }, []);
 
@@ -297,6 +317,18 @@ export default function AdminDashboard() {
 
     } catch (err) {
       toast.error('Transmission failed.');
+    }
+  };
+
+  const handleResolveSupport = async (chatId: string) => {
+    if (!window.confirm('Are you certain you wish to terminate this communication channel? The index will be archived.')) return;
+    try {
+      await deleteDoc(doc(db, 'support_chats', chatId));
+      // Also delete messages? Usually optional but good for cleanup
+      toast.success('Channel terminated and archived.');
+      setActiveSupportChat(null);
+    } catch (err) {
+      toast.error('Termination handshake failed.');
     }
   };
 
@@ -493,7 +525,8 @@ export default function AdminDashboard() {
       quality_check: "Currently undergoing precision testing and aesthetic validation.",
       shipped: "Logistics departure confirmed. The piece is in transit.",
       out_for_delivery: "A courier has taken possession for final local arrival.",
-      delivered: "Signature delivery completed. Welcome to the collection."
+      delivered: "Signature delivery completed. Welcome to the collection.",
+      cancelled: "Acquisition protocol terminated and manifest archived."
     };
     return messages[status] || "Order state synchronized.";
   };
@@ -884,6 +917,58 @@ export default function AdminDashboard() {
     });
   };
 
+  const handleCancelOrder = async (orderId: string) => {
+    if (!window.confirm('Are you certain you wish to terminate this acquisition protocol? This action is irreversible.')) return;
+    
+    setIsSaving(true);
+    try {
+      await updateDoc(doc(db, 'orders', orderId), {
+        status: 'cancelled',
+        updatedAt: serverTimestamp(),
+        timeline: [
+          ...(selectedOrder?.timeline || []),
+          {
+            status: 'cancelled',
+            timestamp: new Date().toISOString(),
+            message: "Protocol terminated by DINOSPY_EXECUTIVE."
+          }
+        ]
+      });
+      toast.success('Acquisition protocol terminated.');
+      setSelectedOrder(null);
+    } catch (err) {
+      console.error(err);
+      toast.error('Termination sequence failed.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handeShipOrder = async (orderId: string) => {
+    setIsSaving(true);
+    try {
+      await updateDoc(doc(db, 'orders', orderId), {
+        status: 'shipped',
+        updatedAt: serverTimestamp(),
+        timeline: [
+          ...(selectedOrder?.timeline || []),
+          {
+            status: 'shipped',
+            timestamp: new Date().toISOString(),
+            message: "Asset dispatched from Geneva logistics node."
+          }
+        ]
+      });
+      toast.success('Asset dispatched.');
+      setSelectedOrder(null);
+    } catch (err) {
+      console.error(err);
+      toast.error('Dispatch handshake failed.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const compressImage = (base64Str: string, maxWidth = 1200, maxHeight = 1200, quality = 0.7): Promise<string> => {
     return new Promise((resolve) => {
       const img = new Image();
@@ -1145,17 +1230,22 @@ export default function AdminDashboard() {
                         <span className="font-tech text-indigo-600/20 text-[10px] font-bold tracking-widest">SECURE_SYNC</span>
                       </div>
                       <div className="space-y-8 max-h-[400px] overflow-y-auto no-scrollbar relative z-10 pr-4">
-                         {notifications.slice(0, 8).map((n, i) => (
+                         {(liveActivity.length > 0 ? liveActivity : notifications.slice(0, 8)).map((n, i) => (
                            <div key={i} className="flex gap-6 group border-l-2 border-white/5 pl-8 hover:border-indigo-600 transition-all duration-700">
                              <div className="flex-shrink-0 space-y-3">
                                <p className="font-tech text-white/10 text-[9px] uppercase tracking-widest">{new Date(n.timestamp).toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit' })}</p>
-                               <span className={`inline-block font-tech text-[8px] font-black tracking-widest px-3 py-1 rounded-full border ${n.type === 'orders' ? 'text-indigo-400 border-indigo-400/20' : 'text-red-400 border-red-400/20'}`}>
+                               <span className={`inline-block font-tech text-[8px] font-black tracking-widest px-3 py-1 rounded-full border ${n.type === 'order' || n.type === 'orders' ? 'text-indigo-400 border-indigo-400/20' : 'text-emerald-400 border-emerald-400/20'}`}>
                                  {n.type.toUpperCase()}
                                </span>
                              </div>
-                             <p className="text-text/60 group-hover:text-text transition-colors text-xs leading-relaxed font-display italic tracking-tight">{n.message}</p>
+                             <p className="text-white/60 group-hover:text-white transition-colors text-[10px] leading-relaxed font-mono tracking-tight">{n.message}</p>
                            </div>
                          ))}
+                         {liveActivity.length === 0 && notifications.length === 0 && (
+                           <div className="text-center py-10 opacity-20">
+                             <p className="font-tech text-[8px] tracking-[0.5em] uppercase">No activity detected.</p>
+                           </div>
+                         )}
                       </div>
                     </div>
 
@@ -1182,13 +1272,22 @@ export default function AdminDashboard() {
                     </div>
                     <h2 className="text-6xl md:text-8xl font-display italic tracking-tightest leading-none">Collection <span className="opacity-10 text-white font-sans italic">Manifest.</span></h2>
                   </div>
-                  <div className="flex gap-6 w-full md:w-auto">
-                    <button onClick={handleSeed} className="flex-grow md:flex-grow-0 px-10 py-5 border border-white/10 rounded-full font-tech text-xs font-black tracking-widest text-text/40 hover:bg-gold hover:text-noir hover:border-gold transition-all duration-1000 active:scale-95 uppercase">GENERATE_SAMPLE_DATA</button>
+                  <div className="flex gap-6 w-full md:w-auto items-center">
+                    <div className="relative flex-grow md:w-80">
+                      <input 
+                        type="text" 
+                        placeholder="SEARCH_MANIFEST..." 
+                        value={productSearch}
+                        onChange={(e) => setProductSearch(e.target.value)}
+                        className="w-full bg-noir border border-white/5 rounded-full py-5 px-10 text-xs font-tech tracking-widest text-gold outline-none focus:border-gold/40 transition-all placeholder:text-white/5 uppercase"
+                      />
+                    </div>
+                    <button onClick={handleSeed} className="px-10 py-5 border border-white/10 rounded-full font-tech text-xs font-black tracking-widest text-text/40 hover:bg-gold hover:text-noir hover:border-gold transition-all duration-1000 active:scale-90 uppercase">GENERATE_SAMPLE_DATA</button>
                   </div>
                </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-12">
-                  {products.map((p) => (
+                  {products.filter(p => !productSearch || p.name.toLowerCase().includes(productSearch.toLowerCase()) || p.category.toLowerCase().includes(productSearch.toLowerCase())).map((p) => (
                     <motion.div 
                       layout
                       key={p.id} 
@@ -1287,8 +1386,28 @@ export default function AdminDashboard() {
                     </div>
                     <h2 className="text-6xl md:text-8xl font-display italic tracking-tightest leading-none">Global <span className="opacity-10 text-white font-sans italic">Acquisitions.</span></h2>
                   </div>
-                  <div className="flex gap-6">
-                     <div className="px-10 py-5 bg-charcoal/40 border border-white/5 rounded-full text-xs font-tech font-black tracking-widest text-text/40 uppercase shadow-inner">ACTIVE_NODES: {orders.length}</div>
+                  <div className="flex flex-col xl:flex-row gap-6 w-full xl:w-auto items-center">
+                     <div className="relative w-full xl:w-80">
+                        <input 
+                          type="text"
+                          placeholder="SEARCH_ACQUISITIONS..."
+                          value={orderSearch}
+                          onChange={(e) => setOrderSearch(e.target.value)}
+                          className="w-full bg-charcoal/40 border border-white/5 rounded-full py-5 px-10 text-xs font-tech tracking-widest text-gold outline-none focus:border-gold/40 transition-all placeholder:text-white/5 uppercase"
+                        />
+                     </div>
+                     <div className="flex bg-charcoal/40 rounded-full border border-white/5 p-1.5 h-full overflow-x-auto no-scrollbar">
+                        {['all', 'pending', 'confirmed', 'shipped', 'delivered', 'cancelled'].map((status) => (
+                          <button
+                            key={status}
+                            onClick={() => setOrderStatusFilter(status)}
+                            className={`px-6 py-3 rounded-full text-[9px] font-tech font-black tracking-widest transition-all duration-700 uppercase whitespace-nowrap ${orderStatusFilter === status ? 'bg-gold text-noir shadow-[0_0_20px_rgba(197,160,89,0.3)]' : 'text-text/20 hover:text-text'}`}
+                          >
+                            {status}
+                          </button>
+                        ))}
+                     </div>
+                     <div className="px-10 py-5 bg-charcoal/40 border border-white/5 rounded-full text-xs font-tech font-black tracking-widest text-text/40 uppercase shadow-inner whitespace-nowrap">ACTIVE_NODES: {orders.length}</div>
                   </div>
                </div>
 
@@ -1312,7 +1431,13 @@ export default function AdminDashboard() {
                             </td>
                           </tr>
                         ) : (
-                          orders.map((o) => (
+                          orders
+                           .filter(o => {
+                             const matchesSearch = !orderSearch || o.customerName?.toLowerCase().includes(orderSearch.toLowerCase()) || o.id?.toLowerCase().includes(orderSearch.toLowerCase());
+                             const matchesStatus = orderStatusFilter === 'all' || o.status === orderStatusFilter;
+                             return matchesSearch && matchesStatus;
+                           })
+                           .map((o) => (
                             <tr key={o.id} className="group hover:bg-white/[0.02] transition-all duration-700">
                               <td className="py-16 pl-12">
                                  <div className="flex items-center space-x-6">
@@ -1347,7 +1472,7 @@ export default function AdminDashboard() {
                                       onChange={(e) => handleUpdateOrderStatus(o.id, e.target.value as any)}
                                       className="bg-transparent font-tech text-xs font-black tracking-[0.2em] opacity-0 group-hover:opacity-40 hover:opacity-100 transition-all cursor-pointer border-none outline-none appearance-none uppercase text-gold"
                                     >
-                                       {['pending', 'processing', 'quality_check', 'shipped', 'delivered'].map(s => <option key={s} value={s} className="bg-noir text-gold">{s.toUpperCase()}</option>)}
+                                       {['pending', 'processing', 'quality_check', 'shipped', 'delivered', 'cancelled'].map(s => <option key={s} value={s} className="bg-noir text-gold">{s.toUpperCase()}</option>)}
                                     </select>
                                  </div>
                               </td>
@@ -1830,9 +1955,7 @@ export default function AdminDashboard() {
                             <p className="text-6xl md:text-7xl font-black italic tracking-widest text-gold drop-shadow-[0_0_20px_rgba(197,160,89,0.3)]">DNX-{selectedOrder.id.slice(0, 10).toUpperCase()}</p>
                          </div>
                       </div>
-                   </div>
-
-                   <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
                        <button 
                          onClick={() => window.print()}
                          className="flex items-center justify-center space-x-8 py-10 rounded-[3rem] border border-white/10 bg-noir/40 hover:bg-white hover:text-noir active:scale-95 transition-all duration-1000 font-tech text-xs font-black tracking-[0.5em] group/print uppercase"
@@ -1840,11 +1963,24 @@ export default function AdminDashboard() {
                          <Printer size={24} strokeWidth={1} className="group-hover/print:rotate-12 transition-transform" />
                          <span>EXECUTE_PHYSICAL_PRINT</span>
                        </button>
-                       <button className="flex items-center justify-center space-x-8 py-10 rounded-[3rem] bg-indigo-600 text-white hover:shadow-[0_0_60px_rgba(79,70,229,0.4)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-1000 font-tech text-xs font-black tracking-[0.5em] group/dispatch uppercase">
+                       <button 
+                         onClick={() => handeShipOrder(selectedOrder.id)}
+                         disabled={isSaving || selectedOrder.status === 'shipped' || selectedOrder.status === 'cancelled'}
+                         className="flex items-center justify-center space-x-8 py-10 rounded-[3rem] bg-indigo-600 text-white hover:shadow-[0_0_60px_rgba(79,70,229,0.4)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-1000 font-tech text-xs font-black tracking-[0.5em] group/dispatch uppercase disabled:opacity-50 disabled:cursor-not-allowed"
+                       >
                          <Package size={24} strokeWidth={1} className="group-hover/dispatch:translate-x-2 transition-transform" />
                          <span>INITIATE_DISPATCH_PROTOCOL</span>
                        </button>
+                       <button 
+                         onClick={() => handleCancelOrder(selectedOrder.id)}
+                         disabled={isSaving || selectedOrder.status === 'cancelled' || selectedOrder.status === 'shipped' || selectedOrder.status === 'delivered'}
+                         className="flex items-center justify-center space-x-8 py-10 rounded-[3rem] border border-red-500/20 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white active:scale-95 transition-all duration-1000 font-tech text-xs font-black tracking-[0.5em] group/cancel uppercase disabled:opacity-50 disabled:cursor-not-allowed"
+                       >
+                         <AlertCircle size={24} strokeWidth={1} className="group-hover/cancel:rotate-90 transition-transform" />
+                         <span>TERMINATE_ACQUISITION</span>
+                       </button>
                     </div>
+     </div>
                 </div>
               </motion.div>
             </div>
@@ -2000,6 +2136,12 @@ export default function AdminDashboard() {
                                   <p className="font-tech text-indigo-600 opacity-40 text-[9px] tracking-widest uppercase">Encryption: AES_256</p>
                                </div>
                             </div>
+                            <button 
+                               onClick={() => handleResolveSupport(activeSupportChat!)}
+                               className="px-8 py-3 bg-red-500/10 border border-red-500/20 text-red-500 rounded-full font-tech text-[10px] font-black tracking-widest uppercase hover:bg-red-500 hover:text-white transition-all duration-700"
+                            >
+                               TERMINATE_CHANNEL
+                            </button>
                          </div>
                          
                          <div 
