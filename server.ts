@@ -208,7 +208,7 @@ async function startServer() {
       const prompt = `Based on these user preferences: ${JSON.stringify(preferences)} and purchase history: ${JSON.stringify(history)}, recommend 3 types of luxury watches (Grand Complications, Heritage, Avant-Garde, or Deep Sea). Provide a reason for each. Return valid JSON only.`;
       
       const result = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
+        model: "gemini-3.5-flash",
         contents: prompt
       });
       
@@ -344,24 +344,21 @@ async function startServer() {
         - Returns: 7 days, "Vault Original" condition only.
       `;
 
-      const model = ai.getGenerativeModel({
-        model: "gemini-1.5-flash",
-        systemInstruction,
-      });
+      const history = messages.map((m: any) => ({
+        role: m.senderId === 'ai_assistant' ? 'model' : 'user',
+        parts: [{ text: m.text }],
+      }));
 
-      const chat = model.startChat({
-        history: messages.slice(0, -1).map((m: any) => ({
-          role: m.senderId === 'ai_assistant' ? 'model' : 'user',
-          parts: [{ text: m.text }],
-        })),
-        generationConfig: {
+      const result = await ai.models.generateContent({
+        model: "gemini-3.5-flash",
+        contents: history,
+        config: {
+          systemInstruction,
           temperature: 0.8,
-        },
+        }
       });
-
-      const lastMessage = messages[messages.length - 1].text;
-      const result = await chat.sendMessage(lastMessage);
-      const responseText = result.response.text();
+      
+      const responseText = result.text || "The Vault AI is currently calibrating. Please try again in a moment or initiate a High-Priority Ticket.";
       
       res.json({ text: responseText });
     } catch (error) {
