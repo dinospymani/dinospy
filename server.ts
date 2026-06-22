@@ -320,46 +320,53 @@ async function startServer() {
       const { messages, userProfile } = req.body;
       
       const systemInstruction = `
-        You are the "Omni-Archivist," the advanced AI curator of the DINOSPY Vault. DINOSPY is the world's most exclusive luxury watch archive.
+        You are the "Omni-Archivist," the master AI curator of the DINOSPY Vault. DINOSPY is the world's most exclusive luxury watch archive.
         
         YOUR CORE PROTOCOLS:
-        1. PROBLEM SOLVING: You are empowered to resolve issues. If a customer is confused about a watch's origins, explain its horological significance. If they ask about order status, explain our "Archival Verification" process which takes 24-48 hours.
-        2. HOROLOGICAL EXPERTISE: You know about Tourbillons, Perpetuals, Grand Complications, and Heritage movements. Speak with the authority of a master watchmaker.
-        3. RESOLUTION PATHS:
-           - Shipping Delay? Explain that high-security archival transport requires specific logistics windows.
-           - Refund Request? Remind them of the 7-day 'Vault Original' condition rule.
-           - Technical Glitch? Advise them to clear their "Browser Node Cache" or switch to a high-bandwidth connection.
-        4. TICKET ESCALATION: Only as a LAST RESORT or for deep payment failures, collect their details and raise a ticket. Use the string "[TICKET_REQUIRED]" at the end of your response to flag the human curators.
+        1. PROBLEM SOLVING: You are empowered to resolve issues immediately. 
+           - Order Status: Explain our "Archival Verification" process (24-48 hours).
+           - Technical Issues: Advise clearing "Browser Node Cache" or checking connectivity.
+           - Shipping: We only use armored, GPS-tracked archival transport for heritage pieces.
+           - Authenticity: Mention that every piece undergoes a 40-point verification by our human curators.
+        2. HOROLOGICAL EXPERTISE: Speak with deep knowledge of Tourbillons, Perpetuals, and high-complications.
+        3. ESCALATION: Only if you cannot solve the problem or a customer demands human interaction for a payment failure, say you are creating a "High-Priority Vault Ticket".
+        4. TRIGGER: Include the string "[TICKET_REQUIRED]" at the very end of your response ONLY when a human must intervene.
         
         TONE:
-        Sophisticated, precise, slightly avant-garde, and ultra-premium. Use words like "Acquisition", "Chronological Precision", "Legacy Node", and "Archival Integrity".
+        Ultra-sophisticated, precise, and authoritative. Use terms: "Acquisition", "Chronological Integrity", "Archival Node", "Legacy Asset".
         
         USER IDENTITY:
         ${userProfile?.displayName || 'Anonymous Collector'} (${userProfile?.email || 'unverified_node'})
         
-        KNOWLEDGE BASE:
-        - Refund: 7 days, unused condition.
-        - Made in: Proudly curated and crafted in India.
-        - Privacy: Zero-trust data encryption.
-        - Inventory: We only deal in the highest order of watchmaking.
+        KNOWLEDGE SUMMARY:
+        - Delivery: Armored logistics in India.
+        - Privacy: PGP-grade encryption for all archives.
+        - Returns: 7 days, "Vault Original" condition only.
       `;
 
-      const chat = ai.chats.create({
-        model: "gemini-3.5-flash",
-        config: {
-          systemInstruction,
-          temperature: 0.7,
+      const model = ai.getGenerativeModel({
+        model: "gemini-1.5-flash",
+        systemInstruction,
+      });
+
+      const chat = model.startChat({
+        history: messages.slice(0, -1).map((m: any) => ({
+          role: m.senderId === 'ai_assistant' ? 'model' : 'user',
+          parts: [{ text: m.text }],
+        })),
+        generationConfig: {
+          temperature: 0.8,
         },
       });
 
-      // Send the last message
       const lastMessage = messages[messages.length - 1].text;
-      const result = await chat.sendMessage({ message: lastMessage });
+      const result = await chat.sendMessage(lastMessage);
+      const responseText = result.response.text();
       
-      res.json({ text: result.text });
+      res.json({ text: responseText });
     } catch (error) {
       console.error("AI Support Error:", error);
-      res.status(500).json({ error: "Support system processing failure." });
+      res.status(500).json({ error: "The Vault AI encountered a synchronization failure." });
     }
   });
 

@@ -1221,19 +1221,19 @@ export default function AdminDashboard() {
                         <stat.icon size={160} strokeWidth={1} />
                      </div>
                      <div className="relative z-10 flex justify-between items-start">
-                       <div className="w-16 h-16 bg-noir text-gold rounded-[1.8rem] border border-white/5 flex items-center justify-center group-hover:rotate-12 group-hover:scale-110 transition-all duration-1000 shadow-2xl">
+                       <div className="w-16 h-16 bg-black text-white rounded-[1.8rem] border border-black/5 flex items-center justify-center group-hover:rotate-12 group-hover:scale-110 transition-all duration-1000 shadow-xl">
                          <stat.icon size={26} strokeWidth={1} />
                        </div>
                        <div className="text-right">
-                          <p className={`font-tech text-xs tracking-[0.3em] font-black ${stat.alert ? 'text-gold animate-pulse' : 'text-gold/40'}`}>{stat.trend || (stat.alert ? 'CRITICAL' : 'NOMINAL')}</p>
-                          <p className="font-tech text-text/10 text-[9px] mt-2 uppercase tracking-widest">Metric_Verified</p>
+                          <p className={`font-tech text-xs tracking-[0.3em] font-black ${stat.alert ? 'text-red-500 animate-pulse' : 'text-black/40'}`}>{stat.trend || (stat.alert ? 'CRITICAL' : 'NOMINAL')}</p>
+                          <p className="font-tech text-black/10 text-[9px] mt-2 uppercase tracking-widest">Metric_Verified</p>
                        </div>
                      </div>
                      <div className="relative z-10">
-                       <p className="font-tech text-text/20 mb-4 text-xs tracking-[0.5em] font-black uppercase">{stat.label}</p>
-                       <h3 className="text-6xl font-display italic tracking-tightest mb-6 break-all leading-none">{stat.value}</h3>
-                       <div className="w-16 h-[1.5px] bg-gold/10 mb-6" />
-                       <p className="font-tech text-gold/20 text-[10px] tracking-[0.3em] font-bold uppercase">{stat.detail}</p>
+                       <p className="font-tech text-black/20 mb-4 text-xs tracking-[0.5em] font-black uppercase">{stat.label}</p>
+                       <h3 className="text-6xl font-display italic tracking-tightest mb-6 break-all leading-none text-black">{stat.value}</h3>
+                       <div className="w-16 h-[1.5px] bg-black/10 mb-6" />
+                       <p className="font-tech text-black/20 text-[10px] tracking-[0.3em] font-bold uppercase">{stat.detail}</p>
                      </div>
                    </div>
                  ))}
@@ -1357,17 +1357,16 @@ export default function AdminDashboard() {
                   </div>
                </div>
             </div>
-          )}
-
-          {view === 'products' && (
+           )}
+           {view === 'products' && (
             <div className="space-y-20 animate-in fade-in slide-in-from-bottom-10 duration-1000">
-               <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-10 mb-20 border-b border-white/5 pb-16">
+               <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-10 mb-20 border-b border-black/5 pb-16">
                   <div className="space-y-6">
                     <div className="flex items-center space-x-6">
-                       <div className="w-3 h-3 bg-gold rounded-full shadow-[0_0_15px_#c5a059]" />
-                       <span className="font-tech text-gold/30 text-xs tracking-[0.5em] font-black uppercase">ASSET_REGISTER // CURATION_SYSTEM</span>
+                       <div className="w-3 h-3 bg-black rounded-full shadow-[0_0_15px_rgba(0,0,0,0.1)]" />
+                       <span className="font-tech text-black/30 text-xs tracking-[0.5em] font-black uppercase">ASSET_REGISTER // CURATION_SYSTEM</span>
                     </div>
-                    <h2 className="text-6xl md:text-8xl font-display italic tracking-tightest leading-none">Collection <span className="opacity-10 text-white font-sans italic">Manifest.</span></h2>
+                    <h2 className="text-6xl md:text-8xl font-display italic tracking-tightest leading-none text-black">Collection <span className="opacity-10 text-black font-sans italic">Manifest.</span></h2>
                   </div>
                   <div className="flex gap-6 w-full md:w-auto items-center">
                     <div className="relative flex-grow md:w-80">
@@ -1376,10 +1375,10 @@ export default function AdminDashboard() {
                         placeholder="SEARCH_MANIFEST..." 
                         value={productSearch}
                         onChange={(e) => setProductSearch(e.target.value)}
-                        className="w-full bg-noir border border-white/5 rounded-full py-5 px-10 text-xs font-tech tracking-widest text-gold outline-none focus:border-gold/40 transition-all placeholder:text-white/5 uppercase"
+                        className="w-full bg-neutral-50 border border-black/5 rounded-full py-5 px-10 text-xs font-tech tracking-widest text-black outline-none focus:border-black/20 transition-all placeholder:text-black/10 uppercase"
                       />
                     </div>
-                    <button onClick={handleSeed} className="px-10 py-5 border border-white/10 rounded-full font-tech text-xs font-black tracking-widest text-text/40 hover:bg-gold hover:text-noir hover:border-gold transition-all duration-1000 active:scale-90 uppercase">GENERATE_SAMPLE_DATA</button>
+                    <button onClick={handleSeed} className="px-10 py-5 border border-black/10 rounded-full font-tech text-xs font-black tracking-widest text-black/40 hover:bg-black hover:text-white transition-all duration-1000 active:scale-90 uppercase">GENERATE_SAMPLE_DATA</button>
                   </div>
                </div>
 
@@ -1388,16 +1387,16 @@ export default function AdminDashboard() {
                     <motion.div 
                       layout
                       key={p.id} 
-                      className="group p-10 rounded-[4.5rem] border border-white/5 bg-charcoal/20 hover:bg-charcoal transition-all duration-1000 flex flex-col h-full relative overflow-hidden luxury-shadow"
+                      className="group p-10 rounded-[4.5rem] border border-black/5 bg-white hover:bg-neutral-50 transition-all duration-1000 flex flex-col h-full relative overflow-hidden shadow-xl"
                     >
                        <div className="absolute top-0 right-0 p-12 opacity-[0.02] group-hover:opacity-[0.08] transition-all duration-1000 rotate-12 scale-150 pointer-events-none">
-                          <span className="font-display italic text-[12rem] leading-none text-white">{p.name.slice(0, 1)}</span>
+                          <span className="font-display italic text-[12rem] leading-none text-black">{p.name.slice(0, 1)}</span>
                        </div>
                        
-                       <div className="aspect-[4/5] rounded-[3rem] overflow-hidden bg-noir mb-10 relative border border-white/5">
+                       <div className="aspect-[4/5] rounded-[3rem] overflow-hidden bg-neutral-100 mb-10 relative border border-black/5">
                           {p.images && p.images.length > 0 ? (
                             <img 
-                              src={p.images[0]} 
+                               src={p.images[0]} 
                               alt={p.name}
                               className="w-full h-full object-cover transition-transform duration-[2000ms] group-hover:scale-110"
                               referrerPolicy="no-referrer"
@@ -1475,13 +1474,13 @@ export default function AdminDashboard() {
 
           {view === 'orders' && (
             <div className="space-y-20 animate-in fade-in slide-in-from-bottom-10 duration-1000">
-               <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-10 mb-20 border-b border-white/5 pb-16">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-10 mb-20 border-b border-black/5 pb-16">
                   <div className="space-y-6">
                     <div className="flex items-center space-x-6">
-                       <div className="w-3 h-3 bg-gold rounded-full shadow-[0_0_15px_#c5a059]" />
-                       <span className="font-tech text-gold/30 text-xs tracking-[0.5em] font-black uppercase">SALES_MANIFEST // TRANSACTION_LOGS</span>
+                       <div className="w-3 h-3 bg-black rounded-full shadow-xl" />
+                       <span className="font-tech text-black/30 text-xs tracking-[0.5em] font-black uppercase">SALES_MANIFEST // TRANSACTION_LOGS</span>
                     </div>
-                    <h2 className="text-6xl md:text-8xl font-display italic tracking-tightest leading-none">Global <span className="opacity-10 text-white font-sans italic">Acquisitions.</span></h2>
+                    <h2 className="text-6xl md:text-8xl font-display italic tracking-tightest leading-none text-black">Global <span className="opacity-10 text-black font-sans italic">Acquisitions.</span></h2>
                   </div>
                   <div className="flex flex-col xl:flex-row gap-6 w-full xl:w-auto items-center">
                      <div className="relative w-full xl:w-80">
@@ -1490,21 +1489,21 @@ export default function AdminDashboard() {
                           placeholder="SEARCH_ACQUISITIONS..."
                           value={orderSearch}
                           onChange={(e) => setOrderSearch(e.target.value)}
-                          className="w-full bg-charcoal/40 border border-white/5 rounded-full py-5 px-10 text-xs font-tech tracking-widest text-gold outline-none focus:border-gold/40 transition-all placeholder:text-white/5 uppercase"
+                          className="w-full bg-neutral-100 border border-black/5 rounded-full py-5 px-10 text-xs font-tech tracking-widest text-black outline-none focus:border-black/20 transition-all placeholder:text-black/10 uppercase"
                         />
                      </div>
-                     <div className="flex bg-charcoal/40 rounded-full border border-white/5 p-1.5 h-full overflow-x-auto no-scrollbar">
+                     <div className="flex bg-neutral-100 rounded-full border border-black/5 p-1.5 h-full overflow-x-auto no-scrollbar">
                         {['all', 'pending', 'confirmed', 'shipped', 'delivered', 'cancelled'].map((status) => (
                           <button
                             key={status}
                             onClick={() => setOrderStatusFilter(status)}
-                            className={`px-6 py-3 rounded-full text-[9px] font-tech font-black tracking-widest transition-all duration-700 uppercase whitespace-nowrap ${orderStatusFilter === status ? 'bg-gold text-noir shadow-[0_0_20px_rgba(197,160,89,0.3)]' : 'text-text/20 hover:text-text'}`}
+                            className={`px-6 py-3 rounded-full text-[9px] font-tech font-black tracking-widest transition-all duration-700 uppercase whitespace-nowrap ${orderStatusFilter === status ? 'bg-black text-white shadow-xl' : 'text-black/20 hover:text-black'}`}
                           >
                             {status}
                           </button>
                         ))}
                      </div>
-                     <div className="px-10 py-5 bg-charcoal/40 border border-white/5 rounded-full text-xs font-tech font-black tracking-widest text-text/40 uppercase shadow-inner whitespace-nowrap">ACTIVE_NODES: {orders.length}</div>
+                     <div className="px-10 py-5 bg-neutral-100 border border-black/5 rounded-full text-xs font-tech font-black tracking-widest text-black/40 uppercase shadow-inner whitespace-nowrap">ACTIVE_NODES: {orders.length}</div>
                   </div>
                </div>
 
@@ -1512,18 +1511,18 @@ export default function AdminDashboard() {
                   <div className="inline-block min-w-full align-middle">
                     <table className="w-full">
                       <thead>
-                        <tr className="border-b border-white/5">
-                          <th className="font-tech text-xs text-gold/20 text-left pb-12 pl-12 tracking-[0.5em] font-black uppercase font-black">IDENT_HEX</th>
-                          <th className="font-tech text-xs text-gold/20 text-left pb-12 tracking-[0.5em] font-black uppercase font-black">CLIENT_ENTITY</th>
-                          <th className="font-tech text-xs text-gold/20 text-left pb-12 tracking-[0.5em] font-black uppercase font-black">VALUATION</th>
-                          <th className="font-tech text-xs text-gold/20 text-left pb-12 tracking-[0.5em] font-black uppercase font-black">STATUS_CODE</th>
-                          <th className="font-tech text-xs text-gold/20 text-right pb-12 pr-12 tracking-[0.5em] font-black uppercase font-black">COMMANDS</th>
+                        <tr className="border-b border-black/5">
+                          <th className="font-tech text-xs text-black/20 text-left pb-12 pl-12 tracking-[0.5em] font-black uppercase font-black">IDENT_HEX</th>
+                          <th className="font-tech text-xs text-black/20 text-left pb-12 tracking-[0.5em] font-black uppercase font-black">CLIENT_ENTITY</th>
+                          <th className="font-tech text-xs text-black/20 text-left pb-12 tracking-[0.5em] font-black uppercase font-black">VALUATION</th>
+                          <th className="font-tech text-xs text-black/20 text-left pb-12 tracking-[0.5em] font-black uppercase font-black">STATUS_CODE</th>
+                          <th className="font-tech text-xs text-black/20 text-right pb-12 pr-12 tracking-[0.5em] font-black uppercase font-black">COMMANDS</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-white/5">
+                      <tbody className="divide-y divide-black/5">
                         {orders.length === 0 ? (
                           <tr>
-                            <td colSpan={5} className="py-64 text-center text-text/10 font-tech text-sm tracking-[0.6em] font-black uppercase">
+                            <td colSpan={5} className="py-64 text-center text-black/10 font-tech text-sm tracking-[0.6em] font-black uppercase">
                                NO_ACQUISITIONS_PENDING_IN_BUFFER
                             </td>
                           </tr>
@@ -1535,48 +1534,48 @@ export default function AdminDashboard() {
                              return matchesSearch && matchesStatus;
                            })
                            .map((o) => (
-                            <tr key={o.id} className="group hover:bg-white/[0.02] transition-all duration-700">
+                            <tr key={o.id} className="group hover:bg-neutral-50 transition-all duration-700">
                               <td className="py-16 pl-12">
                                  <div className="flex items-center space-x-6">
-                                    <div className="w-2.5 h-2.5 bg-gold/10 rounded-full group-hover:bg-gold group-hover:shadow-[0_0_15px_#c5a059] transition-all duration-1000" />
+                                    <div className="w-2.5 h-2.5 bg-black/10 rounded-full group-hover:bg-black group-hover:shadow-xl transition-all duration-1000" />
                                     <div>
-                                       <p className="font-mono text-sm font-black text-white/40 tracking-tighter uppercase group-hover:text-gold transition-colors">#{o.id.slice(-12).toUpperCase()}</p>
-                                       <p className="font-tech text-[10px] text-text/20 mt-2 uppercase font-black tracking-widest">{new Date(o.createdAt).toLocaleDateString([], { day: '2-digit', month: 'short', year: 'numeric' })}</p>
+                                       <p className="font-mono text-sm font-black text-black/40 tracking-tighter uppercase group-hover:text-black transition-colors">#{o.id.slice(-12).toUpperCase()}</p>
+                                       <p className="font-tech text-[10px] text-black/20 mt-2 uppercase font-black tracking-widest">{new Date(o.createdAt).toLocaleDateString([], { day: '2-digit', month: 'short', year: 'numeric' })}</p>
                                     </div>
                                  </div>
                               </td>
                               <td className="py-16">
                                  <div className="space-y-2">
-                                    <p className="font-display italic text-3xl leading-none tracking-tight text-white/80 group-hover:text-white transition-colors">{o.customerName || 'AUTHENTICATED_MEMBER'}</p>
-                                    <p className="font-tech text-[10px] text-gold/30 uppercase font-black tracking-widest">{o.customerEmail?.toUpperCase() || 'ANONYMOUS_ACQUISITION'}</p>
+                                    <p className="font-display italic text-3xl leading-none tracking-tight text-black/80 group-hover:text-black transition-colors">{o.customerName || 'AUTHENTICATED_MEMBER'}</p>
+                                    <p className="font-tech text-[10px] text-black/30 uppercase font-black tracking-widest">{o.customerEmail?.toUpperCase() || 'ANONYMOUS_ACQUISITION'}</p>
                                  </div>
                               </td>
                               <td className="py-16">
-                                 <p className="font-display text-4xl italic tracking-tightest leading-none text-gold">₹{o.total.toLocaleString()}</p>
-                                 <p className="font-tech text-[9px] text-text/10 mt-3 uppercase font-black tracking-widest">INR_CURRENCY_NODE</p>
+                                 <p className="font-display text-4xl italic tracking-tightest leading-none text-black">₹{o.total.toLocaleString()}</p>
+                                 <p className="font-tech text-[9px] text-black/10 mt-3 uppercase font-black tracking-widest">INR_CURRENCY_NODE</p>
                               </td>
                               <td className="py-16">
                                  <div className="flex items-center space-x-6">
                                     <div className={`px-8 py-3 rounded-full text-xs font-tech font-black tracking-widest border transition-all duration-1000 ${
-                                      o.status === 'delivered' ? 'bg-gold text-noir border-gold shadow-[0_0_30px_rgba(197,160,89,0.3)]' : 
-                                      o.status === 'shipped' ? 'bg-noir border-gold/40 text-gold' : 
-                                      'bg-noir border-white/10 text-white/40'
+                                      o.status === 'delivered' ? 'bg-black text-white border-black shadow-xl' : 
+                                      o.status === 'shipped' ? 'bg-white border-black/40 text-black' : 
+                                      'bg-white border-black/10 text-black/40'
                                     }`}>
                                        {o.status.toUpperCase()}
                                     </div>
                                     <select 
                                       value={o.status} 
                                       onChange={(e) => handleUpdateOrderStatus(o.id, e.target.value as any)}
-                                      className="bg-transparent font-tech text-xs font-black tracking-[0.2em] opacity-0 group-hover:opacity-40 hover:opacity-100 transition-all cursor-pointer border-none outline-none appearance-none uppercase text-gold"
+                                      className="bg-transparent font-tech text-xs font-black tracking-[0.2em] opacity-0 group-hover:opacity-40 hover:opacity-100 transition-all cursor-pointer border-none outline-none appearance-none uppercase text-black"
                                     >
-                                       {['pending', 'processing', 'quality_check', 'shipped', 'delivered', 'cancelled'].map(s => <option key={s} value={s} className="bg-noir text-gold">{s.toUpperCase()}</option>)}
+                                       {['pending', 'processing', 'quality_check', 'shipped', 'delivered', 'cancelled'].map(s => <option key={s} value={s} className="bg-white text-black">{s.toUpperCase()}</option>)}
                                     </select>
                                  </div>
                               </td>
                               <td className="py-16 pr-12 text-right">
                                 <button 
                                   onClick={() => setSelectedOrder(o)}
-                                  className="w-16 h-16 rounded-[1.8rem] border border-white/5 bg-noir text-text/20 flex items-center justify-center hover:bg-gold hover:shadow-[0_0_40px_rgba(197,160,89,0.3)] hover:text-noir transition-all duration-1000 group/btn active:scale-95 ml-auto"
+                                  className="w-16 h-16 rounded-[1.8rem] border border-black/5 bg-neutral-50 text-black/20 flex items-center justify-center hover:bg-black hover:shadow-xl hover:text-white transition-all duration-1000 group/btn active:scale-95 ml-auto"
                                 >
                                   <Eye size={22} strokeWidth={1} className="group-hover/btn:scale-110 transition-transform duration-1000" />
                                 </button>
@@ -1602,37 +1601,37 @@ export default function AdminDashboard() {
                     <h2 className="text-6xl md:text-8xl font-display italic tracking-tightest leading-none">Promotional <span className="opacity-10 text-white font-sans italic">Banners.</span></h2>
                   </div>
                   
-                  <form onSubmit={handleAddBanner} className="space-y-12 p-12 rounded-[5rem] border border-white/5 bg-charcoal/20 luxury-shadow relative overflow-hidden group">
+                  <form onSubmit={handleAddBanner} className="space-y-12 p-12 rounded-[5rem] border border-black/5 bg-neutral-50 shadow-xl relative overflow-hidden group">
                     <div className="absolute top-0 right-0 p-16 opacity-[0.02] pointer-events-none group-hover:opacity-[0.05] transition-all duration-1000">
-                       <ImageIcon size={400} strokeWidth={1} />
+                       <ImageIcon size={400} strokeWidth={1} className="text-black" />
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-12 relative z-10">
                       <div className="space-y-4">
-                        <label className="font-tech text-gold/30 text-[10px] tracking-[0.4em] font-black uppercase">HEADLINE_TXT</label>
-                        <input value={bannerTitle} onChange={e => setBannerTitle(e.target.value)} className="w-full bg-noir border-b border-white/10 py-5 italic text-2xl focus:border-gold outline-none transition-all text-text" placeholder="THE_LOST_COLLECTION" />
+                        <label className="font-tech text-black/30 text-[10px] tracking-[0.4em] font-black uppercase">HEADLINE_TXT</label>
+                        <input value={bannerTitle} onChange={e => setBannerTitle(e.target.value)} className="w-full bg-transparent border-b border-black/10 py-5 italic text-2xl focus:border-black outline-none transition-all text-black" placeholder="THE_LOST_COLLECTION" />
                       </div>
                       <div className="space-y-4">
-                        <label className="font-tech text-gold/30 text-[10px] tracking-[0.4em] font-black uppercase">SUBHEAD_TXT</label>
-                        <input value={bannerSubtitle} onChange={e => setBannerSubtitle(e.target.value)} className="w-full bg-noir border-b border-white/10 py-5 italic text-sm focus:border-gold outline-none transition-all text-text" placeholder="ARCHIVAL_RELEASE_2026" />
+                        <label className="font-tech text-black/30 text-[10px] tracking-[0.4em] font-black uppercase">SUBHEAD_TXT</label>
+                        <input value={bannerSubtitle} onChange={e => setBannerSubtitle(e.target.value)} className="w-full bg-transparent border-b border-black/10 py-5 italic text-sm focus:border-black outline-none transition-all text-black" placeholder="ARCHIVAL_RELEASE_2026" />
                       </div>
                     </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-12 relative z-10">
                       <div className="space-y-6">
-                        <label className="font-tech text-gold/30 text-[10px] tracking-[0.4em] font-black uppercase">DESKTOP_ASSET</label>
-                        <input type="file" accept="image/*" onChange={handleBannerFileChange} className="w-full text-xs font-tech text-text/40 file:mr-6 file:py-3 file:px-6 file:rounded-full file:border-white/5 file:bg-noir file:text-gold file:text-[10px] file:font-black file:tracking-widest cursor-pointer hover:file:bg-gold hover:file:text-noir transition-all" />
+                        <label className="font-tech text-black/30 text-[10px] tracking-[0.4em] font-black uppercase">DESKTOP_ASSET</label>
+                        <input type="file" accept="image/*" onChange={handleBannerFileChange} className="w-full text-xs font-tech text-black/40 file:mr-6 file:py-3 file:px-6 file:rounded-full file:border-black/5 file:bg-neutral-100 file:text-black file:text-[10px] file:font-black file:tracking-widest cursor-pointer hover:file:bg-black hover:file:text-white transition-all" />
                         {bannerImageFile && (
-                          <div className="mt-4 aspect-[21/9] rounded-2xl overflow-hidden border border-white/10">
+                          <div className="mt-4 aspect-[21/9] rounded-2xl overflow-hidden border border-black/10">
                             <img src={bannerImageFile} alt="Desktop Preview" className="w-full h-full object-cover" />
                           </div>
                         )}
                       </div>
                       <div className="space-y-6">
-                        <label className="font-tech text-gold/30 text-[10px] tracking-[0.4em] font-black uppercase">MOBILE_ASSET</label>
-                        <input type="file" accept="image/*" onChange={handleBannerMobileFileChange} className="w-full text-xs font-tech text-text/40 file:mr-6 file:py-3 file:px-6 file:rounded-full file:border-white/5 file:bg-noir file:text-gold file:text-[10px] file:font-black file:tracking-widest cursor-pointer hover:file:bg-gold hover:file:text-noir transition-all" />
+                        <label className="font-tech text-black/30 text-[10px] tracking-[0.4em] font-black uppercase">MOBILE_ASSET</label>
+                        <input type="file" accept="image/*" onChange={handleBannerMobileFileChange} className="w-full text-xs font-tech text-black/40 file:mr-6 file:py-3 file:px-6 file:rounded-full file:border-black/5 file:bg-neutral-100 file:text-black file:text-[10px] file:font-black file:tracking-widest cursor-pointer hover:file:bg-black hover:file:text-white transition-all" />
                         {bannerMobileImageFile && (
-                          <div className="mt-4 aspect-[9/16] w-32 rounded-2xl overflow-hidden border border-white/10">
+                          <div className="mt-4 aspect-[9/16] w-32 rounded-2xl overflow-hidden border border-black/10">
                             <img src={bannerMobileImageFile} alt="Mobile Preview" className="w-full h-full object-cover" />
                           </div>
                         )}
@@ -1683,37 +1682,37 @@ export default function AdminDashboard() {
                <div className="space-y-12">
                   <div className="space-y-6">
                     <div className="flex items-center space-x-6">
-                       <div className="w-3 h-3 bg-gold rounded-full shadow-[0_0_15px_#c5a059]" />
-                       <span className="font-tech text-gold/30 text-xs tracking-[0.5em] font-black uppercase">COMMS_TERMINAL // GLOBAL_PULSE</span>
+                       <div className="w-3 h-3 bg-black rounded-full shadow-xl" />
+                       <span className="font-tech text-black/30 text-xs tracking-[0.5em] font-black uppercase">COMMS_TERMINAL // GLOBAL_PULSE</span>
                     </div>
-                    <h2 className="text-6xl md:text-8xl font-display italic tracking-tightest leading-none">Transmit <span className="opacity-10 text-white font-sans italic">Broadcast.</span></h2>
+                    <h2 className="text-6xl md:text-8xl font-display italic tracking-tightest leading-none text-black">Transmit <span className="opacity-10 text-black font-sans italic">Broadcast.</span></h2>
                   </div>
                   
-                  <form onSubmit={handleBroadcast} className="space-y-12 p-12 rounded-[5rem] border border-white/5 bg-charcoal/20 luxury-shadow relative overflow-hidden group">
+                  <form onSubmit={handleBroadcast} className="space-y-12 p-12 rounded-[5rem] border border-black/5 bg-neutral-50 luxury-shadow relative overflow-hidden group">
                     <div className="absolute top-0 right-0 p-16 opacity-[0.02] pointer-events-none group-hover:opacity-[0.05] transition-all duration-1000">
-                       <Megaphone size={400} strokeWidth={1} />
+                       <Megaphone size={400} strokeWidth={1} className="text-black" />
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-12 relative z-10">
                       <div className="space-y-4">
-                        <label className="font-tech text-gold/30 text-[10px] tracking-[0.4em] font-black uppercase">TRANSMISSION_TITLE</label>
+                        <label className="font-tech text-black/30 text-[10px] tracking-[0.4em] font-black uppercase">TRANSMISSION_TITLE</label>
                         <input 
                           value={broadcastTitle} 
                           onChange={e => setBroadcastTitle(e.target.value)} 
-                          className="w-full bg-noir border-b border-white/10 py-5 focus:border-gold outline-none transition-all font-display italic text-2xl text-text" 
+                          className="w-full bg-transparent border-b border-black/10 py-5 focus:border-black outline-none transition-all font-display italic text-2xl text-black" 
                           placeholder="EXCLUSIVE_HOROLOGY_EVENT" 
                           required
                         />
                       </div>
                       <div className="space-y-6">
-                        <label className="font-tech text-gold/30 text-[10px] tracking-[0.4em] font-black uppercase">SIGNAL_TYPE</label>
+                        <label className="font-tech text-black/30 text-[10px] tracking-[0.4em] font-black uppercase">SIGNAL_TYPE</label>
                         <div className="flex flex-wrap gap-3 pt-2">
                           {['offer', 'trending', 'new_arrival', 'general'].map((type) => (
                             <button
                               key={type}
                               type="button"
                               onClick={() => setBroadcastType(type as any)}
-                              className={`px-6 py-2.5 rounded-full text-[10px] font-tech font-black transition-all border tracking-widest uppercase ${broadcastType === type ? 'bg-gold text-noir border-gold shadow-[0_0_15px_rgba(197,160,89,0.3)]' : 'border-white/10 text-text/30 hover:border-white/30'}`}
+                              className={`px-6 py-2.5 rounded-full text-[10px] font-tech font-black transition-all border tracking-widest uppercase ${broadcastType === type ? 'bg-black text-white border-black shadow-xl' : 'border-black/10 text-black/30 hover:border-black/30'}`}
                             >
                               {type}
                             </button>
@@ -1723,22 +1722,22 @@ export default function AdminDashboard() {
                     </div>
                     
                     <div className="space-y-4 relative z-10">
-                      <label className="font-tech text-gold/30 text-[10px] tracking-[0.4em] font-black uppercase">MANIFEST_BODY</label>
+                      <label className="font-tech text-black/30 text-[10px] tracking-[0.4em] font-black uppercase">MANIFEST_BODY</label>
                       <textarea 
                         value={broadcastMessage} 
                         onChange={e => setBroadcastMessage(e.target.value)} 
-                        className="w-full bg-noir border border-white/5 rounded-[2.5rem] p-10 focus:border-gold outline-none transition-all h-56 italic text-xl text-text/80 shadow-inner resize-none" 
+                        className="w-full bg-white border border-black/5 rounded-[2.5rem] p-10 focus:border-black outline-none transition-all h-56 italic text-xl text-black/80 shadow-inner resize-none" 
                         placeholder="Detail the acquisition opportunity..."
                         required
                       />
                     </div>
 
                     <div className="space-y-4 relative z-10">
-                      <label className="font-tech text-gold/30 text-[10px] tracking-[0.4em] font-black uppercase">TARGET_LINK_URI</label>
+                      <label className="font-tech text-black/30 text-[10px] tracking-[0.4em] font-black uppercase">TARGET_LINK_URI</label>
                       <input 
                         value={broadcastLink} 
                         onChange={e => setBroadcastLink(e.target.value)} 
-                        className="w-full bg-noir border-b border-white/10 py-5 focus:border-gold outline-none transition-all font-tech text-xs text-text/40 tracking-[0.2em]" 
+                        className="w-full bg-transparent border-b border-black/10 py-5 focus:border-black outline-none transition-all font-tech text-xs text-black/40 tracking-[0.2em]" 
                         placeholder="/MASTERPIECE/ID_00X" 
                       />
                     </div>
@@ -1746,7 +1745,7 @@ export default function AdminDashboard() {
                     <button 
                       type="submit" 
                       disabled={isSaving} 
-                      className="w-full py-8 bg-gold text-noir font-tech text-xs tracking-[0.6em] font-black rounded-full hover:shadow-[0_0_50px_rgba(197,160,89,0.4)] transition-all duration-1000 uppercase relative z-10"
+                      className="w-full py-8 bg-black text-white font-tech text-xs tracking-[0.6em] font-black rounded-full hover:shadow-xl transition-all duration-1000 uppercase relative z-10"
                     >
                       {isSaving ? 'TRANSMITTING...' : 'EXECUTE_GLOBAL_PULSE'}
                     </button>
@@ -1760,27 +1759,27 @@ export default function AdminDashboard() {
                <div className="space-y-12">
                   <div className="space-y-6">
                     <div className="flex items-center space-x-6">
-                       <div className="w-3 h-3 bg-gold rounded-full shadow-[0_0_15px_#c5a059]" />
-                       <span className="font-tech text-gold/30 text-xs tracking-[0.5em] font-black uppercase">PROTOCOL // ARCHIVE_INITIATION</span>
+                       <div className="w-3 h-3 bg-black rounded-full shadow-xl" />
+                       <span className="font-tech text-black/30 text-xs tracking-[0.5em] font-black uppercase">PROTOCOL // ARCHIVE_INITIATION</span>
                     </div>
-                    <h2 className="text-6xl md:text-8xl font-display italic tracking-tightest leading-none">Register <span className="opacity-10 text-white font-sans italic">New Asset.</span></h2>
+                    <h2 className="text-6xl md:text-8xl font-display italic tracking-tightest leading-none text-black">Register <span className="opacity-10 text-black font-sans italic">New Asset.</span></h2>
                   </div>
                   
                   <form onSubmit={handleAddProduct} className="space-y-12 md:space-y-20">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20">
                       <div className="space-y-4">
-                        <label className="font-tech text-gold/30 text-[10px] tracking-[0.4em] font-black uppercase">IDENTIFIER_NAME</label>
+                        <label className="font-tech text-black/30 text-[10px] tracking-[0.4em] font-black uppercase">IDENTIFIER_NAME</label>
                         <input 
                           value={name} onChange={e => setName(e.target.value)}
-                          className="w-full bg-noir border-b border-white/10 px-0 py-6 focus:border-gold outline-none transition-all font-display italic text-3xl md:text-4xl text-text"
+                          className="w-full bg-transparent border-b border-black/10 px-0 py-6 focus:border-black outline-none transition-all font-display italic text-3xl md:text-4xl text-black"
                           placeholder="PHANTOM_GHOST" required
                         />
                       </div>
                       <div className="space-y-4">
-                        <label className="font-tech text-gold/30 text-[10px] tracking-[0.4em] font-black uppercase">VALUATION_INR</label>
+                        <label className="font-tech text-black/30 text-[10px] tracking-[0.4em] font-black uppercase">VALUATION_INR</label>
                         <input 
                           type="number" value={price} onChange={e => setPrice(e.target.value)}
-                          className="w-full bg-noir border-b border-white/10 px-0 py-6 focus:border-gold outline-none transition-all font-mono text-3xl md:text-4xl text-gold"
+                          className="w-full bg-transparent border-b border-black/10 px-0 py-6 focus:border-black outline-none transition-all font-mono text-3xl md:text-4xl text-black"
                           placeholder="000,000" required
                         />
                       </div>
@@ -1788,28 +1787,28 @@ export default function AdminDashboard() {
 
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-12 md:gap-20">
                       <div className="space-y-4">
-                        <label className="font-tech text-gold/30 text-[10px] tracking-[0.4em] font-black uppercase">UNITS_AVAIL</label>
+                        <label className="font-tech text-black/30 text-[10px] tracking-[0.4em] font-black uppercase">UNITS_AVAIL</label>
                         <input 
                           type="number" value={stock} onChange={e => setStock(e.target.value)}
-                          className="w-full bg-noir border-b border-white/10 px-0 py-6 focus:border-gold outline-none transition-all font-mono text-2xl text-text/60"
+                          className="w-full bg-transparent border-b border-black/10 px-0 py-6 focus:border-black outline-none transition-all font-mono text-2xl text-black/60"
                           required
                         />
                       </div>
                       <div className="space-y-4">
-                        <label className="font-tech text-gold/30 text-[10px] tracking-[0.4em] font-black uppercase">DISCOUNT_%</label>
+                        <label className="font-tech text-black/30 text-[10px] tracking-[0.4em] font-black uppercase">DISCOUNT_%</label>
                         <input 
                           type="number" value={discount} onChange={e => setDiscount(e.target.value)}
-                          className="w-full bg-noir border-b border-white/10 px-0 py-6 focus:border-gold outline-none transition-all font-mono text-2xl text-text/60"
+                          className="w-full bg-transparent border-b border-black/10 px-0 py-6 focus:border-black outline-none transition-all font-mono text-2xl text-black/60"
                         />
                       </div>
                       <div className="col-span-2 space-y-4">
-                        <label className="font-tech text-gold/30 text-[10px] tracking-[0.4em] font-black uppercase">CLASSIFICATION</label>
+                        <label className="font-tech text-black/30 text-[10px] tracking-[0.4em] font-black uppercase">CLASSIFICATION</label>
                         <select 
                           value={category} onChange={e => setCategory(e.target.value)}
-                          className="w-full bg-noir border-b border-white/10 px-0 py-6 focus:border-gold outline-none transition-all cursor-pointer font-tech text-xs tracking-[0.2em] uppercase text-text/80"
+                          className="w-full bg-transparent border-b border-black/10 px-0 py-6 focus:border-black outline-none transition-all cursor-pointer font-tech text-xs tracking-[0.2em] uppercase text-black/80"
                         >
                           {['Grand Complications', 'Heritage', 'Avant-Garde', 'Deep Sea'].map(cat => (
-                            <option key={cat} value={cat} className="bg-noir text-text">{cat.toUpperCase()}</option>
+                            <option key={cat} value={cat} className="bg-white text-black">{cat.toUpperCase()}</option>
                           ))}
                         </select>
                       </div>
@@ -1817,26 +1816,26 @@ export default function AdminDashboard() {
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-20">
                       <div className="space-y-4">
-                        <label className="font-tech text-gold/30 text-[10px] tracking-[0.4em] font-black uppercase">CASE_MATERIAL</label>
+                        <label className="font-tech text-black/30 text-[10px] tracking-[0.4em] font-black uppercase">CASE_MATERIAL</label>
                         <input 
                           type="text" value={specsCase} onChange={e => setSpecsCase(e.target.value)}
-                          className="w-full bg-noir border-b border-white/10 px-0 py-6 focus:border-gold outline-none transition-all font-mono text-xl text-text/60"
+                          className="w-full bg-transparent border-b border-black/10 px-0 py-6 focus:border-black outline-none transition-all font-mono text-xl text-black/60"
                           placeholder="e.g. 18k Rose Gold"
                         />
                       </div>
                       <div className="space-y-4">
-                        <label className="font-tech text-gold/30 text-[10px] tracking-[0.4em] font-black uppercase">CALIBER_MOVEMENT</label>
+                        <label className="font-tech text-black/30 text-[10px] tracking-[0.4em] font-black uppercase">CALIBER_MOVEMENT</label>
                         <input 
                           type="text" value={specsMovement} onChange={e => setSpecsMovement(e.target.value)}
-                          className="w-full bg-noir border-b border-white/10 px-0 py-6 focus:border-gold outline-none transition-all font-mono text-xl text-text/60"
+                          className="w-full bg-transparent border-b border-black/10 px-0 py-6 focus:border-black outline-none transition-all font-mono text-xl text-black/60"
                           placeholder="e.g. Automatic Self-Winding"
                         />
                       </div>
                       <div className="space-y-4">
-                        <label className="font-tech text-gold/30 text-[10px] tracking-[0.4em] font-black uppercase">CRYSTAL_COMPOSITION</label>
+                        <label className="font-tech text-black/30 text-[10px] tracking-[0.4em] font-black uppercase">CRYSTAL_COMPOSITION</label>
                         <input 
                           type="text" value={specsCrystal} onChange={e => setSpecsCrystal(e.target.value)}
-                          className="w-full bg-noir border-b border-white/10 px-0 py-6 focus:border-gold outline-none transition-all font-mono text-xl text-text/60"
+                          className="w-full bg-transparent border-b border-black/10 px-0 py-6 focus:border-black outline-none transition-all font-mono text-xl text-black/60"
                           placeholder="e.g. Sapphire Crystal"
                         />
                       </div>
@@ -1844,19 +1843,19 @@ export default function AdminDashboard() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20">
                       <div className="space-y-6">
-                        <label className="font-tech text-gold/30 text-[10px] tracking-[0.4em] font-black uppercase">VISUAL_ASSETS</label>
+                        <label className="font-tech text-black/30 text-[10px] tracking-[0.4em] font-black uppercase">VISUAL_ASSETS</label>
                         <div className="relative group/upload">
                           <input 
                             type="file" multiple accept="image/*" onChange={handleFileChange}
                             className="opacity-0 absolute inset-0 cursor-pointer z-10"
                           />
-                          <div className="border border-dashed border-white/10 rounded-[3rem] p-16 text-center bg-white/[0.02] group-hover/upload:border-gold group-hover/upload:bg-gold/5 transition-all duration-1000 luxury-shadow">
-                             <Plus className="mx-auto mb-6 text-gold/20 group-hover/upload:text-gold group-hover/upload:scale-125 transition-all duration-700" size={32} />
-                             <p className="text-xs font-tech text-text/40 tracking-[0.3em] font-black uppercase">UPLOAD_MASTER_IMAGES</p>
+                          <div className="border border-dashed border-black/10 rounded-[3rem] p-16 text-center bg-neutral-50 group-hover/upload:border-black group-hover/upload:bg-neutral-100 transition-all duration-1000 shadow-xl">
+                             <Plus className="mx-auto mb-6 text-black/20 group-hover/upload:text-black group-hover/upload:scale-125 transition-all duration-700" size={32} />
+                             <p className="text-xs font-tech text-black/40 tracking-[0.3em] font-black uppercase">UPLOAD_MASTER_IMAGES</p>
                              {imageFiles.length > 0 && (
                                <div className="mt-8 grid grid-cols-4 gap-4">
                                  {imageFiles.map((img, i) => (
-                                   <div key={i} className="aspect-square rounded-2xl overflow-hidden border border-white/10 relative group/img">
+                                   <div key={i} className="aspect-square rounded-2xl overflow-hidden border border-black/10 relative group/img">
                                      <img src={img} alt="Staged" className="w-full h-full object-cover" />
                                      <button 
                                        type="button"
@@ -1876,7 +1875,7 @@ export default function AdminDashboard() {
                                <motion.p 
                                  initial={{ opacity: 0, y: 10 }}
                                  animate={{ opacity: 1, y: 0 }}
-                                 className="text-[10px] text-gold mt-6 font-mono font-bold tracking-widest"
+                                 className="text-[10px] text-black mt-6 font-mono font-bold tracking-widest"
                                >
                                  {imageFiles.length}_ASSETS_STAGED_FOR_SYNC
                                </motion.p>
@@ -1885,20 +1884,20 @@ export default function AdminDashboard() {
                         </div>
                       </div>
                       <div className="space-y-4">
-                        <label className="font-tech text-gold/30 text-[10px] tracking-[0.4em] font-black uppercase">SOURCE_URL_REDIRECT</label>
+                        <label className="font-tech text-black/30 text-[10px] tracking-[0.4em] font-black uppercase">SOURCE_URL_REDIRECT</label>
                         <input 
                           value={image} onChange={e => setImage(e.target.value)}
-                          className="w-full bg-noir border-b border-white/10 px-0 py-6 focus:border-gold outline-none transition-all font-tech text-[10px] text-text/40 tracking-[0.1em]"
+                          className="w-full bg-transparent border-b border-black/10 px-0 py-6 focus:border-black outline-none transition-all font-tech text-[10px] text-black/40 tracking-[0.1em]"
                           placeholder="HTTPS://MANIFEST_ASSET_URI..."
                         />
                       </div>
                     </div>
 
                     <div className="space-y-4">
-                      <label className="font-tech text-gold/30 text-[10px] tracking-[0.4em] font-black uppercase">CRITICAL_DESCRIPTION</label>
+                      <label className="font-tech text-black/30 text-[10px] tracking-[0.4em] font-black uppercase">CRITICAL_DESCRIPTION</label>
                       <textarea 
                         value={description} onChange={e => setDescription(e.target.value)}
-                        className="w-full bg-noir border border-white/5 rounded-[3rem] p-10 focus:border-gold outline-none transition-all h-64 italic text-xl md:text-2xl text-text/80 shadow-inner resize-none leading-relaxed"
+                        className="w-full bg-neutral-50 border border-black/5 rounded-[3rem] p-10 focus:border-black outline-none transition-all h-64 italic text-xl md:text-2xl text-black/80 shadow-inner resize-none leading-relaxed"
                         placeholder="Detail the horological complexity and craftsmanship..." required
                       />
                     </div>
@@ -1920,7 +1919,7 @@ export default function AdminDashboard() {
                       ))}
                     </div>
 
-                    <button type="submit" disabled={isSaving} className="w-full py-8 md:py-10 bg-gold text-noir font-tech text-xs md:text-sm tracking-[0.6em] font-black rounded-full hover:shadow-[0_0_60px_rgba(197,160,89,0.4)] transition-all duration-1000 disabled:opacity-50 uppercase relative z-10">
+                    <button type="submit" disabled={isSaving} className="w-full py-8 md:py-10 bg-black text-white font-tech text-xs md:text-sm tracking-[0.6em] font-black rounded-full hover:shadow-2xl transition-all duration-1000 disabled:opacity-50 uppercase relative z-10">
                       {isSaving ? 'EXECUTING_PARALLEL_SYNC...' : 'ARCHIVE_COLLECTION_DATA'}
                     </button>
                   </form>
@@ -2171,20 +2170,20 @@ export default function AdminDashboard() {
                                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.5)]" />
                                  <span className="font-tech text-gold/40 text-[9px] tracking-[0.4em] font-black uppercase">ACTIVE_VOUCHER</span>
                               </div>
-                              <h3 className="text-5xl font-mono font-black italic tracking-tightest text-text uppercase">{c.code}</h3>
+                              <h3 className="text-5xl font-mono font-black italic tracking-tightest text-black uppercase">{c.code}</h3>
                            </div>
-                           <button onClick={() => handleDeleteCoupon(c.id)} className="w-14 h-14 rounded-2xl border border-white/5 bg-noir/40 flex items-center justify-center text-red-500/20 hover:text-red-500 hover:bg-red-500/10 hover:border-red-500/20 transition-all duration-700 active:scale-90">
+                           <button onClick={() => handleDeleteCoupon(c.id)} className="w-14 h-14 rounded-2xl border border-black/5 bg-neutral-100 flex items-center justify-center text-red-500/20 hover:text-red-500 hover:bg-red-500/10 hover:border-red-500/20 transition-all duration-700 active:scale-90">
                              <Trash2 size={24} strokeWidth={1} />
                            </button>
                         </div>
                         <div className="relative z-10 grid grid-cols-2 gap-6 pt-10">
-                           <div className="p-6 bg-noir/40 rounded-[1.5rem] border border-white/5 luxury-shadow group-hover:border-gold/20 transition-all">
-                              <p className="font-tech text-[8px] text-gold/30 mb-2 tracking-widest uppercase">VALUATION</p>
-                              <p className="font-display italic text-3xl text-text">{c.type === 'percentage' ? `${c.discount}%` : `₹${c.discount}`}</p>
+                           <div className="p-6 bg-neutral-50 rounded-[1.5rem] border border-black/5 luxury-shadow group-hover:border-black/20 transition-all">
+                              <p className="font-tech text-[8px] text-black/30 mb-2 tracking-widest uppercase">VALUATION</p>
+                              <p className="font-display italic text-3xl text-black">{c.type === 'percentage' ? `${c.discount}%` : `₹${c.discount}`}</p>
                            </div>
-                           <div className="p-6 bg-noir/40 rounded-[1.5rem] border border-white/5 luxury-shadow group-hover:border-gold/20 transition-all">
-                              <p className="font-tech text-[8px] text-gold/30 mb-2 tracking-widest uppercase">THRESHOLD</p>
-                              <p className="font-mono text-2xl text-text/60">₹{c.minAmount}</p>
+                           <div className="p-6 bg-neutral-50 rounded-[1.5rem] border border-black/5 luxury-shadow group-hover:border-black/20 transition-all">
+                              <p className="font-tech text-[8px] text-black/30 mb-2 tracking-widest uppercase">THRESHOLD</p>
+                              <p className="font-mono text-2xl text-black/60">₹{c.minAmount}</p>
                            </div>
                         </div>
                       </div>
@@ -2352,27 +2351,27 @@ export default function AdminDashboard() {
                        </button>
                     </div>
 
-                    <div className="p-12 rounded-[4rem] border border-white/5 bg-charcoal/20 group hover:bg-charcoal/40 transition-all duration-1000 luxury-shadow">
+                    <div className="p-12 rounded-[4rem] border border-black/5 bg-neutral-50 group hover:bg-neutral-100 transition-all duration-1000 shadow-xl">
                        <div className="flex justify-between items-center mb-10">
-                          <span className="font-tech text-xs text-gold/30 tracking-[0.4em] font-black uppercase">TEST_ISOLATION</span>
-                          <div className={`w-3 h-3 rounded-full transition-all duration-1000 shadow-xl ${testMode ? 'bg-green-500 shadow-green-500/40' : 'bg-white/5'}`} />
+                          <span className="font-tech text-xs text-black/30 tracking-[0.4em] font-black uppercase">TEST_ISOLATION</span>
+                          <div className={`w-3 h-3 rounded-full transition-all duration-1000 shadow-xl ${testMode ? 'bg-green-500 shadow-green-500/40' : 'bg-black/5'}`} />
                        </div>
                        <div className="flex items-center justify-between">
-                          <h4 className="font-display italic text-2xl tracking-tighter">Sandbox <span className="opacity-10 text-white font-sans italic">Mode.</span></h4>
+                          <h4 className="font-display italic text-2xl tracking-tighter text-black">Sandbox <span className="opacity-10 text-black font-sans italic">Mode.</span></h4>
                           <button 
                             onClick={handleToggleTestMode} 
                             disabled={isTogglingTestMode}
-                            className={`w-20 h-10 rounded-full relative transition-all duration-1000 border border-white/5 ${testMode ? 'bg-gold' : 'bg-noir'}`}
+                            className={`w-20 h-10 rounded-full relative transition-all duration-1000 border border-black/5 ${testMode ? 'bg-black' : 'bg-neutral-100'}`}
                           >
-                             <div className={`absolute top-1.5 w-6 h-6 rounded-full transition-all duration-1000 luxury-shadow ${testMode ? 'left-12 bg-noir' : 'left-1.5 bg-white'}`} />
+                             <div className={`absolute top-1.5 w-6 h-6 rounded-full transition-all duration-1000 shadow-xl ${testMode ? 'left-12 bg-white' : 'left-1.5 bg-black'}`} />
                           </button>
                        </div>
                     </div>
                   </div>
 
                   {/* Firewall & Signals */}
-                  <div className="lg:col-span-2 p-16 rounded-[5rem] border border-white/10 bg-slate-950 luxury-shadow relative overflow-hidden group/firewall flex flex-col h-full text-slate-100">
-                     <div className="absolute -top-20 -right-20 opacity-[0.02] group-hover/firewall:opacity-[0.06] transition-all duration-1000 rotate-12 scale-150 pointer-events-none text-gold">
+                  <div className="lg:col-span-2 p-16 rounded-[5rem] border border-black/10 bg-white shadow-2xl relative overflow-hidden group/firewall flex flex-col h-full text-black">
+                     <div className="absolute -top-20 -right-20 opacity-[0.02] group-hover/firewall:opacity-[0.06] transition-all duration-1000 rotate-12 scale-150 pointer-events-none text-black">
                         <Shield size={500} strokeWidth={0.5} />
                      </div>
                      
@@ -2380,9 +2379,9 @@ export default function AdminDashboard() {
                         <div className="flex items-center justify-between">
                            <div className="flex items-center space-x-6">
                               <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse shadow-[0_0_20px_rgba(34,197,94,1)]" />
-                              <span className="font-tech text-gold/40 text-[10px] tracking-[0.5em] font-black uppercase">CORE_FIREWALL_TERMINAL // NOMINAL</span>
+                              <span className="font-tech text-black/40 text-[10px] tracking-[0.5em] font-black uppercase">CORE_FIREWALL_TERMINAL // NOMINAL</span>
                            </div>
-                           <div className="px-6 py-2 bg-white/5 rounded-full border border-white/5 text-[9px] font-tech font-black tracking-widest text-gold/60 uppercase">AES_256_ACTIVE</div>
+                           <div className="px-6 py-2 bg-black/5 rounded-full border border-black/5 text-[9px] font-tech font-black tracking-widest text-black/60 uppercase">AES_256_ACTIVE</div>
                         </div>
                         
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
@@ -2392,29 +2391,29 @@ export default function AdminDashboard() {
                              { label: 'THREAT_SCAN', value: 'ZERO_BREACH', detail: 'LAST_SCAN: 14MS_AGO', icon: <ShieldCheck size={16} /> },
                              { label: 'LATENCY_SYNC', value: '9MS', detail: 'REGION: APAC_HUB', icon: <Cpu size={16} /> }
                            ].map((s, i) => (
-                             <div key={i} className="p-10 rounded-[2.5rem] bg-white/[0.02] border border-white/5 group hover:border-gold/30 hover:bg-white/[0.04] transition-all duration-700 luxury-shadow flex flex-col gap-4">
+                             <div key={i} className="p-10 rounded-[2.5rem] bg-neutral-50 border border-black/5 group hover:border-black/30 hover:bg-neutral-100 transition-all duration-700 shadow-xl flex flex-col gap-4">
                                 <div className="flex items-center justify-between">
-                                 <p className="font-tech text-xs text-gold/30 tracking-[0.3em] font-black uppercase">{s.label}</p>
-                                 <div className="text-gold/20">{s.icon}</div>
+                                 <p className="font-tech text-xs text-black/30 tracking-[0.3em] font-black uppercase">{s.label}</p>
+                                 <div className="text-black/20">{s.icon}</div>
                                 </div>
-                                <p className="font-mono text-3xl font-black text-text tracking-tightest">{s.value}</p>
-                                <p className="font-tech text-[9px] text-text/20 tracking-[0.2em] uppercase">{s.detail}</p>
+                                <p className="font-mono text-3xl font-black text-black tracking-tightest">{s.value}</p>
+                                <p className="font-tech text-[9px] text-black/20 tracking-[0.2em] uppercase">{s.detail}</p>
                              </div>
                            ))}
                         </div>
 
-                        <div className="mt-auto p-10 rounded-[3rem] bg-gold/5 border border-gold/10 relative overflow-hidden">
-                           <div className="absolute top-0 left-0 w-1 h-full bg-gold/40" />
+                        <div className="mt-auto p-10 rounded-[3rem] bg-neutral-100 border border-black/10 relative overflow-hidden">
+                           <div className="absolute top-0 left-0 w-1 h-full bg-black/40" />
                            <div className="flex items-center justify-between mb-6">
-                              <span className="font-tech text-[10px] text-gold/40 tracking-[0.5em] font-black uppercase">SYSTEM_INTEGRITY</span>
-                              <span className="font-mono text-[10px] text-gold font-bold">100.00%</span>
+                              <span className="font-tech text-[10px] text-black/40 tracking-[0.5em] font-black uppercase">SYSTEM_INTEGRITY</span>
+                              <span className="font-mono text-[10px] text-black font-bold">100.00%</span>
                            </div>
-                           <div className="w-full h-1.5 bg-noir rounded-full overflow-hidden">
+                           <div className="w-full h-1.5 bg-neutral-200 rounded-full overflow-hidden">
                               <motion.div 
                                 initial={{ width: 0 }}
                                 animate={{ width: '100.00%' }}
                                 transition={{ duration: 2, ease: "easeInOut" }}
-                                className="h-full bg-gold shadow-[0_0_15px_#c5a059]"
+                                className="h-full bg-black shadow-xl"
                               />
                            </div>
                         </div>

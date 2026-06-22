@@ -12,7 +12,53 @@ export default function SupportChat() {
   const [messages, setMessages] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [chatData, setChatData] = useState<any>(null);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const [showTicketForm, setShowTicketForm] = useState(false);
+  const [ticketEmail, setTicketEmail] = useState('');
+  const [ticketIssue, setTicketIssue] = useState('');
+  const [isSubmittingTicket, setIsSubmittingTicket] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      setTicketEmail(user.email || '');
+    }
+  }, [user]);
+
+  const handleCreateTicket = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!ticketEmail.trim() || !ticketIssue.trim()) return;
+
+    setIsSubmittingTicket(true);
+    try {
+      const chatRef = user ? user.uid : `guest_${Date.now()}`;
+      
+      await setDoc(doc(db, 'support_chats', chatRef), {
+        userName: user?.displayName || 'Guest Collector',
+        userEmail: ticketEmail,
+        lastMessage: ticketIssue,
+        lastActive: serverTimestamp(),
+        unreadByAdmin: true,
+        isTicket: true,
+        status: 'open'
+      }, { merge: true });
+
+      await addDoc(collection(db, 'support_chats', chatRef, 'messages'), {
+        text: `SYSTEM_AUTO_TICKET: ${ticketIssue}`,
+        senderId: user ? user.uid : 'guest',
+        senderName: ticketEmail,
+        timestamp: serverTimestamp(),
+        isAdmin: false
+      });
+
+      toast.success('High-Priority Vault Ticket created.');
+      setShowTicketForm(false);
+      setTicketIssue('');
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to register ticket.');
+    } finally {
+      setIsSubmittingTicket(false);
+    }
+  };
 
   useEffect(() => {
     const handleOpenSupport = (e: any) => {
@@ -121,6 +167,11 @@ export default function SupportChat() {
         const isTicketRequired = aiData.text.includes('[TICKET_REQUIRED]');
         const cleanText = aiData.text.replace('[TICKET_REQUIRED]', '').trim();
 
+        if (isTicketRequired) {
+          setShowTicketForm(true);
+          setTicketIssue(msgText); // Pre-fill with the unresolved issue
+        }
+
         // Add AI response to sub-collection
         await addDoc(collection(db, 'support_chats', user.uid, 'messages'), {
           text: cleanText,
@@ -185,8 +236,63 @@ export default function SupportChat() {
             {/* Messages */}
             <div 
               ref={scrollRef}
-              className="flex-grow p-8 overflow-y-auto space-y-8 bg-neutral-50/50 no-scrollbar"
+              className="flex-grow p-8 overflow-y-auto space-y-8 bg-neutral-50/50 no-scrollbar relative"
             >
+              {showTicketForm && (
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="absolute inset-x-8 top-8 bottom-8 bg-white/95 backdrop-blur-xl z-20 rounded-[2.5rem] border border-black/5 p-8 flex flex-col justify-center space-y-6 shadow-2xl"
+                >
+                   <div className="text-center space-y-4 mb-4">
+                      <div className="w-16 h-16 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center mx-auto animate-pulse">
+                         <ShieldCheck size={32} strokeWidth={1} />
+                      </div>
+                      <h4 className="font-display italic text-2xl">Escalate to Vault Support</h4>
+                      <p className="text-[10px] font-tech text-black/40 uppercase tracking-widest leading-relaxed">The AI requires human expertise. Please verify your details to initiate a high-priority ticket.</p>
+                   </div>
+                   
+                   <form onSubmit={handleCreateTicket} className="space-y-4">
+                      <div className="space-y-2">
+                        <label className="font-tech text-black/40 text-[8px] tracking-widest uppercase ml-4">Communication_Protocol (Email)</label>
+                        <input 
+                          type="email" 
+                          required
+                          value={ticketEmail}
+                          onChange={e => setTicketEmail(e.target.value)}
+                          className="w-full bg-neutral-100 border border-black/5 rounded-full px-6 py-4 text-xs outline-none focus:border-black transition-all"
+                          placeholder="collector@archive.com"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="font-tech text-black/40 text-[8px] tracking-widest uppercase ml-4">Issue_Detail</label>
+                        <textarea 
+                          required
+                          value={ticketIssue}
+                          onChange={e => setTicketIssue(e.target.value)}
+                          className="w-full bg-neutral-100 border border-black/5 rounded-[1.5rem] px-6 py-4 text-xs outline-none focus:border-black transition-all h-32 resize-none"
+                          placeholder="Describe the anomaly..."
+                        />
+                      </div>
+                      <div className="flex gap-4 pt-4">
+                        <button 
+                          type="button" 
+                          onClick={() => setShowTicketForm(false)}
+                          className="flex-1 py-4 bg-neutral-100 text-black/40 font-tech text-[10px] tracking-widest font-black uppercase rounded-full hover:bg-neutral-200 transition-all"
+                        >
+                          Cancel
+                        </button>
+                        <button 
+                          type="submit" 
+                          disabled={isSubmittingTicket}
+                          className="flex-[2] py-4 bg-black text-white font-tech text-[10px] tracking-widest font-black uppercase rounded-full hover:bg-neutral-900 transition-all shadow-xl disabled:opacity-20"
+                        >
+                          {isSubmittingTicket ? 'REGISTERING...' : 'INITIATE_TICKET'}
+                        </button>
+                      </div>
+                   </form>
+                </motion.div>
+              )}
               {messages.length === 0 && (
                 <div className="h-full flex flex-col items-center justify-center text-center space-y-8 opacity-20">
                   <div className="w-24 h-24 rounded-[3rem] border border-dashed border-black/10 flex items-center justify-center">
