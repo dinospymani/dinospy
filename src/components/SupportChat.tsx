@@ -154,6 +154,7 @@ export default function SupportChat() {
       }, { merge: true });
 
       // Call AI Support API
+      console.log(">>> [SUPPORT_CHAT] Calling AI API with messages:", messages.length + 1);
       const response = await fetch('/api/support/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -163,7 +164,14 @@ export default function SupportChat() {
         })
       });
 
+      if (!response.ok) {
+        const errText = await response.text();
+        console.error(">>> [SUPPORT_CHAT] API Error Response:", response.status, errText);
+        throw new Error(`Signal frequency interrupted: ${response.status}`);
+      }
+
       const aiData = await response.json();
+      console.log(">>> [SUPPORT_CHAT] AI Data Received:", !!aiData.text);
       if (aiData.text) {
         const isTicketRequired = aiData.text.includes('[TICKET_REQUIRED]');
         const cleanText = aiData.text.replace('[TICKET_REQUIRED]', '').trim();

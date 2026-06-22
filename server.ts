@@ -207,10 +207,12 @@ async function startServer() {
       const { preferences, history } = req.body;
       const prompt = `Based on these user preferences: ${JSON.stringify(preferences)} and purchase history: ${JSON.stringify(history)}, recommend 3 types of luxury watches (Grand Complications, Heritage, Avant-Garde, or Deep Sea). Provide a reason for each. Return valid JSON only.`;
       
-      const model = ai.getGenerativeModel({ model: "gemini-1.5-flash" });
-      const result = await model.generateContent(prompt);
+      const result = await ai.models.generateContent({
+        model: "gemini-1.5-flash",
+        contents: [{ role: 'user', parts: [{ text: prompt }] }]
+      });
       
-      let text = result.response.text() || "";
+      let text = result.text || "";
       
       // Basic cleaning if needed
       text = text.replace(/```json\n?/, "").replace(/\n?```/, "").trim();
@@ -312,10 +314,19 @@ async function startServer() {
   // AI Support Chat Logic
   app.post("/api/support/chat", async (req, res) => {
     try {
+      console.log(">>> [SUPPORT_CHAT] Received request");
       if (!ai) {
+        console.error(">>> [SUPPORT_CHAT] AI service not initialized");
         return res.status(503).json({ error: "AI service currently unavailable" });
       }
       const { messages, userProfile } = req.body;
+      
+      if (!messages || !Array.isArray(messages)) {
+        console.error(">>> [SUPPORT_CHAT] Invalid messages format");
+        return res.status(400).json({ error: "Invalid signal format" });
+      }
+
+      console.log(`>>> [SUPPORT_CHAT] Processing ${messages.length} messages for ${userProfile?.displayName || 'Guest'}`);
       
       const systemInstruction = `
         You are the "Omni-Archivist," the master AI curator of the DINOSPY Vault. DINOSPY is the world's most exclusive luxury watch archive.
@@ -342,27 +353,34 @@ async function startServer() {
         - Returns: 7 days, "Vault Original" condition only.
       `;
 
-      const model = ai.getGenerativeModel({
-        model: "gemini-1.5-flash",
-        systemInstruction,
-      });
+      const contents = messages.map((m: any) => ({
+        role: m.senderId === 'ai_assistant' ? 'model' : 'user',
+        parts: [{ text: m.text || "" }],
+      }));
 
-      const result = await model.generateContent({
-        contents: messages.map((m: any) => ({
-          role: m.senderId === 'ai_assistant' ? 'model' : 'user',
-          parts: [{ text: m.text }],
-        })),
-        generationConfig: {
+      // Filter out any empty messages.
+      const sanitizedContents = contents.filter(c => c.parts[0].text.trim() !== "");
+
+      console.log(">>> [SUPPORT_CHAT] Generating content...");
+      const result = await ai.models.generateContent({
+        model: "gemini-1.5-flash",
+        contents: sanitizedContents,
+        config: {
+          systemInstruction: systemInstruction, // Try moving to config
           temperature: 0.8,
         },
       });
       
-      const responseText = result.response.text() || "The Vault AI is currently calibrating. Please try again in a moment or initiate a High-Priority Ticket.";
+      const responseText = result.text || "The Vault AI is currently calibrating. Please try again in a moment or initiate a High-Priority Ticket.";
+      console.log(">>> [SUPPORT_CHAT] AI response generated successfully");
       
       res.json({ text: responseText });
-    } catch (error) {
-      console.error("AI Support Error:", error);
-      res.status(500).json({ error: "The Vault AI encountered a synchronization failure." });
+    } catch (error: any) {
+      console.error(">>> [SUPPORT_CHAT] Critical Error:", error);
+      res.status(500).json({ 
+        error: "The Vault AI encountered a synchronization failure.",
+        details: error.message 
+      });
     }
   });
 
