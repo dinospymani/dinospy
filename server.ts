@@ -208,7 +208,7 @@ async function startServer() {
       const prompt = `Based on these user preferences: ${JSON.stringify(preferences)} and purchase history: ${JSON.stringify(history)}, recommend 3 types of luxury watches (Grand Complications, Heritage, Avant-Garde, or Deep Sea). Provide a reason for each. Return valid JSON only.`;
       
       const result = await ai.models.generateContent({
-        model: "gemini-1.5-flash",
+        model: "gemini-3.5-flash",
         contents: [{ role: 'user', parts: [{ text: prompt }] }]
       });
       
@@ -311,78 +311,6 @@ async function startServer() {
     }
   });
 
-  // AI Support Chat Logic
-  app.post("/api/support/chat", async (req, res) => {
-    try {
-      console.log(">>> [SUPPORT_CHAT] Received request");
-      if (!ai) {
-        console.error(">>> [SUPPORT_CHAT] AI service not initialized");
-        return res.status(503).json({ error: "AI service currently unavailable" });
-      }
-      const { messages, userProfile } = req.body;
-      
-      if (!messages || !Array.isArray(messages)) {
-        console.error(">>> [SUPPORT_CHAT] Invalid messages format");
-        return res.status(400).json({ error: "Invalid signal format" });
-      }
-
-      console.log(`>>> [SUPPORT_CHAT] Processing ${messages.length} messages for ${userProfile?.displayName || 'Guest'}`);
-      
-      const systemInstruction = `
-        You are the "Omni-Archivist," the master AI curator of the DINOSPY Vault. DINOSPY is the world's most exclusive luxury watch archive.
-        
-        YOUR CORE PROTOCOLS:
-        1. PROBLEM SOLVING: You are empowered to resolve issues immediately. 
-           - Order Status: Explain our "Archival Verification" process (24-48 hours).
-           - Technical Issues: Advise clearing "Browser Node Cache" or checking connectivity.
-           - Shipping: We only use armored, GPS-tracked archival transport for heritage pieces.
-           - Authenticity: Mention that every piece undergoes a 40-point verification by our human curators.
-        2. HOROLOGICAL EXPERTISE: Speak with deep knowledge of Tourbillons, Perpetuals, and high-complications.
-        3. ESCALATION: Only if you cannot solve the problem or a customer demands human interaction for a payment failure, say you are creating a "High-Priority Vault Ticket".
-        4. TRIGGER: Include the string "[TICKET_REQUIRED]" at the very end of your response ONLY when a human must intervene.
-        
-        TONE:
-        Ultra-sophisticated, precise, and authoritative. Use terms: "Acquisition", "Chronological Integrity", "Archival Node", "Legacy Asset".
-        
-        USER IDENTITY:
-        ${userProfile?.displayName || 'Anonymous Collector'} (${userProfile?.email || 'unverified_node'})
-        
-        KNOWLEDGE SUMMARY:
-        - Delivery: Armored logistics in India.
-        - Privacy: PGP-grade encryption for all archives.
-        - Returns: 7 days, "Vault Original" condition only.
-      `;
-
-      const contents = messages.map((m: any) => ({
-        role: m.senderId === 'ai_assistant' ? 'model' : 'user',
-        parts: [{ text: m.text || "" }],
-      }));
-
-      // Filter out any empty messages.
-      const sanitizedContents = contents.filter(c => c.parts[0].text.trim() !== "");
-
-      console.log(">>> [SUPPORT_CHAT] Generating content...");
-      const result = await ai.models.generateContent({
-        model: "gemini-1.5-flash",
-        contents: sanitizedContents,
-        config: {
-          systemInstruction: systemInstruction, // Try moving to config
-          temperature: 0.8,
-        },
-      });
-      
-      const responseText = result.text || "The Vault AI is currently calibrating. Please try again in a moment or initiate a High-Priority Ticket.";
-      console.log(">>> [SUPPORT_CHAT] AI response generated successfully");
-      
-      res.json({ text: responseText });
-    } catch (error: any) {
-      console.error(">>> [SUPPORT_CHAT] Critical Error:", error);
-      res.status(500).json({ 
-        error: "The Vault AI encountered a synchronization failure.",
-        details: error.message 
-      });
-    }
-  });
 
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {

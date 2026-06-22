@@ -70,10 +70,11 @@ export default function AdminDashboard() {
       const goldColor = [197, 160, 89]; // #c5a059
       const blackColor = [10, 10, 10]; // #0A0A0A
       const neutralGray = [150, 150, 150];
+      const accentGray = [240, 240, 240];
 
       // Title & Branding Header
       doc.setFillColor(blackColor[0], blackColor[1], blackColor[2]);
-      doc.rect(0, 0, 210, 45, 'F');
+      doc.rect(0, 0, 210, 50, 'F');
       
       doc.setTextColor(goldColor[0], goldColor[1], goldColor[2]);
       doc.setFontSize(36);
@@ -82,71 +83,74 @@ export default function AdminDashboard() {
       
       doc.setFontSize(9);
       doc.setFont('helvetica', 'normal');
-      doc.text('PREMIUM_COLLECTOR_SERVICES // VAULT_LOGISTICS', 105, 35, { align: 'center', charSpace: 1.5 });
+      doc.text('PREMIUM_COLLECTOR_SERVICES // VAULT_LOGISTICS_TERMINAL', 105, 35, { align: 'center', charSpace: 1.5 });
       
       doc.setDrawColor(goldColor[0], goldColor[1], goldColor[2]);
-      doc.setLineWidth(0.8);
-      doc.line(60, 40, 150, 40);
+      doc.setLineWidth(1);
+      doc.line(60, 42, 150, 42);
 
-      // Section: Manifest Metadata
+      // Section: Shipping Label / Box Header (Industrial look)
+      doc.setDrawColor(blackColor[0], blackColor[1], blackColor[2]);
+      doc.setLineWidth(0.5);
+      doc.rect(140, 60, 55, 35); // Order ID Box
+      doc.setFontSize(7);
+      doc.setTextColor(neutralGray[0], neutralGray[1], neutralGray[2]);
+      doc.text('MANIFEST_ID_TRACKER', 145, 65);
+      doc.setFontSize(10);
       doc.setTextColor(blackColor[0], blackColor[1], blackColor[2]);
-      doc.setFontSize(10);
       doc.setFont('helvetica', 'bold');
-      doc.text('CORE_ACQUISITION_METADATA', 20, 60);
-      
-      doc.setDrawColor(230, 230, 230);
-      doc.setLineWidth(0.2);
-      doc.line(20, 63, 190, 63);
-
+      doc.text(`#${order.id.toUpperCase()}`, 145, 75);
       doc.setFontSize(8);
-      doc.setFont('helvetica', 'bold');
-      doc.text('MANIFEST_ID:', 20, 72);
-      doc.setFont('helvetica', 'normal');
-      doc.text(`DNX_${order.id.toUpperCase()}`, 50, 72);
+      doc.text(`DATE: ${new Date(order.createdAt).toLocaleDateString()}`, 145, 82);
+      doc.text(`STATUS: ${order.status.toUpperCase()}`, 145, 88);
 
-      doc.setFont('helvetica', 'bold');
-      doc.text('ARCHIVE_TIMESTAMP:', 20, 78);
-      doc.setFont('helvetica', 'normal');
-      doc.text(`${new Date(order.createdAt).toLocaleString().toUpperCase()}`, 50, 78);
-
-      doc.setFont('helvetica', 'bold');
-      doc.text('PAYMENT_PROTOCOL:', 20, 84);
-      doc.setFont('helvetica', 'normal');
-      doc.text(`${(order.paymentStatus || 'AUTHORIZED').toUpperCase()} // ${(order.paymentMethod || 'SECURE_GATEWAY').toUpperCase()}`, 50, 84);
-
-      // Section: Shipping Manifest (Crucial for parcels)
+      // SHIP TO / CONSIGNEE Information
       doc.setFontSize(10);
       doc.setFont('helvetica', 'bold');
-      doc.text('CONSIGNEE_SHIPPING_MANIFEST', 20, 100);
-      doc.line(20, 103, 190, 103);
+      doc.text('CONSIGNEE_SHIPPING_MANIFEST', 20, 65);
+      doc.setDrawColor(blackColor[0], blackColor[1], blackColor[2]);
+      doc.setLineWidth(0.3);
+      doc.line(20, 68, 120, 68);
 
-      doc.setFontSize(11);
-      doc.text(order.customerName?.toUpperCase() || 'ANONYMOUS_COLLECTOR', 20, 112);
+      doc.setFontSize(12);
+      doc.text(order.customerName?.toUpperCase() || 'ANONYMOUS_COLLECTOR', 20, 78);
       
       doc.setFontSize(9);
       doc.setFont('helvetica', 'normal');
       const address = order.shippingAddress;
       if (address) {
-        doc.text(`${address.address || ''}`, 20, 118);
-        doc.text(`${address.city || ''}, ${address.state || ''} - ${address.zip || ''}`, 20, 124);
-        doc.text(`REGION: IND // NODE_ZIP: ${address.zip || 'N/A'}`, 20, 130);
+        doc.text(`${address.address || ''}`, 20, 85);
+        doc.text(`${address.city || ''}, ${address.state || ''} - ${address.zip || ''}`, 20, 91);
+        doc.text(`COUNTRY: ${address.country?.toUpperCase() || 'INDIA'}`, 20, 97);
+        doc.setFont('helvetica', 'bold');
+        doc.text(`WHATSAPP_COMMS: +91 ${order.customerPhone || address.phone || 'NOT_FOUND'}`, 20, 105);
       }
       
+      doc.setFont('helvetica', 'normal');
+      doc.text(`AUTH_EMAIL: ${order.customerEmail || 'UNTRACKED'}`, 20, 111);
       doc.setFont('helvetica', 'bold');
-      doc.text(`CONTACT_LINK: ${order.customerEmail || 'UNTRACKED_EMAIL'}`, 20, 138);
-      doc.text(`IDENT_PIN: ${order.deliveryPin || 'PENDING_SYNC'}`, 20, 144);
+      doc.text(`SECURE_DELIVERY_PIN: ${order.deliveryPin || 'PENDING_SYNC'}`, 20, 118);
 
-      // Itemized Assets Table
+      // Logistics Warning Box
+      doc.setFillColor(accentGray[0], accentGray[1], accentGray[2]);
+      doc.rect(140, 105, 55, 20, 'F');
+      doc.setFontSize(7);
+      doc.setTextColor(blackColor[0], blackColor[1], blackColor[2]);
+      doc.text('FRAGILE // HIGH_VALUE_ASSET', 167.5, 112, { align: 'center' });
+      doc.text('DO_NOT_BEND // SEALED_VAULT', 167.5, 117, { align: 'center' });
+
+      // Asset Table
       const tableData = order.items.map((item: any) => [
         item.name.toUpperCase(),
+        item.brand?.toUpperCase() || 'DINOSPY_ARCHIVE',
         `X${item.quantity}`,
         `INR ${(item.price || 0).toLocaleString()}`,
         `INR ${((item.price || 0) * (item.quantity || 1)).toLocaleString()}`
       ]);
 
       autoTable(doc, {
-        startY: 155,
-        head: [['ASSET_CLASSIFICATION', 'QTY', 'VALUATION', 'TOTAL_MAGNITUDE']],
+        startY: 135,
+        head: [['ASSET_CLASS', 'BRAND_ORIGIN', 'QTY', 'UNIT_VAL', 'AGGREGATE']],
         body: tableData,
         headStyles: { 
           fillColor: blackColor as any, 
@@ -156,48 +160,88 @@ export default function AdminDashboard() {
           halign: 'center'
         },
         columnStyles: {
-          0: { cellWidth: 80 },
-          1: { halign: 'center' },
-          2: { halign: 'right' },
-          3: { halign: 'right' }
+          0: { cellWidth: 55 },
+          1: { cellWidth: 40 },
+          2: { halign: 'center' },
+          3: { halign: 'right' },
+          4: { halign: 'right' }
         },
-        alternateRowStyles: { fillColor: [250, 250, 250] },
-        styles: { fontSize: 8, font: 'helvetica', cellPadding: 4 },
+        alternateRowStyles: { fillColor: [252, 252, 252] },
+        styles: { fontSize: 8, font: 'helvetica', cellPadding: 5 },
         margin: { left: 20, right: 20 }
       });
 
-      // Financial Finalization
+      // Financial Breakdown
       const lastTable = (doc as any).lastAutoTable;
-      let finalY = lastTable ? lastTable.finalY + 15 : 220;
+      let finalY = lastTable ? lastTable.finalY + 15 : 200;
 
-      doc.setFillColor(245, 245, 245);
-      doc.rect(120, finalY - 8, 70, 20, 'F');
-      
+      // Ensure footer doesn't overlap
+      if (finalY > 240) {
+        doc.addPage();
+        finalY = 30;
+      }
+
+      const subtotal = order.items.reduce((acc: number, item: any) => acc + ((item.price || 0) * (item.quantity || 1)), 0);
+      const discount = subtotal - (order.total || subtotal);
+
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(neutralGray[0], neutralGray[1], neutralGray[2]);
+      doc.text('SUBTOTAL_ACQUISITION:', 140, finalY);
       doc.setTextColor(blackColor[0], blackColor[1], blackColor[2]);
-      doc.setFontSize(10);
+      doc.text(`INR ${subtotal.toLocaleString()}`, 190, finalY, { align: 'right' });
+
+      if (discount > 0) {
+        doc.setTextColor(neutralGray[0], neutralGray[1], neutralGray[2]);
+        doc.text(`PROMO_KEY_ADJUSTMENT (${order.couponUsed || 'NA'}):`, 140, finalY + 6);
+        doc.setTextColor(blackColor[0], blackColor[1], blackColor[2]);
+        doc.text(`- INR ${discount.toLocaleString()}`, 190, finalY + 6, { align: 'right' });
+        finalY += 6;
+      }
+
+      doc.setTextColor(neutralGray[0], neutralGray[1], neutralGray[2]);
+      doc.text('LOGISTICS_TRANSIT_FEE:', 140, finalY + 6);
+      doc.setTextColor(blackColor[0], blackColor[1], blackColor[2]);
+      doc.text('INR 0 (WAIVED)', 190, finalY + 6, { align: 'right' });
+
+      doc.setDrawColor(blackColor[0], blackColor[1], blackColor[2]);
+      doc.setLineWidth(0.5);
+      doc.line(140, finalY + 10, 190, finalY + 10);
+
+      doc.setFontSize(11);
       doc.setFont('helvetica', 'bold');
-      doc.text('NET_ACQUISITION_TOTAL:', 125, finalY + 4);
-      doc.setFontSize(12);
-      doc.text(`INR ${(order.total || 0).toLocaleString()}`, 190, finalY + 4, { align: 'right' });
+      doc.text('GRAND_TOTAL_VALUE:', 140, finalY + 20);
+      doc.text(`INR ${(order.total || 0).toLocaleString()}`, 190, finalY + 20, { align: 'right' });
 
-      // Verification Barcode Placeholder Area
+      // Verification Barcode Mock
       doc.setDrawColor(200, 200, 200);
-      doc.rect(20, finalY + 15, 80, 25);
-      doc.setFontSize(7);
+      doc.rect(20, finalY + 5, 80, 25);
+      doc.setFontSize(6);
       doc.setTextColor(180, 180, 180);
-      doc.text('INTERNAL_SCAN_ID_AREA', 60, finalY + 30, { align: 'center' });
-      doc.text(`* DNX-${order.id.slice(0, 12).toUpperCase()} *`, 60, finalY + 35, { align: 'center' });
+      doc.text('INTERNAL_SECURITY_BARCODE_PLACEHOLDER', 40, finalY + 15);
+      doc.setFontSize(9);
+      doc.setTextColor(blackColor[0], blackColor[1], blackColor[2]);
+      doc.text(`* DNX-${order.id.slice(0, 10).toUpperCase()} *`, 40, finalY + 22);
 
-      // Footer / Legal
+      // Signature Section
+      doc.setFontSize(8);
+      doc.text('ADMIN_LOGISTICS_STAMP:', 20, 250);
+      doc.line(20, 265, 80, 265);
+      doc.text('AUTHORIZED_OFFICER', 20, 270);
+
+      doc.text('CONSIGNEE_SIGNATURE:', 130, 250);
+      doc.line(130, 265, 190, 265);
+      doc.text('DATE_OF_ACCEPTANCE', 130, 270);
+
+      // Footer
       doc.setTextColor(neutralGray[0], neutralGray[1], neutralGray[2]);
       doc.setFontSize(7);
       doc.setFont('helvetica', 'italic');
-      doc.text('THIS_DOCUMENT_SERVES_AS_A_LEGAL_MANIFEST_AND_AUTHENTICITY_WARRANTY.', 105, 275, { align: 'center' });
-      doc.text('DINOSPY VAULT // GENEVA // MUMBAI // GLOBAL_DISTRIBUTION_NODE', 105, 280, { align: 'center' });
-      doc.text(`PAGE_AUTH_CODE: ${Math.random().toString(36).substring(7).toUpperCase()}`, 105, 285, { align: 'center' });
+      doc.text('THIS_DOCUMENT_SERVES_AS_A_LEGAL_MANIFEST_AND_AUTHENTICITY_WARRANTY.', 105, 285, { align: 'center' });
+      doc.text('DINOSPY VAULT // GENEVA // MUMBAI // GLOBAL_DISTRIBUTION_NODE', 105, 290, { align: 'center' });
 
-      doc.save(`DINOSPY-Manifest-${order.id.slice(-8).toUpperCase()}.pdf`);
-      toast.success('Shipping Manifest Generated.');
+      doc.save(`DINOSPY-MANIFEST-${order.id.slice(-8).toUpperCase()}.pdf`);
+      toast.success('Professional Manifest Generated.');
     } catch (err) {
       console.error(err);
       toast.error('Manifest generation failure.');
@@ -472,14 +516,27 @@ export default function AdminDashboard() {
   };
 
   const handleResolveSupport = async (chatId: string) => {
-    if (!window.confirm('Are you certain you wish to terminate this communication channel? The index will be archived.')) return;
     try {
-      await deleteDoc(doc(db, 'support_chats', chatId));
-      // Also delete messages? Usually optional but good for cleanup
-      toast.success('Channel terminated and archived.');
+      await setDoc(doc(db, 'support_chats', chatId), { 
+        status: 'resolved',
+        resolvedAt: serverTimestamp(),
+        unreadByAdmin: false 
+      }, { merge: true });
+      toast.success('Ticket marked as RESOLVED.');
       setActiveSupportChat(null);
     } catch (err) {
       toast.error('Termination handshake failed.');
+    }
+  };
+
+  const handleDeleteSupport = async (chatId: string) => {
+    if (!window.confirm('Delete this ticket permanently from the vault?')) return;
+    try {
+      await deleteDoc(doc(db, 'support_chats', chatId));
+      toast.success('Record purged.');
+      setActiveSupportChat(null);
+    } catch (err) {
+      toast.error('Purge failed.');
     }
   };
 
@@ -1045,6 +1102,7 @@ export default function AdminDashboard() {
         }
         
         setName('');
+        setBrand('DINOSPY');
         setPrice('');
         setDiscount('0');
         setImage('');
@@ -1839,6 +1897,17 @@ export default function AdminDashboard() {
                         />
                       </div>
                       <div className="space-y-4">
+                        <label className="font-tech text-black/30 text-[10px] tracking-[0.4em] font-black uppercase">BRAND_MANIFEST_NAME</label>
+                        <input 
+                          value={brand} onChange={e => setBrand(e.target.value)}
+                          className="w-full bg-transparent border-b border-black/10 px-0 py-6 focus:border-black outline-none transition-all font-display italic text-3xl md:text-4xl text-black"
+                          placeholder="DINOSPY" required
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20">
+                      <div className="space-y-4">
                         <label className="font-tech text-black/30 text-[10px] tracking-[0.4em] font-black uppercase">VALUATION_INR</label>
                         <input 
                           type="number" value={price} onChange={e => setPrice(e.target.value)}
@@ -1846,17 +1915,17 @@ export default function AdminDashboard() {
                           placeholder="000,000" required
                         />
                       </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-12 md:gap-20">
                       <div className="space-y-4">
-                        <label className="font-tech text-black/30 text-[10px] tracking-[0.4em] font-black uppercase">UNITS_AVAIL</label>
+                        <label className="font-tech text-black/30 text-[10px] tracking-[0.4em] font-black uppercase">STOCK_QUANTITY</label>
                         <input 
                           type="number" value={stock} onChange={e => setStock(e.target.value)}
-                          className="w-full bg-transparent border-b border-black/10 px-0 py-6 focus:border-black outline-none transition-all font-mono text-2xl text-black/60"
-                          required
+                          className="w-full bg-transparent border-b border-black/10 px-0 py-6 focus:border-black outline-none transition-all font-mono text-3xl md:text-4xl text-black"
+                          placeholder="10" required
                         />
                       </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-20">
                       <div className="space-y-4">
                         <label className="font-tech text-black/30 text-[10px] tracking-[0.4em] font-black uppercase">DISCOUNT_%</label>
                         <input 
@@ -1864,7 +1933,7 @@ export default function AdminDashboard() {
                           className="w-full bg-transparent border-b border-black/10 px-0 py-6 focus:border-black outline-none transition-all font-mono text-2xl text-black/60"
                         />
                       </div>
-                      <div className="col-span-2 space-y-4">
+                      <div className="md:col-span-2 space-y-4">
                         <label className="font-tech text-black/30 text-[10px] tracking-[0.4em] font-black uppercase">CLASSIFICATION</label>
                         <select 
                           value={category} onChange={e => setCategory(e.target.value)}
@@ -2176,84 +2245,152 @@ export default function AdminDashboard() {
 
           {view === 'coupons' && (
             <div className="space-y-20 animate-in fade-in duration-1000">
-               <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 mb-16">
+               <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 mb-16 border-b border-black/5 pb-10">
                   <div className="space-y-6">
                     <div className="flex items-center space-x-6">
-                       <div className="w-3 h-3 bg-gold rounded-full shadow-[0_0_15px_#c5a059]" />
-                       <span className="font-tech text-gold/30 text-xs tracking-[0.5em] font-black uppercase">MERCH_PROTOCOLS // VOUCHERS</span>
+                       <div className="w-3 h-3 bg-amber-500 rounded-full shadow-[0_0_15px_#f59e0b]" />
+                       <span className="font-tech text-amber-500/40 text-xs tracking-[0.5em] font-black uppercase">PROMOTIONAL_PROTOCOLS // VOUCHER_VAULT</span>
                     </div>
-                    <h2 className="text-6xl md:text-8xl font-display italic tracking-tightest leading-none">Discount <span className="opacity-10 text-white font-sans italic">Protocols.</span></h2>
+                    <h2 className="text-6xl md:text-8xl font-display italic tracking-tightest leading-none">Coupon <span className="opacity-10 text-black font-sans italic">Management.</span></h2>
+                  </div>
+                  <div className="flex flex-wrap gap-4">
+                    <div className="px-6 py-3 bg-black text-white rounded-full font-tech text-[10px] tracking-widest font-black uppercase">{coupons.filter(c => c.active).length} ACTIVE_NODES</div>
                   </div>
                </div>
 
-               <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 md:gap-16">
-                  <div className="lg:col-span-1 p-12 rounded-[4rem] border border-white/5 bg-noir luxury-shadow h-fit space-y-12 relative overflow-hidden group">
+               <div className="grid grid-cols-1 lg:grid-cols-4 gap-12 md:gap-16">
+                  {/* Creation Form */}
+                  <div className="lg:col-span-1 p-10 rounded-[3rem] border border-black/5 bg-neutral-50 h-fit space-y-10 relative overflow-hidden group shadow-xl">
                     <div className="absolute -top-10 -right-10 opacity-[0.03] group-hover:opacity-[0.08] transition-all duration-1000 rotate-12 group-hover:scale-125">
-                       <Zap size={300} strokeWidth={1} className="text-gold" />
+                       <Zap size={300} strokeWidth={1} className="text-black" />
                     </div>
                     
-                    <div className="flex items-center space-x-6 relative z-10">
-                       <div className="w-12 h-12 rounded-2xl bg-gold/10 text-gold flex items-center justify-center">
-                          <Zap size={24} strokeWidth={1.5} />
+                    <div className="flex items-center space-x-4 relative z-10">
+                       <div className="w-10 h-10 rounded-2xl bg-black text-white flex items-center justify-center shadow-lg">
+                          <Plus size={20} strokeWidth={1.5} />
                        </div>
-                       <span className="font-tech text-gold/60 text-[10px] tracking-[0.4em] font-black uppercase">INITIATE_CODE</span>
+                       <span className="font-tech text-black/40 text-[10px] tracking-widest font-black uppercase">DEPLOY_NEW_CODE</span>
                     </div>
 
-                    <form onSubmit={handleAddCoupon} className="space-y-10 relative z-10">
-                      <div className="space-y-4">
-                        <label className="font-tech text-gold/30 text-[10px] tracking-[0.4em] font-black uppercase">IDENT_CODE</label>
-                        <input value={couponCode} onChange={e => setCouponCode(e.target.value)} className="w-full bg-transparent border-b border-white/10 py-4 uppercase font-mono text-3xl focus:border-gold outline-none transition-all placeholder:text-white/5 text-text" placeholder="NOIR40" />
+                    <form onSubmit={handleAddCoupon} className="space-y-8 relative z-10">
+                      <div className="space-y-3">
+                        <label className="font-tech text-black/20 text-[8px] tracking-[0.3em] font-black uppercase">IDENT_CODE</label>
+                        <input 
+                          value={couponCode} onChange={e => setCouponCode(e.target.value)} 
+                          className="w-full bg-white border border-black/5 rounded-2xl px-6 py-4 uppercase font-mono text-2xl focus:border-black outline-none transition-all placeholder:text-black/5 shadow-inner" 
+                          placeholder="VAULT25" required
+                        />
                       </div>
-                      <div className="space-y-4">
-                        <label className="font-tech text-gold/30 text-[10px] tracking-[0.4em] font-black uppercase">VALUATION_TYPE</label>
-                        <select value={couponType} onChange={e => setCouponType(e.target.value as any)} className="w-full bg-noir border-b border-white/10 py-4 font-tech text-xs tracking-widest font-black focus:border-gold outline-none transition-all cursor-pointer text-text uppercase">
-                          <option value="percentage">PERCENTAGE_UNIT (%)</option>
-                          <option value="fixed">FIXED_VALUATION (₹)</option>
-                        </select>
+                      
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-3">
+                          <label className="font-tech text-black/20 text-[8px] tracking-[0.3em] font-black uppercase">TYPE</label>
+                          <select 
+                            value={couponType} onChange={e => setCouponType(e.target.value as any)} 
+                            className="w-full bg-white border border-black/5 rounded-2xl px-6 py-4 font-tech text-[10px] tracking-widest font-black focus:border-black outline-none cursor-pointer shadow-inner uppercase"
+                          >
+                            <option value="percentage">% UNIT</option>
+                            <option value="fixed">INR ₹</option>
+                          </select>
+                        </div>
+                        <div className="space-y-3">
+                          <label className="font-tech text-black/20 text-[8px] tracking-[0.3em] font-black uppercase">MAGNITUDE</label>
+                          <input 
+                            type="number" value={couponDiscount} onChange={e => setCouponDiscount(e.target.value)} 
+                            className="w-full bg-white border border-black/5 rounded-2xl px-6 py-4 font-mono text-2xl focus:border-black outline-none shadow-inner" 
+                            placeholder="0" required
+                          />
+                        </div>
                       </div>
-                      <div className="space-y-4">
-                        <label className="font-tech text-gold/30 text-[10px] tracking-[0.4em] font-black uppercase">BENEFIT_MAGNITUDE</label>
-                        <input type="number" value={couponDiscount} onChange={e => setCouponDiscount(e.target.value)} className="w-full bg-transparent border-b border-white/10 py-4 font-mono text-4xl focus:border-gold outline-none transition-all text-gold" />
+
+                      <div className="space-y-3">
+                        <label className="font-tech text-black/20 text-[8px] tracking-[0.3em] font-black uppercase">MIN_ACQUISITION_VAL (INR)</label>
+                        <input 
+                          type="number" value={couponMinAmount} onChange={e => setCouponMinAmount(e.target.value)} 
+                          className="w-full bg-white border border-black/5 rounded-2xl px-6 py-4 font-mono text-xl focus:border-black outline-none shadow-inner" 
+                          placeholder="4999"
+                        />
                       </div>
-                      <button type="submit" disabled={isSaving} className="w-full py-8 bg-gold text-noir font-tech text-xs tracking-[0.6em] font-black rounded-full hover:shadow-[0_0_50px_rgba(197,160,89,0.4)] transition-all duration-1000 uppercase">
-                        {isSaving ? 'EXECUTING...' : 'DEPLOY_PROTOCOL'}
+
+                      <div className="space-y-3">
+                        <label className="font-tech text-black/20 text-[8px] tracking-[0.3em] font-black uppercase">EXPIRY_DATE</label>
+                        <input 
+                          type="date" value={couponExpiry} onChange={e => setCouponExpiry(e.target.value)} 
+                          className="w-full bg-white border border-black/5 rounded-2xl px-6 py-4 font-tech text-[10px] tracking-widest font-black focus:border-black outline-none shadow-inner" 
+                        />
+                      </div>
+
+                      <button 
+                        type="submit" 
+                        disabled={isSaving} 
+                        className="w-full py-6 bg-black text-white font-tech text-[10px] tracking-[0.5em] font-black rounded-full hover:bg-neutral-800 transition-all duration-700 uppercase shadow-xl disabled:opacity-20"
+                      >
+                        {isSaving ? 'ENCRYPTING...' : 'INITIALIZE_PROTOCOL'}
                       </button>
                     </form>
                   </div>
 
-                  <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8">
-                    {coupons.map(c => (
-                      <div key={c.id} className="group p-10 rounded-[4rem] border border-white/5 bg-charcoal/20 relative overflow-hidden flex flex-col justify-between hover:bg-charcoal/40 transition-all duration-1000 h-80 luxury-shadow">
-                        <div className="absolute top-0 right-0 p-10 opacity-[0.03] rotate-12 group-hover:scale-150 group-hover:opacity-10 transition-all duration-1000 pointer-events-none text-gold">
-                           <Zap size={200} strokeWidth={1} />
+                  {/* Coupon Grid */}
+                  <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+                    {coupons.sort((a,b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()).map(c => (
+                      <div key={c.id} className="group p-8 rounded-[3.5rem] border border-black/5 bg-white relative overflow-hidden flex flex-col justify-between hover:scale-[1.02] transition-all duration-700 h-96 luxury-shadow">
+                        <div className="absolute -top-10 -right-10 opacity-[0.02] rotate-12 group-hover:scale-150 group-hover:opacity-5 transition-all duration-1000 pointer-events-none text-black">
+                           <Zap size={250} strokeWidth={1} />
                         </div>
+                        
                         <div className="relative z-10 flex justify-between items-start">
                            <div className="space-y-4">
-                              <div className="flex items-center space-x-4">
-                                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.5)]" />
-                                 <span className="font-tech text-gold/40 text-[9px] tracking-[0.4em] font-black uppercase">ACTIVE_VOUCHER</span>
+                              <div className="flex items-center space-x-3">
+                                 <div className={`w-2 h-2 rounded-full shadow-lg ${new Date(c.expiry) < new Date() ? 'bg-red-500 animate-pulse' : 'bg-emerald-500'}`} />
+                                 <span className="font-tech text-black/30 text-[8px] tracking-[0.3em] font-black uppercase">
+                                   {new Date(c.expiry) < new Date() ? 'PROTOCOL_EXPIRED' : 'ACTIVE_LOGISTICS'}
+                                 </span>
                               </div>
-                              <h3 className="text-5xl font-mono font-black italic tracking-tightest text-black uppercase">{c.code}</h3>
+                              <h3 className="text-4xl font-mono font-black italic tracking-tighter text-black uppercase">{c.code}</h3>
                            </div>
-                           <button onClick={() => handleDeleteCoupon(c.id)} className="w-14 h-14 rounded-2xl border border-black/5 bg-neutral-100 flex items-center justify-center text-red-500/20 hover:text-red-500 hover:bg-red-500/10 hover:border-red-500/20 transition-all duration-700 active:scale-90">
-                             <Trash2 size={24} strokeWidth={1} />
+                           <button 
+                            onClick={() => handleDeleteCoupon(c.id)} 
+                            className="w-12 h-12 rounded-2xl border border-black/5 bg-neutral-50 flex items-center justify-center text-red-500/20 hover:text-red-500 hover:bg-red-500/10 hover:border-red-500/20 transition-all active:scale-90"
+                           >
+                              <Trash2 size={20} strokeWidth={1} />
                            </button>
                         </div>
-                        <div className="relative z-10 grid grid-cols-2 gap-6 pt-10">
-                           <div className="p-6 bg-neutral-50 rounded-[1.5rem] border border-black/5 luxury-shadow group-hover:border-black/20 transition-all">
-                              <p className="font-tech text-[8px] text-black/30 mb-2 tracking-widest uppercase">VALUATION</p>
-                              <p className="font-display italic text-3xl text-black">{c.type === 'percentage' ? `${c.discount}%` : `₹${c.discount}`}</p>
+
+                        <div className="relative z-10 space-y-6 pt-10">
+                           <div className="grid grid-cols-2 gap-4">
+                              <div className="p-5 bg-neutral-50 rounded-[1.8rem] border border-black/5">
+                                 <p className="font-tech text-[8px] text-black/30 mb-2 tracking-widest uppercase">VALUATION</p>
+                                 <p className="font-display italic text-3xl text-indigo-600">{c.type === 'percentage' ? `${c.discount}%` : `₹${c.discount}`}</p>
+                              </div>
+                              <div className="p-5 bg-neutral-50 rounded-[1.8rem] border border-black/5">
+                                 <p className="font-tech text-[8px] text-black/30 mb-2 tracking-widest uppercase">THRESHOLD</p>
+                                 <p className="font-mono text-xl text-black/60">₹{c.minAmount || 0}</p>
+                              </div>
                            </div>
-                           <div className="p-6 bg-neutral-50 rounded-[1.5rem] border border-black/5 luxury-shadow group-hover:border-black/20 transition-all">
-                              <p className="font-tech text-[8px] text-black/30 mb-2 tracking-widest uppercase">THRESHOLD</p>
-                              <p className="font-mono text-2xl text-black/60">₹{c.minAmount}</p>
+
+                           <div className="flex items-center justify-between px-4 pb-2 border-b border-black/5">
+                              <div className="flex items-center space-x-3">
+                                <Clock size={12} className="text-black/20" />
+                                <span className="font-tech text-[9px] text-black/40 uppercase tracking-widest">
+                                  {c.expiry ? `Expires: ${new Date(c.expiry).toLocaleDateString()}` : 'No Expiration'}
+                                </span>
+                              </div>
+                              <div className="flex items-center space-x-3">
+                                <div className="w-1.5 h-1.5 bg-indigo-600 rounded-full" />
+                                <span className="font-tech text-[9px] text-black/40 uppercase tracking-widest">SYNC_OK</span>
+                              </div>
                            </div>
+                        </div>
+
+                        <div className="absolute bottom-6 right-8 opacity-10">
+                           <p className="font-tech text-[7px] tracking-[0.5em] font-black uppercase text-black">VAULT_ENCRYPTED_PROTO</p>
                         </div>
                       </div>
                     ))}
                     {coupons.length === 0 && (
-                      <div className="col-span-2 text-center py-32 rounded-[4rem] border border-dashed border-white/5 bg-white/[0.01]">
-                        <p className="font-tech text-xs text-text/20 tracking-[0.8em] font-black uppercase">EMPTY_VOUCHER_ARCHIVE</p>
+                      <div className="col-span-full py-40 bg-neutral-50 rounded-[4rem] border border-dashed border-black/10 flex flex-col items-center justify-center space-y-6 opacity-40">
+                         <Zap size={60} strokeWidth={0.5} className="text-black animate-pulse" />
+                         <p className="font-tech text-[10px] tracking-[0.8em] font-black uppercase">Archive_Empty</p>
                       </div>
                     )}
                   </div>
@@ -2261,14 +2398,17 @@ export default function AdminDashboard() {
             </div>
           )}
           {view === 'support' && (
-             <div className="grid grid-cols-12 gap-12 animate-in fade-in duration-1000 h-[700px]">
-                {/* Chat List */}
-                <div className="col-span-12 lg:col-span-4 bg-neutral-50 rounded-[4rem] border border-black/5 overflow-hidden flex flex-col luxury-shadow">
-                   <div className="p-10 border-b border-black/5 flex justify-between items-center">
-                      <h3 className="font-display italic text-2xl text-black">Signal <span className="opacity-10 text-black font-sans italic">Hub.</span></h3>
-                      <span className="font-mono text-[9px] tracking-widest text-indigo-600 opacity-60 uppercase font-black">{supportChats.length} NODES</span>
+             <div className="grid grid-cols-12 gap-12 animate-in fade-in duration-1000 h-[750px]">
+                {/* Ticket List */}
+                <div className="col-span-12 lg:col-span-4 bg-white rounded-[4rem] border border-black/5 overflow-hidden flex flex-col luxury-shadow">
+                   <div className="p-10 border-b border-black/5 flex justify-between items-center bg-neutral-50/50">
+                      <div>
+                        <h3 className="font-display italic text-2xl text-black">Ticket <span className="opacity-10 text-black font-sans italic">Hub.</span></h3>
+                        <p className="font-tech text-black/30 text-[9px] tracking-widest uppercase mt-1">Live_Protocol_Monitoring</p>
+                      </div>
+                      <span className="px-4 py-1.5 bg-indigo-600/10 text-indigo-600 font-mono text-[9px] tracking-widest rounded-full font-black uppercase">{supportChats.filter(c => c.status !== 'resolved').length} OPEN</span>
                    </div>
-                   <div className="flex-grow overflow-y-auto no-scrollbar">
+                   <div className="flex-grow overflow-y-auto no-scrollbar bg-neutral-50/20">
                       {supportChats.sort((a,b) => {
                         const dateA = a.lastActive?.toDate?.() || new Date(a.lastActive || 0);
                         const dateB = b.lastActive?.toDate?.() || new Date(b.lastActive || 0);
@@ -2277,78 +2417,114 @@ export default function AdminDashboard() {
                          <button 
                             key={chat.id}
                             onClick={() => setActiveSupportChat(chat.id)}
-                            className={`w-full p-8 text-left border-b border-black/5 flex items-center space-x-6 transition-all duration-700 ${activeSupportChat === chat.id ? 'bg-indigo-600/10 border-indigo-600/20' : 'hover:bg-black/5'}`}
+                            className={`w-full p-8 text-left border-b border-black/5 flex items-center space-x-6 transition-all duration-700 ${activeSupportChat === chat.id ? 'bg-indigo-600 shadow-[inset_4px_0_0_#4f46e5]' : 'hover:bg-neutral-100'}`}
                          >
                             <div className="relative">
-                               <div className="w-14 h-14 rounded-full bg-white flex items-center justify-center text-indigo-600 border border-black/5 shadow-xl">
+                               <div className={`w-14 h-14 rounded-[1.5rem] flex items-center justify-center border border-black/5 shadow-lg transition-colors ${activeSupportChat === chat.id ? 'bg-white text-indigo-600' : 'bg-white text-black/20'}`}>
                                   <User size={20} strokeWidth={1} />
                                </div>
                                {chat.unreadByAdmin && (
-                                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full border-4 border-white animate-pulse shadow-[0_0_15px_rgba(239,68,68,0.4)]" />
+                                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full border-4 border-white animate-pulse" />
                                )}
                             </div>
                             <div className="flex-grow min-w-0">
                                <div className="flex justify-between items-center mb-1">
                                   <div className="flex items-center space-x-3">
-                                     <p className="font-mono text-xs text-black font-black truncate max-w-[120px]">{chat.userName || 'Anonymous Node'}</p>
-                                     {chat.isTicket && (
-                                        <span className="px-2 py-0.5 bg-red-500 text-white font-mono text-[7px] font-black tracking-widest rounded-full animate-pulse uppercase">TICKET</span>
-                                     )}
+                                     <p className={`font-mono text-[10px] font-black truncate max-w-[140px] uppercase ${activeSupportChat === chat.id ? 'text-white' : 'text-black'}`}>{chat.userName || 'Unknown_Node'}</p>
+                                     <span className={`px-2 py-0.5 font-mono text-[7px] font-black tracking-widest rounded-full uppercase ${chat.status === 'resolved' ? 'bg-emerald-500 text-white' : 'bg-red-500 text-white animate-pulse'}`}>
+                                       {chat.status === 'resolved' ? 'RESOLVED' : 'OPEN'}
+                                     </span>
                                   </div>
-                                  <span className="font-mono text-[8px] text-black/20 uppercase">
-                                    {chat.lastActive ? (chat.lastActive.toDate?.() || new Date(chat.lastActive)).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
-                                  </span>
                                </div>
-                               <p className="text-[11px] text-black/40 truncate italic tracking-tight">{chat.lastMessage || 'Channel established...'}</p>
+                               <p className={`text-[11px] truncate italic tracking-tight ${activeSupportChat === chat.id ? 'text-white/60' : 'text-black/40'}`}>{chat.lastMessage || 'Channel_Open...'}</p>
                             </div>
                          </button>
                       ))}
                       {supportChats.length === 0 && (
                          <div className="p-20 text-center opacity-20 space-y-4">
                             <MessageSquare className="mx-auto" size={40} strokeWidth={1} />
-                            <p className="font-tech text-[9px] tracking-widest uppercase">No active signals.</p>
+                            <p className="font-tech text-xs tracking-[0.5em] font-black uppercase">Archive_Empty</p>
                          </div>
                       )}
                    </div>
                 </div>
 
-                {/* Chat Window */}
+                {/* Ticket Detail */}
                 <div className="col-span-12 lg:col-span-8 bg-white rounded-[4rem] border border-black/5 overflow-hidden flex flex-col luxury-shadow relative">
                    {activeSupportChat ? (
                       <>
-                         <div className="p-10 border-b border-black/5 bg-neutral-50 flex justify-between items-center">
-                            <div className="flex items-center space-x-6">
-                               <div className="w-12 h-12 rounded-full bg-indigo-600/10 flex items-center justify-center text-indigo-600">
-                                  <ShieldCheck size={20} strokeWidth={1} />
+                         {/* Detailed Header for Support Study */}
+                         <div className="p-8 border-b border-black/5 bg-neutral-50 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                            <div className="space-y-4">
+                               <div className="flex items-center space-x-4">
+                                  <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-lg shadow-indigo-600/20">
+                                     <ShieldCheck size={18} strokeWidth={1.5} />
+                                  </div>
+                                  <div>
+                                     <p className="font-mono text-xs text-black font-black uppercase tracking-tight">{supportChats.find(c => c.id === activeSupportChat)?.userName}</p>
+                                     <p className="font-tech text-[9px] text-black/40 tracking-widest uppercase">TICKET_ID: {activeSupportChat.slice(0, 12).toUpperCase()}</p>
+                                  </div>
                                </div>
-                               <div>
-                                  <p className="font-mono text-xs text-black font-black uppercase">SECURE_CHANNEL // {supportChats.find(c => c.id === activeSupportChat)?.userEmail}</p>
-                                  <p className="font-tech text-indigo-600 opacity-40 text-[9px] tracking-widest uppercase">Encryption: AES_256</p>
+                               <div className="flex flex-wrap gap-4">
+                                  <div className="px-4 py-2 bg-white border border-black/5 rounded-full flex items-center space-x-3">
+                                     <Mail size={12} className="text-indigo-600" />
+                                     <span className="font-tech text-[9px] text-black/60 font-black uppercase">{supportChats.find(c => c.id === activeSupportChat)?.userEmail}</span>
+                                  </div>
+                                  <div className="px-4 py-2 bg-white border border-black/5 rounded-full flex items-center space-x-3">
+                                     <Phone size={12} className="text-emerald-600" />
+                                     <span className="font-tech text-[9px] text-black/60 font-black uppercase">{supportChats.find(c => c.id === activeSupportChat)?.userPhone || 'NO_PHONE'}</span>
+                                  </div>
+                                  {supportChats.find(c => c.id === activeSupportChat)?.orderId && (
+                                    <div className="px-4 py-2 bg-indigo-600 text-white rounded-full flex items-center space-x-3 shadow-lg shadow-indigo-600/20">
+                                       <ShoppingBag size={12} />
+                                       <span className="font-tech text-[9px] font-black uppercase tracking-widest">ORDER: {supportChats.find(c => c.id === activeSupportChat)?.orderId}</span>
+                                    </div>
+                                  )}
                                </div>
                             </div>
-                            <button 
-                               onClick={() => handleResolveSupport(activeSupportChat!)}
-                               className="px-8 py-3 bg-red-500/10 border border-red-500/20 text-red-500 rounded-full font-tech text-[10px] font-black tracking-widest uppercase hover:bg-red-500 hover:text-white transition-all duration-700"
-                            >
-                               TERMINATE_CHANNEL
-                            </button>
+                            <div className="flex gap-4">
+                               {supportChats.find(c => c.id === activeSupportChat)?.status !== 'resolved' ? (
+                                 <button 
+                                    onClick={() => handleResolveSupport(activeSupportChat!)}
+                                    className="px-8 py-3 bg-emerald-600 text-white rounded-full font-tech text-[10px] font-black tracking-widest uppercase hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-600/20"
+                                 >
+                                    MARK_RESOLVED
+                                 </button>
+                               ) : (
+                                 <button 
+                                    disabled
+                                    className="px-8 py-3 bg-emerald-50 text-emerald-600 border border-emerald-200 rounded-full font-tech text-[10px] font-black tracking-widest uppercase"
+                                 >
+                                    TICKET_RESOLVED
+                                 </button>
+                               )}
+                               <button 
+                                  onClick={() => handleDeleteSupport(activeSupportChat!)}
+                                  className="w-12 h-12 flex items-center justify-center bg-red-50 text-red-500 rounded-full border border-red-100 hover:bg-red-500 hover:text-white transition-all shadow-lg"
+                               >
+                                  <Trash2 size={18} strokeWidth={1.5} />
+                               </button>
+                            </div>
                          </div>
                          
                          <div 
                             ref={adminScrollRef}
-                            className="flex-grow p-10 overflow-y-auto space-y-8 no-scrollbar bg-neutral-50/10"
+                            className="flex-grow p-10 overflow-y-auto space-y-8 no-scrollbar bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-fixed"
                          >
                             {supportMessages.map(msg => (
                                <div key={msg.id} className={`flex ${msg.isAdmin ? 'justify-end' : 'justify-start'}`}>
-                                  <div className={`max-w-[70%] p-6 rounded-[2.5rem] ${msg.isAdmin ? 'bg-black text-white shadow-[0_0_40px_rgba(0,0,0,0.1)]' : 'bg-neutral-100 border border-black/5 text-black'}`}>
-                                     <p className="text-sm font-light leading-relaxed">{msg.text}</p>
-                                     <p className={`text-[8px] font-mono mt-3 opacity-30 ${msg.isAdmin ? 'text-white' : 'text-black'}`}>
-                                        {msg.timestamp ? (
-                                          msg.timestamp.toDate 
-                                            ? msg.timestamp.toDate().toLocaleTimeString() 
-                                            : new Date(msg.timestamp).toLocaleTimeString()
-                                        ) : 'SYNCING'}
-                                     </p>
+                                  <div className={`max-w-[75%] p-6 rounded-[2.5rem] shadow-sm ${msg.isAdmin ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-600/20' : 'bg-white border border-black/5 text-black'}`}>
+                                     <p className="text-[13px] font-light leading-relaxed whitespace-pre-wrap">{msg.text}</p>
+                                     <div className={`flex items-center space-x-3 mt-4 opacity-30 ${msg.isAdmin ? 'text-white' : 'text-black'}`}>
+                                        <Clock size={10} />
+                                        <span className="text-[8px] font-mono tracking-tighter uppercase whitespace-nowrap">
+                                          {msg.timestamp ? (
+                                            msg.timestamp.toDate 
+                                              ? msg.timestamp.toDate().toLocaleTimeString() 
+                                              : new Date(msg.timestamp).toLocaleTimeString()
+                                          ) : 'PENDING_SYNC'}
+                                        </span>
+                                     </div>
                                   </div>
                                </div>
                             ))}
@@ -2360,13 +2536,13 @@ export default function AdminDashboard() {
                                   type="text"
                                   value={replyText}
                                   onChange={(e) => setReplyText(e.target.value)}
-                                  placeholder="Broadcast signal..."
-                                  className="w-full bg-white border border-black/5 rounded-full py-6 px-10 pr-20 text-sm font-light text-black focus:border-indigo-600 outline-none transition-all"
+                                  placeholder="Type secure transmission to collector..."
+                                  className="w-full bg-white border border-black/5 rounded-full py-6 px-10 pr-20 text-sm font-light text-black focus:border-indigo-600 outline-none transition-all shadow-inner"
                                />
                                <button 
                                   type="submit"
                                   disabled={!replyText.trim()}
-                                  className="absolute right-3 top-1/2 -translate-y-1/2 w-14 h-14 bg-black text-white rounded-full flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-xl disabled:opacity-20"
+                                  className="absolute right-3 top-1/2 -translate-y-1/2 w-14 h-14 bg-black text-white rounded-full flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-2xl disabled:opacity-20"
                                >
                                   <Send size={20} strokeWidth={2} />
                                </button>
@@ -2375,10 +2551,12 @@ export default function AdminDashboard() {
                       </>
                    ) : (
                       <div className="h-full flex flex-col items-center justify-center text-center p-20 opacity-10 space-y-8">
-                         <MessageSquare size={120} strokeWidth={0.5} />
+                         <div className="w-32 h-32 rounded-[4rem] border border-dashed border-black/30 flex items-center justify-center">
+                            <Shield size={60} strokeWidth={0.5} />
+                         </div>
                          <div className="space-y-4">
-                            <h3 className="text-4xl font-display italic">Awaiting Selection.</h3>
-                            <p className="font-tech text-xs tracking-widest uppercase">Select a node to initiate secure communication.</p>
+                            <h3 className="text-4xl font-display italic">Awaiting Protocol.</h3>
+                            <p className="font-tech text-xs tracking-widest uppercase">Select a transmission node to study manifest issue.</p>
                          </div>
                       </div>
                    )}

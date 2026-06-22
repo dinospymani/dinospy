@@ -12,8 +12,10 @@ export default function SupportChat() {
   const [messages, setMessages] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [chatData, setChatData] = useState<any>(null);
-  const [showTicketForm, setShowTicketForm] = useState(false);
+  const [showTicketForm, setShowTicketForm] = useState(true);
   const [ticketEmail, setTicketEmail] = useState('');
+  const [ticketPhone, setTicketPhone] = useState('');
+  const [ticketOrder, setTicketOrder] = useState('');
   const [ticketIssue, setTicketIssue] = useState('');
   const [isSubmittingTicket, setIsSubmittingTicket] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -33,17 +35,20 @@ export default function SupportChat() {
       const chatRef = user ? user.uid : `guest_${Date.now()}`;
       
       await setDoc(doc(db, 'support_chats', chatRef), {
-        userName: user?.displayName || 'Guest Collector',
+        userName: profile?.displayName || 'Guest Collector',
         userEmail: ticketEmail,
+        userPhone: ticketPhone,
+        orderId: ticketOrder,
         lastMessage: ticketIssue,
         lastActive: serverTimestamp(),
         unreadByAdmin: true,
         isTicket: true,
-        status: 'open'
+        status: 'open',
+        ticketType: 'HIGH_PRIORITY'
       }, { merge: true });
 
       await addDoc(collection(db, 'support_chats', chatRef, 'messages'), {
-        text: `SYSTEM_AUTO_TICKET: ${ticketIssue}`,
+        text: `LOGISTICS_ISSUE: ${ticketIssue}\n\nORDER_REF: ${ticketOrder || 'N/A'}\nPHONE: ${ticketPhone || 'N/A'}`,
         senderId: user ? user.uid : 'guest',
         senderName: ticketEmail,
         timestamp: serverTimestamp(),
@@ -52,7 +57,6 @@ export default function SupportChat() {
 
       toast.success('High-Priority Vault Ticket created.');
       setShowTicketForm(false);
-      setTicketIssue('');
     } catch (err) {
       console.error(err);
       toast.error('Failed to register ticket.');
@@ -64,65 +68,36 @@ export default function SupportChat() {
   useEffect(() => {
     const handleOpenSupport = (e: any) => {
       setIsOpen(true);
-      if (e.detail?.message) {
-        setMessage(e.detail.message);
-        if (e.detail.isTicket && user) {
-           setDoc(doc(db, 'support_chats', user.uid), { 
-             isTicket: true,
-             updatedAt: serverTimestamp() 
-           }, { merge: true });
-        }
-      }
     };
     window.addEventListener('openSupport', handleOpenSupport);
     return () => window.removeEventListener('openSupport', handleOpenSupport);
-  }, [user]);
+  }, []);
 
   useEffect(() => {
     if (!user) return;
 
-    // Listen to chat metadata (for unread status)
     const unsubChat = onSnapshot(doc(db, 'support_chats', user.uid), (docSnap) => {
       if (docSnap.exists()) {
-        setChatData(docSnap.data());
+        const data = docSnap.data();
+        setChatData(data);
+        if (data.status === 'open' || data.messages) {
+          setShowTicketForm(false);
+        }
       }
     });
 
     if (isOpen) {
-      // Mark as read when opening
-      setDoc(doc(db, 'support_chats', user.uid), {
-        unreadByUser: false 
-      }, { merge: true });
+      setDoc(doc(db, 'support_chats', user.uid), { unreadByUser: false }, { merge: true });
 
-      const q = query(
-        collection(db, 'support_chats', user.uid, 'messages'),
-        orderBy('timestamp', 'asc')
-      );
-
+      const q = query(collection(db, 'support_chats', user.uid, 'messages'), orderBy('timestamp', 'asc'));
       const unsubscribe = onSnapshot(q, (snapshot) => {
-        const msgs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data({ serverTimestamps: 'estimate' }) } as any));
-        // Robust sorting
-        msgs.sort((a, b) => {
-          const timeA = a.timestamp?.toDate?.()?.getTime() || new Date(a.timestamp || 0).getTime();
-          const timeB = b.timestamp?.toDate?.()?.getTime() || new Date(b.timestamp || 0).getTime();
-          return timeA - timeB;
-        });
+        const msgs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as any));
         setMessages(msgs);
-        setTimeout(() => {
-          if (scrollRef.current) {
-            scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-          }
-        }, 100);
-      }, (error) => {
-        console.warn("Signal frequency interrupted:", error);
+        setTimeout(() => scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' }), 100);
       });
 
-      return () => {
-        unsubscribe();
-        unsubChat();
-      };
+      return () => { unsubscribe(); unsubChat(); };
     }
-
     return () => unsubChat();
   }, [user, isOpen]);
 
@@ -132,11 +107,9 @@ export default function SupportChat() {
 
     const msgText = message.trim();
     setMessage('');
-    setLoading(true);
 
     try {
-      // Add message to sub-collection
-      const userMsgRef = await addDoc(collection(db, 'support_chats', user.uid, 'messages'), {
+      await addDoc(collection(db, 'support_chats', user.uid, 'messages'), {
         text: msgText,
         senderId: user.uid,
         senderName: profile?.displayName || user.email,
@@ -144,66 +117,14 @@ export default function SupportChat() {
         isAdmin: false
       });
 
-      // Update main chat doc for admin dashboard
       await setDoc(doc(db, 'support_chats', user.uid), {
         lastMessage: msgText,
         lastActive: serverTimestamp(),
-        unreadByAdmin: true,
-        userName: profile?.displayName || user.email,
-        userEmail: user.email
+        unreadByAdmin: true
       }, { merge: true });
-
-      // Call AI Support API
-      console.log(">>> [SUPPORT_CHAT] Calling AI API with messages:", messages.length + 1);
-      const response = await fetch('/api/support/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messages: [...messages, { text: msgText, senderId: user.uid }],
-          userProfile: profile
-        })
-      });
-
-      if (!response.ok) {
-        const errText = await response.text();
-        console.error(">>> [SUPPORT_CHAT] API Error Response:", response.status, errText);
-        throw new Error(`Signal frequency interrupted: ${response.status}`);
-      }
-
-      const aiData = await response.json();
-      console.log(">>> [SUPPORT_CHAT] AI Data Received:", !!aiData.text);
-      if (aiData.text) {
-        const isTicketRequired = aiData.text.includes('[TICKET_REQUIRED]');
-        const cleanText = aiData.text.replace('[TICKET_REQUIRED]', '').trim();
-
-        if (isTicketRequired) {
-          setShowTicketForm(true);
-          setTicketIssue(msgText); // Pre-fill with the unresolved issue
-        }
-
-        // Add AI response to sub-collection
-        await addDoc(collection(db, 'support_chats', user.uid, 'messages'), {
-          text: cleanText,
-          senderId: 'ai_assistant',
-          senderName: 'Vault AI',
-          timestamp: serverTimestamp(),
-          isAdmin: true // Mark as admin so it shows on left
-        });
-
-        // Update main chat doc
-        await setDoc(doc(db, 'support_chats', user.uid), {
-          lastMessage: cleanText,
-          lastActive: serverTimestamp(),
-          unreadByUser: true,
-          isTicket: isTicketRequired ? true : chatData?.isTicket || false
-        }, { merge: true });
-      }
-
     } catch (err) {
       console.error(err);
-      toast.error('Failed to send signal.');
-    } finally {
-      setLoading(false);
+      toast.error('Signal interrupted.');
     }
   };
 
@@ -257,39 +178,56 @@ export default function SupportChat() {
                       <div className="w-16 h-16 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center mx-auto animate-pulse">
                          <ShieldCheck size={32} strokeWidth={1} />
                       </div>
-                      <h4 className="font-display italic text-2xl">Escalate to Vault Support</h4>
-                      <p className="text-[10px] font-tech text-black/40 uppercase tracking-widest leading-relaxed">The AI requires human expertise. Please verify your details to initiate a high-priority ticket.</p>
+                      <h4 className="font-display italic text-2xl">Vault Ticket Manifest</h4>
+                      <p className="text-[10px] font-tech text-black/40 uppercase tracking-widest leading-relaxed">Our support team will review your request and connect with you directly. Please provide accurate details for rapid resolution.</p>
                    </div>
                    
                    <form onSubmit={handleCreateTicket} className="space-y-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <label className="font-tech text-black/40 text-[8px] tracking-widest uppercase ml-4">Auth_Email</label>
+                          <input 
+                            type="email" required
+                            value={ticketEmail} onChange={e => setTicketEmail(e.target.value)}
+                            className="w-full bg-neutral-100 border border-black/5 rounded-full px-6 py-4 text-[10px] outline-none focus:border-black transition-all"
+                            placeholder="collector@archive.com"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="font-tech text-black/40 text-[8px] tracking-widest uppercase ml-4">Secure_Phone</label>
+                          <input 
+                            type="tel"
+                            value={ticketPhone} onChange={e => setTicketPhone(e.target.value)}
+                            className="w-full bg-neutral-100 border border-black/5 rounded-full px-6 py-4 text-[10px] outline-none focus:border-black transition-all"
+                            placeholder="+91 ..."
+                          />
+                        </div>
+                      </div>
                       <div className="space-y-2">
-                        <label className="font-tech text-black/40 text-[8px] tracking-widest uppercase ml-4">Communication_Protocol (Email)</label>
+                        <label className="font-tech text-black/40 text-[8px] tracking-widest uppercase ml-4">Order_Manifest_Ref (Optional)</label>
                         <input 
-                          type="email" 
-                          required
-                          value={ticketEmail}
-                          onChange={e => setTicketEmail(e.target.value)}
-                          className="w-full bg-neutral-100 border border-black/5 rounded-full px-6 py-4 text-xs outline-none focus:border-black transition-all"
-                          placeholder="collector@archive.com"
+                          type="text"
+                          value={ticketOrder} onChange={e => setTicketOrder(e.target.value)}
+                          className="w-full bg-neutral-100 border border-black/5 rounded-full px-6 py-4 text-[10px] outline-none focus:border-black transition-all"
+                          placeholder="DNX_..."
                         />
                       </div>
                       <div className="space-y-2">
                         <label className="font-tech text-black/40 text-[8px] tracking-widest uppercase ml-4">Issue_Detail</label>
                         <textarea 
                           required
-                          value={ticketIssue}
-                          onChange={e => setTicketIssue(e.target.value)}
-                          className="w-full bg-neutral-100 border border-black/5 rounded-[1.5rem] px-6 py-4 text-xs outline-none focus:border-black transition-all h-32 resize-none"
+                          value={ticketIssue} onChange={e => setTicketIssue(e.target.value)}
+                          className="w-full bg-neutral-100 border border-black/5 rounded-[1.5rem] px-6 py-4 text-[10px] outline-none focus:border-black transition-all h-24 resize-none"
                           placeholder="Describe the anomaly..."
                         />
                       </div>
-                      <div className="flex gap-4 pt-4">
+                      <div className="flex gap-4 pt-2">
                         <button 
                           type="button" 
-                          onClick={() => setShowTicketForm(false)}
+                          onClick={() => setIsOpen(false)}
                           className="flex-1 py-4 bg-neutral-100 text-black/40 font-tech text-[10px] tracking-widest font-black uppercase rounded-full hover:bg-neutral-200 transition-all"
                         >
-                          Cancel
+                          Dismiss
                         </button>
                         <button 
                           type="submit" 

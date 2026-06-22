@@ -23,6 +23,7 @@ export type HorologicalTheme = 'noir' | 'titanium' | 'heritage';
 export interface Product {
   id: string;
   name: string;
+  brand?: string;
   description: string;
   price: number;
   category: string;
@@ -32,4 +33,9 @@ export interface Product {
   isTrending?: boolean;
   offerPrice?: number;
   rating?: number;
+  specs?: {
+    case?: string;
+    movement?: string;
+    crystal?: string;
+  };
 }

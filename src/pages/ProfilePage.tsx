@@ -113,90 +113,93 @@ export default function ProfilePage() {
       const goldColor = [197, 160, 89]; // #c5a059
       const blackColor = [10, 10, 10]; // #0A0A0A
       const neutralGray = [150, 150, 150];
+      const ivory = [252, 251, 247];
 
-      // Title & Branding Header
+      // Premium Header
       doc.setFillColor(blackColor[0], blackColor[1], blackColor[2]);
-      doc.rect(0, 0, 210, 45, 'F');
+      doc.rect(0, 0, 210, 60, 'F');
       
       doc.setTextColor(goldColor[0], goldColor[1], goldColor[2]);
-      doc.setFontSize(36);
-      doc.setFont('helvetica', 'bold');
-      doc.text('DINOSPY', 105, 25, { align: 'center', charSpace: 3 });
+      doc.setFontSize(40);
+      doc.setFont('times', 'italic');
+      doc.text('DINOSPY', 105, 30, { align: 'center', charSpace: 4 });
       
-      doc.setFontSize(9);
+      doc.setFontSize(10);
       doc.setFont('helvetica', 'normal');
-      doc.text('HERITAGE_HOROLOGY // DIGITAL_ACQUISITION_ARCHIVE', 105, 35, { align: 'center', charSpace: 1.5 });
+      doc.text('CERTIFICATE_OF_AUTHENTIC_ACQUISITION', 105, 42, { align: 'center', charSpace: 2 });
       
       doc.setDrawColor(goldColor[0], goldColor[1], goldColor[2]);
-      doc.setLineWidth(0.8);
-      doc.line(60, 40, 150, 40);
+      doc.setLineWidth(0.5);
+      doc.line(70, 48, 140, 48);
+      doc.setFontSize(8);
+      doc.text('EST. 2024 // GLOBAL HOROLOGY ARCHIVE', 105, 54, { align: 'center' });
 
-      // Section: Manifest Metadata
+      // Left Column: Metadata
       doc.setTextColor(blackColor[0], blackColor[1], blackColor[2]);
       doc.setFontSize(10);
       doc.setFont('helvetica', 'bold');
-      doc.text('ACQUISITION_RECORDS', 20, 60);
-      
-      doc.setDrawColor(230, 230, 230);
-      doc.setLineWidth(0.2);
-      doc.line(20, 63, 190, 63);
+      doc.text('ACQUISITION_DETAILS', 20, 75);
+      doc.setDrawColor(240, 240, 240);
+      doc.line(20, 78, 95, 78);
 
       doc.setFontSize(8);
       doc.setFont('helvetica', 'bold');
-      doc.text('MANIFEST_CODE:', 20, 72);
+      doc.text('ARCHIVE_ID:', 20, 88);
       doc.setFont('helvetica', 'normal');
-      doc.text(`DNX_${order.id.toUpperCase()}`, 50, 72);
+      doc.text(`DNX-${order.id.toUpperCase()}`, 50, 88);
 
       doc.setFont('helvetica', 'bold');
-      doc.text('ARCHIVE_DATE:', 20, 78);
+      doc.text('SYNC_DATE:', 20, 94);
       doc.setFont('helvetica', 'normal');
-      doc.text(`${new Date(order.createdAt).toLocaleString().toUpperCase()}`, 50, 78);
+      doc.text(`${new Date(order.createdAt).toLocaleString().toUpperCase()}`, 50, 94);
 
       doc.setFont('helvetica', 'bold');
-      doc.text('SETTLEMENT:', 20, 84);
+      doc.text('SETTLEMENT:', 20, 100);
       doc.setFont('helvetica', 'normal');
-      doc.text(`${(order.paymentStatus || 'PAID').toUpperCase()} // ${(order.paymentMethod || 'SECURE_TRANSIT').toUpperCase()}`, 50, 84);
+      doc.text(`${(order.paymentStatus || 'PAID').toUpperCase()} // ${(order.paymentMethod || 'SECURE_TRANSIT').toUpperCase()}`, 50, 100);
 
-      // Customer Info
+      // Right Column: Consignee
       doc.setFontSize(10);
       doc.setFont('helvetica', 'bold');
-      doc.text('CONSIGNEE_IDENTITY', 120, 60);
+      doc.text('CONSIGNEE_IDENTITY', 115, 75);
+      doc.line(115, 78, 190, 78);
       
-      doc.setFontSize(9);
+      doc.setFontSize(11);
+      doc.text(profile?.displayName?.toUpperCase() || 'DINOSPY_MEMBER', 115, 88);
+      doc.setFontSize(8);
       doc.setFont('helvetica', 'normal');
-      doc.text(profile?.displayName?.toUpperCase() || 'DINOSPY_MEMBER', 120, 70);
-      doc.text(profile?.email || '', 120, 75);
+      doc.text(profile?.email || '', 115, 94);
       doc.setFont('helvetica', 'bold');
-      doc.text(`AUTH_PIN: ${order.deliveryPin || 'VERIFY_ON_DELIVERY'}`, 120, 84);
+      doc.text(`AUTHENTICATION_PIN: ${order.deliveryPin || 'PENDING'}`, 115, 100);
 
-      // Section: Shipping Destination
+      // Shipping Protocol
       doc.setFontSize(10);
-      doc.setFont('helvetica', 'bold');
-      doc.text('DESTINATION_PROTOCOL', 20, 100);
-      doc.line(20, 103, 190, 103);
+      doc.text('DESTINATION_TRANSIT_PROTOCOL', 20, 115);
+      doc.line(20, 118, 190, 118);
 
+      const address = order.shippingAddress;
       doc.setFontSize(9);
       doc.setFont('helvetica', 'normal');
-      const address = order.shippingAddress;
       if (address) {
-        doc.text(`${address.address || ''}`, 20, 112);
-        doc.text(`${address.city || ''}, ${address.state || ''} - ${address.zip || ''}`, 20, 118);
-        doc.text(`LOGISTICS_NODE: IND // ${address.zip || 'INTERNAL'}`, 20, 124);
+        doc.text(`${address.address || ''}`, 20, 128);
+        doc.text(`${address.city || ''}, ${address.state || ''} - ${address.zip || ''}`, 20, 134);
+        doc.text(`CONTACT_SECURE: +91 ${order.customerPhone || address.phone || 'NA'}`, 20, 140);
       } else {
-        doc.text('LOCAL_VAULT_PICKUP // PENDING_ADDRESS_SYNC', 20, 112);
+        doc.text('INTERNAL_VAULT_FACILITY // PENDING_SYNC', 20, 128);
       }
 
-      // Asset Manifest Table
+      // table
       const tableData = order.items.map((item: any) => [
-        item.name?.toUpperCase() || 'UNKNOWN_ASSET',
+        item.name?.toUpperCase() || 'UNKNOWN_MASTERPIECE',
+        item.brand?.toUpperCase() || 'VAULT_ORIGINAL',
         `X${item.quantity || 1}`,
         `INR ${(item.price || 0).toLocaleString()}`,
         `INR ${((item.price || 0) * (item.quantity || 1)).toLocaleString()}`
       ]);
 
       autoTable(doc, {
-        startY: 140,
-        head: [['ASSET_NOMENCLATURE', 'QTY', 'UNIT_VALUATION', 'AGGREGATE_VALUE']],
+        startY: 155,
+        head: [['ASSET_NOMENCLATURE', 'ORIGIN', 'QTY', 'VALUATION', 'TOTAL']],
         body: tableData,
         headStyles: { 
           fillColor: blackColor as any, 
@@ -206,48 +209,65 @@ export default function ProfilePage() {
           halign: 'center'
         },
         columnStyles: {
-          0: { cellWidth: 80 },
-          1: { halign: 'center' },
-          2: { halign: 'right' },
-          3: { halign: 'right' }
+          0: { cellWidth: 70 },
+          1: { cellWidth: 40 },
+          2: { halign: 'center' },
+          3: { halign: 'right' },
+          4: { halign: 'right' }
         },
-        alternateRowStyles: { fillColor: [250, 250, 250] },
-        styles: { fontSize: 8, font: 'helvetica', cellPadding: 4 },
+        alternateRowStyles: { fillColor: ivory as any },
+        styles: { fontSize: 8, font: 'helvetica', cellPadding: 5 },
         margin: { left: 20, right: 20 }
       });
 
-      // Total Valuation
+      // summary
       const lastTable = (doc as any).lastAutoTable;
-      let finalY = lastTable ? lastTable.finalY + 15 : 200;
+      let finalY = lastTable ? lastTable.finalY + 15 : 220;
 
-      doc.setFillColor(245, 245, 245);
-      doc.rect(120, finalY - 8, 70, 20, 'F');
-      
-      doc.setTextColor(blackColor[0], blackColor[1], blackColor[2]);
-      doc.setFontSize(10);
+      const subtotal = order.items.reduce((acc: number, item: any) => acc + ((item.price || 0) * (item.quantity || 1)), 0);
+      const discountAmount = subtotal - (order.total || subtotal);
+
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+      doc.text('NET_VALUATION:', 140, finalY);
+      doc.text(`INR ${subtotal.toLocaleString()}`, 190, finalY, { align: 'right' });
+
+      if (discountAmount > 0) {
+        doc.text(`ACQUISITION_DISCOUNT (${order.couponUsed || 'REF'}):`, 140, finalY + 7);
+        doc.text(`- INR ${discountAmount.toLocaleString()}`, 190, finalY + 7, { align: 'right' });
+        finalY += 7;
+      }
+
+      doc.setFontSize(11);
       doc.setFont('helvetica', 'bold');
-      doc.text('TOTAL_ACQUISITION_VALUE:', 125, finalY + 4);
-      doc.setFontSize(12);
-      doc.text(`INR ${(order.total || 0).toLocaleString()}`, 190, finalY + 4, { align: 'right' });
+      doc.setFillColor(blackColor[0], blackColor[1], blackColor[2]);
+      doc.rect(130, finalY + 10, 60, 15, 'F');
+      doc.setTextColor(goldColor[0], goldColor[1], goldColor[2]);
+      doc.text(`INR ${(order.total || 0).toLocaleString()}`, 185, finalY + 20, { align: 'right' });
+      doc.setFontSize(7);
+      doc.text('TOTAL_VALUE', 135, finalY + 18);
 
-      // Authentication Seal
-      doc.setDrawColor( goldColor[0], goldColor[1], goldColor[2] );
-      doc.setLineWidth(0.5);
-      doc.ellipse(40, finalY + 10, 15, 15);
+      // seal
+      doc.setDrawColor(goldColor[0], goldColor[1], goldColor[2]);
+      doc.setLineWidth(1);
+      doc.ellipse(40, finalY + 15, 18, 18);
+      doc.setTextColor(blackColor[0], blackColor[1], blackColor[2]);
       doc.setFontSize(6);
-      doc.text('VAULT', 40, finalY + 8, { align: 'center' });
-      doc.text('CERTIFIED', 40, finalY + 12, { align: 'center' });
+      doc.text('DINOSPY', 40, finalY + 12, { align: 'center' });
+      doc.text('VAULT_SECURE', 40, finalY + 15, { align: 'center' });
+      doc.text('CERTIFIED', 40, finalY + 18, { align: 'center' });
 
       // Footer
       doc.setTextColor(neutralGray[0], neutralGray[1], neutralGray[2]);
+      doc.setFontSize(8);
+      doc.setFont('times', 'italic');
+      doc.text('"A DINOSPY timepiece is not just a tool for tracking seconds; it is a legacy tracking eternity."', 105, 275, { align: 'center' });
       doc.setFontSize(7);
-      doc.setFont('helvetica', 'italic');
-      doc.text('YOUR_HERITAGE_IS_OUR_LEGACY._AUTHENTICITY_GUARANTEED_BY_DINOSPY_VAULT.', 105, 275, { align: 'center' });
-      doc.text('PROUDLY_MADE_WITH_LOVE_IN_INDIA', 105, 280, { align: 'center' });
-      doc.text(`${new Date().getFullYear()} // DINOSPY // WORLDWIDE_DISTRIBUTION`, 105, 285, { align: 'center' });
+      doc.setFont('helvetica', 'normal');
+      doc.text('THANK_YOU_FOR_CHOOSING_THE_VAULT. EXPECT_EXCELLENCE.', 105, 285, { align: 'center' });
 
-      doc.save(`DINOSPY-Archive-DNX_${order.id.slice(-8).toUpperCase()}.pdf`);
-      toast.success('Digital Archive generated successfully.');
+      doc.save(`DINOSPY-Acquisition-Archive-${order.id.slice(-8).toUpperCase()}.pdf`);
+      toast.success('Certificate of Acquisition generated.');
     } catch (err) {
       console.error('Archive Generation Error:', err);
       toast.error('Internal processing failure during archive generation.');
