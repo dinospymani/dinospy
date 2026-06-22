@@ -1,14 +1,24 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Plus, Minus, HelpCircle, Shield, Truck, Clock } from 'lucide-react';
+import { Plus, Minus, HelpCircle, Shield, Truck, Clock, ShieldCheck } from 'lucide-react';
 
 interface FAQItem {
   question: string;
   answer: string;
-  category: 'maintenance' | 'shipping' | 'authentication';
+  category: 'maintenance' | 'shipping' | 'authentication' | 'legal';
 }
 
 const faqs: FAQItem[] = [
+  {
+    category: 'legal',
+    question: "Terms of Service & Usage Protocols",
+    answer: "By accessing the DINOSPY vault, you agree to our Digital Heritage Protocols. All acquisitions represent a transfer of intellectual and physical assets. Unauthorized duplication of designs or manifests is strictly prohibited. Orders are subject to periodic security verification."
+  },
+  {
+    category: 'legal',
+    question: "Refund & Return Policy",
+    answer: "We offer a 7-day 'No Questions Asked' return policy for pieces in 'Vault Original' condition. Refunds are processed to the original payment source within 5-7 business days of archival verification. Grand Complications are custom-crafted and ineligible for standard returns."
+  },
   {
     category: 'maintenance',
     question: "How often should I service my luxury watch?",
@@ -43,6 +53,16 @@ const faqs: FAQItem[] = [
     category: 'authentication',
     question: "What is included in the Certificate of Heritage?",
     answer: "The certificate provides a permanent digital and physical record of your watch's authenticity, service history during our possession, and a 24-month mechanical warranty backed by DINOSPY."
+  },
+  {
+    category: 'maintenance',
+    question: "How do I request a refund or return?",
+    answer: "We offer a 7-day 'No Questions Asked' return policy for all pieces, provided they are in 'Vault Original' condition with all seals intact. Refunds are processed to the original payment node within 5-7 business days of archival verification. Pieces showing signs of wear or unauthorized opening are ineligible for return."
+  },
+  {
+    category: 'shipping',
+    question: "What is your refund policy for late deliveries?",
+    answer: "While we strive for precision, if a delivery exceeds 21 business days, you are eligible for a 5% heritage credit or a full return of the acquisition value. This does not apply to custom bespoke orders (Grand Complications)."
   }
 ];
 
@@ -57,6 +77,7 @@ export function FAQ() {
     { id: 'maintenance', label: 'Maintenance', icon: Clock },
     { id: 'shipping', label: 'Logistics', icon: Truck },
     { id: 'authentication', label: 'Authentication', icon: Shield },
+    { id: 'legal', label: 'Legal Protocols', icon: ShieldCheck },
   ];
 
   return (

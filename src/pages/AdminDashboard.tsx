@@ -9,6 +9,8 @@ import { motion } from 'motion/react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { QRCodeSVG } from 'qrcode.react';
 import { toast } from 'sonner';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import { handleFirestoreError, OperationType } from '../lib/utils';
 
 interface AdminProduct {
@@ -50,9 +52,104 @@ export default function AdminDashboard() {
   const [isNewArrival, setIsNewArrival] = useState(true);
   const [discount, setDiscount] = useState('0');
   const [isOffer, setIsOffer] = useState(false);
+  const [specsMovement, setSpecsMovement] = useState('Automatic');
+  const [specsCase, setSpecsCase] = useState('Stainless Steel');
+  const [specsCrystal, setSpecsCrystal] = useState('Sapphire');
   const [isSaving, setIsSaving] = useState(false);
   const [products, setProducts] = useState<AdminProduct[]>([]);
   const [orders, setOrders] = useState<AdminOrder[]>([]);
+  
+  const downloadReceipt = (order: any) => {
+    if (!order || !order.items) {
+      toast.error('Manifest data corrupted.');
+      return;
+    }
+
+    try {
+      const doc = new jsPDF();
+      const goldColor = [212, 175, 55]; // #D4AF37
+      const blackColor = [10, 10, 10]; // #0A0A0A
+
+      // Title & Branding
+      doc.setFillColor(blackColor[0], blackColor[1], blackColor[2]);
+      doc.rect(0, 0, 210, 40, 'F');
+      
+      doc.setTextColor(goldColor[0], goldColor[1], goldColor[2]);
+      doc.setFontSize(32);
+      doc.setFont('helvetica', 'bold');
+      doc.text('DINOSPY', 105, 22, { align: 'center', charSpace: 2 });
+      
+      doc.setFontSize(8);
+      doc.text('HERITAGE HOROLOGY // DIGITAL ARCHIVE', 105, 30, { align: 'center', charSpace: 1 });
+      
+      doc.setDrawColor(goldColor[0], goldColor[1], goldColor[2]);
+      doc.setLineWidth(0.5);
+      doc.line(80, 34, 130, 34);
+
+      // Order Info Header
+      doc.setTextColor(40, 40, 40);
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.text('ACQUISITION_MANIFEST', 20, 55);
+      
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`IDENT_CODE: DNX_${order.id.slice(-10).toUpperCase()}`, 20, 65);
+      doc.text(`ARCHIVE_DATE: ${new Date(order.createdAt).toLocaleDateString().toUpperCase()}`, 20, 70);
+      doc.text(`NODAL_STATUS: ${order.status.toUpperCase()}`, 20, 75);
+
+      // Customer Info
+      doc.setFont('helvetica', 'bold');
+      doc.text('CONSIGNEE_DATA', 140, 55);
+      doc.setFont('helvetica', 'normal');
+      doc.text(order.customerName || 'Anonymous Node', 140, 65);
+      doc.text(order.customerEmail || '', 140, 70);
+
+      const tableData = order.items.map((item: any) => [
+        item.name.toUpperCase(),
+        item.quantity.toString(),
+        `INR ${(item.price || 0).toLocaleString()}`,
+        `INR ${((item.price || 0) * (item.quantity || 1)).toLocaleString()}`
+      ]);
+
+      autoTable(doc, {
+        startY: 90,
+        head: [['ASSET_CLASS', 'QTY', 'UNIT_VALUATION', 'TOTAL_MAGNITUDE']],
+        body: tableData,
+        headStyles: { 
+          fillColor: blackColor as any, 
+          textColor: goldColor as any,
+          fontStyle: 'bold',
+          fontSize: 8
+        },
+        alternateRowStyles: { fillColor: [252, 252, 252] },
+        styles: { fontSize: 8, font: 'helvetica', cellPadding: 5 },
+        margin: { top: 90 }
+      });
+
+      // Safely get the final Y position from autoTable
+      const lastTable = (doc as any).lastAutoTable;
+      const finalY = lastTable ? lastTable.finalY + 15 : 150;
+
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(blackColor[0], blackColor[1], blackColor[2]);
+      doc.text(`FULL ACQUISITION VALUE: INR ${(order.total || 0).toLocaleString()}`, 20, finalY);
+
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'italic');
+      doc.setTextColor(150, 150, 150);
+      doc.text('Your heritage is our legacy. Authenticity guaranteed by DINOSPY Vault.', 105, 275, { align: 'center' });
+      doc.text('Proudly made with love in India', 105, 282, { align: 'center' });
+
+      doc.save(`DINOSPY-Manifest-${order.id.slice(-6).toUpperCase()}.pdf`);
+      toast.success('Manifest localized successfully.');
+    } catch (err) {
+      console.error(err);
+      toast.error('Manifest generation failure.');
+    }
+  };
+
   const [notifications, setNotifications] = useState<any[]>([]);
   const [banners, setBanners] = useState<any[]>([]);
   const [view, setView] = useState<'products' | 'orders' | 'add' | 'banners' | 'stats' | 'notifications' | 'broadcast' | 'coupons' | 'security' | 'support'>('stats');
@@ -862,9 +959,9 @@ export default function AdminDashboard() {
           reviewCount: 0,
           createdAt: new Date().toISOString(),
           specs: {
-            Movement: 'Automatic',
-            Case: 'Stainless Steel',
-            Crystal: 'Sapphire'
+            Movement: specsMovement,
+            Case: specsCase,
+            Crystal: specsCrystal
           }
         });
 
@@ -1718,6 +1815,33 @@ export default function AdminDashboard() {
                       </div>
                     </div>
 
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-20">
+                      <div className="space-y-4">
+                        <label className="font-tech text-gold/30 text-[10px] tracking-[0.4em] font-black uppercase">CASE_MATERIAL</label>
+                        <input 
+                          type="text" value={specsCase} onChange={e => setSpecsCase(e.target.value)}
+                          className="w-full bg-noir border-b border-white/10 px-0 py-6 focus:border-gold outline-none transition-all font-mono text-xl text-text/60"
+                          placeholder="e.g. 18k Rose Gold"
+                        />
+                      </div>
+                      <div className="space-y-4">
+                        <label className="font-tech text-gold/30 text-[10px] tracking-[0.4em] font-black uppercase">CALIBER_MOVEMENT</label>
+                        <input 
+                          type="text" value={specsMovement} onChange={e => setSpecsMovement(e.target.value)}
+                          className="w-full bg-noir border-b border-white/10 px-0 py-6 focus:border-gold outline-none transition-all font-mono text-xl text-text/60"
+                          placeholder="e.g. Automatic Self-Winding"
+                        />
+                      </div>
+                      <div className="space-y-4">
+                        <label className="font-tech text-gold/30 text-[10px] tracking-[0.4em] font-black uppercase">CRYSTAL_COMPOSITION</label>
+                        <input 
+                          type="text" value={specsCrystal} onChange={e => setSpecsCrystal(e.target.value)}
+                          className="w-full bg-noir border-b border-white/10 px-0 py-6 focus:border-gold outline-none transition-all font-mono text-xl text-text/60"
+                          placeholder="e.g. Sapphire Crystal"
+                        />
+                      </div>
+                    </div>
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20">
                       <div className="space-y-6">
                         <label className="font-tech text-gold/30 text-[10px] tracking-[0.4em] font-black uppercase">VISUAL_ASSETS</label>
@@ -1954,32 +2078,31 @@ export default function AdminDashboard() {
                             <p className="text-xs text-gold/40 tracking-[0.5em] font-black uppercase mb-6">AUTHENTICATION_TAG</p>
                             <p className="text-6xl md:text-7xl font-black italic tracking-widest text-gold drop-shadow-[0_0_20px_rgba(197,160,89,0.3)]">DNX-{selectedOrder.id.slice(0, 10).toUpperCase()}</p>
                          </div>
-                      </div>
-                                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
-                       <button 
-                         onClick={() => window.print()}
-                         className="flex items-center justify-center space-x-8 py-10 rounded-[3rem] border border-white/10 bg-noir/40 hover:bg-white hover:text-noir active:scale-95 transition-all duration-1000 font-tech text-xs font-black tracking-[0.5em] group/print uppercase"
-                       >
-                         <Printer size={24} strokeWidth={1} className="group-hover/print:rotate-12 transition-transform" />
-                         <span>EXECUTE_PHYSICAL_PRINT</span>
-                       </button>
-                       <button 
-                         onClick={() => handeShipOrder(selectedOrder.id)}
-                         disabled={isSaving || selectedOrder.status === 'shipped' || selectedOrder.status === 'cancelled'}
-                         className="flex items-center justify-center space-x-8 py-10 rounded-[3rem] bg-indigo-600 text-white hover:shadow-[0_0_60px_rgba(79,70,229,0.4)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-1000 font-tech text-xs font-black tracking-[0.5em] group/dispatch uppercase disabled:opacity-50 disabled:cursor-not-allowed"
-                       >
-                         <Package size={24} strokeWidth={1} className="group-hover/dispatch:translate-x-2 transition-transform" />
-                         <span>INITIATE_DISPATCH_PROTOCOL</span>
-                       </button>
-                       <button 
-                         onClick={() => handleCancelOrder(selectedOrder.id)}
-                         disabled={isSaving || selectedOrder.status === 'cancelled' || selectedOrder.status === 'shipped' || selectedOrder.status === 'delivered'}
-                         className="flex items-center justify-center space-x-8 py-10 rounded-[3rem] border border-red-500/20 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white active:scale-95 transition-all duration-1000 font-tech text-xs font-black tracking-[0.5em] group/cancel uppercase disabled:opacity-50 disabled:cursor-not-allowed"
-                       >
-                         <AlertCircle size={24} strokeWidth={1} className="group-hover/cancel:rotate-90 transition-transform" />
-                         <span>TERMINATE_ACQUISITION</span>
-                       </button>
-                    </div>
+                                   <div className="flex flex-col sm:flex-row gap-4 items-stretch justify-center mt-12">
+                    <button 
+                      onClick={() => downloadReceipt(selectedOrder)}
+                      className="flex-1 flex items-center justify-center space-x-4 py-8 rounded-[2.5rem] border border-white/10 bg-noir/40 hover:bg-white hover:text-noir active:scale-95 transition-all duration-700 font-tech text-[10px] font-black tracking-widest uppercase group/print"
+                    >
+                      <Printer size={18} strokeWidth={1} className="group-hover/print:rotate-12 transition-transform" />
+                      <span>PRINT_MANIFEST</span>
+                    </button>
+                    <button 
+                      onClick={() => handeShipOrder(selectedOrder.id)}
+                      disabled={isSaving || selectedOrder.status === 'shipped' || selectedOrder.status === 'cancelled'}
+                      className="flex-1 flex items-center justify-center space-x-4 py-8 rounded-[2.5rem] bg-indigo-600 text-white hover:shadow-[0_0_40px_rgba(79,70,229,0.3)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-700 font-tech text-[10px] font-black tracking-widest uppercase group/dispatch disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <Package size={18} strokeWidth={1} className="group-hover/dispatch:translate-x-2 transition-transform" />
+                      <span>INITIATE_DISPATCH</span>
+                    </button>
+                    <button 
+                      onClick={() => handleCancelOrder(selectedOrder.id)}
+                      disabled={isSaving || selectedOrder.status === 'cancelled' || selectedOrder.status === 'shipped' || selectedOrder.status === 'delivered'}
+                      className="flex-1 flex items-center justify-center space-x-4 py-8 rounded-[2.5rem] border border-red-500/20 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white active:scale-95 transition-all duration-700 font-tech text-[10px] font-black tracking-widest uppercase group/cancel disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <AlertCircle size={18} strokeWidth={1} className="group-hover/cancel:rotate-90 transition-transform" />
+                      <span>TERMINATE_ORDER</span>
+                    </button>
+                  </div>      </div>
      </div>
                 </div>
               </motion.div>

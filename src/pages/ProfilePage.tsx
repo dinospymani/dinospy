@@ -118,30 +118,36 @@ export default function ProfilePage() {
       doc.rect(0, 0, 210, 40, 'F');
       
       doc.setTextColor(goldColor[0], goldColor[1], goldColor[2]);
-      doc.setFontSize(24);
+      doc.setFontSize(32);
       doc.setFont('helvetica', 'bold');
-      doc.text('DINOSPY', 105, 25, { align: 'center' });
+      doc.text('DINOSPY', 105, 22, { align: 'center', charSpace: 2 });
       
       doc.setFontSize(8);
-      doc.text('ESTABLISHED IN HERITAGE', 105, 32, { align: 'center' });
+      doc.text('HERITAGE HOROLOGY // DIGITAL ARCHIVE', 105, 30, { align: 'center', charSpace: 1 });
+      
+      doc.setDrawColor(goldColor[0], goldColor[1], goldColor[2]);
+      doc.setLineWidth(0.5);
+      doc.line(80, 34, 130, 34);
 
       // Order Info Header
       doc.setTextColor(40, 40, 40);
-      doc.setFontSize(16);
-      doc.text('ACQUISITION RECEIPT', 20, 55);
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.text('ACQUISITION_MANIFEST', 20, 55);
       
-      doc.setFontSize(10);
+      doc.setFontSize(9);
       doc.setFont('helvetica', 'normal');
-      doc.text(`Order ID: #${order.id.slice(-8).toUpperCase()}`, 20, 65);
-      doc.text(`Date: ${new Date(order.createdAt).toLocaleDateString()}`, 20, 70);
-      doc.text(`Status: ${order.status.toUpperCase()}`, 20, 75);
+      doc.text(`IDENT_CODE: DNX_${order.id.slice(-10).toUpperCase()}`, 20, 65);
+      doc.text(`ARCHIVE_DATE: ${new Date(order.createdAt).toLocaleDateString().toUpperCase()}`, 20, 70);
+      doc.text(`NODAL_STATUS: ${order.status.toUpperCase()}`, 20, 75);
 
       // Customer Info
       doc.setFont('helvetica', 'bold');
-      doc.text('DELIVERY MANDATE', 140, 55);
+      doc.text('CONSIGNEE_DATA', 140, 55);
       doc.setFont('helvetica', 'normal');
       doc.text(profile?.displayName || 'DINOSPY Member', 140, 65);
       doc.text(profile?.email || '', 140, 70);
+      doc.text(`PIN: ${order.deliveryPin || 'SYNC_REQUIRED'}`, 140, 75);
 
       // Table of Items
       const tableData = order.items.map((item: any) => [
@@ -153,15 +159,16 @@ export default function ProfilePage() {
 
       autoTable(doc, {
         startY: 90,
-        head: [['Heritage Asset', 'Qty', 'Unit Value', 'Total']],
+        head: [['ASSET_CLASS', 'QTY', 'UNIT_VALUATION', 'TOTAL_MAGNITUDE']],
         body: tableData,
         headStyles: { 
-          fillColor: goldColor as any, 
-          textColor: [255, 255, 255],
-          fontStyle: 'bold'
+          fillColor: blackColor as any, 
+          textColor: goldColor as any,
+          fontStyle: 'bold',
+          fontSize: 8
         },
-        alternateRowStyles: { fillColor: [250, 250, 250] },
-        styles: { fontSize: 9 },
+        alternateRowStyles: { fillColor: [252, 252, 252] },
+        styles: { fontSize: 8, font: 'helvetica', cellPadding: 5 },
         margin: { top: 90 }
       });
 
@@ -169,14 +176,16 @@ export default function ProfilePage() {
       const lastTable = (doc as any).lastAutoTable;
       const finalY = lastTable ? lastTable.finalY + 15 : 150;
 
-      doc.setFontSize(12);
+      doc.setFontSize(14);
       doc.setFont('helvetica', 'bold');
-      doc.text(`FULL ACQUISITION VALUE: INR ${(order.total || 0).toLocaleString()}`, 110, finalY);
+      doc.setTextColor(blackColor[0], blackColor[1], blackColor[2]);
+      doc.text(`FULL ACQUISITION VALUE: INR ${(order.total || 0).toLocaleString()}`, 20, finalY);
 
-      doc.setFontSize(9);
+      doc.setFontSize(8);
       doc.setFont('helvetica', 'italic');
       doc.setTextColor(150, 150, 150);
-      doc.text('Thank you for choosing DINOSPY. Your heritage is our legacy.', 105, 280, { align: 'center' });
+      doc.text('Your heritage is our legacy. Authenticity guaranteed by DINOSPY Vault.', 105, 275, { align: 'center' });
+      doc.text('Proudly made with love in India', 105, 282, { align: 'center' });
 
       doc.save(`DINOSPY-Receipt-${order.id.slice(-6).toUpperCase()}.pdf`);
       toast.success('Receipt localized successfully.');
@@ -328,7 +337,20 @@ export default function ProfilePage() {
 
                           <div className="flex flex-col md:flex-row xl:flex-col items-start md:items-center xl:items-end justify-between gap-10">
                             <span className="text-6xl md:text-8xl font-display font-medium tracking-tightest leading-none text-black">₹{order.total.toLocaleString()}</span>
-                            <div className="flex items-center space-x-6">
+                            <div className="flex flex-wrap items-center justify-end gap-4 md:gap-6">
+                               <button
+                                 onClick={() => {
+                                   window.dispatchEvent(new CustomEvent('openSupport', { 
+                                     detail: { 
+                                       message: `I have an issue with order Record DNX_${order.id.slice(-10).toUpperCase()}. Please assist.`,
+                                       isTicket: true
+                                     } 
+                                   }));
+                                 }}
+                                 className="px-6 py-4 rounded-3xl bg-neutral-50 border border-black/5 text-[8px] font-mono font-bold tracking-[0.3em] uppercase hover:bg-black hover:text-white transition-all duration-700"
+                               >
+                                 REPORT_ISSUE
+                               </button>
                                <button
                                  onClick={() => downloadReceipt(order)}
                                  className="flex items-center justify-center space-x-4 px-10 py-5 rounded-3xl bg-white border border-black/5 text-black/40 hover:text-black hover:border-black transition-all duration-700 font-bold group/btn"

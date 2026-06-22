@@ -78,9 +78,10 @@ export default function Footer() {
 
         {/* Footer Bottom */}
         <div className="flex flex-col md:flex-row justify-between items-center pt-12 border-t border-black/5 gap-8">
-           <div className="flex items-center space-x-12">
+           <div className="flex flex-col md:flex-row items-center gap-4 md:gap-12">
               <span className="font-mono text-[8px] text-black/40 tracking-widest">© {currentYear} DINOSPY HANDCRAFTED</span>
               <span className="font-mono text-[8px] text-black/40 tracking-widest hidden md:block uppercase leading-none">All Rights Reserved</span>
+              <span className="font-mono text-[8px] text-black/40 tracking-widest uppercase">Proudly made with ❤️ in India</span>
            </div>
            
            <div className="flex space-x-12">

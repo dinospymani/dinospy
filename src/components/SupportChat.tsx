@@ -15,6 +15,23 @@ export default function SupportChat() {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const handleOpenSupport = (e: any) => {
+      setIsOpen(true);
+      if (e.detail?.message) {
+        setMessage(e.detail.message);
+        if (e.detail.isTicket && user) {
+           setDoc(doc(db, 'support_chats', user.uid), { 
+             isTicket: true,
+             updatedAt: serverTimestamp() 
+           }, { merge: true });
+        }
+      }
+    };
+    window.addEventListener('openSupport', handleOpenSupport);
+    return () => window.removeEventListener('openSupport', handleOpenSupport);
+  }, [user]);
+
+  useEffect(() => {
     if (!user) return;
 
     // Listen to chat metadata (for unread status)
