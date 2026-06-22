@@ -16,6 +16,7 @@ export default function SupportChat() {
   const [ticketEmail, setTicketEmail] = useState('');
   const [ticketIssue, setTicketIssue] = useState('');
   const [isSubmittingTicket, setIsSubmittingTicket] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (user) {
