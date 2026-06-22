@@ -311,6 +311,55 @@ async function startServer() {
     }
   });
 
+  // AI Support Chat Logic
+  app.post("/api/support/chat", async (req, res) => {
+    try {
+      if (!ai) {
+        return res.status(503).json({ error: "AI service currently unavailable" });
+      }
+      const { messages, userProfile } = req.body;
+      
+      const systemInstruction = `
+        You are the DINOSPY Vault AI Assistant. DINOSPY is a luxury watch archive specializing in Grand Complications, Heritage, Avant-Garde, and Deep Sea pieces.
+        
+        YOUR GOALS:
+        1. Answer customer queries about our watch collections, maintenance (FAQs), and shipping.
+        2. Be professional, sophisticated, and helpful. Use terms like "Vault", "Manifest", "Acquisition", and "Archival".
+        3. If a customer has a technical issue, a payment failure, or a complaint that YOU cannot solve immediately:
+           - Politely collect their details (Name, Contact if not already known).
+           - Explicitly state that you are raising a priority ticket to the human curators at the DINOSPY Vault.
+           - Include the exact string "[TICKET_REQUIRED]" at the end of your response to trigger our internal systems.
+        
+        USER CONTEXT:
+        Name: ${userProfile?.displayName || 'Unknown Visitor'}
+        Email: ${userProfile?.email || 'N/A'}
+        
+        FAQ KNOWLEDGE:
+        - Maintenance: Mechanical luxury watches should be serviced every 3-5 years.
+        - Shipping: We use secure archival transport.
+        - Returns: 7-day 'No Questions Asked' for Vault Original condition pieces. Grand Complications are custom and ineligible for returns.
+        - Terms: Acquisitions represent intellectual and physical asset transfers.
+      `;
+
+      const chat = ai.chats.create({
+        model: "gemini-3.5-flash",
+        config: {
+          systemInstruction,
+          temperature: 0.7,
+        },
+      });
+
+      // Send the last message
+      const lastMessage = messages[messages.length - 1].text;
+      const result = await chat.sendMessage({ message: lastMessage });
+      
+      res.json({ text: result.text });
+    } catch (error) {
+      console.error("AI Support Error:", error);
+      res.status(500).json({ error: "Support system processing failure." });
+    }
+  });
+
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({

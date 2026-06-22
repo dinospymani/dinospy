@@ -2227,7 +2227,12 @@ export default function AdminDashboard() {
                             </div>
                             <div className="flex-grow min-w-0">
                                <div className="flex justify-between items-center mb-1">
-                                  <p className="font-mono text-xs text-black font-black truncate">{chat.userName || 'Anonymous Node'}</p>
+                                  <div className="flex items-center space-x-3">
+                                     <p className="font-mono text-xs text-black font-black truncate max-w-[120px]">{chat.userName || 'Anonymous Node'}</p>
+                                     {chat.isTicket && (
+                                        <span className="px-2 py-0.5 bg-red-500 text-white font-mono text-[7px] font-black tracking-widest rounded-full animate-pulse uppercase">TICKET</span>
+                                     )}
+                                  </div>
                                   <span className="font-mono text-[8px] text-black/20 uppercase">
                                     {chat.lastActive ? (chat.lastActive.toDate?.() || new Date(chat.lastActive)).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
                                   </span>

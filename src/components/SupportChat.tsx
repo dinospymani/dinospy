@@ -89,7 +89,7 @@ export default function SupportChat() {
 
     try {
       // Add message to sub-collection
-      await addDoc(collection(db, 'support_chats', user.uid, 'messages'), {
+      const userMsgRef = await addDoc(collection(db, 'support_chats', user.uid, 'messages'), {
         text: msgText,
         senderId: user.uid,
         senderName: profile?.displayName || user.email,
@@ -105,6 +105,39 @@ export default function SupportChat() {
         userName: profile?.displayName || user.email,
         userEmail: user.email
       }, { merge: true });
+
+      // Call AI Support API
+      const response = await fetch('/api/support/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: [...messages, { text: msgText, senderId: user.uid }],
+          userProfile: profile
+        })
+      });
+
+      const aiData = await response.json();
+      if (aiData.text) {
+        const isTicketRequired = aiData.text.includes('[TICKET_REQUIRED]');
+        const cleanText = aiData.text.replace('[TICKET_REQUIRED]', '').trim();
+
+        // Add AI response to sub-collection
+        await addDoc(collection(db, 'support_chats', user.uid, 'messages'), {
+          text: cleanText,
+          senderId: 'ai_assistant',
+          senderName: 'Vault AI',
+          timestamp: serverTimestamp(),
+          isAdmin: true // Mark as admin so it shows on left
+        });
+
+        // Update main chat doc
+        await setDoc(doc(db, 'support_chats', user.uid), {
+          lastMessage: cleanText,
+          lastActive: serverTimestamp(),
+          unreadByUser: true,
+          isTicket: isTicketRequired ? true : chatData?.isTicket || false
+        }, { merge: true });
+      }
 
     } catch (err) {
       console.error(err);

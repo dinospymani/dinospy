@@ -20,6 +20,11 @@ const faqs: FAQItem[] = [
     answer: "We offer a 7-day 'No Questions Asked' return policy for pieces in 'Vault Original' condition. Refunds are processed to the original payment source within 5-7 business days of archival verification. Grand Complications are custom-crafted and ineligible for standard returns."
   },
   {
+    category: 'legal',
+    question: "Privacy Protocols & Data Encryption",
+    answer: "We treat your digital footprint with archival reverence. Personal metadata is encrypted using the DINOSPY Vault Protocol. We do not share your acquisition records with third-party brokers. You retain the absolute right to request a full data extract or archival deletion."
+  },
+  {
     category: 'maintenance',
     question: "How often should I service my luxury watch?",
     answer: "Most mechanical luxury watches should be serviced every 3 to 5 years. This includes cleaning, oiling, and adjusting the movement to ensure long-term accuracy and prevent wear on the delicate components."
@@ -67,7 +72,7 @@ const faqs: FAQItem[] = [
 ];
 
 export function FAQ() {
-  const [activeCategory, setActiveCategory] = useState<'all' | 'maintenance' | 'shipping' | 'authentication'>('all');
+  const [activeCategory, setActiveCategory] = useState<'all' | 'maintenance' | 'shipping' | 'authentication' | 'legal'>('all');
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   const filteredFaqs = activeCategory === 'all' ? faqs : faqs.filter(f => f.category === activeCategory);

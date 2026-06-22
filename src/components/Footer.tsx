@@ -85,7 +85,7 @@ export default function Footer() {
            </div>
            
            <div className="flex space-x-12">
-              <Link to="/faq" className="font-mono text-[8px] text-black/40 tracking-widest hover:text-black transition-colors uppercase">PRIVACY POLICY</Link>
+              <Link to="/privacy" className="font-mono text-[8px] text-black/40 tracking-widest hover:text-black transition-colors uppercase">PRIVACY POLICY</Link>
               <Link to="/faq" className="font-mono text-[8px] text-black/40 tracking-widest hover:text-black transition-colors uppercase">TERMS OF SERVICE</Link>
            </div>
         </div>
