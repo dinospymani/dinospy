@@ -110,87 +110,146 @@ export default function ProfilePage() {
 
     try {
       const doc = new jsPDF();
-      const goldColor = [212, 175, 55]; // #D4AF37
+      const goldColor = [197, 160, 89]; // #c5a059
       const blackColor = [10, 10, 10]; // #0A0A0A
+      const neutralGray = [150, 150, 150];
 
-      // Title & Branding
+      // Title & Branding Header
       doc.setFillColor(blackColor[0], blackColor[1], blackColor[2]);
-      doc.rect(0, 0, 210, 40, 'F');
+      doc.rect(0, 0, 210, 45, 'F');
       
       doc.setTextColor(goldColor[0], goldColor[1], goldColor[2]);
-      doc.setFontSize(32);
+      doc.setFontSize(36);
       doc.setFont('helvetica', 'bold');
-      doc.text('DINOSPY', 105, 22, { align: 'center', charSpace: 2 });
-      
-      doc.setFontSize(8);
-      doc.text('HERITAGE HOROLOGY // DIGITAL ARCHIVE', 105, 30, { align: 'center', charSpace: 1 });
-      
-      doc.setDrawColor(goldColor[0], goldColor[1], goldColor[2]);
-      doc.setLineWidth(0.5);
-      doc.line(80, 34, 130, 34);
-
-      // Order Info Header
-      doc.setTextColor(40, 40, 40);
-      doc.setFontSize(14);
-      doc.setFont('helvetica', 'bold');
-      doc.text('ACQUISITION_MANIFEST', 20, 55);
+      doc.text('DINOSPY', 105, 25, { align: 'center', charSpace: 3 });
       
       doc.setFontSize(9);
       doc.setFont('helvetica', 'normal');
-      doc.text(`IDENT_CODE: DNX_${order.id.slice(-10).toUpperCase()}`, 20, 65);
-      doc.text(`ARCHIVE_DATE: ${new Date(order.createdAt).toLocaleDateString().toUpperCase()}`, 20, 70);
-      doc.text(`NODAL_STATUS: ${order.status.toUpperCase()}`, 20, 75);
+      doc.text('HERITAGE_HOROLOGY // DIGITAL_ACQUISITION_ARCHIVE', 105, 35, { align: 'center', charSpace: 1.5 });
+      
+      doc.setDrawColor(goldColor[0], goldColor[1], goldColor[2]);
+      doc.setLineWidth(0.8);
+      doc.line(60, 40, 150, 40);
+
+      // Section: Manifest Metadata
+      doc.setTextColor(blackColor[0], blackColor[1], blackColor[2]);
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      doc.text('ACQUISITION_RECORDS', 20, 60);
+      
+      doc.setDrawColor(230, 230, 230);
+      doc.setLineWidth(0.2);
+      doc.line(20, 63, 190, 63);
+
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'bold');
+      doc.text('MANIFEST_CODE:', 20, 72);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`DNX_${order.id.toUpperCase()}`, 50, 72);
+
+      doc.setFont('helvetica', 'bold');
+      doc.text('ARCHIVE_DATE:', 20, 78);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`${new Date(order.createdAt).toLocaleString().toUpperCase()}`, 50, 78);
+
+      doc.setFont('helvetica', 'bold');
+      doc.text('SETTLEMENT:', 20, 84);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`${(order.paymentStatus || 'PAID').toUpperCase()} // ${(order.paymentMethod || 'SECURE_TRANSIT').toUpperCase()}`, 50, 84);
 
       // Customer Info
+      doc.setFontSize(10);
       doc.setFont('helvetica', 'bold');
-      doc.text('CONSIGNEE_DATA', 140, 55);
+      doc.text('CONSIGNEE_IDENTITY', 120, 60);
+      
+      doc.setFontSize(9);
       doc.setFont('helvetica', 'normal');
-      doc.text(profile?.displayName || 'DINOSPY Member', 140, 65);
-      doc.text(profile?.email || '', 140, 70);
-      doc.text(`PIN: ${order.deliveryPin || 'SYNC_REQUIRED'}`, 140, 75);
+      doc.text(profile?.displayName?.toUpperCase() || 'DINOSPY_MEMBER', 120, 70);
+      doc.text(profile?.email || '', 120, 75);
+      doc.setFont('helvetica', 'bold');
+      doc.text(`AUTH_PIN: ${order.deliveryPin || 'VERIFY_ON_DELIVERY'}`, 120, 84);
 
-      // Table of Items
+      // Section: Shipping Destination
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      doc.text('DESTINATION_PROTOCOL', 20, 100);
+      doc.line(20, 103, 190, 103);
+
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+      const address = order.shippingAddress;
+      if (address) {
+        doc.text(`${address.address || ''}`, 20, 112);
+        doc.text(`${address.city || ''}, ${address.state || ''} - ${address.zip || ''}`, 20, 118);
+        doc.text(`LOGISTICS_NODE: IND // ${address.zip || 'INTERNAL'}`, 20, 124);
+      } else {
+        doc.text('LOCAL_VAULT_PICKUP // PENDING_ADDRESS_SYNC', 20, 112);
+      }
+
+      // Asset Manifest Table
       const tableData = order.items.map((item: any) => [
-        item.name || 'Unknown Asset',
-        `x${item.quantity || 1}`,
+        item.name?.toUpperCase() || 'UNKNOWN_ASSET',
+        `X${item.quantity || 1}`,
         `INR ${(item.price || 0).toLocaleString()}`,
         `INR ${((item.price || 0) * (item.quantity || 1)).toLocaleString()}`
       ]);
 
       autoTable(doc, {
-        startY: 90,
-        head: [['ASSET_CLASS', 'QTY', 'UNIT_VALUATION', 'TOTAL_MAGNITUDE']],
+        startY: 140,
+        head: [['ASSET_NOMENCLATURE', 'QTY', 'UNIT_VALUATION', 'AGGREGATE_VALUE']],
         body: tableData,
         headStyles: { 
           fillColor: blackColor as any, 
           textColor: goldColor as any,
           fontStyle: 'bold',
-          fontSize: 8
+          fontSize: 8,
+          halign: 'center'
         },
-        alternateRowStyles: { fillColor: [252, 252, 252] },
-        styles: { fontSize: 8, font: 'helvetica', cellPadding: 5 },
-        margin: { top: 90 }
+        columnStyles: {
+          0: { cellWidth: 80 },
+          1: { halign: 'center' },
+          2: { halign: 'right' },
+          3: { halign: 'right' }
+        },
+        alternateRowStyles: { fillColor: [250, 250, 250] },
+        styles: { fontSize: 8, font: 'helvetica', cellPadding: 4 },
+        margin: { left: 20, right: 20 }
       });
 
-      // Safely get the final Y position from autoTable
+      // Total Valuation
       const lastTable = (doc as any).lastAutoTable;
-      const finalY = lastTable ? lastTable.finalY + 15 : 150;
+      let finalY = lastTable ? lastTable.finalY + 15 : 200;
 
-      doc.setFontSize(14);
-      doc.setFont('helvetica', 'bold');
+      doc.setFillColor(245, 245, 245);
+      doc.rect(120, finalY - 8, 70, 20, 'F');
+      
       doc.setTextColor(blackColor[0], blackColor[1], blackColor[2]);
-      doc.text(`FULL ACQUISITION VALUE: INR ${(order.total || 0).toLocaleString()}`, 20, finalY);
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      doc.text('TOTAL_ACQUISITION_VALUE:', 125, finalY + 4);
+      doc.setFontSize(12);
+      doc.text(`INR ${(order.total || 0).toLocaleString()}`, 190, finalY + 4, { align: 'right' });
 
-      doc.setFontSize(8);
+      // Authentication Seal
+      doc.setDrawColor( goldColor[0], goldColor[1], goldColor[2] );
+      doc.setLineWidth(0.5);
+      doc.ellipse(40, finalY + 10, 15, 15);
+      doc.setFontSize(6);
+      doc.text('VAULT', 40, finalY + 8, { align: 'center' });
+      doc.text('CERTIFIED', 40, finalY + 12, { align: 'center' });
+
+      // Footer
+      doc.setTextColor(neutralGray[0], neutralGray[1], neutralGray[2]);
+      doc.setFontSize(7);
       doc.setFont('helvetica', 'italic');
-      doc.setTextColor(150, 150, 150);
-      doc.text('Your heritage is our legacy. Authenticity guaranteed by DINOSPY Vault.', 105, 275, { align: 'center' });
-      doc.text('Proudly made with love in India', 105, 282, { align: 'center' });
+      doc.text('YOUR_HERITAGE_IS_OUR_LEGACY._AUTHENTICITY_GUARANTEED_BY_DINOSPY_VAULT.', 105, 275, { align: 'center' });
+      doc.text('PROUDLY_MADE_WITH_LOVE_IN_INDIA', 105, 280, { align: 'center' });
+      doc.text(`${new Date().getFullYear()} // DINOSPY // WORLDWIDE_DISTRIBUTION`, 105, 285, { align: 'center' });
 
-      doc.save(`DINOSPY-Receipt-${order.id.slice(-6).toUpperCase()}.pdf`);
-      toast.success('Receipt localized successfully.');
+      doc.save(`DINOSPY-Archive-DNX_${order.id.slice(-8).toUpperCase()}.pdf`);
+      toast.success('Digital Archive generated successfully.');
     } catch (err) {
-      console.error('Receipt Generation Error:', err);
+      console.error('Archive Generation Error:', err);
       toast.error('Internal processing failure during archive generation.');
     }
   };

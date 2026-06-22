@@ -67,83 +67,137 @@ export default function AdminDashboard() {
 
     try {
       const doc = new jsPDF();
-      const goldColor = [212, 175, 55]; // #D4AF37
+      const goldColor = [197, 160, 89]; // #c5a059
       const blackColor = [10, 10, 10]; // #0A0A0A
+      const neutralGray = [150, 150, 150];
 
-      // Title & Branding
+      // Title & Branding Header
       doc.setFillColor(blackColor[0], blackColor[1], blackColor[2]);
-      doc.rect(0, 0, 210, 40, 'F');
+      doc.rect(0, 0, 210, 45, 'F');
       
       doc.setTextColor(goldColor[0], goldColor[1], goldColor[2]);
-      doc.setFontSize(32);
+      doc.setFontSize(36);
       doc.setFont('helvetica', 'bold');
-      doc.text('DINOSPY', 105, 22, { align: 'center', charSpace: 2 });
-      
-      doc.setFontSize(8);
-      doc.text('HERITAGE HOROLOGY // DIGITAL ARCHIVE', 105, 30, { align: 'center', charSpace: 1 });
-      
-      doc.setDrawColor(goldColor[0], goldColor[1], goldColor[2]);
-      doc.setLineWidth(0.5);
-      doc.line(80, 34, 130, 34);
-
-      // Order Info Header
-      doc.setTextColor(40, 40, 40);
-      doc.setFontSize(14);
-      doc.setFont('helvetica', 'bold');
-      doc.text('ACQUISITION_MANIFEST', 20, 55);
+      doc.text('DINOSPY', 105, 25, { align: 'center', charSpace: 3 });
       
       doc.setFontSize(9);
       doc.setFont('helvetica', 'normal');
-      doc.text(`IDENT_CODE: DNX_${order.id.slice(-10).toUpperCase()}`, 20, 65);
-      doc.text(`ARCHIVE_DATE: ${new Date(order.createdAt).toLocaleDateString().toUpperCase()}`, 20, 70);
-      doc.text(`NODAL_STATUS: ${order.status.toUpperCase()}`, 20, 75);
+      doc.text('PREMIUM_COLLECTOR_SERVICES // VAULT_LOGISTICS', 105, 35, { align: 'center', charSpace: 1.5 });
+      
+      doc.setDrawColor(goldColor[0], goldColor[1], goldColor[2]);
+      doc.setLineWidth(0.8);
+      doc.line(60, 40, 150, 40);
 
-      // Customer Info
+      // Section: Manifest Metadata
+      doc.setTextColor(blackColor[0], blackColor[1], blackColor[2]);
+      doc.setFontSize(10);
       doc.setFont('helvetica', 'bold');
-      doc.text('CONSIGNEE_DATA', 140, 55);
-      doc.setFont('helvetica', 'normal');
-      doc.text(order.customerName || 'Anonymous Node', 140, 65);
-      doc.text(order.customerEmail || '', 140, 70);
+      doc.text('CORE_ACQUISITION_METADATA', 20, 60);
+      
+      doc.setDrawColor(230, 230, 230);
+      doc.setLineWidth(0.2);
+      doc.line(20, 63, 190, 63);
 
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'bold');
+      doc.text('MANIFEST_ID:', 20, 72);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`DNX_${order.id.toUpperCase()}`, 50, 72);
+
+      doc.setFont('helvetica', 'bold');
+      doc.text('ARCHIVE_TIMESTAMP:', 20, 78);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`${new Date(order.createdAt).toLocaleString().toUpperCase()}`, 50, 78);
+
+      doc.setFont('helvetica', 'bold');
+      doc.text('PAYMENT_PROTOCOL:', 20, 84);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`${(order.paymentStatus || 'AUTHORIZED').toUpperCase()} // ${(order.paymentMethod || 'SECURE_GATEWAY').toUpperCase()}`, 50, 84);
+
+      // Section: Shipping Manifest (Crucial for parcels)
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      doc.text('CONSIGNEE_SHIPPING_MANIFEST', 20, 100);
+      doc.line(20, 103, 190, 103);
+
+      doc.setFontSize(11);
+      doc.text(order.customerName?.toUpperCase() || 'ANONYMOUS_COLLECTOR', 20, 112);
+      
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+      const address = order.shippingAddress;
+      if (address) {
+        doc.text(`${address.address || ''}`, 20, 118);
+        doc.text(`${address.city || ''}, ${address.state || ''} - ${address.zip || ''}`, 20, 124);
+        doc.text(`REGION: IND // NODE_ZIP: ${address.zip || 'N/A'}`, 20, 130);
+      }
+      
+      doc.setFont('helvetica', 'bold');
+      doc.text(`CONTACT_LINK: ${order.customerEmail || 'UNTRACKED_EMAIL'}`, 20, 138);
+      doc.text(`IDENT_PIN: ${order.deliveryPin || 'PENDING_SYNC'}`, 20, 144);
+
+      // Itemized Assets Table
       const tableData = order.items.map((item: any) => [
         item.name.toUpperCase(),
-        item.quantity.toString(),
+        `X${item.quantity}`,
         `INR ${(item.price || 0).toLocaleString()}`,
         `INR ${((item.price || 0) * (item.quantity || 1)).toLocaleString()}`
       ]);
 
       autoTable(doc, {
-        startY: 90,
-        head: [['ASSET_CLASS', 'QTY', 'UNIT_VALUATION', 'TOTAL_MAGNITUDE']],
+        startY: 155,
+        head: [['ASSET_CLASSIFICATION', 'QTY', 'VALUATION', 'TOTAL_MAGNITUDE']],
         body: tableData,
         headStyles: { 
           fillColor: blackColor as any, 
           textColor: goldColor as any,
           fontStyle: 'bold',
-          fontSize: 8
+          fontSize: 8,
+          halign: 'center'
         },
-        alternateRowStyles: { fillColor: [252, 252, 252] },
-        styles: { fontSize: 8, font: 'helvetica', cellPadding: 5 },
-        margin: { top: 90 }
+        columnStyles: {
+          0: { cellWidth: 80 },
+          1: { halign: 'center' },
+          2: { halign: 'right' },
+          3: { halign: 'right' }
+        },
+        alternateRowStyles: { fillColor: [250, 250, 250] },
+        styles: { fontSize: 8, font: 'helvetica', cellPadding: 4 },
+        margin: { left: 20, right: 20 }
       });
 
-      // Safely get the final Y position from autoTable
+      // Financial Finalization
       const lastTable = (doc as any).lastAutoTable;
-      const finalY = lastTable ? lastTable.finalY + 15 : 150;
+      let finalY = lastTable ? lastTable.finalY + 15 : 220;
 
-      doc.setFontSize(14);
-      doc.setFont('helvetica', 'bold');
+      doc.setFillColor(245, 245, 245);
+      doc.rect(120, finalY - 8, 70, 20, 'F');
+      
       doc.setTextColor(blackColor[0], blackColor[1], blackColor[2]);
-      doc.text(`FULL ACQUISITION VALUE: INR ${(order.total || 0).toLocaleString()}`, 20, finalY);
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      doc.text('NET_ACQUISITION_TOTAL:', 125, finalY + 4);
+      doc.setFontSize(12);
+      doc.text(`INR ${(order.total || 0).toLocaleString()}`, 190, finalY + 4, { align: 'right' });
 
-      doc.setFontSize(8);
+      // Verification Barcode Placeholder Area
+      doc.setDrawColor(200, 200, 200);
+      doc.rect(20, finalY + 15, 80, 25);
+      doc.setFontSize(7);
+      doc.setTextColor(180, 180, 180);
+      doc.text('INTERNAL_SCAN_ID_AREA', 60, finalY + 30, { align: 'center' });
+      doc.text(`* DNX-${order.id.slice(0, 12).toUpperCase()} *`, 60, finalY + 35, { align: 'center' });
+
+      // Footer / Legal
+      doc.setTextColor(neutralGray[0], neutralGray[1], neutralGray[2]);
+      doc.setFontSize(7);
       doc.setFont('helvetica', 'italic');
-      doc.setTextColor(150, 150, 150);
-      doc.text('Your heritage is our legacy. Authenticity guaranteed by DINOSPY Vault.', 105, 275, { align: 'center' });
-      doc.text('Proudly made with love in India', 105, 282, { align: 'center' });
+      doc.text('THIS_DOCUMENT_SERVES_AS_A_LEGAL_MANIFEST_AND_AUTHENTICITY_WARRANTY.', 105, 275, { align: 'center' });
+      doc.text('DINOSPY VAULT // GENEVA // MUMBAI // GLOBAL_DISTRIBUTION_NODE', 105, 280, { align: 'center' });
+      doc.text(`PAGE_AUTH_CODE: ${Math.random().toString(36).substring(7).toUpperCase()}`, 105, 285, { align: 'center' });
 
-      doc.save(`DINOSPY-Manifest-${order.id.slice(-6).toUpperCase()}.pdf`);
-      toast.success('Manifest localized successfully.');
+      doc.save(`DINOSPY-Manifest-${order.id.slice(-8).toUpperCase()}.pdf`);
+      toast.success('Shipping Manifest Generated.');
     } catch (err) {
       console.error(err);
       toast.error('Manifest generation failure.');
@@ -1573,12 +1627,21 @@ export default function AdminDashboard() {
                                  </div>
                               </td>
                               <td className="py-16 pr-12 text-right">
-                                <button 
-                                  onClick={() => setSelectedOrder(o)}
-                                  className="w-16 h-16 rounded-[1.8rem] border border-black/5 bg-neutral-50 text-black/20 flex items-center justify-center hover:bg-black hover:shadow-xl hover:text-white transition-all duration-1000 group/btn active:scale-95 ml-auto"
-                                >
-                                  <Eye size={22} strokeWidth={1} className="group-hover/btn:scale-110 transition-transform duration-1000" />
-                                </button>
+                                <div className="flex items-center justify-end space-x-6">
+                                  <button 
+                                    onClick={() => downloadReceipt(o)}
+                                    className="w-16 h-16 rounded-[1.8rem] border border-black/5 bg-neutral-50 text-black/20 flex items-center justify-center hover:bg-black hover:shadow-xl hover:text-white transition-all duration-1000 group/btn active:scale-95"
+                                    title="PRINT_MANIFEST"
+                                  >
+                                    <Printer size={22} strokeWidth={1} className="group-hover/btn:rotate-12 transition-transform duration-1000" />
+                                  </button>
+                                  <button 
+                                    onClick={() => setSelectedOrder(o)}
+                                    className="w-16 h-16 rounded-[1.8rem] border border-black/5 bg-neutral-50 text-black/20 flex items-center justify-center hover:bg-black hover:shadow-xl hover:text-white transition-all duration-1000 group/btn active:scale-95"
+                                  >
+                                    <Eye size={22} strokeWidth={1} className="group-hover/btn:scale-110 transition-transform duration-1000" />
+                                  </button>
+                                </div>
                               </td>
                             </tr>
                           ))

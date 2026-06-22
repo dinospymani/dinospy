@@ -207,12 +207,10 @@ async function startServer() {
       const { preferences, history } = req.body;
       const prompt = `Based on these user preferences: ${JSON.stringify(preferences)} and purchase history: ${JSON.stringify(history)}, recommend 3 types of luxury watches (Grand Complications, Heritage, Avant-Garde, or Deep Sea). Provide a reason for each. Return valid JSON only.`;
       
-      const result = await ai.models.generateContent({
-        model: "gemini-3.5-flash",
-        contents: prompt
-      });
+      const model = ai.getGenerativeModel({ model: "gemini-1.5-flash" });
+      const result = await model.generateContent(prompt);
       
-      let text = result.text || "";
+      let text = result.response.text() || "";
       
       // Basic cleaning if needed
       text = text.replace(/```json\n?/, "").replace(/\n?```/, "").trim();
@@ -344,21 +342,22 @@ async function startServer() {
         - Returns: 7 days, "Vault Original" condition only.
       `;
 
-      const history = messages.map((m: any) => ({
-        role: m.senderId === 'ai_assistant' ? 'model' : 'user',
-        parts: [{ text: m.text }],
-      }));
+      const model = ai.getGenerativeModel({
+        model: "gemini-1.5-flash",
+        systemInstruction,
+      });
 
-      const result = await ai.models.generateContent({
-        model: "gemini-3.5-flash",
-        contents: history,
-        config: {
-          systemInstruction,
+      const result = await model.generateContent({
+        contents: messages.map((m: any) => ({
+          role: m.senderId === 'ai_assistant' ? 'model' : 'user',
+          parts: [{ text: m.text }],
+        })),
+        generationConfig: {
           temperature: 0.8,
-        }
+        },
       });
       
-      const responseText = result.text || "The Vault AI is currently calibrating. Please try again in a moment or initiate a High-Priority Ticket.";
+      const responseText = result.response.text() || "The Vault AI is currently calibrating. Please try again in a moment or initiate a High-Priority Ticket.";
       
       res.json({ text: responseText });
     } catch (error) {
