@@ -1313,29 +1313,29 @@ export default function AdminDashboard() {
                   </div>
 
                   {/* Terminal Log / Activity */}
-                  <div className="p-10 md:p-14 rounded-[5rem] border border-black/5 bg-slate-950 text-slate-100 overflow-hidden group relative flex flex-col justify-between">
-                    <div className="absolute top-0 right-0 p-12 opacity-[0.05] pointer-events-none -rotate-12 translate-x-4 -translate-y-4">
+                  <div className="p-10 md:p-14 rounded-[5rem] border border-black/5 bg-white text-black overflow-hidden group relative flex flex-col justify-between shadow-2xl">
+                    <div className="absolute top-0 right-0 p-12 opacity-[0.02] pointer-events-none -rotate-12 translate-x-4 -translate-y-4">
                        <Zap className="w-80 h-80" strokeWidth={1} />
                     </div>
                     
                     <div>
-                      <div className="flex items-center justify-between mb-12 pb-8 border-b border-white/10 relative z-10">
+                      <div className="flex items-center justify-between mb-12 pb-8 border-b border-black/10 relative z-10">
                         <div className="flex items-center space-x-6">
                            <div className="w-2.5 h-2.5 bg-indigo-600 rounded-full animate-ping shadow-[0_0_10px_rgba(79,70,229,0.5)]" />
-                           <span className="font-tech text-slate-100/40 text-xs tracking-[0.4em] font-black uppercase">LIVE_DECODE</span>
+                           <span className="font-tech text-black/40 text-xs tracking-[0.4em] font-black uppercase">LIVE_DECODE</span>
                         </div>
                         <span className="font-tech text-indigo-600/20 text-[10px] font-bold tracking-widest">SECURE_SYNC</span>
                       </div>
                       <div className="space-y-8 max-h-[400px] overflow-y-auto no-scrollbar relative z-10 pr-4">
                          {(liveActivity.length > 0 ? liveActivity : notifications.slice(0, 8)).map((n, i) => (
-                           <div key={i} className="flex gap-6 group border-l-2 border-white/5 pl-8 hover:border-indigo-600 transition-all duration-700">
+                           <div key={i} className="flex gap-6 group border-l-2 border-black/5 pl-8 hover:border-indigo-600 transition-all duration-700">
                              <div className="flex-shrink-0 space-y-3">
-                               <p className="font-tech text-white/10 text-[9px] uppercase tracking-widest">{new Date(n.timestamp).toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit' })}</p>
-                               <span className={`inline-block font-tech text-[8px] font-black tracking-widest px-3 py-1 rounded-full border ${n.type === 'order' || n.type === 'orders' ? 'text-indigo-400 border-indigo-400/20' : 'text-emerald-400 border-emerald-400/20'}`}>
+                               <p className="font-tech text-black/10 text-[9px] uppercase tracking-widest">{new Date(n.timestamp).toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit' })}</p>
+                               <span className={`inline-block font-tech text-[8px] font-black tracking-widest px-3 py-1 rounded-full border ${n.type === 'order' || n.type === 'orders' ? 'text-indigo-600 border-indigo-600/20' : 'text-emerald-600 border-emerald-600/20'}`}>
                                  {n.type.toUpperCase()}
                                </span>
                              </div>
-                             <p className="text-white/60 group-hover:text-white transition-colors text-[10px] leading-relaxed font-mono tracking-tight">{n.message}</p>
+                             <p className="text-black/60 group-hover:text-black transition-colors text-[10px] leading-relaxed font-mono tracking-tight">{n.message}</p>
                            </div>
                          ))}
                          {liveActivity.length === 0 && notifications.length === 0 && (
@@ -1346,10 +1346,10 @@ export default function AdminDashboard() {
                       </div>
                     </div>
 
-                    <div className="mt-12 pt-10 border-t border-white/5 relative z-10">
+                    <div className="mt-12 pt-10 border-t border-black/5 relative z-10">
                       <button 
                         onClick={() => setView('notifications')}
-                        className="w-full py-6 bg-white/5 border border-white/5 rounded-[2.5rem] font-tech text-[10px] font-black tracking-[0.5em] uppercase hover:bg-gold hover:text-noir hover:border-gold transition-all duration-1000"
+                        className="w-full py-6 bg-black/5 border border-black/5 rounded-[2.5rem] font-tech text-[10px] font-black tracking-[0.5em] uppercase hover:bg-black hover:text-white transition-all duration-1000"
                       >
                          SYNCHRONIZE_FULL_METRICS
                       </button>
@@ -2015,19 +2015,19 @@ export default function AdminDashboard() {
               <motion.div 
                 initial={{ opacity: 0, scale: 0.95, y: 50 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
-                className="bg-slate-900 max-w-5xl w-full rounded-[5rem] luxury-shadow overflow-hidden border border-white/10 relative"
+                className="bg-white max-w-5xl w-full rounded-[5rem] shadow-2xl overflow-hidden border border-black/10 relative"
               >
-                <div className="p-12 md:p-16 border-b border-white/5 flex justify-between items-center bg-noir/40">
+                <div className="p-12 md:p-16 border-b border-black/5 flex justify-between items-center bg-neutral-50">
                    <div className="space-y-4">
                      <div className="flex items-center space-x-6">
                         <div className="w-3 h-3 bg-indigo-600 rounded-full animate-pulse shadow-[0_0_15px_rgba(79,70,229,0.5)]" />
-                        <p className="font-tech text-indigo-600/40 text-xs tracking-[0.4em] font-black uppercase">LOGISTICS_MANIFEST // ID_{selectedOrder.id.slice(-12).toUpperCase()}</p>
+                        <p className="font-tech text-black/40 text-xs tracking-[0.4em] font-black uppercase">LOGISTICS_MANIFEST // ID_{selectedOrder.id.slice(-12).toUpperCase()}</p>
                      </div>
-                     <h2 className="text-5xl md:text-7xl font-display italic tracking-tightest leading-none">Fulfillment <span className="opacity-10 font-sans italic text-white">Center.</span></h2>
+                     <h2 className="text-5xl md:text-7xl font-display italic tracking-tightest leading-none text-black">Fulfillment <span className="opacity-10 font-sans italic text-black">Center.</span></h2>
                    </div>
                    <button 
                      onClick={() => setSelectedOrder(null)} 
-                     className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center hover:bg-indigo-600 hover:text-white transition-all duration-1000 group/close active:scale-95 border border-white/5"
+                     className="w-20 h-20 rounded-full bg-white flex items-center justify-center hover:bg-black hover:text-white transition-all duration-1000 group/close active:scale-95 border border-black/5"
                    >
                      <X size={32} strokeWidth={1} className="group-hover/close:rotate-90 transition-transform duration-1000" />
                    </button>
@@ -2035,53 +2035,53 @@ export default function AdminDashboard() {
                 
                 <div className="p-12 md:p-16 space-y-16 max-h-[70vh] overflow-y-auto no-scrollbar scroll-smooth">
                    {/* Industrial Shipping Label */}
-                   <div id="shipping-label" className="bg-noir text-text p-16 md:p-24 rounded-[4rem] luxury-shadow relative border-8 border-white/5 font-mono overflow-hidden group/label">
-                      <div className="absolute top-0 right-0 p-24 opacity-[0.03] group-hover/label:opacity-[0.1] transition-opacity duration-1000 rotate-12 scale-150 pointer-events-none text-gold">
+                   <div id="shipping-label" className="bg-white text-black p-16 md:p-24 rounded-[4rem] shadow-xl relative border-8 border-black/5 font-mono overflow-hidden group/label">
+                      <div className="absolute top-0 right-0 p-24 opacity-[0.03] group-hover/label:opacity-[0.1] transition-opacity duration-1000 rotate-12 scale-150 pointer-events-none text-black">
                          <Truck size={400} strokeWidth={1} />
                       </div>
                       
-                      <div className="flex justify-between items-start border-b border-white/10 pb-12 mb-12 relative z-10">
+                      <div className="flex justify-between items-start border-b border-black/10 pb-12 mb-12 relative z-10">
                          <div className="space-y-2">
-                            <p className="text-xs text-gold/40 tracking-[0.5em] font-black uppercase mb-6">ORIGIN_PROTOCOL</p>
-                            <h3 className="text-3xl font-black italic tracking-widest decoration-gold/20 underline underline-offset-[12px]">DINOSPY_EXECUTIVE_HUB</h3>
-                            <p className="text-xs mt-8 opacity-20 font-tech tracking-widest">SYSTEMS_VERIFIED // GENEVA_DIST_01 // APAC_NODE</p>
+                            <p className="text-xs text-black/40 tracking-[0.5em] font-black uppercase mb-6">ORIGIN_PROTOCOL</p>
+                            <h3 className="text-3xl font-black italic tracking-widest decoration-black/20 underline underline-offset-[12px]">DINOSPY_EXECUTIVE_HUB</h3>
+                            <p className="text-xs mt-8 opacity-20 font-tech tracking-widest text-black/40">SYSTEMS_VERIFIED // GENEVA_DIST_01 // APAC_NODE</p>
                          </div>
-                         <div className="p-6 bg-white rounded-3xl shadow-[0_0_50px_rgba(255,255,255,0.1)] luxury-shadow">
+                         <div className="p-6 bg-white rounded-3xl shadow-2xl border border-black/5">
                             <QRCodeSVG value={`SKU_AUTH_${selectedOrder.id}`} size={100} fgColor="#000000" bgColor="transparent" />
                          </div>
                       </div>
 
                       <div className="mb-20 relative z-10">
-                         <p className="text-xs text-indigo-600/40 tracking-[0.5em] font-black uppercase mb-10">TARGET_CLIENT_ENTITY</p>
-                         <h3 className="text-6xl md:text-8xl font-black italic mb-8 uppercase tracking-widest leading-none text-transparent bg-clip-text bg-gradient-to-b from-white to-white/40">{selectedOrder.customerName}</h3>
-                         <div className="space-y-4 opacity-50 text-2xl md:text-3xl font-bold tracking-tighter max-w-2xl">
+                         <p className="text-xs text-black/40 tracking-[0.5em] font-black uppercase mb-10">TARGET_CLIENT_ENTITY</p>
+                         <h3 className="text-6xl md:text-8xl font-black italic mb-8 uppercase tracking-widest leading-none text-black">{selectedOrder.customerName}</h3>
+                         <div className="space-y-4 opacity-50 text-2xl md:text-3xl font-bold tracking-tighter max-w-2xl text-black">
                             <p className="truncate">{selectedOrder.shippingAddress.address}</p>
                             <p className="font-black text-indigo-600 tracking-widest">{selectedOrder.shippingAddress.city}_IND // {selectedOrder.shippingAddress.zip}</p>
                          </div>
                       </div>
 
-                      <div className="flex flex-col md:flex-row justify-between items-end gap-12 border-t border-white/10 pt-12 relative z-10">
+                      <div className="flex flex-col md:flex-row justify-between items-end gap-12 border-t border-black/10 pt-12 relative z-10">
                          <div className="space-y-8 w-full">
                             <div>
-                               <p className="text-xs text-indigo-600/40 tracking-[0.5em] font-black uppercase mb-8">CARGO_MANIFEST_CONTENT</p>
-                               <div className="text-sm space-y-4 font-tech">
+                               <p className="text-xs text-black/40 tracking-[0.5em] font-black uppercase mb-8">CARGO_MANIFEST_CONTENT</p>
+                               <div className="text-sm space-y-4 font-tech text-black">
                                   {selectedOrder.items.map((it: any, idx: number) => (
                                      <div key={idx} className="flex space-x-6 items-baseline group/item">
-                                        <span className="opacity-20 font-black text-gold">[{String(it.quantity).padStart(2, '0')}X]</span>
-                                        <span className="font-black italic tracking-[0.2em] group-hover:text-gold transition-colors uppercase text-lg">{it.name}</span>
+                                        <span className="opacity-20 font-black text-black">[{String(it.quantity).padStart(2, '0')}X]</span>
+                                        <span className="font-black italic tracking-[0.2em] group-hover:text-black transition-colors uppercase text-lg">{it.name}</span>
                                      </div>
                                   ))}
                                </div>
                             </div>
                          </div>
                          <div className="text-right shrink-0">
-                            <p className="text-xs text-gold/40 tracking-[0.5em] font-black uppercase mb-6">AUTHENTICATION_TAG</p>
-                            <p className="text-6xl md:text-7xl font-black italic tracking-widest text-gold drop-shadow-[0_0_20px_rgba(197,160,89,0.3)]">DNX-{selectedOrder.id.slice(0, 10).toUpperCase()}</p>
+                            <p className="text-xs text-black/40 tracking-[0.5em] font-black uppercase mb-6">AUTHENTICATION_TAG</p>
+                            <p className="text-6xl md:text-7xl font-black italic tracking-widest text-black">DNX-{selectedOrder.id.slice(0, 10).toUpperCase()}</p>
                          </div>
                                    <div className="flex flex-col sm:flex-row gap-4 items-stretch justify-center mt-12">
                     <button 
                       onClick={() => downloadReceipt(selectedOrder)}
-                      className="flex-1 flex items-center justify-center space-x-4 py-8 rounded-[2.5rem] border border-white/10 bg-noir/40 hover:bg-white hover:text-noir active:scale-95 transition-all duration-700 font-tech text-[10px] font-black tracking-widest uppercase group/print"
+                      className="flex-1 flex items-center justify-center space-x-4 py-8 rounded-[2.5rem] border border-black/10 bg-white hover:bg-black hover:text-white active:scale-95 transition-all duration-700 font-tech text-[10px] font-black tracking-widest uppercase group/print"
                     >
                       <Printer size={18} strokeWidth={1} className="group-hover/print:rotate-12 transition-transform" />
                       <span>PRINT_MANIFEST</span>
@@ -2089,7 +2089,7 @@ export default function AdminDashboard() {
                     <button 
                       onClick={() => handeShipOrder(selectedOrder.id)}
                       disabled={isSaving || selectedOrder.status === 'shipped' || selectedOrder.status === 'cancelled'}
-                      className="flex-1 flex items-center justify-center space-x-4 py-8 rounded-[2.5rem] bg-indigo-600 text-white hover:shadow-[0_0_40px_rgba(79,70,229,0.3)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-700 font-tech text-[10px] font-black tracking-widest uppercase group/dispatch disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="flex-1 flex items-center justify-center space-x-4 py-8 rounded-[2.5rem] bg-black text-white hover:shadow-[0_0_40px_rgba(0,0,0,0.1)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-700 font-tech text-[10px] font-black tracking-widest uppercase group/dispatch disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <Package size={18} strokeWidth={1} className="group-hover/dispatch:translate-x-2 transition-transform" />
                       <span>INITIATE_DISPATCH</span>
@@ -2251,16 +2251,16 @@ export default function AdminDashboard() {
                 </div>
 
                 {/* Chat Window */}
-                <div className="col-span-12 lg:col-span-8 bg-slate-950 rounded-[4rem] border border-white/5 overflow-hidden flex flex-col luxury-shadow relative">
+                <div className="col-span-12 lg:col-span-8 bg-white rounded-[4rem] border border-black/5 overflow-hidden flex flex-col luxury-shadow relative">
                    {activeSupportChat ? (
                       <>
-                         <div className="p-10 border-b border-white/5 bg-slate-900/20 flex justify-between items-center">
+                         <div className="p-10 border-b border-black/5 bg-neutral-50 flex justify-between items-center">
                             <div className="flex items-center space-x-6">
                                <div className="w-12 h-12 rounded-full bg-indigo-600/10 flex items-center justify-center text-indigo-600">
                                   <ShieldCheck size={20} strokeWidth={1} />
                                </div>
                                <div>
-                                  <p className="font-mono text-xs text-slate-100 font-black uppercase">SECURE_CHANNEL // {supportChats.find(c => c.id === activeSupportChat)?.userEmail}</p>
+                                  <p className="font-mono text-xs text-black font-black uppercase">SECURE_CHANNEL // {supportChats.find(c => c.id === activeSupportChat)?.userEmail}</p>
                                   <p className="font-tech text-indigo-600 opacity-40 text-[9px] tracking-widest uppercase">Encryption: AES_256</p>
                                </div>
                             </div>
@@ -2274,11 +2274,11 @@ export default function AdminDashboard() {
                          
                          <div 
                             ref={adminScrollRef}
-                            className="flex-grow p-10 overflow-y-auto space-y-8 no-scrollbar bg-neutral-50/20"
+                            className="flex-grow p-10 overflow-y-auto space-y-8 no-scrollbar bg-neutral-50/10"
                          >
                             {supportMessages.map(msg => (
                                <div key={msg.id} className={`flex ${msg.isAdmin ? 'justify-end' : 'justify-start'}`}>
-                                  <div className={`max-w-[70%] p-6 rounded-[2.5rem] ${msg.isAdmin ? 'bg-gradient-to-br from-indigo-600 to-indigo-800 text-white shadow-[0_0_40px_rgba(79,70,229,0.2)]' : 'bg-neutral-100 border border-black/5 text-black'}`}>
+                                  <div className={`max-w-[70%] p-6 rounded-[2.5rem] ${msg.isAdmin ? 'bg-black text-white shadow-[0_0_40px_rgba(0,0,0,0.1)]' : 'bg-neutral-100 border border-black/5 text-black'}`}>
                                      <p className="text-sm font-light leading-relaxed">{msg.text}</p>
                                      <p className={`text-[8px] font-mono mt-3 opacity-30 ${msg.isAdmin ? 'text-white' : 'text-black'}`}>
                                         {msg.timestamp ? (
@@ -2292,7 +2292,7 @@ export default function AdminDashboard() {
                             ))}
                          </div>
 
-                         <form onSubmit={handleSendReply} className="p-8 bg-charcoal/20 border-t border-white/5">
+                         <form onSubmit={handleSendReply} className="p-8 bg-neutral-50 border-t border-black/5">
                             <div className="relative">
                                <input 
                                   type="text"
@@ -2304,7 +2304,7 @@ export default function AdminDashboard() {
                                <button 
                                   type="submit"
                                   disabled={!replyText.trim()}
-                                  className="absolute right-3 top-1/2 -translate-y-1/2 w-14 h-14 bg-indigo-600 text-white rounded-full flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-xl disabled:opacity-20"
+                                  className="absolute right-3 top-1/2 -translate-y-1/2 w-14 h-14 bg-black text-white rounded-full flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-xl disabled:opacity-20"
                                >
                                   <Send size={20} strokeWidth={2} />
                                </button>
@@ -2328,25 +2328,25 @@ export default function AdminDashboard() {
                <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 md:gap-16">
                   {/* Master Overrides */}
                   <div className="lg:col-span-1 space-y-12">
-                    <div className="p-12 rounded-[4rem] border border-white/5 bg-charcoal/20 group hover:bg-charcoal/40 transition-all duration-1000 luxury-shadow space-y-12">
+                    <div className="p-12 rounded-[4rem] border border-black/5 bg-white group hover:bg-neutral-50 transition-all duration-1000 luxury-shadow space-y-12">
                        <div className="flex items-center space-x-6">
-                          <div className={`w-16 h-16 rounded-[1.5rem] flex items-center justify-center transition-all duration-1000 ${maintenanceStatus ? 'bg-red-500/10 text-red-500 shadow-[0_0_30px_rgba(239,68,68,0.2)]' : 'bg-gold/10 text-gold'}`}>
+                          <div className={`w-16 h-16 rounded-[1.5rem] flex items-center justify-center transition-all duration-1000 ${maintenanceStatus ? 'bg-red-500/10 text-red-500 shadow-[0_0_30px_rgba(239,68,68,0.2)]' : 'bg-black/5 text-black'}`}>
                              {maintenanceStatus ? <AlertTriangle size={24} strokeWidth={1} /> : <Lock size={24} strokeWidth={1} />}
                           </div>
                           <div>
-                             <p className="font-tech text-[10px] text-gold/30 mb-1 tracking-[0.4em] font-black uppercase">SECURITY_OVERRIDE</p>
-                             <h3 className="text-3xl font-display italic tracking-tightest">Vault <span className="opacity-10 text-white font-sans italic">Lock.</span></h3>
+                             <p className="font-tech text-[10px] text-black/30 mb-1 tracking-[0.4em] font-black uppercase">SECURITY_OVERRIDE</p>
+                             <h3 className="text-3xl font-display italic tracking-tightest text-black">Vault <span className="opacity-10 text-black font-sans italic">Lock.</span></h3>
                           </div>
                        </div>
                        
-                       <p className="text-xs font-tech text-text/40 leading-relaxed tracking-wider uppercase">
+                       <p className="text-xs font-tech text-black/40 leading-relaxed tracking-wider uppercase">
                          INITIATING THE VAULT LOCK WILL RESTRICT ALL PUBLIC ACCESS TO THE COLLECTIONS. ONLY AUTHORIZED PERSONNEL TERMINALS WILL REMAIN OPERATIONAL.
                        </p>
 
                        <button 
                          onClick={handleToggleMaintenance} 
                          disabled={isTogglingMaintenance}
-                         className={`w-full py-8 rounded-full font-tech text-[10px] tracking-[0.5em] font-black uppercase transition-all duration-1000 active:scale-95 ${maintenanceStatus ? 'bg-red-500 text-white shadow-[0_0_40px_rgba(239,68,68,0.5)]' : 'bg-white text-noir hover:bg-gold hover:shadow-[0_0_30px_rgba(197,160,89,0.3)]'}`}
+                         className={`w-full py-8 rounded-full font-tech text-[10px] tracking-[0.5em] font-black uppercase transition-all duration-1000 active:scale-95 ${maintenanceStatus ? 'bg-red-500 text-white shadow-[0_0_40px_rgba(239,68,68,0.5)]' : 'bg-black text-white hover:bg-neutral-800'}`}
                        >
                          {maintenanceStatus ? 'DEACTIVATE_LOCKDOWN' : 'INITIATE_VAULT_LOCK'}
                        </button>
