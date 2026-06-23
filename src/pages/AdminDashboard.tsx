@@ -934,6 +934,12 @@ export default function AdminDashboard() {
 
     setIsSavingGallery(true);
     try {
+      if (galleryImageUrl.length > 1000000) {
+        toast.error('Asset too large for the vault. Please use a smaller capture.');
+        setIsSavingGallery(false);
+        return;
+      }
+
       await addDoc(collection(db, 'gallery'), {
         imageUrl: galleryImageUrl,
         label: galleryLabel,
@@ -957,9 +963,51 @@ export default function AdminDashboard() {
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        toast.warning('Evidence too heavy: Compressing visual asset...');
+      }
+
       const reader = new FileReader();
       reader.onloadend = () => {
-        setGalleryImageUrl(reader.result as string);
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          
+          // Max dimensions to keep size low
+          const MAX_WIDTH = 1200;
+          const MAX_HEIGHT = 1200;
+          
+          if (width > height) {
+            if (width > MAX_WIDTH) {
+              height *= MAX_WIDTH / width;
+              width = MAX_WIDTH;
+            }
+          } else {
+            if (height > MAX_HEIGHT) {
+              width *= MAX_HEIGHT / height;
+              height = MAX_HEIGHT;
+            }
+          }
+          
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+          
+          // High quality but compressed
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+          
+          // Check size (base64 string size check)
+          if (dataUrl.length > 800000) {
+            // Further compress if still too large
+            setGalleryImageUrl(canvas.toDataURL('image/jpeg', 0.4));
+          } else {
+            setGalleryImageUrl(dataUrl);
+          }
+        };
+        img.src = reader.result as string;
       };
       reader.readAsDataURL(file);
     }
@@ -2142,7 +2190,10 @@ export default function AdminDashboard() {
                         className={`group relative rounded-[2rem] border border-black/5 overflow-hidden transition-all duration-1000 bg-neutral-50 luxury-shadow flex items-center justify-center ${item.aspect} ${i === 3 ? 'md:-mt-20' : ''}`}
                       >
                          {item.imageUrl ? (
-                            <img src={item.imageUrl} className="absolute inset-0 w-full h-full object-cover transition-transform duration-[4s] group-hover:scale-110" alt={item.label} />
+                            <>
+                              <img src={item.imageUrl} className="absolute inset-0 w-full h-full object-cover transition-transform duration-[4s] group-hover:scale-110" alt={item.label} />
+                              <div className="absolute top-6 left-6 font-tech text-[10px] tracking-[0.4em] font-black uppercase text-black/10 group-hover:text-white/40 transition-colors pointer-events-none z-10">{item.label}</div>
+                            </>
                          ) : (
                             <div className="font-display text-6xl opacity-[0.03] select-none group-hover:opacity-[0.08] transition-opacity duration-1000 uppercase">{item.label}</div>
                          ) }

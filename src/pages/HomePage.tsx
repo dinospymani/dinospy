@@ -311,7 +311,10 @@ const GalleryItem = ({ aspect, className = "", delay, initials, imageUrl = undef
     className={`relative group overflow-hidden rounded-[2rem] ${aspect} ${className} bg-neutral-50 border border-black/5 flex items-center justify-center`}
   >
     {imageUrl ? (
-      <img src={imageUrl} className="absolute inset-0 w-full h-full object-cover transition-transform duration-[3s] group-hover:scale-110" alt={initials} />
+      <>
+        <img src={imageUrl} className="absolute inset-0 w-full h-full object-cover transition-transform duration-[3s] group-hover:scale-110" alt={initials} />
+        <div className="absolute top-6 left-6 font-tech text-[10px] tracking-[0.4em] font-black uppercase text-black/10 group-hover:text-black/40 transition-colors pointer-events-none z-10">{initials}</div>
+      </>
     ) : (
       <div className="font-display text-6xl opacity-[0.03] select-none group-hover:opacity-[0.08] transition-opacity duration-1000 uppercase">{initials}</div>
     )}

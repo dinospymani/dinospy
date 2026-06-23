@@ -51,7 +51,7 @@ service cloud.firestore {
     
     match /gallery/{itemId} {
       allow read: if true;
-      allow write: if isAdmin();
+      allow create, update, delete: if isSignedIn() && (request.auth.token.email == 'manikanta5sy@gmail.com' || isAdmin());
     }
 
     // ------------------------------------------------------------
