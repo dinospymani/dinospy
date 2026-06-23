@@ -117,11 +117,29 @@
       "properties": {
         "id": { "type": "string" },
         "text": { "type": "string" },
+        "imageUrl": { "type": "string" },
         "link": { "type": "string" },
         "active": { "type": "boolean" },
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["text", "active"]
+    },
+    "GalleryItem": {
+      "title": "Gallery Image",
+      "description": "Images displayed in the homepage masonry grid.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "label": { "type": "string" },
+        "aspect": { 
+          "type": "string",
+          "enum": ["aspect-square", "aspect-[3/4]", "aspect-[4/5]"]
+        },
+        "order": { "type": "number" },
+        "active": { "type": "boolean" }
+      },
+      "required": ["imageUrl", "aspect"]
     },
     "Notification": {
       "title": "App Notification",
@@ -203,6 +221,10 @@
     "/offers/{offerId}": {
       "schema": "Offer",
       "description": "Scrolling announcement offers."
+    },
+    "/gallery/{itemId}": {
+      "schema": "GalleryItem",
+      "description": "Homepage masonry gallery images."
     },
     "/notifications/{notificationId}": {
       "schema": "Notification",

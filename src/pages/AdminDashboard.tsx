@@ -251,7 +251,8 @@ export default function AdminDashboard() {
   const [notifications, setNotifications] = useState<any[]>([]);
   const [banners, setBanners] = useState<any[]>([]);
   const [offers, setOffers] = useState<any[]>([]);
-  const [view, setView] = useState<'products' | 'orders' | 'add' | 'banners' | 'offers' | 'stats' | 'notifications' | 'broadcast' | 'coupons' | 'security' | 'support'>('stats');
+  const [galleryItems, setGalleryItems] = useState<any[]>([]);
+  const [view, setView] = useState<'products' | 'orders' | 'add' | 'banners' | 'offers' | 'gallery' | 'stats' | 'notifications' | 'broadcast' | 'coupons' | 'security' | 'support'>('stats');
   const [selectedOrder, setSelectedOrder] = useState<AdminOrder | null>(null);
   const [supportChats, setSupportChats] = useState<any[]>([]);
   const [activeSupportChat, setActiveSupportChat] = useState<string | null>(null);
@@ -288,6 +289,10 @@ export default function AdminDashboard() {
   const [broadcastMessage, setBroadcastMessage] = useState('');
   const [broadcastType, setBroadcastType] = useState<'offer' | 'trending' | 'new_arrival' | 'general'>('general');
   const [broadcastLink, setBroadcastLink] = useState('');
+  const [galleryImageUrl, setGalleryImageUrl] = useState('');
+  const [galleryLabel, setGalleryLabel] = useState('');
+  const [galleryAspect, setGalleryAspect] = useState<'aspect-square' | 'aspect-[3/4]' | 'aspect-[4/5]'>('aspect-square');
+  const [isSavingGallery, setIsSavingGallery] = useState(false);
   const [shouldAutoBroadcast, setShouldAutoBroadcast] = useState(false);
 
   // Stats
@@ -313,6 +318,7 @@ export default function AdminDashboard() {
   // Offer states
   const [offerText, setOfferText] = useState('');
   const [offerLink, setOfferLink] = useState('');
+  const [offerImageUrl, setOfferImageUrl] = useState('');
   const [isSavingOffer, setIsSavingOffer] = useState(false);
 
   useEffect(() => {
@@ -454,6 +460,13 @@ export default function AdminDashboard() {
       console.warn("Notification feed isolation active", error);
     });
 
+    // GALLERY LISTENER
+    const unsubGallery = onSnapshot(collection(db, 'gallery'), (snap) => {
+      setGalleryItems(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    }, (error) => {
+      console.warn("Gallery isolation active:", error);
+    });
+
     // Auto-redirect support role to support view
     if (profile?.role === 'support') {
       setView('support');
@@ -465,6 +478,7 @@ export default function AdminDashboard() {
       unsubCoupons();
       unsubSupport();
       unsubNotif();
+      unsubGallery();
     };
   }, []);
 
@@ -877,6 +891,7 @@ export default function AdminDashboard() {
       const offerData = {
         text: offerText,
         link: offerLink,
+        imageUrl: offerImageUrl,
         active: true,
         createdAt: new Date().toISOString()
       };
@@ -884,6 +899,7 @@ export default function AdminDashboard() {
       await addDoc(collection(db, 'offers'), offerData);
       setOfferText('');
       setOfferLink('');
+      setOfferImageUrl('');
       
       const offerSnap = await getDocs(collection(db, 'offers'));
       setOffers(offerSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
@@ -904,6 +920,44 @@ export default function AdminDashboard() {
       toast.success('Offer purged from the vault.');
     } catch (error) {
       handleFirestoreError(error, OperationType.DELETE, 'offers');
+      toast.error('Purge failed.');
+    }
+  };
+
+  const handleAddGalleryItem = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!galleryImageUrl) {
+      toast.warning('Evidence required: Please provide an image URL.');
+      return;
+    }
+
+    setIsSavingGallery(true);
+    try {
+      await addDoc(collection(db, 'gallery'), {
+        imageUrl: galleryImageUrl,
+        label: galleryLabel,
+        aspect: galleryAspect,
+        active: true,
+        order: galleryItems.length,
+        createdAt: new Date().toISOString()
+      });
+      setGalleryImageUrl('');
+      setGalleryLabel('');
+      toast.success('Visual asset synced with gallery.');
+    } catch (error) {
+       handleFirestoreError(error, OperationType.WRITE, 'gallery');
+       toast.error('Sync failed.');
+    } finally {
+      setIsSavingGallery(false);
+    }
+  };
+
+  const handleDeleteGalleryItem = async (id: string) => {
+    try {
+      await deleteDoc(doc(db, 'gallery', id));
+      toast.success('Asset purged from gallery.');
+    } catch (error) {
+      handleFirestoreError(error, OperationType.DELETE, 'gallery');
       toast.error('Purge failed.');
     }
   };
@@ -1352,6 +1406,7 @@ export default function AdminDashboard() {
                 { id: 'broadcast', label: 'SIGNAL', icon: Megaphone, adminOnly: true },
                 { id: 'banners', label: 'VISUALS', icon: Eye, adminOnly: true },
                 { id: 'offers', label: 'PROMO_SCROLL', icon: Megaphone, adminOnly: true },
+                { id: 'gallery', label: 'GALLERY', icon: ImageIcon, adminOnly: true },
                 { id: 'coupons', label: 'PROTOCOLS', icon: Zap, adminOnly: true },
                 { id: 'security', label: 'SECURE', icon: Shield, adminOnly: true },
               ].filter(tab => !tab.adminOnly || profile?.role === 'admin').map((tab) => (
@@ -1852,76 +1907,174 @@ export default function AdminDashboard() {
             </div>
           )}
 
-          {view === 'offers' && (
-            <div className="space-y-20 animate-in fade-in duration-1000">
-               <div className="max-w-4xl space-y-12">
-                  <div className="space-y-6">
-                    <div className="flex items-center space-x-6">
-                       <div className="w-3 h-3 bg-gold rounded-full shadow-[0_0_15px_#c5a059]" />
-                       <span className="font-tech text-gold/30 text-xs tracking-[0.5em] font-black uppercase">COMMUNICATIONS // PROMO_FEED</span>
-                    </div>
-                    <h2 className="text-6xl md:text-8xl font-display italic tracking-tightest leading-none text-black">Promo <span className="opacity-10 text-black font-sans italic">Scroller.</span></h2>
-                  </div>
-                  
-                  <form onSubmit={handleAddOffer} className="space-y-12 p-12 rounded-[5rem] border border-black/5 bg-neutral-50 shadow-xl relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 p-16 opacity-[0.02] pointer-events-none group-hover:opacity-[0.05] transition-all duration-1000">
-                       <Zap size={400} strokeWidth={1} className="text-black" />
-                    </div>
+           {view === 'offers' && (
+             <div className="space-y-20 animate-in fade-in duration-1000">
+                <div className="max-w-4xl space-y-12">
+                   <div className="space-y-6">
+                     <div className="flex items-center space-x-6">
+                        <div className="w-3 h-3 bg-gold rounded-full shadow-[0_0_15px_#c5a059]" />
+                        <span className="font-tech text-gold/30 text-xs tracking-[0.5em] font-black uppercase">COMMUNICATIONS // PROMO_FEED</span>
+                     </div>
+                     <h2 className="text-6xl md:text-8xl font-display italic tracking-tightest leading-none text-black">Promo <span className="opacity-10 text-black font-sans italic">Scroller.</span></h2>
+                   </div>
+                   
+                   <form onSubmit={handleAddOffer} className="space-y-12 p-12 rounded-[5rem] border border-black/5 bg-neutral-50 shadow-xl relative overflow-hidden group">
+                     <div className="absolute top-0 right-0 p-16 opacity-[0.02] pointer-events-none group-hover:opacity-[0.05] transition-all duration-1000">
+                        <Zap size={400} strokeWidth={1} className="text-black" />
+                     </div>
 
-                    <div className="space-y-12 relative z-10">
-                      <div className="space-y-4">
-                        <label className="font-tech text-black/30 text-[10px] tracking-[0.4em] font-black uppercase">OFFER_TEXT</label>
-                        <input 
-                          value={offerText} 
-                          onChange={e => setOfferText(e.target.value)} 
-                          className="w-full bg-transparent border-b border-black/10 py-5 italic text-2xl focus:border-black outline-none transition-all text-black" 
-                          placeholder="FREE_GLOBAL_ACQUISITION_DISPATCH" 
-                          required
-                        />
-                      </div>
-                      <div className="space-y-4">
-                        <label className="font-tech text-black/30 text-[10px] tracking-[0.4em] font-black uppercase">DESTINATION_LINK (OPTIONAL)</label>
-                        <input 
-                          value={offerLink} 
-                          onChange={e => setOfferLink(e.target.value)} 
-                          className="w-full bg-transparent border-b border-black/10 py-5 italic text-sm focus:border-black outline-none transition-all text-black" 
-                          placeholder="/collections/grand-complications" 
-                        />
-                      </div>
-                    </div>
+                     <div className="space-y-12 relative z-10">
+                       <div className="space-y-4">
+                         <label className="font-tech text-black/30 text-[10px] tracking-[0.4em] font-black uppercase">OFFER_TEXT</label>
+                         <input 
+                           value={offerText} 
+                           onChange={e => setOfferText(e.target.value)} 
+                           className="w-full bg-transparent border-b border-black/10 py-5 italic text-2xl focus:border-black outline-none transition-all text-black" 
+                           placeholder="FREE_GLOBAL_ACQUISITION_DISPATCH" 
+                           required
+                         />
+                       </div>
+                       <div className="space-y-4">
+                         <label className="font-tech text-black/30 text-[10px] tracking-[0.4em] font-black uppercase">OFFER_IMAGE_URL (OPTIONAL)</label>
+                         <input 
+                           value={offerImageUrl} 
+                           onChange={e => setOfferImageUrl(e.target.value)} 
+                           className="w-full bg-transparent border-b border-black/10 py-5 italic text-sm focus:border-black outline-none transition-all text-black" 
+                           placeholder="https://..." 
+                         />
+                       </div>
+                       <div className="space-y-4">
+                         <label className="font-tech text-black/30 text-[10px] tracking-[0.4em] font-black uppercase">DESTINATION_LINK (OPTIONAL)</label>
+                         <input 
+                           value={offerLink} 
+                           onChange={e => setOfferLink(e.target.value)} 
+                           className="w-full bg-transparent border-b border-black/10 py-5 italic text-sm focus:border-black outline-none transition-all text-black" 
+                           placeholder="/collections/grand-complications" 
+                         />
+                       </div>
+                     </div>
 
-                    <button type="submit" disabled={isSavingOffer} className="w-full py-8 bg-black text-white font-tech text-xs tracking-[0.5em] font-black rounded-full hover:shadow-[0_0_50px_rgba(0,0,0,0.1)] transition-all duration-1000 uppercase relative z-10">
-                      {isSavingOffer ? 'TRANSMITTING...' : 'DEPLOY_SIGNAL'}
-                    </button>
-                  </form>
-               </div>
+                     <button type="submit" disabled={isSavingOffer} className="w-full py-8 bg-black text-white font-tech text-xs tracking-[0.5em] font-black rounded-full hover:shadow-[0_0_50px_rgba(0,0,0,0.1)] transition-all duration-1000 uppercase relative z-10">
+                       {isSavingOffer ? 'TRANSMITTING...' : 'DEPLOY_SIGNAL'}
+                     </button>
+                   </form>
+                </div>
 
-               <div className="max-w-4xl space-y-6">
-                  <h3 className="font-tech text-black/30 text-xs tracking-[0.5em] font-black uppercase px-6">Active_Feed</h3>
-                  <div className="space-y-4">
-                    {offers.length === 0 && <p className="text-black/20 font-tech text-sm py-20 text-center tracking-[0.5em] border border-black/5 rounded-[3rem]">NO_ACTIVE_SIGNALS</p>}
-                    {offers.map((offer) => (
-                      <div key={offer.id} className="group flex items-center justify-between p-8 rounded-[3rem] border border-black/5 bg-neutral-50 hover:bg-neutral-100 transition-all duration-700 luxury-shadow">
-                        <div className="flex items-center space-x-10">
-                           <div className="w-12 h-12 rounded-full bg-black/5 flex items-center justify-center">
-                              <Megaphone size={16} className="text-black/40" />
+                <div className="max-w-4xl space-y-6">
+                   <h3 className="font-tech text-black/30 text-xs tracking-[0.5em] font-black uppercase px-6">Active_Feed</h3>
+                   <div className="space-y-4">
+                     {offers.length === 0 && <p className="text-black/20 font-tech text-sm py-20 text-center tracking-[0.5em] border border-black/5 rounded-[3rem]">NO_ACTIVE_SIGNALS</p>}
+                     {offers.map((offer) => (
+                       <div key={offer.id} className="group flex items-center justify-between p-8 rounded-[3rem] border border-black/5 bg-neutral-50 hover:bg-neutral-100 transition-all duration-700 luxury-shadow">
+                         <div className="flex items-center space-x-10">
+                            <div className="w-12 h-12 rounded-full bg-black/5 flex items-center justify-center">
+                               <Megaphone size={16} className="text-black/40" />
+                            </div>
+                            <div>
+                               <p className="text-2xl font-display italic tracking-tightest text-black">{offer.text}</p>
+                               <p className="font-tech text-black/20 text-[9px] uppercase tracking-widest mt-1">LINK: {offer.link || 'NONE'}</p>
+                            </div>
+                         </div>
+                         <button 
+                           onClick={() => handleDeleteOffer(offer.id)}
+                           className="w-14 h-14 rounded-2xl bg-red-500/5 hover:bg-red-500/20 text-red-500 opacity-20 group-hover:opacity-100 transition-all duration-700 flex items-center justify-center"
+                         >
+                           <Trash2 size={20} strokeWidth={1} />
+                         </button>
+                       </div>
+                     ))}
+                   </div>
+                </div>
+             </div>
+          )}
+
+          {view === 'gallery' && (
+             <div className="space-y-20 animate-in fade-in duration-1000">
+                <div className="max-w-4xl space-y-12">
+                   <div className="space-y-6">
+                     <div className="flex items-center space-x-6">
+                        <div className="w-3 h-3 bg-black rounded-full" />
+                        <span className="font-tech text-black/30 text-xs tracking-[0.5em] font-black uppercase">VISUAL_ASSETS // GALLERY_INDEX</span>
+                     </div>
+                     <h2 className="text-6xl md:text-8xl font-display italic tracking-tightest leading-none text-black">Gallery <span className="opacity-10 text-black font-sans italic">Curator.</span></h2>
+                   </div>
+                   
+                   <form onSubmit={handleAddGalleryItem} className="space-y-12 p-12 rounded-[5rem] border border-black/5 bg-neutral-50 shadow-xl relative overflow-hidden group">
+                     <div className="absolute top-0 right-0 p-16 opacity-[0.02] pointer-events-none group-hover:opacity-[0.05] transition-all duration-1000">
+                        <ImageIcon size={400} strokeWidth={1} className="text-black" />
+                     </div>
+
+                     <div className="space-y-12 relative z-10">
+                        <div className="space-y-4">
+                           <label className="font-tech text-black/30 text-[10px] tracking-[0.4em] font-black uppercase">IMAGE_URL</label>
+                           <input 
+                             value={galleryImageUrl} 
+                             onChange={e => setGalleryImageUrl(e.target.value)} 
+                             className="w-full bg-transparent border-b border-black/10 py-5 italic text-sm focus:border-black outline-none transition-all text-black" 
+                             placeholder="https://..." 
+                             required
+                           />
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                           <div className="space-y-4">
+                             <label className="font-tech text-black/30 text-[10px] tracking-[0.4em] font-black uppercase">INITIALS_OR_LABEL</label>
+                             <input 
+                               value={galleryLabel} 
+                               onChange={e => setGalleryLabel(e.target.value)} 
+                               className="w-full bg-transparent border-b border-black/10 py-5 italic text-sm focus:border-black outline-none transition-all text-black uppercase" 
+                               placeholder="DS" 
+                               maxLength={2}
+                             />
                            </div>
-                           <div>
-                              <p className="text-2xl font-display italic tracking-tightest text-black">{offer.text}</p>
-                              <p className="font-tech text-black/20 text-[9px] uppercase tracking-widest mt-1">LINK: {offer.link || 'NONE'}</p>
+                           <div className="space-y-4">
+                             <label className="font-tech text-black/30 text-[10px] tracking-[0.4em] font-black uppercase">ASPECT_RATIO</label>
+                             <select
+                               value={galleryAspect}
+                               onChange={(e) => setGalleryAspect(e.target.value as any)}
+                               className="w-full bg-transparent border-b border-black/10 py-5 italic text-sm focus:border-black outline-none transition-all text-black"
+                             >
+                                <option value="aspect-square text-black">SQUARE (1:1)</option>
+                                <option value="aspect-[3/4] text-black">PORTRAIT (3:4)</option>
+                                <option value="aspect-[4/5] text-black">PORTRAIT (4:5)</option>
+                             </select>
                            </div>
                         </div>
-                        <button 
-                          onClick={() => handleDeleteOffer(offer.id)}
-                          className="w-14 h-14 rounded-2xl bg-red-500/5 hover:bg-red-500/20 text-red-500 opacity-20 group-hover:opacity-100 transition-all duration-700 flex items-center justify-center"
-                        >
-                          <Trash2 size={20} strokeWidth={1} />
-                        </button>
+                     </div>
+
+                     <button type="submit" disabled={isSavingGallery} className="w-full py-8 bg-black text-white font-tech text-xs tracking-[0.5em] font-black rounded-full hover:shadow-[0_0_50px_rgba(0,0,0,0.1)] transition-all duration-1000 uppercase relative z-10">
+                       {isSavingGallery ? 'SYNCING...' : 'ADD_TO_INDEX'}
+                     </button>
+                   </form>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
+                   {galleryItems.map((item) => (
+                      <div key={item.id} className="group relative rounded-[3rem] border border-black/5 overflow-hidden transition-all duration-1000 bg-neutral-50 luxury-shadow">
+                         <div className={`${item.aspect} relative overflow-hidden bg-white`}>
+                             {item.imageUrl ? (
+                                <img src={item.imageUrl} className="w-full h-full object-cover transition-transform duration-[3s] group-hover:scale-110" alt={item.label} />
+                             ) : (
+                                <div className="w-full h-full flex items-center justify-center text-4xl font-display opacity-10">{item.label}</div>
+                             ) }
+                             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 flex items-center justify-center">
+                                <button 
+                                  onClick={() => handleDeleteGalleryItem(item.id)}
+                                  className="w-14 h-14 rounded-2xl bg-white text-black flex items-center justify-center hover:bg-red-500 hover:text-white transition-all transform hover:scale-110"
+                                >
+                                   <Trash2 size={20} strokeWidth={1} />
+                                </button>
+                             </div>
+                         </div>
+                         <div className="p-8">
+                             <div className="flex justify-between items-center">
+                                <span className="font-tech text-[10px] tracking-widest text-black uppercase font-black">{item.label || 'UNTITLED'}</span>
+                                <span className="font-mono text-[8px] text-black/20 uppercase font-black">{item.aspect}</span>
+                             </div>
+                         </div>
                       </div>
-                    ))}
-                  </div>
-               </div>
-            </div>
+                   ))}
+                </div>
+             </div>
           )}
 
           {view === 'broadcast' && (

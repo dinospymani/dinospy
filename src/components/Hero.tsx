@@ -74,24 +74,8 @@ const Hero = () => {
 
   return (
     <section className="relative w-full overflow-hidden">
-      {/* Ticker / Scrolling Offers */}
-      {offers.length > 0 && (
-        <div className="w-full bg-black py-4 overflow-hidden border-y border-white/5">
-          <div className="flex whitespace-nowrap animate-marquee">
-            {[...offers, ...offers, ...offers].map((offer, idx) => (
-              <div key={`${offer.id}-${idx}`} className="flex items-center space-x-8 px-8">
-                <span className="font-tech text-[10px] md:text-sm text-white tracking-[0.4em] font-black uppercase">
-                  {offer.text}
-                </span>
-                <div className="w-2 h-2 bg-gold rounded-full shadow-[0_0_10px_#c5a059]" />
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Banner Carousel */}
-      <div className="relative h-[calc(100vh-52px)] md:h-[calc(100vh-64px)] w-full bg-charcoal overflow-hidden">
+      {/* Banner Carousel - Exact Full Screen */}
+      <div className="relative h-screen w-full bg-charcoal overflow-hidden">
         <AnimatePresence mode="wait">
           {banners.length > 0 ? (
             <motion.div
@@ -107,16 +91,16 @@ const Hero = () => {
                 <img 
                   src={banners[currentIndex].imageUrl} 
                   alt={banners[currentIndex].title}
-                  className="w-full h-full object-cover transition-all duration-[3000ms] scale-110 hover:scale-100"
+                  className="w-full h-full object-cover transition-all duration-[5000ms] scale-110 hover:scale-100"
+                  style={{ filter: 'contrast(1.1) brightness(0.95)' }} // Subtle pop for high-quality feel
                 />
               </picture>
               
-              {/* Overlays for Readability */}
-              <div className="absolute inset-0 bg-gradient-to-t from-charcoal via-transparent to-transparent opacity-80" />
-              <div className="absolute inset-0 bg-gradient-to-b from-charcoal/60 via-transparent to-transparent opacity-40" />
-              <div className="absolute inset-0 bg-black/10" />
+              {/* Overlays for Readability - Minimal to preserve image quality */}
+              <div className="absolute inset-0 bg-gradient-to-t from-charcoal/90 via-transparent to-charcoal/20 opacity-70" />
+              <div className="absolute inset-0 bg-black/5" />
               
-              <div className="absolute bottom-24 left-10 md:left-24 max-w-5xl space-y-8">
+              <div className="absolute bottom-24 left-10 md:left-24 max-w-5xl space-y-8 z-10">
                 <motion.div
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -133,7 +117,7 @@ const Hero = () => {
                       href={banners[currentIndex].link}
                       className="inline-flex items-center space-x-6 group"
                     >
-                      <div className="w-16 h-16 rounded-full border border-white/20 flex items-center justify-center group-hover:bg-white group-hover:text-black transition-all duration-700">
+                      <div className="w-16 h-16 rounded-full border border-white/20 flex items-center justify-center group-hover:bg-ivory group-hover:text-black transition-all duration-700">
                         <ChevronRight size={20} />
                       </div>
                       <span className="font-tech text-[10px] text-white tracking-[0.5em] font-black uppercase group-hover:translate-x-2 transition-transform duration-700">
@@ -175,13 +159,34 @@ const Hero = () => {
         )}
       </div>
 
+      {/* Ticker / Scrolling Offers - Displayed BELOW the hero carousel in Cream/Ivory */}
+      {offers.length > 0 && (
+        <div className="w-full bg-[#fffff0] py-6 overflow-hidden border-b border-black/5 z-30">
+          <div className="flex whitespace-nowrap animate-marquee">
+            {[...offers, ...offers, ...offers].map((offer, idx) => (
+              <div key={`${offer.id}-${idx}`} className="flex items-center space-x-8 px-12">
+                {offer.imageUrl && (
+                  <div className="w-8 h-8 rounded-full overflow-hidden border border-black/5 flex-shrink-0">
+                    <img src={offer.imageUrl} className="w-full h-full object-cover" alt="" />
+                  </div>
+                )}
+                <span className="font-tech text-xs md:text-sm text-black tracking-[0.4em] font-black uppercase">
+                  {offer.text}
+                </span>
+                <div className="w-2 h-2 bg-gold rounded-full shadow-[0_0_10px_#c5a059]" />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <style dangerouslySetInnerHTML={{ __html: `
         @keyframes marquee {
           0% { transform: translateX(0); }
           100% { transform: translateX(-50%); }
         }
         .animate-marquee {
-          animation: marquee 30s linear infinite;
+          animation: marquee 40s linear infinite;
         }
       `}} />
     </section>

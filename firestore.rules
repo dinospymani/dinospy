@@ -48,6 +48,11 @@ service cloud.firestore {
       allow read: if true;
       allow write: if isAdmin();
     }
+    
+    match /gallery/{itemId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
 
     // ------------------------------------------------------------
     // PRODUCTS COLLECTION

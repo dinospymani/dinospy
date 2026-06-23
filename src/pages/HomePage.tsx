@@ -53,6 +53,7 @@ const TestimonialCard = ({ text, author, title }) => (
 
 export default function HomePage() {
   const [featured, setFeatured] = useState<any[]>([]);
+  const [galleryItems, setGalleryItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const { scrollYProgress } = useScroll();
 
@@ -66,7 +67,16 @@ export default function HomePage() {
       handleFirestoreError(error, OperationType.LIST, 'products');
       setLoading(false);
     });
-    return () => unsubscribe();
+
+    const qGallery = query(collection(db, 'gallery'), limit(12));
+    const unsubGallery = onSnapshot(qGallery, (snap) => {
+      setGalleryItems(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    });
+
+    return () => {
+      unsubscribe();
+      unsubGallery();
+    };
   }, []);
 
   return (
@@ -257,12 +267,27 @@ export default function HomePage() {
                  
                  <div className="col-span-12 lg:col-span-8">
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-                       <GalleryItem initials="DS" aspect="aspect-square" delay={0} />
-                       <GalleryItem initials="AX" aspect="aspect-[3/4]" delay={1} />
-                       <GalleryItem initials="CT" aspect="aspect-square" delay={2} />
-                       <GalleryItem initials="MN" aspect="aspect-[3/4]" className="md:-mt-20" delay={3} />
-                       <GalleryItem initials="VA" aspect="aspect-square" delay={4} />
-                       <GalleryItem initials="LT" aspect="aspect-[4/5]" delay={5} />
+                       {galleryItems.length > 0 ? (
+                         galleryItems.map((item, i) => (
+                           <GalleryItem 
+                             key={item.id}
+                             initials={item.label}
+                             imageUrl={item.imageUrl}
+                             aspect={item.aspect}
+                             delay={i}
+                             className={i === 3 ? "md:-mt-20" : ""}
+                           />
+                         ))
+                       ) : (
+                         <>
+                           <GalleryItem initials="DS" aspect="aspect-square" delay={0} />
+                           <GalleryItem initials="AX" aspect="aspect-[3/4]" delay={1} />
+                           <GalleryItem initials="CT" aspect="aspect-square" delay={2} />
+                           <GalleryItem initials="MN" aspect="aspect-[3/4]" className="md:-mt-20" delay={3} />
+                           <GalleryItem initials="VA" aspect="aspect-square" delay={4} />
+                           <GalleryItem initials="LT" aspect="aspect-[4/5]" delay={5} />
+                         </>
+                       )}
                     </div>
                  </div>
               </div>
@@ -275,7 +300,7 @@ export default function HomePage() {
   );
 }
 
-const GalleryItem = ({ aspect, className = "", delay, initials }) => (
+const GalleryItem = ({ aspect, className = "", delay, initials, imageUrl = undefined }: { aspect: string, className?: string, delay: number, initials: string, imageUrl?: string }) => (
   <motion.div
     initial={{ opacity: 0, scale: 0.9 }}
     whileInView={{ opacity: 1, scale: 1 }}
@@ -283,7 +308,11 @@ const GalleryItem = ({ aspect, className = "", delay, initials }) => (
     transition={{ delay: delay * 0.1, duration: 1 }}
     className={`relative group overflow-hidden rounded-[2rem] ${aspect} ${className} bg-neutral-50 border border-black/5 flex items-center justify-center`}
   >
-    <div className="font-display text-6xl opacity-[0.03] select-none group-hover:opacity-[0.08] transition-opacity duration-1000 uppercase">{initials}</div>
+    {imageUrl ? (
+      <img src={imageUrl} className="absolute inset-0 w-full h-full object-cover transition-transform duration-[3s] group-hover:scale-110" alt={initials} />
+    ) : (
+      <div className="font-display text-6xl opacity-[0.03] select-none group-hover:opacity-[0.08] transition-opacity duration-1000 uppercase">{initials}</div>
+    )}
     <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
     <div className="absolute bottom-6 right-6 font-mono text-[8px] text-black/10 group-hover:text-black/40 transition-colors uppercase font-black">Asset_{delay}</div>
   </motion.div>
