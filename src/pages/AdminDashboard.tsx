@@ -4,7 +4,7 @@ import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc, onSnapshot, que
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import MobileNav from '../components/MobileNav';
-import { Plus, Trash2, Edit, Save, Package, QrCode, Printer, X, Truck, Loader2, ChevronLeft, TrendingUp, DollarSign, ShoppingBag, AlertCircle, BarChart2, Bell, ArrowLeft, Megaphone, Check, Zap, Clock, Shield, Lock, Eye, EyeOff, Database, ArrowRight, ShieldAlert, AlertTriangle, ShieldCheck, Cpu, Activity, Wifi, Image as ImageIcon, MessageSquare, Send, User } from 'lucide-react';
+import { Plus, Trash2, Edit, Save, Package, QrCode, Printer, X, Truck, Loader2, ChevronLeft, TrendingUp, DollarSign, ShoppingBag, AlertCircle, BarChart2, Bell, ArrowLeft, Megaphone, Check, Zap, Clock, Shield, Lock, Eye, EyeOff, Database, ArrowRight, ShieldAlert, AlertTriangle, ShieldCheck, Cpu, Activity, Wifi, Image as ImageIcon, MessageSquare, Send, User, Mail, Phone } from 'lucide-react';
 import { motion } from 'motion/react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { QRCodeSVG } from 'qrcode.react';
@@ -59,7 +59,7 @@ export default function AdminDashboard() {
   const [products, setProducts] = useState<AdminProduct[]>([]);
   const [orders, setOrders] = useState<AdminOrder[]>([]);
   
-  const downloadReceipt = (order: any) => {
+  const downloadReceipt = async (order: any) => {
     if (!order || !order.items) {
       toast.error('Manifest data corrupted.');
       return;
@@ -67,77 +67,77 @@ export default function AdminDashboard() {
 
     try {
       const doc = new jsPDF();
-      const goldColor = [197, 160, 89]; // #c5a059
-      const blackColor = [10, 10, 10]; // #0A0A0A
+      const indigoColor = [79, 70, 229]; // #4f46e5
+      const blackColor = [0, 0, 0]; // #000000
       const neutralGray = [150, 150, 150];
       const accentGray = [240, 240, 240];
 
       // Title & Branding Header
       doc.setFillColor(blackColor[0], blackColor[1], blackColor[2]);
-      doc.rect(0, 0, 210, 50, 'F');
+      doc.rect(0, 0, 210, 55, 'F');
       
-      doc.setTextColor(goldColor[0], goldColor[1], goldColor[2]);
-      doc.setFontSize(36);
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(32);
       doc.setFont('helvetica', 'bold');
-      doc.text('DINOSPY', 105, 25, { align: 'center', charSpace: 3 });
+      doc.text('DINOSPY', 105, 38, { align: 'center', charSpace: 3 });
       
-      doc.setFontSize(9);
+      doc.setFontSize(8);
       doc.setFont('helvetica', 'normal');
-      doc.text('PREMIUM_COLLECTOR_SERVICES // VAULT_LOGISTICS_TERMINAL', 105, 35, { align: 'center', charSpace: 1.5 });
+      doc.text('PREMIUM_COLLECTOR_SERVICES // VAULT_LOGISTICS_TERMINAL', 105, 48, { align: 'center', charSpace: 1.5 });
       
-      doc.setDrawColor(goldColor[0], goldColor[1], goldColor[2]);
+      doc.setDrawColor(indigoColor[0], indigoColor[1], indigoColor[2]);
       doc.setLineWidth(1);
-      doc.line(60, 42, 150, 42);
+      doc.line(60, 52, 150, 52);
 
       // Section: Shipping Label / Box Header (Industrial look)
       doc.setDrawColor(blackColor[0], blackColor[1], blackColor[2]);
       doc.setLineWidth(0.5);
-      doc.rect(140, 60, 55, 35); // Order ID Box
+      doc.rect(140, 65, 55, 35); // Order ID Box
       doc.setFontSize(7);
       doc.setTextColor(neutralGray[0], neutralGray[1], neutralGray[2]);
-      doc.text('MANIFEST_ID_TRACKER', 145, 65);
+      doc.text('MANIFEST_ID_TRACKER', 145, 70);
       doc.setFontSize(10);
       doc.setTextColor(blackColor[0], blackColor[1], blackColor[2]);
       doc.setFont('helvetica', 'bold');
-      doc.text(`#${order.id.toUpperCase()}`, 145, 75);
+      doc.text(`#${order.id.toUpperCase()}`, 145, 80);
       doc.setFontSize(8);
-      doc.text(`DATE: ${new Date(order.createdAt).toLocaleDateString()}`, 145, 82);
-      doc.text(`STATUS: ${order.status.toUpperCase()}`, 145, 88);
+      doc.text(`DATE: ${new Date(order.createdAt).toLocaleDateString()}`, 145, 87);
+      doc.text(`STATUS: ${order.status.toUpperCase()}`, 145, 93);
 
       // SHIP TO / CONSIGNEE Information
       doc.setFontSize(10);
       doc.setFont('helvetica', 'bold');
-      doc.text('CONSIGNEE_SHIPPING_MANIFEST', 20, 65);
+      doc.text('CONSIGNEE_SHIPPING_MANIFEST', 20, 70);
       doc.setDrawColor(blackColor[0], blackColor[1], blackColor[2]);
       doc.setLineWidth(0.3);
-      doc.line(20, 68, 120, 68);
+      doc.line(20, 73, 120, 73);
 
       doc.setFontSize(12);
-      doc.text(order.customerName?.toUpperCase() || 'ANONYMOUS_COLLECTOR', 20, 78);
+      doc.text(order.customerName?.toUpperCase() || 'ANONYMOUS_COLLECTOR', 20, 83);
       
       doc.setFontSize(9);
       doc.setFont('helvetica', 'normal');
       const address = order.shippingAddress;
       if (address) {
-        doc.text(`${address.address || ''}`, 20, 85);
-        doc.text(`${address.city || ''}, ${address.state || ''} - ${address.zip || ''}`, 20, 91);
-        doc.text(`COUNTRY: ${address.country?.toUpperCase() || 'INDIA'}`, 20, 97);
+        doc.text(`${address.address || ''}`, 20, 90);
+        doc.text(`${address.city || ''}, ${address.state || ''} - ${address.zip || ''}`, 20, 96);
+        doc.text(`COUNTRY: ${address.country?.toUpperCase() || 'INDIA'}`, 20, 102);
         doc.setFont('helvetica', 'bold');
-        doc.text(`WHATSAPP_COMMS: +91 ${order.customerPhone || address.phone || 'NOT_FOUND'}`, 20, 105);
+        doc.text(`CONTACT_ID: +91 ${order.customerPhone || address.phone || 'NOT_FOUND'}`, 20, 110);
       }
       
       doc.setFont('helvetica', 'normal');
-      doc.text(`AUTH_EMAIL: ${order.customerEmail || 'UNTRACKED'}`, 20, 111);
+      doc.text(`AUTH_EMAIL: ${order.customerEmail || 'UNTRACKED'}`, 20, 116);
       doc.setFont('helvetica', 'bold');
-      doc.text(`SECURE_DELIVERY_PIN: ${order.deliveryPin || 'PENDING_SYNC'}`, 20, 118);
+      doc.text(`SECURE_DELIVERY_PIN: ${order.deliveryPin || 'PENDING_SYNC'}`, 20, 123);
 
       // Logistics Warning Box
       doc.setFillColor(accentGray[0], accentGray[1], accentGray[2]);
-      doc.rect(140, 105, 55, 20, 'F');
+      doc.rect(140, 110, 55, 20, 'F');
       doc.setFontSize(7);
       doc.setTextColor(blackColor[0], blackColor[1], blackColor[2]);
-      doc.text('FRAGILE // HIGH_VALUE_ASSET', 167.5, 112, { align: 'center' });
-      doc.text('DO_NOT_BEND // SEALED_VAULT', 167.5, 117, { align: 'center' });
+      doc.text('FRAGILE // HIGH_VALUE_ASSET', 167.5, 117, { align: 'center' });
+      doc.text('DO_NOT_BEND // SEALED_VAULT', 167.5, 122, { align: 'center' });
 
       // Asset Table
       const tableData = order.items.map((item: any) => [
@@ -149,12 +149,12 @@ export default function AdminDashboard() {
       ]);
 
       autoTable(doc, {
-        startY: 135,
+        startY: 140,
         head: [['ASSET_CLASS', 'BRAND_ORIGIN', 'QTY', 'UNIT_VAL', 'AGGREGATE']],
         body: tableData,
         headStyles: { 
           fillColor: blackColor as any, 
-          textColor: goldColor as any,
+          textColor: [255, 255, 255],
           fontStyle: 'bold',
           fontSize: 8,
           halign: 'center'
@@ -250,7 +250,8 @@ export default function AdminDashboard() {
 
   const [notifications, setNotifications] = useState<any[]>([]);
   const [banners, setBanners] = useState<any[]>([]);
-  const [view, setView] = useState<'products' | 'orders' | 'add' | 'banners' | 'stats' | 'notifications' | 'broadcast' | 'coupons' | 'security' | 'support'>('stats');
+  const [offers, setOffers] = useState<any[]>([]);
+  const [view, setView] = useState<'products' | 'orders' | 'add' | 'banners' | 'offers' | 'stats' | 'notifications' | 'broadcast' | 'coupons' | 'security' | 'support'>('stats');
   const [selectedOrder, setSelectedOrder] = useState<AdminOrder | null>(null);
   const [supportChats, setSupportChats] = useState<any[]>([]);
   const [activeSupportChat, setActiveSupportChat] = useState<string | null>(null);
@@ -309,6 +310,11 @@ export default function AdminDashboard() {
   const [bannerDisplayDesktop, setBannerDisplayDesktop] = useState(true);
   const [bannerDisplayMobile, setBannerDisplayMobile] = useState(true);
 
+  // Offer states
+  const [offerText, setOfferText] = useState('');
+  const [offerLink, setOfferLink] = useState('');
+  const [isSavingOffer, setIsSavingOffer] = useState(false);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -318,6 +324,9 @@ export default function AdminDashboard() {
         
         const bSnap = await getDocs(collection(db, 'banners'));
         setBanners(bSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+        
+        const offerSnap = await getDocs(collection(db, 'offers'));
+        setOffers(offerSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
         
       // Initial manual stats calculation for products
       const lowStockProducts = fetchedProducts.filter(p => p.stock < 5);
@@ -415,8 +424,8 @@ export default function AdminDashboard() {
       console.warn("Coupon isolation active", error);
     });
 
-    // SUPPORT CHATS LISTENER
-    const qSupport = query(collection(db, 'support_chats'), orderBy('lastActive', 'desc'));
+    // SUPPORT TICKETS LISTENER
+    const qSupport = query(collection(db, 'support_tickets'), orderBy('lastActive', 'desc'));
     const unsubSupport = onSnapshot(qSupport, (snap) => {
       const fetchedChats = snap.docs.map(doc => ({ id: doc.id, ...doc.data({ serverTimestamps: 'estimate' }) }));
       setSupportChats(fetchedChats);
@@ -464,7 +473,7 @@ export default function AdminDashboard() {
     if (!activeSupportChat || view !== 'support') return;
 
     const qMsg = query(
-      collection(db, 'support_chats', activeSupportChat, 'messages'),
+      collection(db, 'support_tickets', activeSupportChat, 'messages'),
       orderBy('timestamp', 'asc')
     );
     
@@ -482,7 +491,7 @@ export default function AdminDashboard() {
     });
 
     // Mark as read by admin
-    setDoc(doc(db, 'support_chats', activeSupportChat), { unreadByAdmin: false }, { merge: true });
+    setDoc(doc(db, 'support_tickets', activeSupportChat), { unreadByAdmin: false }, { merge: true });
 
     return () => unsubscribe();
   }, [activeSupportChat, view]);
@@ -495,15 +504,16 @@ export default function AdminDashboard() {
     setReplyText('');
 
     try {
-      await addDoc(collection(db, 'support_chats', activeSupportChat, 'messages'), {
+      await addDoc(collection(db, 'support_tickets', activeSupportChat, 'messages'), {
         text,
         senderId: 'admin',
         senderName: 'Vault Administrator',
+        sender: 'admin',
         timestamp: serverTimestamp(),
         isAdmin: true
       });
 
-      await setDoc(doc(db, 'support_chats', activeSupportChat), {
+      await setDoc(doc(db, 'support_tickets', activeSupportChat), {
         lastMessage: text,
         lastActive: serverTimestamp(),
         unreadByUser: true,
@@ -517,8 +527,8 @@ export default function AdminDashboard() {
 
   const handleResolveSupport = async (chatId: string) => {
     try {
-      await setDoc(doc(db, 'support_chats', chatId), { 
-        status: 'resolved',
+      await setDoc(doc(db, 'support_tickets', chatId), { 
+        status: 'RESOLVED',
         resolvedAt: serverTimestamp(),
         unreadByAdmin: false 
       }, { merge: true });
@@ -532,7 +542,7 @@ export default function AdminDashboard() {
   const handleDeleteSupport = async (chatId: string) => {
     if (!window.confirm('Delete this ticket permanently from the vault?')) return;
     try {
-      await deleteDoc(doc(db, 'support_chats', chatId));
+      await deleteDoc(doc(db, 'support_tickets', chatId));
       toast.success('Record purged.');
       setActiveSupportChat(null);
     } catch (err) {
@@ -853,6 +863,49 @@ export default function AdminDashboard() {
         return `Sync failed: ${err.message || 'Check connection'}`;
       }
     });
+  };
+
+  const handleAddOffer = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!offerText) {
+      toast.warning('Signal required: Please provide offer text.');
+      return;
+    }
+
+    setIsSavingOffer(true);
+    try {
+      const offerData = {
+        text: offerText,
+        link: offerLink,
+        active: true,
+        createdAt: new Date().toISOString()
+      };
+
+      await addDoc(collection(db, 'offers'), offerData);
+      setOfferText('');
+      setOfferLink('');
+      
+      const offerSnap = await getDocs(collection(db, 'offers'));
+      setOffers(offerSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      
+      toast.success('Promotional signal deployed.');
+    } catch (error) {
+      handleFirestoreError(error, OperationType.WRITE, 'offers');
+      toast.error('Deployment failed.');
+    } finally {
+      setIsSavingOffer(false);
+    }
+  };
+
+  const handleDeleteOffer = async (id: string) => {
+    try {
+      await deleteDoc(doc(db, 'offers', id));
+      setOffers(prev => prev.filter(o => o.id !== id));
+      toast.success('Offer purged from the vault.');
+    } catch (error) {
+      handleFirestoreError(error, OperationType.DELETE, 'offers');
+      toast.error('Purge failed.');
+    }
   };
 
   const handleAddCoupon = async (e: React.FormEvent) => {
@@ -1298,6 +1351,7 @@ export default function AdminDashboard() {
                 { id: 'support', label: 'SUPPORT', icon: MessageSquare, urgent: supportChats.some(c => c.unreadByAdmin) },
                 { id: 'broadcast', label: 'SIGNAL', icon: Megaphone, adminOnly: true },
                 { id: 'banners', label: 'VISUALS', icon: Eye, adminOnly: true },
+                { id: 'offers', label: 'PROMO_SCROLL', icon: Megaphone, adminOnly: true },
                 { id: 'coupons', label: 'PROTOCOLS', icon: Zap, adminOnly: true },
                 { id: 'security', label: 'SECURE', icon: Shield, adminOnly: true },
               ].filter(tab => !tab.adminOnly || profile?.role === 'admin').map((tab) => (
@@ -1798,6 +1852,78 @@ export default function AdminDashboard() {
             </div>
           )}
 
+          {view === 'offers' && (
+            <div className="space-y-20 animate-in fade-in duration-1000">
+               <div className="max-w-4xl space-y-12">
+                  <div className="space-y-6">
+                    <div className="flex items-center space-x-6">
+                       <div className="w-3 h-3 bg-gold rounded-full shadow-[0_0_15px_#c5a059]" />
+                       <span className="font-tech text-gold/30 text-xs tracking-[0.5em] font-black uppercase">COMMUNICATIONS // PROMO_FEED</span>
+                    </div>
+                    <h2 className="text-6xl md:text-8xl font-display italic tracking-tightest leading-none text-black">Promo <span className="opacity-10 text-black font-sans italic">Scroller.</span></h2>
+                  </div>
+                  
+                  <form onSubmit={handleAddOffer} className="space-y-12 p-12 rounded-[5rem] border border-black/5 bg-neutral-50 shadow-xl relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-16 opacity-[0.02] pointer-events-none group-hover:opacity-[0.05] transition-all duration-1000">
+                       <Zap size={400} strokeWidth={1} className="text-black" />
+                    </div>
+
+                    <div className="space-y-12 relative z-10">
+                      <div className="space-y-4">
+                        <label className="font-tech text-black/30 text-[10px] tracking-[0.4em] font-black uppercase">OFFER_TEXT</label>
+                        <input 
+                          value={offerText} 
+                          onChange={e => setOfferText(e.target.value)} 
+                          className="w-full bg-transparent border-b border-black/10 py-5 italic text-2xl focus:border-black outline-none transition-all text-black" 
+                          placeholder="FREE_GLOBAL_ACQUISITION_DISPATCH" 
+                          required
+                        />
+                      </div>
+                      <div className="space-y-4">
+                        <label className="font-tech text-black/30 text-[10px] tracking-[0.4em] font-black uppercase">DESTINATION_LINK (OPTIONAL)</label>
+                        <input 
+                          value={offerLink} 
+                          onChange={e => setOfferLink(e.target.value)} 
+                          className="w-full bg-transparent border-b border-black/10 py-5 italic text-sm focus:border-black outline-none transition-all text-black" 
+                          placeholder="/collections/grand-complications" 
+                        />
+                      </div>
+                    </div>
+
+                    <button type="submit" disabled={isSavingOffer} className="w-full py-8 bg-black text-white font-tech text-xs tracking-[0.5em] font-black rounded-full hover:shadow-[0_0_50px_rgba(0,0,0,0.1)] transition-all duration-1000 uppercase relative z-10">
+                      {isSavingOffer ? 'TRANSMITTING...' : 'DEPLOY_SIGNAL'}
+                    </button>
+                  </form>
+               </div>
+
+               <div className="max-w-4xl space-y-6">
+                  <h3 className="font-tech text-black/30 text-xs tracking-[0.5em] font-black uppercase px-6">Active_Feed</h3>
+                  <div className="space-y-4">
+                    {offers.length === 0 && <p className="text-black/20 font-tech text-sm py-20 text-center tracking-[0.5em] border border-black/5 rounded-[3rem]">NO_ACTIVE_SIGNALS</p>}
+                    {offers.map((offer) => (
+                      <div key={offer.id} className="group flex items-center justify-between p-8 rounded-[3rem] border border-black/5 bg-neutral-50 hover:bg-neutral-100 transition-all duration-700 luxury-shadow">
+                        <div className="flex items-center space-x-10">
+                           <div className="w-12 h-12 rounded-full bg-black/5 flex items-center justify-center">
+                              <Megaphone size={16} className="text-black/40" />
+                           </div>
+                           <div>
+                              <p className="text-2xl font-display italic tracking-tightest text-black">{offer.text}</p>
+                              <p className="font-tech text-black/20 text-[9px] uppercase tracking-widest mt-1">LINK: {offer.link || 'NONE'}</p>
+                           </div>
+                        </div>
+                        <button 
+                          onClick={() => handleDeleteOffer(offer.id)}
+                          className="w-14 h-14 rounded-2xl bg-red-500/5 hover:bg-red-500/20 text-red-500 opacity-20 group-hover:opacity-100 transition-all duration-700 flex items-center justify-center"
+                        >
+                          <Trash2 size={20} strokeWidth={1} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+               </div>
+            </div>
+          )}
+
           {view === 'broadcast' && (
             <div className="max-w-4xl animate-in fade-in duration-1000 space-y-20">
                <div className="space-y-12">
@@ -2166,50 +2292,110 @@ export default function AdminDashboard() {
                 
                 <div className="p-12 md:p-16 space-y-16 max-h-[70vh] overflow-y-auto no-scrollbar scroll-smooth">
                    {/* Industrial Shipping Label */}
-                   <div id="shipping-label" className="bg-white text-black p-16 md:p-24 rounded-[4rem] shadow-xl relative border-8 border-black/5 font-mono overflow-hidden group/label">
-                      <div className="absolute top-0 right-0 p-24 opacity-[0.03] group-hover/label:opacity-[0.1] transition-opacity duration-1000 rotate-12 scale-150 pointer-events-none text-black">
-                         <Truck size={400} strokeWidth={1} />
+                   <div id="shipping-label" className="bg-white text-black p-16 md:p-24 rounded-[4rem] shadow-2xl relative border-t-[20px] border-black font-mono overflow-hidden group/label">
+                      {/* Sealed Watermark */}
+                      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.03] pointer-events-none -rotate-45 font-black text-[200px] whitespace-nowrap select-none">
+                         VAULT_SEALED
                       </div>
                       
-                      <div className="flex justify-between items-start border-b border-black/10 pb-12 mb-12 relative z-10">
-                         <div className="space-y-2">
-                            <p className="text-xs text-black/40 tracking-[0.5em] font-black uppercase mb-6">ORIGIN_PROTOCOL</p>
-                            <h3 className="text-3xl font-black italic tracking-widest decoration-black/20 underline underline-offset-[12px]">DINOSPY_EXECUTIVE_HUB</h3>
-                            <p className="text-xs mt-8 opacity-20 font-tech tracking-widest text-black/40">SYSTEMS_VERIFIED // GENEVA_DIST_01 // APAC_NODE</p>
+                      <div className="flex justify-between items-start border-b-2 border-black/5 pb-12 mb-12 relative z-10">
+                         <div className="space-y-4">
+                            <div className="flex items-center space-x-4">
+                               <div className="w-10 h-10 bg-black rounded-lg flex items-center justify-center text-white">
+                                  <Lock size={20} />
+                               </div>
+                               <p className="text-xs text-black/40 tracking-[0.5em] font-black uppercase">ORIGIN_FACILITY // GENEVA_ALPHA</p>
+                            </div>
+                            <h3 className="text-4xl font-black italic tracking-widest leading-none">DINOSPY_<span className="opacity-20 uppercase font-sans">HQ.</span></h3>
+                            <p className="text-[10px] opacity-30 font-tech tracking-[0.4em] text-black">LOGISTICS_CORE // SECURITY_LEVEL_05</p>
                          </div>
-                         <div className="p-6 bg-white rounded-3xl shadow-2xl border border-black/5">
-                            <QRCodeSVG value={`SKU_AUTH_${selectedOrder.id}`} size={100} fgColor="#000000" bgColor="transparent" />
+                         <div className="flex flex-col items-end space-y-6">
+                            <div className="p-4 bg-white rounded-3xl shadow-xl border border-black/5">
+                               <QRCodeSVG value={`ACQ_AUTH_${selectedOrder.id}`} size={120} fgColor="#000000" bgColor="transparent" />
+                            </div>
+                            <p className="text-[8px] font-black text-black/20 tracking-[0.5em] uppercase">SYSTEM_AUTH_TAG</p>
                          </div>
                       </div>
 
-                      <div className="mb-20 relative z-10">
-                         <p className="text-xs text-black/40 tracking-[0.5em] font-black uppercase mb-10">TARGET_CLIENT_ENTITY</p>
-                         <h3 className="text-6xl md:text-8xl font-black italic mb-8 uppercase tracking-widest leading-none text-black">{selectedOrder.customerName}</h3>
-                         <div className="space-y-4 opacity-50 text-2xl md:text-3xl font-bold tracking-tighter max-w-2xl text-black">
-                            <p className="truncate">{selectedOrder.shippingAddress.address}</p>
-                            <p className="font-black text-indigo-600 tracking-widest">{selectedOrder.shippingAddress.city}_IND // {selectedOrder.shippingAddress.zip}</p>
-                         </div>
-                      </div>
-
-                      <div className="flex flex-col md:flex-row justify-between items-end gap-12 border-t border-black/10 pt-12 relative z-10">
-                         <div className="space-y-8 w-full">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-20 mb-20 relative z-10">
+                         <div className="space-y-10">
                             <div>
-                               <p className="text-xs text-black/40 tracking-[0.5em] font-black uppercase mb-8">CARGO_MANIFEST_CONTENT</p>
-                               <div className="text-sm space-y-4 font-tech text-black">
-                                  {selectedOrder.items.map((it: any, idx: number) => (
-                                     <div key={idx} className="flex space-x-6 items-baseline group/item">
-                                        <span className="opacity-20 font-black text-black">[{String(it.quantity).padStart(2, '0')}X]</span>
-                                        <span className="font-black italic tracking-[0.2em] group-hover:text-black transition-colors uppercase text-lg">{it.name}</span>
-                                     </div>
-                                  ))}
+                               <p className="text-[10px] text-black/30 tracking-[0.4em] font-black uppercase mb-6 flex items-center space-x-3">
+                                  <User size={12} />
+                                  <span>CONSIGNEE_DATA</span>
+                               </p>
+                               <div className="space-y-2">
+                                  <h3 className="text-5xl font-black italic uppercase tracking-tighter text-black">{selectedOrder.customerName}</h3>
+                                  <p className="font-tech text-xs tracking-widest text-black/40 font-black">{selectedOrder.customerEmail?.toUpperCase()}</p>
+                               </div>
+                            </div>
+                            <div>
+                               <p className="text-[10px] text-black/30 tracking-[0.4em] font-black uppercase mb-6 flex items-center space-x-3">
+                                  <Truck size={12} />
+                                  <span>DELIVERY_TERMINUS</span>
+                               </p>
+                               <div className="space-y-4 text-2xl font-bold tracking-tighter text-black/80 leading-relaxed max-w-md">
+                                  <p className="truncate underline decoration-black/5 decoration-2 underline-offset-8">{selectedOrder.shippingAddress.address}</p>
+                                  <p className="font-black text-indigo-600 tracking-widest text-3xl">{selectedOrder.shippingAddress.city}_IND // {selectedOrder.shippingAddress.zip}</p>
                                </div>
                             </div>
                          </div>
-                         <div className="text-right shrink-0">
-                            <p className="text-xs text-black/40 tracking-[0.5em] font-black uppercase mb-6">AUTHENTICATION_TAG</p>
-                            <p className="text-6xl md:text-7xl font-black italic tracking-widest text-black">DNX-{selectedOrder.id.slice(0, 10).toUpperCase()}</p>
+                         
+                         <div className="space-y-10 border-l border-black/5 pl-10 h-full">
+                            <div>
+                               <p className="text-[10px] text-black/30 tracking-[0.4em] font-black uppercase mb-8">ASSET_MANIFEST</p>
+                               <div className="space-y-6 font-tech">
+                                  {selectedOrder.items.map((it: any, idx: number) => (
+                                     <div key={idx} className="flex justify-between items-center group/item border-b border-black/[0.03] pb-4">
+                                        <div className="flex items-center space-x-6">
+                                           <span className="w-8 h-8 rounded-lg bg-black text-white text-[10px] flex items-center justify-center font-black">0{it.quantity}X</span>
+                                           <span className="font-black italic tracking-[0.1em] group-hover:text-indigo-600 transition-colors uppercase text-xl">{it.name}</span>
+                                        </div>
+                                        <span className="text-xs font-black text-black/20">ITEM_STAGED</span>
+                                     </div>
+                                  ))}
+                                </div>
+                            </div>
+                            <div className="pt-6">
+                               <div className="flex justify-between items-end">
+                                  <div className="space-y-2">
+                                     <p className="text-[10px] text-black/30 tracking-[0.4em] font-black uppercase">NET_VALUATION</p>
+                                     <p className="text-5xl font-black italic tracking-tightest">₹{selectedOrder.total?.toLocaleString()}</p>
+                                  </div>
+                                  <div className="text-right">
+                                     <p className="text-[10px] text-black/30 tracking-[0.4em] font-black uppercase mb-2">SECURE_PIN</p>
+                                     <p className="text-3xl font-black tracking-[0.3em] font-mono text-indigo-600">{selectedOrder.deliveryPin || 'SYNCING'}</p>
+                                  </div>
+                               </div>
+                            </div>
                          </div>
-                                   <div className="flex flex-col sm:flex-row gap-4 items-stretch justify-center mt-12">
+                      </div>
+
+                      <div className="flex justify-between items-center border-t-2 border-black/5 pt-12 relative z-10">
+                         <div className="flex flex-col">
+                            <p className="text-[10px] text-black/30 tracking-[0.5em] font-black uppercase mb-6 flex items-center space-x-3">
+                               <ShieldCheck size={12} />
+                               <span>AUTHENTICATION_TAG</span>
+                            </p>
+                            <p className="text-6xl md:text-7xl font-black italic tracking-widest text-black">VAULT-{selectedOrder.id.slice(-10).toUpperCase()}</p>
+                         </div>
+                         <div className="text-right">
+                            <p className="text-[8px] text-black/10 font-bold uppercase tracking-[0.6em] mb-4">LEGAL_RESERVE_RIGHTS</p>
+                            <div className="flex items-center justify-end space-x-10">
+                               <div className="flex flex-col items-center">
+                                  <ShieldCheck size={24} className="text-black/10" />
+                                  <span className="text-[6px] tracking-widest text-black/20 mt-2 font-black">AUTHENTIC</span>
+                               </div>
+                               <div className="flex flex-col items-center">
+                                  <Activity size={24} className="text-black/10" />
+                                  <span className="text-[6px] tracking-widest text-black/20 mt-2 font-black">VERIFIED</span>
+                               </div>
+                            </div>
+                         </div>
+                      </div>
+                   </div>
+
+                   <div className="flex flex-col sm:flex-row gap-4 items-stretch justify-center mt-12 pb-12">
                     <button 
                       onClick={() => downloadReceipt(selectedOrder)}
                       className="flex-1 flex items-center justify-center space-x-4 py-8 rounded-[2.5rem] border border-black/10 bg-white hover:bg-black hover:text-white active:scale-95 transition-all duration-700 font-tech text-[10px] font-black tracking-widest uppercase group/print"
@@ -2233,12 +2419,11 @@ export default function AdminDashboard() {
                       <AlertCircle size={18} strokeWidth={1} className="group-hover/cancel:rotate-90 transition-transform" />
                       <span>TERMINATE_ORDER</span>
                     </button>
-                  </div>      </div>
-     </div>
-                </div>
-              </motion.div>
-            </div>
-          )}
+                    </div>
+                  </div>
+                </motion.div>
+              </div>
+            )}
                 
 
 

@@ -60,27 +60,27 @@ export default function WatchCard({ product }: WatchCardProps) {
       onMouseLeave={handleMouseLeave}
       className="group relative h-full perspective-[1000px] cursor-pointer"
     >
-      <div className="bg-white rounded-[2rem] p-6 md:p-8 luxury-shadow transition-all duration-1000 hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.1)] border border-black/5 flex flex-col h-full relative overflow-hidden group/card scale-[0.98] hover:scale-100">
+      <div className="bg-ivory rounded-[2.5rem] p-8 luxury-shadow transition-all duration-1000 hover:shadow-[0_60px_100px_-20px_rgba(0,0,0,0.15)] border border-charcoal/5 flex flex-col h-full relative overflow-hidden group/card scale-[0.98] hover:scale-100">
         
         {/* Luxury Background Detail */}
         <div className="absolute top-0 right-0 p-8 opacity-[0.02] pointer-events-none -rotate-12 translate-x-1/4 -translate-y-1/4 group-hover/card:opacity-[0.05] transition-opacity duration-1000">
-           <Star size={300} strokeWidth={1} />
+           <Star size={300} strokeWidth={1} className="text-charcoal" />
         </div>
 
-        <div className="flex items-center justify-between mb-8 relative z-10 transition-transform duration-700 translate-z-[40px]">
-          <span className="font-mono text-black/40 tracking-widest text-[9px] font-bold uppercase">CODE_{product.id.slice(-6)}</span>
+        <div className="flex items-center justify-between mb-10 relative z-10 transition-transform duration-700 translate-z-[40px]">
+          <span className="font-mono text-charcoal/40 tracking-[0.4em] text-[9px] font-black uppercase">CALIBER_{product.id.slice(-6).toUpperCase()}</span>
           <div className="flex items-center space-x-1 opacity-20">
             {[...Array(5)].map((_, i) => (
-              <Star key={i} size={8} className={`${i < Math.floor(product.rating) ? 'text-black fill-black' : 'text-black/10'}`} />
+              <Star key={i} size={10} className={`${i < Math.floor(product.rating) ? 'text-charcoal fill-charcoal' : 'text-charcoal/10'}`} />
             ))}
           </div>
         </div>
 
         <Link 
           to={`/product/${product.id}`} 
-          className="relative aspect-square mb-10 rounded-2xl overflow-hidden group/img block transition-transform duration-700 translate-z-[60px] bg-[#fdfdfd] border border-black/5"
+          className="relative aspect-square mb-12 rounded-[2rem] overflow-hidden group/img block transition-transform duration-700 translate-z-[60px] bg-soft-silver border border-charcoal/5"
         >
-          <div className="w-full h-full flex flex-col items-center justify-center bg-neutral-50 group-hover/img:bg-neutral-100 transition-colors duration-1000">
+          <div className="w-full h-full flex flex-col items-center justify-center transition-colors duration-1000">
             {product.images && product.images.length > 0 ? (
               <img 
                 src={product.images[0]} 
@@ -93,45 +93,44 @@ export default function WatchCard({ product }: WatchCardProps) {
                 <div className="font-display text-9xl opacity-[0.03] select-none group-hover/img:opacity-[0.08] transition-opacity duration-1000 pointer-events-none">
                   {product.name.split(' ').map(n => n[0]).join('')}
                 </div>
-                <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center">
-                  <div className="w-1/4 h-[1px] bg-black/10 mb-6 scale-x-0 group-hover/img:scale-x-150 transition-transform duration-1000" />
-                  <span className="font-mono text-[8px] tracking-[0.6em] text-black/30 opacity-0 group-hover/img:opacity-100 transition-opacity duration-1000 uppercase font-black">Geometric_Asset</span>
-                </div>
               </>
             )}
           </div>
           
           <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity duration-700">
-            <div className="w-16 h-16 rounded-full bg-white/90 backdrop-blur-md flex items-center justify-center text-black shadow-2xl scale-50 group-hover/img:scale-100 transition-transform duration-700">
-               <ArrowUpRight size={24} strokeWidth={1} />
+            <div className="w-18 h-18 rounded-full bg-charcoal text-ivory flex items-center justify-center shadow-2xl scale-50 group-hover/img:scale-100 transition-transform duration-700">
+               <ArrowUpRight size={24} strokeWidth={1.5} />
             </div>
           </div>
           
           {product.isLimited && (
-            <div className="absolute bottom-6 left-6 bg-black px-5 py-2 rounded-full">
-               <span className="font-mono text-[8px] tracking-widest font-bold text-white uppercase">LIMITED</span>
+            <div className="absolute bottom-8 left-8 bg-luxury-gold px-6 py-2 rounded-full shadow-lg">
+               <span className="font-mono text-[8px] tracking-[0.2em] font-black text-charcoal uppercase text-xs">LIMITED_EDITION</span>
             </div>
           )}
         </Link>
 
-        <div className="flex-grow space-y-4 relative z-10 translate-z-[20px]">
+        <div className="flex-grow space-y-6 relative z-10 translate-z-[20px]">
           <div className="flex flex-col">
-            <span className="font-mono text-black/30 tracking-widest text-[9px] mb-2 uppercase font-bold">{product.brand}</span>
-            <h3 className="text-3xl font-display text-black leading-tight group-hover/card:translate-x-2 transition-transform duration-700">
+            <div className="flex items-center space-x-3 mb-2">
+               <div className="w-1 h-1 rounded-full bg-luxury-gold" />
+               <span className="font-mono text-charcoal/30 tracking-[0.3em] text-[9px] uppercase font-black">{product.brand}</span>
+            </div>
+            <h3 className="text-4xl font-display text-charcoal leading-tight group-hover/card:translate-x-3 transition-transform duration-1000 font-medium">
               {product.name}
             </h3>
           </div>
         </div>
 
-        <div className="mt-10 flex items-center justify-between relative z-10 translate-z-[50px]">
+        <div className="mt-12 flex items-center justify-between relative z-10 translate-z-[50px]">
           <div className="flex flex-col">
-            <span className="font-mono text-black/30 text-[8px] mb-1 tracking-widest uppercase font-bold">VALUATION</span>
-            <div className="flex items-baseline space-x-2">
-              <span className="text-2xl font-mono tracking-tighter font-black text-black">
+            <span className="font-mono text-charcoal/30 text-[8px] mb-2 tracking-[0.4em] uppercase font-black">VALUATION</span>
+            <div className="flex items-baseline space-x-3">
+              <span className="text-3xl font-display font-medium tracking-tight text-charcoal">
                 ₹{discountPrice.toLocaleString()}
               </span>
               {product.discount && (
-                <span className="text-xs font-mono text-black/20 line-through">₹{product.price.toLocaleString()}</span>
+                <span className="text-sm font-mono text-charcoal/20 line-through">₹{product.price.toLocaleString()}</span>
               )}
             </div>
           </div>
@@ -142,11 +141,14 @@ export default function WatchCard({ product }: WatchCardProps) {
               addToCart(product);
               toast.success(`${product.name} Added to Vault`);
             }}
-            className="w-14 h-14 bg-black text-white rounded-full flex items-center justify-center luxury-shadow hover:bg-neutral-800 transition-all active:scale-90"
+            className="w-16 h-16 bg-luxury-gold text-charcoal rounded-full flex items-center justify-center shadow-xl hover:shadow-2xl transition-all active:scale-90"
           >
-            <Plus size={24} strokeWidth={1} />
+            <Plus size={28} strokeWidth={1.5} />
           </MagneticButton>
         </div>
+        
+        {/* Animated Gold Border on Hover */}
+        <div className="absolute inset-x-12 bottom-0 h-[3px] bg-luxury-gold scale-x-0 group-hover:scale-x-100 transition-transform duration-1000 origin-center" />
       </div>
     </motion.div>
   );

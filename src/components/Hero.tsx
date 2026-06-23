@@ -1,115 +1,188 @@
-import React, { useEffect, useRef } from 'react';
-import { motion } from 'motion/react';
-import { Watch3D } from './Watch3D';
-import { MagneticButton } from './MagneticButton';
-import gsap from 'gsap';
-import { ChevronRight, Play } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../context/AuthContext';
+import { ChevronRight, ChevronLeft } from 'lucide-react';
 
-export default function Hero() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const titleRef1 = useRef<HTMLSpanElement>(null);
-  const titleRef2 = useRef<HTMLSpanElement>(null);
-  const subtitleRef = useRef<HTMLDivElement>(null);
-  const ctaRef = useRef<HTMLDivElement>(null);
+const Hero = () => {
+  const [banners, setBanners] = useState<any[]>([]);
+  const [offers, setOffers] = useState<any[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const ctx = gsap.context(() => {
-      const tl = gsap.timeline({ defaults: { ease: "power4.out" } });
+    const fetchData = async () => {
+      try {
+        if (!db) {
+          console.error('Firestore db is not initialized');
+          return;
+        }
 
-      tl.from([titleRef1.current, titleRef2.current], {
-        y: 150,
-        opacity: 0,
-        rotateX: -30,
-        duration: 2,
-        stagger: 0.2
-      })
-      .from(subtitleRef.current, {
-        y: 50,
-        opacity: 0,
-        duration: 1.5
-      }, "-=1.5")
-      .from(ctaRef.current, {
-        scale: 0.8,
-        opacity: 0,
-        duration: 1
-      }, "-=1");
-    }, containerRef);
+        // Fetch banners and offers in parallel with independent error handling
+        const [bSnapResult, oSnapResult] = await Promise.allSettled([
+          getDocs(collection(db, 'banners')),
+          getDocs(collection(db, 'offers'))
+        ]);
 
-    return () => ctx.revert();
+        if (bSnapResult.status === 'fulfilled') {
+          const bannerList = bSnapResult.value.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          setBanners(bannerList);
+        } else {
+          console.error('Permission/Error fetching banners:', bSnapResult.reason);
+        }
+
+        if (oSnapResult.status === 'fulfilled') {
+          const offerList = oSnapResult.value.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          setOffers(offerList);
+        } else {
+          console.error('Permission/Error fetching offers:', oSnapResult.reason);
+        }
+      } catch (error) {
+        console.error('Hero generic fetch error:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
   }, []);
 
-  return (
-    <div ref={containerRef} className="relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-white pt-24">
-      
-      {/* Ambient Background Detail */}
-      <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-gradient-to-b from-white via-neutral-50/50 to-white" />
-        <div className="absolute inset-0 opacity-[0.03] pointer-events-none" 
-             style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
-      </div>
+  useEffect(() => {
+    if (banners.length > 1) {
+      const timer = setInterval(() => {
+        setCurrentIndex((prev) => (prev + 1) % banners.length);
+      }, 5000);
+      return () => clearInterval(timer);
+    }
+  }, [banners.length]);
 
-      <div className="container mx-auto px-6 md:px-12 grid grid-cols-12 items-center relative z-10">
-        
-        {/* Left: Text Content */}
-        <div className="col-span-12 lg:col-span-6 flex flex-col items-start space-y-12 mb-20 lg:mb-0">
-          <div ref={subtitleRef} className="flex items-center space-x-6 opacity-40">
-             <div className="w-1.5 h-1.5 bg-black rounded-full" />
-             <span className="font-tech text-xs tracking-[0.6em] uppercase text-black">CRAFTED FOR THOSE WHO LEAD</span>
-          </div>
+  const nextBanner = () => {
+    setCurrentIndex((prev) => (prev + 1) % banners.length);
+  };
 
-          <h1 className="text-[12vw] lg:text-[9rem] font-display font-medium leading-[0.85] text-black tracking-tightest flex flex-col">
-            <span ref={titleRef1} className="block">TIME DEFINES</span> 
-            <span ref={titleRef2} className="opacity-20 block">GREATNESS.</span>
-          </h1>
+  const prevBanner = () => {
+    setCurrentIndex((prev) => (prev - 1 + banners.length) % banners.length);
+  };
 
-          <div className="max-w-xl space-y-12" ref={ctaRef}>
-            <p className="text-black/60 text-xl md:text-2xl font-light leading-relaxed">
-              Experience the pinnacle of horological engineering. A masterclass in precision, designed for the visionaries of tomorrow.
-            </p>
-
-            <div className="flex flex-wrap items-center gap-8">
-               <MagneticButton>
-                  <button className="btn-luxury px-10 py-5">
-                    EXPLORE COLLECTION
-                  </button>
-               </MagneticButton>
-               
-               <button className="flex items-center space-x-4 group">
-                  <div className="w-16 h-16 rounded-full glass border border-black/5 flex items-center justify-center group-hover:bg-black group-hover:text-white transition-all duration-700">
-                     <Play size={20} fill="currentColor" strokeWidth={0} />
-                  </div>
-                  <span className="font-tech text-[10px] tracking-widest text-black/60 group-hover:text-black transition-colors uppercase">WATCH_FILM</span>
-               </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Right: 3D Watch Model */}
-        <div className="col-span-12 lg:col-span-6 flex items-center justify-center relative">
-           <div className="absolute inset-0 bg-black/5 blur-[120px] rounded-full scale-150 animate-pulse" />
-           <Watch3D />
-           
-           {/* Technical Specs Floating Markup */}
-           <div className="absolute -right-10 top-1/4 hidden xl:block">
-              <div className="glass p-6 rounded-3xl border-black/5 luxury-shadow space-y-4">
-                 <div className="space-y-1">
-                    <span className="block font-tech text-[8px] text-black/30 tracking-widest uppercase">MATERIAL</span>
-                    <span className="block font-tech text-[10px] text-black font-black">PLATINUM_CORE</span>
-                 </div>
-                 <div className="w-full h-px bg-black/5" />
-                 <div className="space-y-1">
-                    <span className="block font-tech text-[8px] text-black/30 tracking-widest uppercase">RESERVE</span>
-                    <span className="block font-tech text-[10px] text-black font-black">120_HOUR_CALIBER</span>
-                 </div>
-              </div>
-           </div>
-        </div>
-      </div>
-
-      <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center space-y-4 opacity-20">
-         <span className="font-tech text-[8px] tracking-[1em] uppercase ml-[1em] text-black">SCROLL</span>
-         <div className="w-px h-12 bg-gradient-to-b from-black to-transparent" />
+  if (loading) return (
+    <div className="h-[80vh] w-full bg-neutral-50 flex items-center justify-center">
+      <div className="space-y-4 text-center">
+        <div className="w-12 h-12 border-t-2 border-black rounded-full animate-spin mx-auto" />
+        <p className="font-tech text-[10px] tracking-widest text-black/20 uppercase">SYNCHRONIZING_EXPERIENCE</p>
       </div>
     </div>
   );
-}
+
+  return (
+    <section className="relative w-full overflow-hidden">
+      {/* Ticker / Scrolling Offers */}
+      {offers.length > 0 && (
+        <div className="w-full bg-black py-4 overflow-hidden border-y border-white/5">
+          <div className="flex whitespace-nowrap animate-marquee">
+            {[...offers, ...offers, ...offers].map((offer, idx) => (
+              <div key={`${offer.id}-${idx}`} className="flex items-center space-x-8 px-8">
+                <span className="font-tech text-[10px] md:text-sm text-white tracking-[0.4em] font-black uppercase">
+                  {offer.text}
+                </span>
+                <div className="w-2 h-2 bg-gold rounded-full shadow-[0_0_10px_#c5a059]" />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Banner Carousel */}
+      <div className="relative h-[65vh] md:h-[85vh] w-full bg-noir overflow-hidden">
+        <AnimatePresence mode="wait">
+          {banners.length > 0 ? (
+            <motion.div
+              key={currentIndex}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+              className="absolute inset-0"
+            >
+              <picture>
+                <source media="(max-width: 768px)" srcSet={banners[currentIndex].mobileImageUrl || banners[currentIndex].imageUrl} />
+                <img 
+                  src={banners[currentIndex].imageUrl} 
+                  alt={banners[currentIndex].title}
+                  className="w-full h-full object-cover grayscale-[0.2] hover:grayscale-0 transition-all duration-1000"
+                />
+              </picture>
+              <div className="absolute inset-0 bg-gradient-to-t from-noir via-transparent to-transparent opacity-60" />
+              <div className="absolute inset-0 bg-black/20" />
+              
+              <div className="absolute bottom-20 left-10 md:left-24 max-w-4xl space-y-8">
+                <motion.div
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3, duration: 1 }}
+                >
+                  <p className="font-tech text-gold text-xs md:text-sm tracking-[0.5em] font-black uppercase mb-6 drop-shadow-2xl">
+                    {banners[currentIndex].subtitle || 'COLLECTION_INDEX_001'}
+                  </p>
+                  <h1 className="text-6xl md:text-8xl xl:text-9xl font-display italic tracking-tightest leading-none text-white drop-shadow-2xl mb-10">
+                    {banners[currentIndex].title}
+                  </h1>
+                  {banners[currentIndex].link && (
+                    <a 
+                      href={banners[currentIndex].link}
+                      className="inline-flex items-center space-x-6 group"
+                    >
+                      <div className="w-16 h-16 rounded-full border border-white/20 flex items-center justify-center group-hover:bg-white group-hover:text-black transition-all duration-700">
+                        <ChevronRight size={20} />
+                      </div>
+                      <span className="font-tech text-[10px] text-white tracking-[0.5em] font-black uppercase group-hover:translate-x-2 transition-transform duration-700">
+                        EXPLORE_ARCHIVE
+                      </span>
+                    </a>
+                  )}
+                </motion.div>
+              </div>
+            </motion.div>
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-noir">
+               <div className="text-center space-y-6">
+                  <h2 className="text-4xl font-display italic text-white/10 uppercase tracking-widest">Awaiting_Visual_Feed</h2>
+                  <p className="font-tech text-[10px] text-white/5 uppercase tracking-[0.5em]">SYSTEM_READY_FOR_DEPLOYMENT</p>
+               </div>
+            </div>
+          )}
+        </AnimatePresence>
+
+        {/* Controls */}
+        {banners.length > 1 && (
+          <div className="absolute bottom-10 right-10 md:right-24 flex items-center space-x-6 z-20">
+            <button onClick={prevBanner} className="w-14 h-14 rounded-full border border-white/10 flex items-center justify-center text-white/40 hover:text-white hover:border-white transition-all duration-700">
+              <ChevronLeft size={20} />
+            </button>
+            <div className="flex space-x-3">
+              {banners.map((_, i) => (
+                <div 
+                  key={i} 
+                  className={`h-1 transition-all duration-1000 rounded-full ${i === currentIndex ? 'w-12 bg-gold' : 'w-4 bg-white/20'}`} 
+                />
+              ))}
+            </div>
+            <button onClick={nextBanner} className="w-14 h-14 rounded-full border border-white/10 flex items-center justify-center text-white/40 hover:text-white hover:border-white transition-all duration-700">
+              <ChevronRight size={20} />
+            </button>
+          </div>
+        )}
+      </div>
+
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes marquee {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        .animate-marquee {
+          animation: marquee 30s linear infinite;
+        }
+      `}} />
+    </section>
+  );
+};
+
+export default Hero;

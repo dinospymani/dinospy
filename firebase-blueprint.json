@@ -110,6 +110,19 @@
       },
       "required": ["imageUrl", "title", "active"]
     },
+    "Offer": {
+      "title": "Scrolling Offer",
+      "description": "Short text offers that scroll on the homepage.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "text": { "type": "string" },
+        "link": { "type": "string" },
+        "active": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["text", "active"]
+    },
     "Notification": {
       "title": "App Notification",
       "description": "Global or user-specific notifications.",
@@ -124,31 +137,38 @@
       },
       "required": ["title", "message", "type", "createdAt"]
     },
-    "SupportChat": {
-      "title": "Support Chat",
-      "description": "Support channel between user and admin.",
+    "SupportTicket": {
+      "title": "Support Ticket",
+      "description": "Support inquiry from a user.",
       "type": "object",
       "properties": {
+        "userId": { "type": "string" },
         "userName": { "type": "string" },
         "userEmail": { "type": "string" },
+        "subject": { "type": "string" },
+        "category": { "type": "string" },
+        "status": { "type": "string", "enum": ["OPEN", "RESOLVED", "CLOSED"] },
         "lastMessage": { "type": "string" },
         "lastActive": { "type": "string", "format": "date-time" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" },
         "unreadByAdmin": { "type": "boolean" },
         "unreadByUser": { "type": "boolean" }
-      }
+      },
+      "required": ["userId", "subject", "status"]
     },
     "SupportMessage": {
       "title": "Support Message",
-      "description": "Individual message in a support chat.",
+      "description": "Individual message in a support ticket.",
       "type": "object",
       "properties": {
         "text": { "type": "string" },
         "senderId": { "type": "string" },
         "senderName": { "type": "string" },
-        "timestamp": { "type": "string", "format": "date-time" },
-        "isAdmin": { "type": "boolean" }
+        "sender": { "type": "string", "enum": ["user", "admin"] },
+        "timestamp": { "type": "string", "format": "date-time" }
       },
-      "required": ["text", "senderId", "timestamp"]
+      "required": ["text", "senderId", "timestamp", "sender"]
     }
   },
   "firestore": {
@@ -180,17 +200,21 @@
       "schema": "Banner",
       "description": "Homepage promotional banners."
     },
+    "/offers/{offerId}": {
+      "schema": "Offer",
+      "description": "Scrolling announcement offers."
+    },
     "/notifications/{notificationId}": {
       "schema": "Notification",
       "description": "Global application notifications."
     },
-    "/support_chats/{userId}": {
-      "schema": "SupportChat",
-      "description": "Support chat metadata."
+    "/support_tickets/{ticketId}": {
+      "schema": "SupportTicket",
+      "description": "Support ticket metadata."
     },
-    "/support_chats/{userId}/messages/{messageId}": {
+    "/support_tickets/{ticketId}/messages/{messageId}": {
       "schema": "SupportMessage",
-      "description": "Support chat messages."
+      "description": "Support ticket messages."
     }
   }
 }

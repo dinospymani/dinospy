@@ -20,13 +20,15 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
 import { SmoothScroll } from './components/SmoothScroll';
 import { Preloader } from './components/Preloader';
 import { FloatingBottomNav } from './components/FloatingBottomNav';
-import SupportChat from './components/SupportChat';
 import GlobalLoader from './components/GlobalLoader';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from './context/AuthContext';
 import { Toaster, toast } from 'sonner';
 import AuthModal from './components/AuthModal';
 import { Shield, Lock, Activity, Wifi } from 'lucide-react';
+
+import SupportHubPage from './pages/SupportHubPage';
+import OrderTrackingPage from './pages/OrderTrackingPage';
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -74,6 +76,8 @@ function AnimatedRoutes() {
         <Route path="/checkout" element={<ProtectedRoute><PageTransition><CheckoutPage /></PageTransition></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><PageTransition><ProfilePage /></PageTransition></ProtectedRoute>} />
         <Route path="/faq" element={<PageTransition><FAQPage /></PageTransition>} />
+        <Route path="/support" element={<ProtectedRoute><PageTransition><SupportHubPage /></PageTransition></ProtectedRoute>} />
+        <Route path="/track" element={<PageTransition><OrderTrackingPage /></PageTransition>} />
         <Route path="/privacy" element={<PageTransition><PrivacyPolicy /></PageTransition>} />
         <Route path="/partner/:orderId" element={<PageTransition><PartnerPortal /></PageTransition>} />
         <Route path="/admin" element={<ProtectedRoute adminOnly><PageTransition><AdminDashboard /></PageTransition></ProtectedRoute>} />
@@ -191,7 +195,6 @@ export default function App() {
                   <AuthModal />
                   <AnimatedRoutes />
                   <FloatingBottomNav />
-                  <SupportChat />
                 </div>
               </MaintenanceGuard>
             </SmoothScroll>

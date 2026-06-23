@@ -8,85 +8,85 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-white pt-32 pb-12 border-t border-black/5 selection:bg-black selection:text-white">
+    <footer className="bg-ivory pt-32 pb-12 border-t border-charcoal/5 selection:bg-luxury-gold selection:text-charcoal font-sans">
       <div className="container mx-auto px-6 md:px-12">
         <div className="grid grid-cols-12 gap-12 md:gap-24 mb-32">
           
           {/* Brand & Newsletter */}
           <div className="col-span-12 lg:col-span-5 space-y-12">
              <Link to="/" className="flex flex-col items-start group">
-                <span className="font-display text-4xl tracking-[0.4em] text-black font-bold uppercase transition-all duration-700 group-hover:tracking-[0.6em]">DINOSPY</span>
-                <span className="font-mono text-[10px] tracking-widest text-black/40 uppercase mt-2">SWISS HOROLOGY // MASTERPIECE VAULT</span>
+                <span className="font-display text-4xl tracking-[0.5em] text-charcoal font-bold uppercase transition-all duration-1000 group-hover:tracking-[0.7em]">DINOSPY</span>
+                <span className="font-mono text-[9px] tracking-[0.4em] text-charcoal/40 uppercase mt-4 font-black">HOROLOGICAL_VAULT // EST_2024</span>
              </Link>
 
-             <div className="space-y-6 max-w-sm">
-                <p className="text-black/60 text-lg font-light leading-relaxed">Join the inner circle of horological excellence. Be the first to witness our limited edition releases.</p>
+             <div className="space-y-8 max-w-sm">
+                <p className="text-charcoal/60 text-lg font-light leading-relaxed">Join the inner circle of horological excellence. Be the first to witness our limited edition releases.</p>
                 <div className="relative group">
                    <input 
                      type="email" 
-                     placeholder="EMAIL ADDRESS"
-                     className="w-full bg-transparent border-b border-black/10 py-6 px-4 font-mono text-[10px] tracking-[0.4em] outline-none focus:border-black transition-colors text-black uppercase"
+                     placeholder="VAULT_CREDENTIALS@EMAIL"
+                     className="w-full bg-transparent border-b border-charcoal/10 py-6 px-4 font-mono text-[10px] tracking-[0.5em] outline-none focus:border-luxury-gold transition-colors text-charcoal uppercase font-bold"
                    />
-                   <button className="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-black/20 group-hover:text-black transition-colors">
-                      <Mail size={18} strokeWidth={1} />
+                   <button className="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-charcoal/20 group-hover:text-luxury-gold transition-colors">
+                      <Mail size={18} strokeWidth={1.5} />
                    </button>
                 </div>
              </div>
           </div>
 
           {/* Navigation Links */}
-          <div className="col-span-6 lg:col-span-2 space-y-8">
-             <span className="block font-mono text-[10px] tracking-widest text-black font-bold uppercase">COLLECTIONS</span>
-             <ul className="space-y-4">
-                {['DIVER', 'CLASSIC', 'VANGUARD', 'CHRONOGRAPH'].map(item => (
+          <div className="col-span-6 lg:col-span-2 space-y-10">
+             <span className="block font-mono text-[10px] tracking-[0.5em] text-charcoal font-black uppercase">CURATIONS</span>
+             <ul className="space-y-5">
+                {['DIVER', 'CLASSIC', 'VANGUARD', 'GRAND_COMPLICATIONS'].map(item => (
                   <li key={item}>
-                    <Link to="/explore" className="text-black/40 hover:text-black transition-colors font-mono text-[9px] tracking-[0.4em] uppercase">{item}</Link>
+                    <Link to="/explore" className="text-charcoal/40 hover:text-luxury-gold transition-colors font-mono text-[9px] tracking-[0.4em] uppercase font-bold">{item}</Link>
                   </li>
                 ))}
              </ul>
           </div>
 
-          <div className="col-span-6 lg:col-span-2 space-y-8">
-             <span className="block font-mono text-[10px] tracking-widest text-black font-bold uppercase">SERVICE</span>
-             <ul className="space-y-4">
-                {['SHIPPING', 'WARRANTY', 'SERVICING', 'AUTHENTICITY'].map(item => (
+          <div className="col-span-6 lg:col-span-2 space-y-10">
+             <span className="block font-mono text-[10px] tracking-[0.5em] text-charcoal font-black uppercase">PROTOCOLS</span>
+             <ul className="space-y-5">
+                {['SHIPPING', 'WARRANTY', 'TRACK_ACQUISITION', 'AUTHENTICITY'].map(item => (
                   <li key={item}>
-                    <Link to="/faq" className="text-black/40 hover:text-black transition-colors font-mono text-[9px] tracking-[0.4em] uppercase">{item}</Link>
+                    <Link to={item === 'TRACK_ACQUISITION' ? '/track' : '/faq'} className="text-charcoal/40 hover:text-luxury-gold transition-colors font-mono text-[9px] tracking-[0.4em] uppercase font-bold">{item}</Link>
                   </li>
                 ))}
              </ul>
           </div>
 
-          <div className="col-span-12 lg:col-span-3 space-y-8 text-left md:text-right flex flex-col md:items-end">
-             <span className="block font-mono text-[10px] tracking-widest text-black font-bold uppercase">CONNECT</span>
+          <div className="col-span-12 lg:col-span-3 space-y-10 text-left md:text-right flex flex-col md:items-end">
+             <span className="block font-mono text-[10px] tracking-[0.5em] text-charcoal font-black uppercase">CHANNELS</span>
              <div className="flex space-x-6">
                 {[Instagram, Twitter, Facebook, Youtube].map((Icon, i) => (
                   <MagneticButton key={i}>
-                    <a href="#" className="w-12 h-12 rounded-full border border-black/5 flex items-center justify-center hover:bg-black hover:text-white transition-all">
+                    <a href="#" className="w-14 h-14 rounded-full border border-charcoal/5 flex items-center justify-center hover:bg-charcoal hover:text-ivory transition-all duration-700">
                        <Icon size={18} strokeWidth={1} />
                     </a>
                   </MagneticButton>
                 ))}
              </div>
-             <div className="pt-8 block">
-                <span className="font-mono text-[8px] text-black/20 tracking-widest uppercase block mb-2">HEADQUARTERS</span>
-                <span className="font-mono text-[10px] text-black uppercase">GENEVA // ZURICH</span>
+             <div className="pt-12 block">
+                <span className="font-mono text-[8px] text-charcoal/20 tracking-[0.6em] uppercase block mb-4 font-black">LOGISTICS_NODES</span>
+                <span className="font-mono text-[10px] text-charcoal uppercase font-bold tracking-widest leading-loose">GENEVA // ZURICH // MUMBAI</span>
              </div>
           </div>
 
         </div>
 
         {/* Footer Bottom */}
-        <div className="flex flex-col md:flex-row justify-between items-center pt-12 border-t border-black/5 gap-8">
-           <div className="flex flex-col md:flex-row items-center gap-4 md:gap-12">
-              <span className="font-mono text-[8px] text-black/40 tracking-widest">© {currentYear} DINOSPY HANDCRAFTED</span>
-              <span className="font-mono text-[8px] text-black/40 tracking-widest hidden md:block uppercase leading-none">All Rights Reserved</span>
-              <span className="font-mono text-[8px] text-black/40 tracking-widest uppercase">Proudly made with ❤️ in India</span>
+        <div className="flex flex-col md:flex-row justify-between items-center pt-16 border-t border-charcoal/5 gap-12">
+           <div className="flex flex-col md:flex-row items-center gap-6 md:gap-16">
+              <span className="font-mono text-[9px] text-charcoal/40 tracking-[0.4em] font-black italic uppercase">© {currentYear} DINOSPY_SYSTEMS</span>
+              <div className="w-1.5 h-1.5 rounded-full bg-luxury-gold opacity-30 hidden md:block" />
+              <span className="font-mono text-[9px] text-charcoal/40 tracking-[0.4em] uppercase font-black">CRAFTED_IN_INDIA</span>
            </div>
            
            <div className="flex space-x-12">
-              <Link to="/privacy" className="font-mono text-[8px] text-black/40 tracking-widest hover:text-black transition-colors uppercase">PRIVACY POLICY</Link>
-              <Link to="/faq" className="font-mono text-[8px] text-black/40 tracking-widest hover:text-black transition-colors uppercase">TERMS OF SERVICE</Link>
+              <Link to="/privacy" className="font-mono text-[9px] text-charcoal/40 tracking-[0.4em] hover:text-charcoal transition-colors uppercase font-black">PRIVACY</Link>
+              <Link to="/faq" className="font-mono text-[9px] text-charcoal/40 tracking-[0.4em] hover:text-charcoal transition-colors uppercase font-black">TERMS</Link>
            </div>
         </div>
       </div>

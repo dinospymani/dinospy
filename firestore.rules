@@ -37,6 +37,19 @@ service cloud.firestore {
     function existing() { return resource.data; }
 
     // ------------------------------------------------------------
+    // PUBLIC ASSETS (Banners, Offers)
+    // ------------------------------------------------------------
+    match /banners/{bannerId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /offers/{offerId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ------------------------------------------------------------
     // PRODUCTS COLLECTION
     // ------------------------------------------------------------
     match /products/{productId} {
@@ -89,13 +102,6 @@ service cloud.firestore {
       allow write: if isStaff();
     }
 
-    // ------------------------------------------------------------
-    // BANNERS COLLECTION
-    // ------------------------------------------------------------
-    match /banners/{bannerId} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
 
     // ------------------------------------------------------------
     // SETTINGS COLLECTION
@@ -122,15 +128,17 @@ service cloud.firestore {
     }
 
     // ------------------------------------------------------------
-    // SUPPORT CHATS COLLECTION
+    // SUPPORT TICKETS COLLECTION
     // ------------------------------------------------------------
-    match /support_chats/{userId} {
-      allow read: if isOwner(userId) || isStaff();
-      allow write: if isOwner(userId) || isStaff();
+    match /support_tickets/{ticketId} {
+      allow read: if isSignedIn() && (resource.data.userId == request.auth.uid || isStaff());
+      allow create: if isSignedIn() && incoming().userId == request.auth.uid;
+      allow update: if isSignedIn() && (resource.data.userId == request.auth.uid || isStaff());
+      allow delete: if isAdmin();
       
       match /messages/{messageId} {
-        allow read: if isOwner(userId) || isStaff();
-        allow write: if isOwner(userId) || isStaff();
+        allow read: if isSignedIn() && (get(/databases/$(database)/documents/support_tickets/$(ticketId)).data.userId == request.auth.uid || isStaff());
+        allow write: if isSignedIn() && (get(/databases/$(database)/documents/support_tickets/$(ticketId)).data.userId == request.auth.uid || isStaff());
       }
     }
 
