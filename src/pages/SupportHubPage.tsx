@@ -36,6 +36,8 @@ export default function SupportHubPage() {
         const updated = ticketList.find(t => t.id === activeTicket.id);
         if (updated) setActiveTicket(updated);
       }
+    }, (err) => {
+      console.warn("Ticket vault restricted:", err);
     });
 
     return () => unsubscribe();
@@ -55,6 +57,8 @@ export default function SupportHubPage() {
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const messageList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setMessages(messageList);
+    }, (err) => {
+      console.warn("Message sequence isolated:", err);
     });
 
     return () => unsubscribe();

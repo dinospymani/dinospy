@@ -71,6 +71,8 @@ export default function HomePage() {
     const qGallery = query(collection(db, 'gallery'), limit(12));
     const unsubGallery = onSnapshot(qGallery, (snap) => {
       setGalleryItems(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    }, (error) => {
+      console.warn("Gallery sync restricted:", error);
     });
 
     return () => {

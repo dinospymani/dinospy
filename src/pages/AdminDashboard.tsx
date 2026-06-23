@@ -4,7 +4,7 @@ import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc, onSnapshot, que
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import MobileNav from '../components/MobileNav';
-import { Plus, Trash2, Edit, Save, Package, QrCode, Printer, X, Truck, Loader2, ChevronLeft, TrendingUp, DollarSign, ShoppingBag, AlertCircle, BarChart2, Bell, ArrowLeft, Megaphone, Check, Zap, Clock, Shield, Lock, Eye, EyeOff, Database, ArrowRight, ShieldAlert, AlertTriangle, ShieldCheck, Cpu, Activity, Wifi, Image as ImageIcon, MessageSquare, Send, User, Mail, Phone } from 'lucide-react';
+import { Plus, Trash2, Edit, Save, Package, QrCode, Printer, X, Truck, Loader2, ChevronLeft, TrendingUp, DollarSign, ShoppingBag, AlertCircle, BarChart2, Bell, ArrowLeft, Megaphone, Check, Zap, Clock, Shield, Lock, Eye, EyeOff, Database, ArrowRight, ShieldAlert, AlertTriangle, ShieldCheck, Cpu, Activity, Wifi, Image as ImageIcon, MessageSquare, Send, User, Mail, Phone, Upload } from 'lucide-react';
 import { motion } from 'motion/react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { QRCodeSVG } from 'qrcode.react';
@@ -289,6 +289,7 @@ export default function AdminDashboard() {
   const [broadcastMessage, setBroadcastMessage] = useState('');
   const [broadcastType, setBroadcastType] = useState<'offer' | 'trending' | 'new_arrival' | 'general'>('general');
   const [broadcastLink, setBroadcastLink] = useState('');
+  const [isAddingGallery, setIsAddingGallery] = useState(false);
   const [galleryImageUrl, setGalleryImageUrl] = useState('');
   const [galleryLabel, setGalleryLabel] = useState('');
   const [galleryAspect, setGalleryAspect] = useState<'aspect-square' | 'aspect-[3/4]' | 'aspect-[4/5]'>('aspect-square');
@@ -927,7 +928,7 @@ export default function AdminDashboard() {
   const handleAddGalleryItem = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!galleryImageUrl) {
-      toast.warning('Evidence required: Please provide an image URL.');
+      toast.warning('Evidence required: Please provide an image.');
       return;
     }
 
@@ -943,12 +944,24 @@ export default function AdminDashboard() {
       });
       setGalleryImageUrl('');
       setGalleryLabel('');
+      setIsAddingGallery(false);
       toast.success('Visual asset synced with gallery.');
     } catch (error) {
        handleFirestoreError(error, OperationType.WRITE, 'gallery');
        toast.error('Sync failed.');
     } finally {
       setIsSavingGallery(false);
+    }
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setGalleryImageUrl(reader.result as string);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -1990,86 +2003,162 @@ export default function AdminDashboard() {
 
           {view === 'gallery' && (
              <div className="space-y-20 animate-in fade-in duration-1000">
-                <div className="max-w-4xl space-y-12">
-                   <div className="space-y-6">
-                     <div className="flex items-center space-x-6">
-                        <div className="w-3 h-3 bg-black rounded-full" />
-                        <span className="font-tech text-black/30 text-xs tracking-[0.5em] font-black uppercase">VISUAL_ASSETS // GALLERY_INDEX</span>
-                     </div>
-                     <h2 className="text-6xl md:text-8xl font-display italic tracking-tightest leading-none text-black">Gallery <span className="opacity-10 text-black font-sans italic">Curator.</span></h2>
+                <div className="max-w-4xl space-y-6">
+                   <div className="flex items-center space-x-6">
+                      <div className="w-3 h-3 bg-black rounded-full" />
+                      <span className="font-tech text-black/30 text-xs tracking-[0.5em] font-black uppercase">VISUAL_ASSETS // GALLERY_INDEX</span>
                    </div>
-                   
-                   <form onSubmit={handleAddGalleryItem} className="space-y-12 p-12 rounded-[5rem] border border-black/5 bg-neutral-50 shadow-xl relative overflow-hidden group">
-                     <div className="absolute top-0 right-0 p-16 opacity-[0.02] pointer-events-none group-hover:opacity-[0.05] transition-all duration-1000">
-                        <ImageIcon size={400} strokeWidth={1} className="text-black" />
-                     </div>
-
-                     <div className="space-y-12 relative z-10">
-                        <div className="space-y-4">
-                           <label className="font-tech text-black/30 text-[10px] tracking-[0.4em] font-black uppercase">IMAGE_URL</label>
-                           <input 
-                             value={galleryImageUrl} 
-                             onChange={e => setGalleryImageUrl(e.target.value)} 
-                             className="w-full bg-transparent border-b border-black/10 py-5 italic text-sm focus:border-black outline-none transition-all text-black" 
-                             placeholder="https://..." 
-                             required
-                           />
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                           <div className="space-y-4">
-                             <label className="font-tech text-black/30 text-[10px] tracking-[0.4em] font-black uppercase">INITIALS_OR_LABEL</label>
-                             <input 
-                               value={galleryLabel} 
-                               onChange={e => setGalleryLabel(e.target.value)} 
-                               className="w-full bg-transparent border-b border-black/10 py-5 italic text-sm focus:border-black outline-none transition-all text-black uppercase" 
-                               placeholder="DS" 
-                               maxLength={2}
-                             />
-                           </div>
-                           <div className="space-y-4">
-                             <label className="font-tech text-black/30 text-[10px] tracking-[0.4em] font-black uppercase">ASPECT_RATIO</label>
-                             <select
-                               value={galleryAspect}
-                               onChange={(e) => setGalleryAspect(e.target.value as any)}
-                               className="w-full bg-transparent border-b border-black/10 py-5 italic text-sm focus:border-black outline-none transition-all text-black"
-                             >
-                                <option value="aspect-square text-black">SQUARE (1:1)</option>
-                                <option value="aspect-[3/4] text-black">PORTRAIT (3:4)</option>
-                                <option value="aspect-[4/5] text-black">PORTRAIT (4:5)</option>
-                             </select>
-                           </div>
-                        </div>
-                     </div>
-
-                     <button type="submit" disabled={isSavingGallery} className="w-full py-8 bg-black text-white font-tech text-xs tracking-[0.5em] font-black rounded-full hover:shadow-[0_0_50px_rgba(0,0,0,0.1)] transition-all duration-1000 uppercase relative z-10">
-                       {isSavingGallery ? 'SYNCING...' : 'ADD_TO_INDEX'}
-                     </button>
-                   </form>
+                   <div className="flex justify-between items-end">
+                      <h2 className="text-6xl md:text-8xl font-display italic tracking-tightest leading-none text-black">Gallery <span className="opacity-10 text-black font-sans italic">Curator.</span></h2>
+                      {!isAddingGallery && (
+                        <button 
+                          onClick={() => setIsAddingGallery(true)}
+                          className="w-20 h-20 rounded-full bg-black text-white flex items-center justify-center hover:scale-110 transition-all duration-700 luxury-shadow"
+                        >
+                           <Plus size={32} strokeWidth={1} />
+                        </button>
+                      )}
+                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
-                   {galleryItems.map((item) => (
-                      <div key={item.id} className="group relative rounded-[3rem] border border-black/5 overflow-hidden transition-all duration-1000 bg-neutral-50 luxury-shadow">
-                         <div className={`${item.aspect} relative overflow-hidden bg-white`}>
-                             {item.imageUrl ? (
-                                <img src={item.imageUrl} className="w-full h-full object-cover transition-transform duration-[3s] group-hover:scale-110" alt={item.label} />
-                             ) : (
-                                <div className="w-full h-full flex items-center justify-center text-4xl font-display opacity-10">{item.label}</div>
-                             ) }
-                             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 flex items-center justify-center">
-                                <button 
-                                  onClick={() => handleDeleteGalleryItem(item.id)}
-                                  className="w-14 h-14 rounded-2xl bg-white text-black flex items-center justify-center hover:bg-red-500 hover:text-white transition-all transform hover:scale-110"
-                                >
-                                   <Trash2 size={20} strokeWidth={1} />
-                                </button>
+                {isAddingGallery && (
+                  <div className="max-w-4xl space-y-12 animate-in slide-in-from-top duration-700">
+                    <form onSubmit={handleAddGalleryItem} className="space-y-12 p-12 rounded-[5rem] border border-black/5 bg-neutral-50 shadow-xl relative overflow-hidden group">
+                      <div className="absolute top-0 right-0 p-16 opacity-[0.02] pointer-events-none group-hover:opacity-[0.05] transition-all duration-1000">
+                          <ImageIcon size={400} strokeWidth={1} className="text-black" />
+                      </div>
+
+                      <div className="space-y-12 relative z-10">
+                          <div className="flex justify-between items-center">
+                             <label className="font-tech text-black/30 text-[10px] tracking-[0.4em] font-black uppercase">Asset_Source</label>
+                             <button onClick={() => setIsAddingGallery(false)} className="text-black/40 hover:text-black transition-colors">
+                                <X size={20} />
+                             </button>
+                          </div>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                             <div className="space-y-8">
+                                <div className="aspect-[4/5] rounded-[3rem] border-2 border-dashed border-black/10 flex flex-col items-center justify-center space-y-6 bg-white overflow-hidden relative group/upload">
+                                   {galleryImageUrl ? (
+                                     <>
+                                       <img src={galleryImageUrl} className="w-full h-full object-cover" alt="Preview" />
+                                       <button 
+                                         type="button"
+                                         onClick={() => setGalleryImageUrl('')}
+                                         className="absolute top-6 right-6 w-10 h-10 rounded-xl bg-black/80 text-white flex items-center justify-center opacity-0 group-hover/upload:opacity-100 transition-opacity"
+                                       >
+                                          <X size={16} />
+                                       </button>
+                                     </>
+                                   ) : (
+                                     <>
+                                       <div className="w-20 h-20 rounded-full bg-black/5 flex items-center justify-center">
+                                          <Upload size={32} strokeWidth={1} className="text-black/40" />
+                                       </div>
+                                       <div className="text-center">
+                                          <p className="font-tech text-[10px] tracking-widest text-black/40 uppercase font-black">Drop_Asset_Here</p>
+                                          <p className="font-mono text-[8px] text-black/20 uppercase mt-2">OR CLICK TO BROWSE</p>
+                                       </div>
+                                       <input 
+                                         type="file" 
+                                         accept="image/*"
+                                         onChange={handleFileUpload}
+                                         className="absolute inset-0 opacity-0 cursor-pointer" 
+                                       />
+                                     </>
+                                   )}
+                                </div>
+                                
+                                <div className="space-y-4">
+                                   <label className="font-tech text-black/30 text-[10px] tracking-[0.4em] font-black uppercase">Alt_URL (Fallback)</label>
+                                   <input 
+                                     value={galleryImageUrl} 
+                                     onChange={e => setGalleryImageUrl(e.target.value)} 
+                                     className="w-full bg-transparent border-b border-black/10 py-5 italic text-[10px] focus:border-black outline-none transition-all text-black" 
+                                     placeholder="https://..." 
+                                   />
+                                </div>
                              </div>
+
+                             <div className="space-y-12 py-6">
+                                <div className="space-y-4">
+                                   <label className="font-tech text-black/30 text-[10px] tracking-[0.4em] font-black uppercase">Label_Initials</label>
+                                   <input 
+                                     value={galleryLabel} 
+                                     onChange={e => setGalleryLabel(e.target.value)} 
+                                     className="w-full bg-transparent border-b border-black/10 py-5 italic text-5xl font-display focus:border-black outline-none transition-all text-black uppercase" 
+                                     placeholder="DS" 
+                                     maxLength={2}
+                                   />
+                                </div>
+                                <div className="space-y-4">
+                                   <label className="font-tech text-black/30 text-[10px] tracking-[0.4em] font-black uppercase">Aspect_Orientation</label>
+                                   <div className="grid grid-cols-3 gap-4">
+                                      {[
+                                        { id: 'aspect-square', label: '1:1', desc: 'Square' },
+                                        { id: 'aspect-[3/4]', label: '3:4', desc: 'Portrait' },
+                                        { id: 'aspect-[4/5]', label: '4:5', desc: 'Detailed' }
+                                      ].map((opt) => (
+                                        <button
+                                          key={opt.id}
+                                          type="button"
+                                          onClick={() => setGalleryAspect(opt.id as any)}
+                                          className={`py-8 rounded-3xl border transition-all duration-700 flex flex-col items-center space-y-2 ${galleryAspect === opt.id ? 'bg-black border-black text-white shadow-xl' : 'bg-white border-black/5 text-black/40 hover:border-black/10'}`}
+                                        >
+                                           <span className="font-display text-xl">{opt.label}</span>
+                                           <span className="font-tech text-[8px] tracking-[0.2em] font-black uppercase">{opt.desc}</span>
+                                        </button>
+                                      ))}
+                                   </div>
+                                </div>
+                                <div className="pt-12">
+                                  <button type="submit" disabled={isSavingGallery} className="w-full py-8 bg-black text-white font-tech text-xs tracking-[0.5em] font-black rounded-full hover:shadow-[0_0_50px_rgba(0,0,0,0.1)] transition-all duration-1000 uppercase">
+                                    {isSavingGallery ? 'SYNC_IN_PROGRESS...' : 'COMMIT_TO_INDEX'}
+                                  </button>
+                                </div>
+                             </div>
+                          </div>
+                      </div>
+                    </form>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-2 lg:grid-cols-3 gap-12 pt-12">
+                   {!isAddingGallery && (
+                      <button 
+                        onClick={() => setIsAddingGallery(true)}
+                        className="group relative rounded-[4rem] border-2 border-dashed border-black/5 flex flex-col items-center justify-center space-y-4 hover:border-black/20 hover:bg-black/5 transition-all duration-1000 aspect-[3/4]"
+                      >
+                         <div className="w-16 h-16 rounded-full bg-black text-white flex items-center justify-center transform group-hover:scale-110 transition-transform duration-700">
+                            <Plus size={24} />
                          </div>
-                         <div className="p-8">
-                             <div className="flex justify-between items-center">
-                                <span className="font-tech text-[10px] tracking-widest text-black uppercase font-black">{item.label || 'UNTITLED'}</span>
-                                <span className="font-mono text-[8px] text-black/20 uppercase font-black">{item.aspect}</span>
-                             </div>
+                         <span className="font-tech text-[10px] tracking-[0.4em] font-black uppercase text-black/20 group-hover:text-black/40">Append_Visual</span>
+                      </button>
+                   )}
+                   
+                   {galleryItems.map((item, i) => (
+                      <div 
+                        key={item.id} 
+                        className={`group relative rounded-[4rem] border border-black/5 overflow-hidden transition-all duration-1000 bg-neutral-50 shadow-sm hover:shadow-2xl luxury-shadow ${item.aspect} ${i % 4 === 3 ? 'md:-mt-24' : ''}`}
+                      >
+                         {item.imageUrl ? (
+                            <img src={item.imageUrl} className="w-full h-full object-cover transition-transform duration-[4s] group-hover:scale-110" alt={item.label} />
+                         ) : (
+                            <div className="w-full h-full flex items-center justify-center text-8xl font-display opacity-[0.02] select-none">{item.label}</div>
+                         ) }
+                         
+                         {/* Curator Controls */}
+                         <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 flex flex-col items-center justify-center space-y-6">
+                            <div className="text-center space-y-2 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-700">
+                               <p className="font-tech text-white text-[10px] tracking-[0.5em] font-black uppercase">{item.label || 'UNTITLED'}</p>
+                               <p className="font-mono text-white/40 text-[8px] uppercase tracking-widest">{item.aspect}</p>
+                            </div>
+                            <button 
+                              onClick={() => handleDeleteGalleryItem(item.id)}
+                              className="w-16 h-16 rounded-full bg-white text-black flex items-center justify-center hover:bg-red-500 hover:text-white transition-all transform hover:scale-110"
+                            >
+                               <Trash2 size={24} strokeWidth={1} />
+                            </button>
                          </div>
                       </div>
                    ))}
