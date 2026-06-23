@@ -14,9 +14,9 @@ export default function Navbar() {
   const location = useLocation();
 
   const navHeight = useTransform(scrollY, [0, 100], ['6rem', '5rem']);
-  const navBg = useTransform(scrollY, [0, 100], ['rgba(255, 255, 240, 0)', 'rgba(255, 255, 240, 0.98)']);
-  const navBlur = useTransform(scrollY, [0, 100], ['blur(0px)', 'blur(0px)']); // Explicitly no blur as per spec
-  const navBorder = useTransform(scrollY, [0, 100], ['rgba(18, 18, 18, 0)', 'rgba(18, 18, 18, 0.08)']);
+  const navBg = useTransform(scrollY, [0, 100], ['rgba(18, 18, 18, 0)', 'rgba(255, 255, 240, 0.98)']);
+  const navTextColor = useTransform(scrollY, [0, 100], ['rgba(255, 255, 240, 1)', 'rgba(18, 18, 18, 1)']);
+  const navBorder = useTransform(scrollY, [0, 100], ['rgba(255, 255, 240, 0)', 'rgba(18, 18, 18, 0.08)']);
 
   const navLinks = [
     { to: "/explore", label: "COLLECTIONS" },
@@ -30,7 +30,8 @@ export default function Navbar() {
       style={{ 
         height: navHeight,
         backgroundColor: navBg,
-        borderBottomColor: navBorder
+        borderBottomColor: navBorder,
+        color: navTextColor
       }}
       className="fixed top-0 left-0 w-full z-[100] flex items-center border-b transition-all duration-700 font-sans"
     >
@@ -38,11 +39,11 @@ export default function Navbar() {
         
         {/* Left: Search & Wishlist */}
         <div className="hidden lg:flex items-center space-x-8">
-          <MagneticButton className="p-2 text-charcoal/40 hover:text-luxury-gold transition-colors">
+          <MagneticButton className="p-2 hover:text-luxury-gold transition-colors">
             <Search size={18} strokeWidth={1.5} />
           </MagneticButton>
           <Link to="/wishlist">
-            <MagneticButton className="p-2 text-charcoal/40 hover:text-luxury-gold transition-colors">
+            <MagneticButton className="p-2 hover:text-luxury-gold transition-colors">
               <Heart size={18} strokeWidth={1.5} />
             </MagneticButton>
           </Link>
@@ -50,13 +51,13 @@ export default function Navbar() {
 
         {/* Center: Branding */}
         <Link to="/" className="flex flex-col items-center group">
-          <span className="font-display text-2xl md:text-3xl tracking-[0.5em] text-charcoal font-bold uppercase transition-all duration-1000 group-hover:tracking-[0.7em]">
+          <span className="font-display text-2xl md:text-3xl tracking-[0.5em] font-bold uppercase transition-all duration-1000 group-hover:tracking-[0.7em]">
             DINOSPY
           </span>
           <div className="flex items-center space-x-3 opacity-10 group-hover:opacity-40 transition-opacity duration-1000">
-             <div className="w-8 h-[1px] bg-charcoal" />
+             <div className="w-8 h-[1px] bg-current" />
              <span className="font-mono text-[8px] tracking-[0.4em] uppercase font-black">HOROLOGICAL_VAULT</span>
-             <div className="w-8 h-[1px] bg-charcoal" />
+             <div className="w-8 h-[1px] bg-current" />
           </div>
         </Link>
 
@@ -67,7 +68,7 @@ export default function Navbar() {
               <Link 
                 key={link.label}
                 to={link.to}
-                className="font-mono text-[9px] tracking-[0.4em] text-charcoal/40 hover:text-luxury-gold transition-all duration-500 uppercase font-bold"
+                className="font-mono text-[9px] tracking-[0.4em] opacity-40 hover:opacity-100 hover:text-luxury-gold transition-all duration-500 uppercase font-bold"
               >
                 {link.label}
               </Link>
@@ -77,24 +78,24 @@ export default function Navbar() {
           <div className="flex items-center space-x-4 md:space-x-6">
             {user ? (
                <Link to="/profile">
-                  <MagneticButton className="w-10 h-10 rounded-full border border-charcoal/5 flex items-center justify-center hover:bg-charcoal hover:text-ivory transition-all">
+                  <MagneticButton className="w-10 h-10 rounded-full border border-current/5 flex items-center justify-center hover:bg-current hover:text-white transition-all">
                     <User size={16} strokeWidth={1.5} />
                   </MagneticButton>
                </Link>
             ) : (
               <button 
                 onClick={() => setIsAuthModalOpen(true)}
-                className="hidden md:block font-mono text-[8px] tracking-[0.4em] font-black text-charcoal/40 hover:text-charcoal transition-colors uppercase"
+                className="hidden md:block font-mono text-[8px] tracking-[0.4em] font-black opacity-40 hover:opacity-100 transition-colors uppercase"
               >
                 AUTHENTICATE
               </button>
             )}
 
             <Link to="/cart">
-              <MagneticButton className="relative p-2 text-charcoal hover:text-luxury-gold transition-colors">
+              <MagneticButton className="relative p-2 hover:text-luxury-gold transition-colors">
                 <ShoppingBag size={20} strokeWidth={1.5} />
                 {cartCount > 0 && (
-                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-charcoal text-ivory text-[7px] flex items-center justify-center rounded-full font-black">
+                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-current text-white text-[7px] flex items-center justify-center rounded-full font-black">
                     {cartCount}
                   </span>
                 )}

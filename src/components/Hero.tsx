@@ -91,15 +91,15 @@ const Hero = () => {
       )}
 
       {/* Banner Carousel */}
-      <div className="relative h-[65vh] md:h-[85vh] w-full bg-noir overflow-hidden">
+      <div className="relative h-[calc(100vh-52px)] md:h-[calc(100vh-64px)] w-full bg-charcoal overflow-hidden">
         <AnimatePresence mode="wait">
           {banners.length > 0 ? (
             <motion.div
               key={currentIndex}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
               className="absolute inset-0"
             >
               <picture>
@@ -107,13 +107,16 @@ const Hero = () => {
                 <img 
                   src={banners[currentIndex].imageUrl} 
                   alt={banners[currentIndex].title}
-                  className="w-full h-full object-cover grayscale-[0.2] hover:grayscale-0 transition-all duration-1000"
+                  className="w-full h-full object-cover transition-all duration-[3000ms] scale-110 hover:scale-100"
                 />
               </picture>
-              <div className="absolute inset-0 bg-gradient-to-t from-noir via-transparent to-transparent opacity-60" />
-              <div className="absolute inset-0 bg-black/20" />
               
-              <div className="absolute bottom-20 left-10 md:left-24 max-w-4xl space-y-8">
+              {/* Overlays for Readability */}
+              <div className="absolute inset-0 bg-gradient-to-t from-charcoal via-transparent to-transparent opacity-80" />
+              <div className="absolute inset-0 bg-gradient-to-b from-charcoal/60 via-transparent to-transparent opacity-40" />
+              <div className="absolute inset-0 bg-black/10" />
+              
+              <div className="absolute bottom-24 left-10 md:left-24 max-w-5xl space-y-8">
                 <motion.div
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -142,7 +145,7 @@ const Hero = () => {
               </div>
             </motion.div>
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-noir">
+            <div className="w-full h-full flex items-center justify-center bg-charcoal">
                <div className="text-center space-y-6">
                   <h2 className="text-4xl font-display italic text-white/10 uppercase tracking-widest">Awaiting_Visual_Feed</h2>
                   <p className="font-tech text-[10px] text-white/5 uppercase tracking-[0.5em]">SYSTEM_READY_FOR_DEPLOYMENT</p>
