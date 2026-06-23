@@ -2123,43 +2123,47 @@ export default function AdminDashboard() {
                   </div>
                 )}
 
-                <div className="grid grid-cols-2 lg:grid-cols-3 gap-12 pt-12">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-6 pt-12">
                    {!isAddingGallery && (
                       <button 
                         onClick={() => setIsAddingGallery(true)}
-                        className="group relative rounded-[4rem] border-2 border-dashed border-black/5 flex flex-col items-center justify-center space-y-4 hover:border-black/20 hover:bg-black/5 transition-all duration-1000 aspect-[3/4]"
+                        className="group relative rounded-[2rem] border-2 border-dashed border-black/5 flex flex-col items-center justify-center space-y-4 hover:border-black/20 hover:bg-black/5 transition-all duration-1000 aspect-square"
                       >
-                         <div className="w-16 h-16 rounded-full bg-black text-white flex items-center justify-center transform group-hover:scale-110 transition-transform duration-700">
-                            <Plus size={24} />
+                         <div className="w-12 h-12 rounded-full bg-black text-white flex items-center justify-center transform group-hover:scale-110 transition-transform duration-700">
+                            <Plus size={20} />
                          </div>
-                         <span className="font-tech text-[10px] tracking-[0.4em] font-black uppercase text-black/20 group-hover:text-black/40">Append_Visual</span>
+                         <span className="font-tech text-[8px] tracking-[0.4em] font-black uppercase text-black/20 group-hover:text-black/40">Append_Visual</span>
                       </button>
                    )}
                    
                    {galleryItems.map((item, i) => (
                       <div 
                         key={item.id} 
-                        className={`group relative rounded-[4rem] border border-black/5 overflow-hidden transition-all duration-1000 bg-neutral-50 shadow-sm hover:shadow-2xl luxury-shadow ${item.aspect} ${i % 4 === 3 ? 'md:-mt-24' : ''}`}
+                        className={`group relative rounded-[2rem] border border-black/5 overflow-hidden transition-all duration-1000 bg-neutral-50 luxury-shadow flex items-center justify-center ${item.aspect} ${i === 3 ? 'md:-mt-20' : ''}`}
                       >
                          {item.imageUrl ? (
-                            <img src={item.imageUrl} className="w-full h-full object-cover transition-transform duration-[4s] group-hover:scale-110" alt={item.label} />
+                            <img src={item.imageUrl} className="absolute inset-0 w-full h-full object-cover transition-transform duration-[4s] group-hover:scale-110" alt={item.label} />
                          ) : (
-                            <div className="w-full h-full flex items-center justify-center text-8xl font-display opacity-[0.02] select-none">{item.label}</div>
+                            <div className="font-display text-6xl opacity-[0.03] select-none group-hover:opacity-[0.08] transition-opacity duration-1000 uppercase">{item.label}</div>
                          ) }
                          
+                         {/* Asset ID Tag (Matched to Frontend) */}
+                         <div className="absolute bottom-6 right-6 font-mono text-[8px] text-black/10 group-hover:text-white/40 transition-colors uppercase font-black z-10">Asset_{i}</div>
+
                          {/* Curator Controls */}
-                         <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 flex flex-col items-center justify-center space-y-6">
-                            <div className="text-center space-y-2 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-700">
+                         <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 flex flex-col items-center justify-center space-y-4 z-20">
+                            <div className="text-center space-y-1 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-700">
                                <p className="font-tech text-white text-[10px] tracking-[0.5em] font-black uppercase">{item.label || 'UNTITLED'}</p>
                                <p className="font-mono text-white/40 text-[8px] uppercase tracking-widest">{item.aspect}</p>
                             </div>
                             <button 
                               onClick={() => handleDeleteGalleryItem(item.id)}
-                              className="w-16 h-16 rounded-full bg-white text-black flex items-center justify-center hover:bg-red-500 hover:text-white transition-all transform hover:scale-110"
+                              className="w-12 h-12 rounded-2xl bg-white text-black flex items-center justify-center hover:bg-red-500 hover:text-white transition-all transform hover:scale-110"
                             >
-                               <Trash2 size={24} strokeWidth={1} />
+                               <Trash2 size={20} strokeWidth={1} />
                             </button>
                          </div>
+                         <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 pointer-events-none" />
                       </div>
                    ))}
                 </div>
