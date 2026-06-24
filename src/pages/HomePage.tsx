@@ -26,26 +26,26 @@ const WhyCard = ({ icon: Icon, title, desc, i }) => (
     <div className="absolute -inset-px border-2 border-black opacity-0 group-hover:opacity-10 transition-opacity duration-1000 rounded-[3rem]" />
     
     <div className="relative z-10">
-      <div className="w-16 h-16 rounded-2xl bg-black flex items-center justify-center mb-8 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-700">
-        <Icon size={32} className="text-white" strokeWidth={1} />
+      <div className="w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-black flex items-center justify-center mb-6 md:mb-8 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-700">
+        <Icon size={24} md:size={32} className="text-white" strokeWidth={1} />
       </div>
-      <h3 className="font-display text-2xl mb-4 text-black">{title}</h3>
-      <p className="text-black/40 text-sm leading-relaxed font-light">{desc}</p>
+      <h3 className="font-display text-xl md:text-2xl mb-4 text-black">{title}</h3>
+      <p className="text-black/40 text-[13px] md:text-sm leading-relaxed font-light">{desc}</p>
     </div>
   </motion.div>
 );
 
 const TestimonialCard = ({ text, author, title }) => (
-  <div className="bg-white p-12 rounded-[3.5rem] min-w-[500px] border border-black/5 luxury-shadow relative overflow-hidden group">
-    <Quote className="absolute top-8 right-8 opacity-5 text-black group-hover:opacity-10 transition-opacity duration-1000" size={120} />
-    <div className="relative z-10 space-y-8">
+  <div className="bg-white p-8 md:p-12 rounded-[2.5rem] md:rounded-[3.5rem] w-[280px] sm:w-[400px] md:w-[500px] border border-black/5 luxury-shadow relative overflow-hidden group flex-shrink-0">
+    <Quote className="absolute top-4 right-4 md:top-8 md:right-8 opacity-5 text-black group-hover:opacity-10 transition-opacity duration-1000" size={60} md:size={120} />
+    <div className="relative z-10 space-y-6 md:space-y-8">
       <div className="flex space-x-1 opacity-20">
-        {[...Array(5)].map((_, i) => <Star key={i} size={14} className="text-black fill-black" />)}
+        {[...Array(5)].map((_, i) => <Star key={i} size={12} md:size={14} className="text-black fill-black" />)}
       </div>
-      <p className="text-2xl font-display font-medium text-black/80 leading-relaxed max-w-sm">"{text}"</p>
+      <p className="text-lg md:text-2xl font-display font-medium text-black/80 leading-relaxed max-w-sm">"{text}"</p>
       <div className="flex flex-col">
-        <span className="font-mono text-xs tracking-widest text-black font-bold uppercase">{author}</span>
-        <span className="font-mono text-[9px] tracking-widest text-black/30 uppercase mt-1">{title}</span>
+        <span className="font-mono text-[10px] md:text-xs tracking-widest text-black font-bold uppercase">{author}</span>
+        <span className="font-mono text-[8px] md:text-[9px] tracking-widest text-black/30 uppercase mt-1">{title}</span>
       </div>
     </div>
   </div>
@@ -206,8 +206,8 @@ export default function HomePage() {
                  <span className="font-tech text-xs tracking-widest uppercase text-black">CORE_ADVANTAGES</span>
                  <div className="w-1.5 h-1.5 bg-black rounded-full shadow-[0_0_10px_rgba(0,0,0,0.1)]" />
                </div>
-               <h2 className="text-5xl md:text-7xl font-display font-medium text-black mb-8">Engineered for the elite.</h2>
-               <p className="text-black/40 font-light text-lg">Every detail optimized for peak performance and structural integrity.</p>
+               <h2 className="text-4xl md:text-7xl font-display font-medium text-black mb-8">Engineered for the elite.</h2>
+               <p className="text-black/40 font-light text-base md:text-lg">Every detail optimized for peak performance and structural integrity.</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">

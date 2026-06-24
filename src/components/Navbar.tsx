@@ -50,11 +50,11 @@ export default function Navbar() {
         </div>
 
         {/* Center: Branding */}
-        <Link to="/" className="flex flex-col items-center group">
-          <span className="font-display text-2xl md:text-3xl tracking-[0.5em] font-bold uppercase transition-all duration-1000 group-hover:tracking-[0.7em]">
+        <Link to="/" className="flex flex-col items-center group shrink-0">
+          <span className="font-display text-xl md:text-3xl tracking-[0.5em] font-bold uppercase transition-all duration-1000 group-hover:tracking-[0.7em]">
             DINOSPY
           </span>
-          <div className="flex items-center space-x-3 opacity-10 group-hover:opacity-40 transition-opacity duration-1000">
+          <div className="hidden md:flex items-center space-x-3 opacity-10 group-hover:opacity-40 transition-opacity duration-1000">
              <div className="w-8 h-[1px] bg-current" />
              <span className="font-mono text-[8px] tracking-[0.4em] uppercase font-black">HOROLOGICAL_VAULT</span>
              <div className="w-8 h-[1px] bg-current" />

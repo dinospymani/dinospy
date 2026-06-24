@@ -664,9 +664,9 @@ export default function CheckoutPage() {
                     </div>
                   </div>
 
-                  <div className="flex flex-col items-end pt-12 mt-6 border-t-[3px] border-black">
-                    <span className="text-[10px] font-mono font-bold uppercase tracking-[0.6em] text-black/20 mb-2">GRAND_MANIFEST_TOTAL</span>
-                    <span className="text-4xl md:text-7xl font-mono leading-none font-bold">₹{cartTotal.toLocaleString()}</span>
+                  <div className="flex flex-col sm:flex-row sm:items-end justify-between pt-12 mt-6 border-t-[3px] border-black gap-4">
+                    <span className="text-[10px] font-mono font-bold uppercase tracking-[0.6em] text-black/20">GRAND_MANIFEST_TOTAL</span>
+                    <span className="text-4xl md:text-7xl font-mono leading-none font-bold break-all">₹{cartTotal.toLocaleString()}</span>
                   </div>
                 </div>
               </div>

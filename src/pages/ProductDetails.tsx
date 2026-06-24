@@ -392,11 +392,11 @@ export default function ProductDetails() {
                    </span>
                    <div className="w-12 h-[1px] bg-black/10" />
                 </div>
-                <h1 className="text-5xl md:text-[8rem] font-display mb-6 md:mb-10 leading-[1] md:leading-[0.9] font-medium text-black break-words">{product.name}</h1>
+                <h1 className="text-[clamp(2.5rem,10vw,7rem)] font-display mb-6 md:mb-10 leading-[1] md:leading-[0.9] font-medium text-black break-words">{product.name}</h1>
                 
-                <div className="flex flex-col md:flex-row md:items-center gap-6 md:space-x-8 mb-10 md:mb-16 pb-10 md:pb-12 border-b border-black/5">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-6 md:space-x-8 mb-10 md:mb-16 pb-10 md:pb-12 border-b border-black/5">
                    <div className="flex flex-col">
-                      <div className="text-4xl md:text-6xl font-mono tracking-tighter text-black">
+                      <div className="text-4xl md:text-6xl font-mono tracking-tighter text-black break-all">
                         <span className="text-[10px] text-black/30 mr-2 md:mr-4 font-bold">₹</span>
                         {Math.round(product.discount ? product.price * (1 - product.discount / 100) : product.price).toLocaleString()}
                       </div>
@@ -424,10 +424,10 @@ export default function ProductDetails() {
               </div>
 
               {/* Specs Grid */}
-              <div className="grid grid-cols-2 gap-y-12 gap-x-20 mb-20">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-8 md:gap-y-12 gap-x-12 md:gap-x-20 mb-16 md:mb-20">
                 {Object.entries(product.specs || {}).map(([key, val]: [string, any]) => (
-                  <div key={key} className="space-y-3">
-                    <span className="text-[10px] uppercase tracking-widest text-black/40 font-bold block">{key}</span>
+                  <div key={key} className="space-y-2 md:space-y-3">
+                    <span className="text-[9px] md:text-[10px] uppercase tracking-widest text-black/40 font-bold block">{key}</span>
                     <span className="text-sm font-medium text-black uppercase tracking-widest leading-relaxed">{val}</span>
                   </div>
                 ))}

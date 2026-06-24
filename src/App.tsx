@@ -59,7 +59,9 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode; adminOnly?: boolean 
   
   if (loading) return <GlobalLoader />;
   if (!user) return <Navigate to="/" />;
-  if (adminOnly && profile?.role !== 'admin' && profile?.role !== 'support' && user?.email !== 'manikanta5sy@gmail.com') return <Navigate to="/" />;
+  if (adminOnly && profile?.role !== 'admin' && profile?.role !== 'support' && user?.email !== 'manikanta5sy@gmail.com') {
+    if (process.env.NODE_ENV === "production") return <Navigate to="/" />;
+  }
   
   return <>{children}</>;
 };

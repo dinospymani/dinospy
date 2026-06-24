@@ -15,8 +15,8 @@ export const FloatingBottomNav = () => {
   ];
 
   return (
-    <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[45] md:hidden w-full px-6 max-w-md">
-      <div className="bg-black py-5 px-8 rounded-full shadow-2xl flex items-center justify-between border border-white/10">
+    <div className="fixed bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 z-[45] md:hidden w-full px-4 sm:px-6 max-w-md pb-[env(safe-area-inset-bottom)]">
+      <div className="bg-black py-4 sm:py-5 px-6 sm:px-8 rounded-full shadow-2xl flex items-center justify-between border border-white/10">
         {navItems.map((item) => {
           const isActive = location.pathname === item.path;
           return (

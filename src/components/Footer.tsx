@@ -8,7 +8,7 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-ivory pt-32 pb-32 md:pb-12 border-t border-charcoal/5 selection:bg-luxury-gold selection:text-charcoal font-sans">
+    <footer className="bg-ivory pt-32 pb-40 md:pb-12 border-t border-charcoal/5 selection:bg-luxury-gold selection:text-charcoal font-sans">
       <div className="container mx-auto px-6 md:px-12">
         <div className="grid grid-cols-12 gap-y-16 md:gap-24 mb-32">
           
@@ -19,15 +19,15 @@ export default function Footer() {
                 <span className="font-mono text-[9px] tracking-[0.4em] text-charcoal/40 uppercase mt-4 font-black">HOROLOGICAL_VAULT // EST_2024</span>
              </Link>
 
-             <div className="space-y-8 max-w-sm">
-                <p className="text-charcoal/60 text-lg font-light leading-relaxed">Join the inner circle of horological excellence. Be the first to witness our limited edition releases.</p>
+             <div className="space-y-8 max-w-full sm:max-w-sm">
+                <p className="text-charcoal/60 text-base md:text-lg font-light leading-relaxed">Join the inner circle of horological excellence. Be the first to witness our limited edition releases.</p>
                 <div className="relative group">
                    <input 
                      type="email" 
                      placeholder="VAULT_CREDENTIALS@EMAIL"
-                     className="w-full bg-transparent border-b border-charcoal/10 py-6 px-4 font-mono text-[10px] tracking-[0.5em] outline-none focus:border-luxury-gold transition-colors text-charcoal uppercase font-bold"
+                     className="w-full bg-transparent border-b border-charcoal/10 py-5 sm:py-6 px-2 sm:px-4 font-mono text-[9px] sm:text-[10px] tracking-[0.4em] sm:tracking-[0.5em] outline-none focus:border-luxury-gold transition-colors text-charcoal uppercase font-bold"
                    />
-                   <button className="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-charcoal/20 group-hover:text-luxury-gold transition-colors">
+                   <button className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 p-2 text-charcoal/20 group-hover:text-luxury-gold transition-colors">
                       <Mail size={18} strokeWidth={1.5} />
                    </button>
                 </div>
@@ -35,7 +35,7 @@ export default function Footer() {
           </div>
 
           {/* Navigation Links */}
-          <div className="col-span-6 lg:col-span-2 space-y-10">
+          <div className="col-span-12 sm:col-span-6 lg:col-span-2 space-y-10">
              <span className="block font-mono text-[10px] tracking-[0.5em] text-charcoal font-black uppercase">CURATIONS</span>
              <ul className="space-y-5">
                 {['DIVER', 'CLASSIC', 'VANGUARD', 'GRAND_COMPLICATIONS'].map(item => (
@@ -46,7 +46,7 @@ export default function Footer() {
              </ul>
           </div>
 
-          <div className="col-span-6 lg:col-span-2 space-y-10">
+          <div className="col-span-12 sm:col-span-6 lg:col-span-2 space-y-10">
              <span className="block font-mono text-[10px] tracking-[0.5em] text-charcoal font-black uppercase">PROTOCOLS</span>
              <ul className="space-y-5">
                 {['SHIPPING', 'WARRANTY', 'TRACK_ACQUISITION', 'AUTHENTICITY'].map(item => (

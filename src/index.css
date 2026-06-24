@@ -45,17 +45,39 @@
   html {
     @apply antialiased scroll-smooth w-full m-0 p-0 h-full;
     background-color: var(--color-bg);
+    overflow-x: hidden;
   }
 
   body {
     @apply text-text-primary overflow-x-hidden w-full m-0 p-0 min-h-full;
     background-color: var(--color-bg);
     font-family: var(--font-sans);
+    box-sizing: border-box;
+    padding-bottom: env(safe-area-inset-bottom);
   }
 
-  h1, h2, h3, h4, .font-display {
-    @apply font-display font-medium;
-    letter-spacing: var(--tracking-tightest);
+  * {
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  h1 {
+    font-size: clamp(2rem, 8vw, 6rem);
+    @apply leading-tight;
+  }
+
+  h2 {
+    font-size: clamp(1.5rem, 6vw, 4rem);
+    @apply leading-tight;
+  }
+
+  h3 {
+    font-size: clamp(1.25rem, 4vw, 2.5rem);
+    @apply leading-tight;
+  }
+
+  p {
+    font-size: clamp(0.9rem, 2vw, 1.1rem);
   }
 }
 

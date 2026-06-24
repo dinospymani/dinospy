@@ -178,20 +178,20 @@ export default function SupportHubPage() {
 
           <div className="grid grid-cols-12 gap-12">
              {/* Sidebar: Navigation & Tickets */}
-             <div className="col-span-12 lg:col-span-4 space-y-12">
-                <div className="bg-neutral-50 rounded-[4rem] border border-black/5 p-10 space-y-10 group shadow-lg">
-                   <div className="flex items-center space-x-6 mb-10">
-                      <div className="w-12 h-12 bg-black text-white rounded-2xl flex items-center justify-center">
-                         <Ticket size={24} strokeWidth={1} />
+             <div className="col-span-12 lg:col-span-4 space-y-8 md:space-y-12">
+                <div className="bg-neutral-50 rounded-[3rem] md:rounded-[4rem] border border-black/5 p-6 md:p-10 space-y-8 md:space-y-10 group shadow-lg">
+                   <div className="flex items-center space-x-6 mb-6 md:mb-10">
+                      <div className="w-10 h-10 md:w-12 md:h-12 bg-black text-white rounded-2xl flex items-center justify-center">
+                         <Ticket size={20} md:size={24} strokeWidth={1} />
                       </div>
-                      <h3 className="font-mono text-xs font-bold tracking-[0.4em] uppercase">Active_Tickets</h3>
+                      <h3 className="font-mono text-[10px] md:text-xs font-bold tracking-[0.4em] uppercase">Active_Tickets</h3>
                    </div>
 
                    <button 
                      onClick={() => setView('create')}
-                     className="w-full py-6 bg-black text-white text-[10px] font-bold tracking-[0.4em] uppercase rounded-full hover:shadow-2xl transition-all flex items-center justify-center space-x-4 group/btn"
+                     className="w-full py-5 md:py-6 bg-black text-white text-[9px] md:text-[10px] font-bold tracking-[0.4em] uppercase rounded-full hover:shadow-2xl transition-all flex items-center justify-center space-x-4 group/btn"
                    >
-                     <Plus size={18} className="group-hover/btn:rotate-90 transition-transform" />
+                     <Plus size={16} md:size={18} className="group-hover/btn:rotate-90 transition-transform" />
                      <span>RAISE_NEW_TICKET</span>
                    </button>
 
