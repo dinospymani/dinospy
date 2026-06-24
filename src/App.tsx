@@ -16,6 +16,7 @@ import ProfilePage from './pages/ProfilePage';
 import PartnerPortal from './pages/PartnerPortal';
 import FAQPage from './pages/FAQPage';
 import PrivacyPolicy from './pages/PrivacyPolicy';
+import RefundPolicy from './pages/RefundPolicy';
 
 import { SmoothScroll } from './components/SmoothScroll';
 import { Preloader } from './components/Preloader';
@@ -79,6 +80,7 @@ function AnimatedRoutes() {
         <Route path="/support" element={<ProtectedRoute><PageTransition><SupportHubPage /></PageTransition></ProtectedRoute>} />
         <Route path="/track" element={<PageTransition><OrderTrackingPage /></PageTransition>} />
         <Route path="/privacy" element={<PageTransition><PrivacyPolicy /></PageTransition>} />
+        <Route path="/refund" element={<PageTransition><RefundPolicy /></PageTransition>} />
         <Route path="/partner/:orderId" element={<PageTransition><PartnerPortal /></PageTransition>} />
         <Route path="/admin" element={<ProtectedRoute adminOnly><PageTransition><AdminDashboard /></PageTransition></ProtectedRoute>} />
       </Routes>

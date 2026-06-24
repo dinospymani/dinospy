@@ -351,7 +351,7 @@ export default function ProfilePage() {
                     <div className="w-4 h-4 bg-black rounded-full animate-pulse" />
                     <span className="font-mono text-black opacity-40 text-xs tracking-[0.6em] font-bold uppercase">ACQUISITION_LOGBOOKS // SEC_LEVEL_3</span>
                   </div>
-                  <h1 className="text-7xl md:text-9xl font-display leading-none tracking-tightest font-medium text-black">Vault <span className="opacity-10 text-black italic">Archives.</span></h1>
+                  <h1 className="text-5xl md:text-9xl font-display leading-none tracking-tightest font-medium text-black">Vault <span className="opacity-10 text-black italic">Archives.</span></h1>
                 </div>
               </div>
               
@@ -364,8 +364,8 @@ export default function ProfilePage() {
               ) : (
                 <div className="space-y-12">
                   {orders.length === 0 ? (
-                    <div className="p-32 text-center bg-neutral-50 rounded-[5rem] border border-black/5 opacity-40">
-                       <p className="font-display font-medium text-4xl mb-8">No historical records found.</p>
+                    <div className="p-12 md:p-32 text-center bg-neutral-50 rounded-[5rem] border border-black/5 opacity-40">
+                       <p className="font-display font-medium text-2xl md:text-4xl mb-8">No historical records found.</p>
                        <Link to="/explore" className="font-mono text-xs tracking-[0.5em] uppercase hover:text-black transition-all duration-700 font-bold">Initialize_Acquisition_01</Link>
                     </div>
                   ) : (

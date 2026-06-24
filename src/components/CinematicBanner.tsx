@@ -62,7 +62,7 @@ export default function CinematicBanner({
                <div className="w-12 md:w-24 h-[1px] bg-black/10" />
             </div>
 
-            <h2 className="text-[14vw] md:text-[16rem] font-display font-light leading-[0.8] md:leading-[0.7] italic mb-8 md:mb-20 text-black tracking-tightest">
+            <h2 className="text-[12vw] md:text-[16rem] font-display font-light leading-[0.8] md:leading-[0.7] italic mb-8 md:mb-20 text-black tracking-tightest">
               {title}
             </h2>
             <p className="text-black/30 text-xl md:text-3xl font-light italic leading-tight mb-12 md:mb-24 max-w-2xl">

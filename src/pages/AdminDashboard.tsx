@@ -714,6 +714,26 @@ export default function AdminDashboard() {
 
       await updateDoc(doc(db, 'orders', orderId), updateData);
       
+      // Trigger SMS Notification via Server API
+      if (newStatus === 'shipped' || newStatus === 'delivered') {
+        try {
+          await fetch('/api/notifications/order-status', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              orderId,
+              status: newStatus,
+              phone: order.customerPhone,
+              customerName: order.customerName,
+              trackingId: trackingInfo?.trackingId,
+              carrier: trackingInfo?.carrier
+            })
+          });
+        } catch (error) {
+          console.error("Critical: Failed to trigger notification gateway.", error);
+        }
+      }
+      
       // Notify customer based on status
       if (order.userId) {
         let notificationTitle = "Order Update";

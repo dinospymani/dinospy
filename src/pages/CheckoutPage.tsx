@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ChevronLeft, CreditCard, ShieldCheck, Truck, Phone, CheckCircle2, AlertTriangle, Key, Mail, User } from 'lucide-react';
+import { ChevronLeft, CreditCard, ShieldCheck, Truck, Phone, CheckCircle2, AlertTriangle, Key, Mail, User, X } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth, db } from '../context/AuthContext';
@@ -58,12 +58,71 @@ export default function CheckoutPage() {
   const [formData, setFormData] = useState({
     fullName: profile?.displayName || '',
     email: profile?.email || '',
-    phone: '',
+    phone: profile?.phoneNumber || '',
     address: '',
     city: '',
     zip: '',
     country: 'India'
   });
+
+  const [isPhoneVerified, setIsPhoneVerified] = useState(true);
+  const [showOtpInput, setShowOtpInput] = useState(false);
+  const [otp, setOtp] = useState('');
+  const [isSendingOtp, setIsSendingOtp] = useState(false);
+  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
+
+  const handleSendOtp = async () => {
+    if (formData.phone.length !== 10) {
+      toast.error('Valid 10-digit number required for verification.');
+      return;
+    }
+
+    setIsSendingOtp(true);
+    try {
+      const res = await fetch('/api/auth/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: formData.phone })
+      });
+      
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to send OTP');
+      
+      setShowOtpInput(true);
+      toast.success('Verification Protocol Initiated: OTP sent to your WhatsApp.');
+    } catch (err: any) {
+      toast.error(`Verification Failure: ${err.message}`);
+    } finally {
+      setIsSendingOtp(false);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    if (otp.length !== 6) {
+      toast.error('Authentication code must be 6 digits.');
+      return;
+    }
+
+    setIsVerifyingOtp(true);
+    try {
+      const res = await fetch('/api/auth/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: formData.phone, otp })
+      });
+      
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Invalid OTP');
+      
+      setIsPhoneVerified(true);
+      setShowOtpInput(false);
+      toast.success('Identity Verified: WhatsApp node synchronized.');
+    } catch (err: any) {
+      toast.error(`Authentication Failed: ${err.message}`);
+    } finally {
+      setIsVerifyingOtp(false);
+    }
+  };
 
   const handlePlaceOrder = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -87,6 +146,11 @@ export default function CheckoutPage() {
 
     if (formData.phone.length !== 10) {
       toast.error('WhatsApp number must be exactly 10 digits.');
+      return;
+    }
+
+    if (!isPhoneVerified) {
+      toast.error('Identity Verification Required: Please verify your WhatsApp number.');
       return;
     }
 
@@ -134,6 +198,7 @@ export default function CheckoutPage() {
           customerName: formData.fullName,
           customerEmail: formData.email,
           customerPhone: formData.phone,
+          phoneVerified: isPhoneVerified,
           deliveryPin,
           paymentStatus: paymentMethod === 'cod' ? 'cod' : 'pending',
           paymentMethod: paymentMethod,
@@ -330,18 +395,58 @@ export default function CheckoutPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="space-y-3">
                       <label className="text-[10px] uppercase tracking-[0.4em] text-black/20 ml-1 font-mono font-bold">SECURE_TEL</label>
-                      <div className="relative">
-                        <span className="absolute left-8 top-1/2 -translate-y-1/2 text-black/20 text-sm font-mono">+91</span>
-                        <input 
-                          required
-                          type="tel"
-                          value={formData.phone}
-                          onChange={e => setFormData({...formData, phone: e.target.value.replace(/\D/g, '').slice(0, 10)})}
-                          className="w-full bg-neutral-50 border border-black/5 rounded-[2rem] pl-20 pr-8 py-6 focus:border-black outline-none text-sm transition-all font-mono"
-                          placeholder="99999 99999"
-                        />
+                      <div className="flex space-x-4">
+                        <div className="relative flex-grow">
+                          <span className="absolute left-8 top-1/2 -translate-y-1/2 text-black/20 text-sm font-mono">+91</span>
+                          <input 
+                            required
+                            type="tel"
+                            value={formData.phone}
+                            onChange={e => setFormData({...formData, phone: e.target.value.replace(/\D/g, '').slice(0, 10)})}
+                            className={`w-full bg-neutral-50 border border-black/5 rounded-[2rem] pl-20 pr-8 py-6 focus:border-black outline-none text-sm transition-all font-mono`}
+                            placeholder="99999 99999"
+                          />
+                        </div>
                       </div>
                     </div>
+
+                    <AnimatePresence>
+                      {showOtpInput && (
+                        <motion.div 
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          className="overflow-hidden"
+                        >
+                          <div className="p-10 rounded-[3rem] bg-neutral-900 text-white space-y-6 relative border border-white/5 shadow-2xl">
+                            <div className="flex justify-between items-center">
+                              <p className="text-[10px] uppercase tracking-[0.4em] text-white/40 font-mono font-bold">IDENTITY_CHALLENGE</p>
+                              <button onClick={() => setShowOtpInput(false)} className="text-white/20 hover:text-white transition-colors">
+                                <X size={16} />
+                              </button>
+                            </div>
+                            <div className="flex space-x-4">
+                              <input 
+                                value={otp}
+                                onChange={e => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                                className="flex-grow bg-white/5 border border-white/10 rounded-2xl px-8 py-5 focus:border-white outline-none text-xl font-mono text-center tracking-[0.5em]"
+                                placeholder="000000"
+                                maxLength={6}
+                              />
+                              <button 
+                                type="button"
+                                onClick={handleVerifyOtp}
+                                disabled={otp.length !== 6 || isVerifyingOtp}
+                                className="px-10 bg-white text-black rounded-2xl text-[10px] font-mono font-bold uppercase tracking-widest hover:bg-neutral-200 transition-all disabled:opacity-20"
+                              >
+                                {isVerifyingOtp ? '...' : 'SYNC'}
+                              </button>
+                            </div>
+                            <p className="text-[9px] text-white/30 font-mono italic">Challenge code dispatched via WhatsApp Secure Tunnel.</p>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                     <div className="space-y-3">
                       <label className="text-[10px] uppercase tracking-[0.4em] text-black/20 ml-1 font-mono font-bold">POSTAL_INDEX</label>
                       <input 
@@ -561,7 +666,7 @@ export default function CheckoutPage() {
 
                   <div className="flex flex-col items-end pt-12 mt-6 border-t-[3px] border-black">
                     <span className="text-[10px] font-mono font-bold uppercase tracking-[0.6em] text-black/20 mb-2">GRAND_MANIFEST_TOTAL</span>
-                    <span className="text-6xl md:text-7xl font-mono leading-none font-bold">₹{cartTotal.toLocaleString()}</span>
+                    <span className="text-4xl md:text-7xl font-mono leading-none font-bold">₹{cartTotal.toLocaleString()}</span>
                   </div>
                 </div>
               </div>

@@ -11,18 +11,33 @@ interface FAQItem {
 const faqs: FAQItem[] = [
   {
     category: 'legal',
-    question: "Terms of Service & Usage Protocols",
-    answer: "By accessing the DINOSPY vault, you agree to our Digital Heritage Protocols. All acquisitions represent a transfer of intellectual and physical assets. Unauthorized duplication of designs or manifests is strictly prohibited. Orders are subject to periodic security verification."
+    question: "Privacy Protocols & Data Encryption",
+    answer: "We treat your digital footprint with archival reverence. Personal metadata is encrypted using the DINOSPY Vault Protocol. We do not share your acquisition records with third-party brokers. Your data is used exclusively for order fulfillment, security verification, and personalized concierge services. You retain the absolute right to request a full data extract or archival deletion at any point."
   },
   {
     category: 'legal',
     question: "Refund & Return Policy",
-    answer: "We offer a 7-day 'No Questions Asked' return policy for pieces in 'Vault Original' condition. Refunds are processed to the original payment source within 5-7 business days of archival verification. Grand Complications are custom-crafted and ineligible for standard returns."
+    answer: "We offer a 14-day 'No Questions Asked' return policy for heritage pieces in 'Vault Original' condition. To be eligible, all security seals must be intact and the timepiece must show no signs of micro-abrasions or wear. Refunds are processed to the original payment node within 5-7 business days of archival verification. Note: Grand Complications and Bespoke Commissions are ineligible for returns due to their unique craftsmanship."
+  },
+  {
+    category: 'shipping',
+    question: "Logistics & Global Transport Policies",
+    answer: "All DINOSPY acquisitions are shipped via insured, climate-controlled transport. Standard domestic transit takes 3-5 archival days, while global logistics typically span 10-14 days. We provide end-to-end tracking and require a physical signature and secure PIN for every delivery. DINOSPY assumes full liability for the asset until it is successfully secured by the recipient."
+  },
+  {
+    category: 'authentication',
+    question: "Warranty & Aftercare Protection",
+    answer: "Every masterpiece is protected by the DINOSPY 24-Month Heritage Warranty, covering all mechanical defects. We also provide a complimentary 'Archival Rejuvenation' service once per year, which includes a professional ultrasonic cleaning and movement calibration. Damage resulting from accidents, unauthorized opening, or misuse is not covered but can be repaired via our concierge service."
   },
   {
     category: 'legal',
-    question: "Privacy Protocols & Data Encryption",
-    answer: "We treat your digital footprint with archival reverence. Personal metadata is encrypted using the DINOSPY Vault Protocol. We do not share your acquisition records with third-party brokers. You retain the absolute right to request a full data extract or archival deletion."
+    question: "Ethics & Sourcing Standards",
+    answer: "DINOSPY is committed to ethical horology. We only acquire pre-owned pieces with verifiable provenance. Our sourcing protocols ensure that every component complies with international heritage protection laws and conflict-free diamond standards. We refuse to participate in any markets that jeopardize the integrity of the watchmaking tradition."
+  },
+  {
+    category: 'maintenance',
+    question: "How do I initiate a return or service request?",
+    answer: "To initiate a return or request service, navigate to your 'Vault Portal' (Profile) and select the specific acquisition. Click on 'Request Logistics' to generate a pre-paid, insured shipping label and scheduling instructions for our armored transport partner. Our concierge will guide you through the secure packaging protocol."
   },
   {
     category: 'maintenance',
@@ -88,8 +103,8 @@ export function FAQ() {
   return (
     <div className="w-full max-w-4xl mx-auto px-4 py-20">
       <div className="text-center mb-16">
-        <h2 className="text-4xl font-display gold-text mb-4">Archives of Knowledge</h2>
-        <p className="text-white/40 uppercase tracking-[0.3em] font-black text-[10px]">Navigating the Heritage Experience</p>
+        <h2 className="text-2xl md:text-4xl font-display text-black mb-4 uppercase tracking-tightest">Archives of Knowledge</h2>
+        <p className="text-black/30 uppercase tracking-[0.3em] font-black text-[10px]">Navigating the Heritage Experience</p>
       </div>
 
       <div className="flex flex-wrap justify-center gap-4 mb-12">
@@ -102,8 +117,8 @@ export function FAQ() {
             }}
             className={`flex items-center space-x-2 px-6 py-3 rounded-full border transition-all ${
               activeCategory === cat.id 
-                ? 'bg-gold border-gold text-luxury-black font-bold' 
-                : 'bg-white/5 border-white/10 text-white/60 hover:bg-white/10'
+                ? 'bg-black border-black text-white font-bold' 
+                : 'bg-black/5 border-black/5 text-black/60 hover:bg-black/10'
             }`}
           >
             <cat.icon size={16} />
@@ -119,16 +134,16 @@ export function FAQ() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-            className="glass rounded-3xl border border-white/5 overflow-hidden transition-all hover:border-gold/20"
+            className="rounded-3xl border border-black/5 bg-neutral-50 overflow-hidden transition-all hover:border-black/20"
           >
             <button
               onClick={() => setOpenIndex(openIndex === index ? null : index)}
               className="w-full px-8 py-6 flex items-center justify-between text-left"
             >
-              <span className={`text-sm font-bold uppercase tracking-widest transition-colors ${openIndex === index ? 'text-gold' : 'text-white/80'}`}>
+              <span className={`text-sm font-bold uppercase tracking-widest transition-colors ${openIndex === index ? 'text-black' : 'text-black/60'}`}>
                 {faq.question}
               </span>
-              <div className={`p-2 rounded-full transition-all ${openIndex === index ? 'bg-gold text-luxury-black' : 'bg-white/5 text-white/40'}`}>
+              <div className={`p-2 rounded-full transition-all ${openIndex === index ? 'bg-black text-white' : 'bg-black/5 text-black/40'}`}>
                 {openIndex === index ? <Minus size={14} /> : <Plus size={14} />}
               </div>
             </button>
@@ -141,7 +156,7 @@ export function FAQ() {
                   exit={{ height: 0, opacity: 0 }}
                   className="px-8 pb-8"
                 >
-                  <p className="text-sm text-white/60 leading-relaxed max-w-2xl">
+                  <p className="text-sm text-black/60 leading-relaxed max-w-2xl">
                     {faq.answer}
                   </p>
                 </motion.div>

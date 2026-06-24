@@ -8,9 +8,9 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-ivory pt-32 pb-12 border-t border-charcoal/5 selection:bg-luxury-gold selection:text-charcoal font-sans">
+    <footer className="bg-ivory pt-32 pb-32 md:pb-12 border-t border-charcoal/5 selection:bg-luxury-gold selection:text-charcoal font-sans">
       <div className="container mx-auto px-6 md:px-12">
-        <div className="grid grid-cols-12 gap-12 md:gap-24 mb-32">
+        <div className="grid grid-cols-12 gap-y-16 md:gap-24 mb-32">
           
           {/* Brand & Newsletter */}
           <div className="col-span-12 lg:col-span-5 space-y-12">
@@ -86,7 +86,8 @@ export default function Footer() {
            
            <div className="flex space-x-12">
               <Link to="/privacy" className="font-mono text-[9px] text-charcoal/40 tracking-[0.4em] hover:text-charcoal transition-colors uppercase font-black">PRIVACY</Link>
-              <Link to="/faq" className="font-mono text-[9px] text-charcoal/40 tracking-[0.4em] hover:text-charcoal transition-colors uppercase font-black">TERMS</Link>
+              <Link to="/refund" className="font-mono text-[9px] text-charcoal/40 tracking-[0.4em] hover:text-charcoal transition-colors uppercase font-black">REFUND</Link>
+              <Link to="/faq" className="font-mono text-[9px] text-charcoal/40 tracking-[0.4em] hover:text-charcoal transition-colors uppercase font-black">PROTOCOLS</Link>
            </div>
         </div>
       </div>

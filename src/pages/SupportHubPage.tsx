@@ -162,7 +162,7 @@ export default function SupportHubPage() {
                   <div className="w-3 h-3 bg-indigo-600 rounded-full animate-pulse" />
                   <span className="font-mono text-black/30 text-xs tracking-[0.5em] font-bold uppercase">LOGISTICS_HOSPITALITY // SUPPORT_VAULT</span>
                </div>
-               <h1 className="text-6xl md:text-8xl font-display font-medium tracking-tightest leading-none">Support <span className="opacity-10 text-black italic">Dashboard.</span></h1>
+               <h1 className="text-4xl md:text-8xl font-display font-medium tracking-tightest leading-none">Support <span className="opacity-10 text-black italic">Dashboard.</span></h1>
             </div>
             
             <div className="flex items-center space-x-6">
@@ -259,17 +259,17 @@ export default function SupportHubPage() {
                         style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
 
                    {view === 'list' && (
-                     <div className="flex-1 flex flex-col items-center justify-center p-12 text-center relative z-10">
+                     <div className="flex-1 flex flex-col items-center justify-center p-8 md:p-12 text-center relative z-10">
                         <motion.div 
                           initial={{ opacity: 0, scale: 0.8 }}
                           animate={{ opacity: 1, scale: 1 }}
-                          className="w-32 h-40 bg-white border border-black/5 rounded-[4rem] flex items-center justify-center mb-12 shadow-2xl group"
+                          className="w-24 h-32 md:w-32 md:h-40 bg-white border border-black/5 rounded-[4rem] flex items-center justify-center mb-12 shadow-2xl group"
                         >
                            <Database size={56} className="text-black/10 group-hover:text-indigo-600 transition-colors duration-700" strokeWidth={0.5} />
                            <div className="absolute inset-0 border-4 border-black/5 rounded-[4rem] animate-pulse" />
                         </motion.div>
-                        <h3 className="text-4xl md:text-5xl font-display tracking-tightest uppercase mb-8">Central Intelligence Terminal</h3>
-                        <p className="text-black/40 text-sm max-w-sm font-mono uppercase tracking-[0.3em] font-bold leading-relaxed mb-16">Select a comms historical record or initialize a new discovery protocol for dedicated logistics assistance.</p>
+                        <h3 className="text-2xl md:text-5xl font-display tracking-tightest uppercase mb-8">Central Intelligence Terminal</h3>
+                        <p className="text-black/40 text-xs md:text-sm max-w-sm font-mono uppercase tracking-[0.3em] font-bold leading-relaxed mb-16">Select a comms historical record or initialize a new discovery protocol for dedicated logistics assistance.</p>
                         <motion.button 
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
@@ -293,7 +293,7 @@ export default function SupportHubPage() {
                         
                         <div className="max-w-xl">
                            <div className="space-y-4 mb-16">
-                              <h3 className="text-5xl md:text-7xl font-display tracking-tightest uppercase leading-none">New Protocol <span className="opacity-10 italic">Inquiry.</span></h3>
+                              <h3 className="text-4xl md:text-7xl font-display tracking-tightest uppercase leading-none">New Protocol <span className="opacity-10 italic">Inquiry.</span></h3>
                               <p className="text-black/40 font-mono text-[9px] tracking-[0.4em] uppercase font-bold">Deployment_Level_Clearance_4</p>
                            </div>
 

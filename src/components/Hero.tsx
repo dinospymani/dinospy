@@ -109,7 +109,7 @@ const Hero = () => {
                   <p className="font-tech text-gold text-xs md:text-sm tracking-[0.5em] font-black uppercase mb-6 drop-shadow-2xl">
                     {banners[currentIndex].subtitle || 'COLLECTION_INDEX_001'}
                   </p>
-                  <h1 className="text-6xl md:text-8xl xl:text-9xl font-display italic tracking-tightest leading-none text-white drop-shadow-2xl mb-10">
+                  <h1 className="text-4xl md:text-8xl xl:text-9xl font-display italic tracking-tightest leading-none text-white drop-shadow-2xl mb-10">
                     {banners[currentIndex].title}
                   </h1>
                   {banners[currentIndex].link && (
