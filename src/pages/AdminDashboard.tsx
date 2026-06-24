@@ -575,6 +575,12 @@ export default function AdminDashboard() {
       toast.error('DESKTOP_IMAGE_REQUIRED');
       return;
     }
+
+    if (storyBannerFile.length > 800000 || (storyBannerMobileFile && storyBannerMobileFile.length > 800000)) {
+      toast.error('Manifest too heavy: Assets exceed protocol limits. Please try a different image.');
+      return;
+    }
+
     setIsSaving(true);
     try {
       await addDoc(collection(db, 'story_banners'), {
@@ -1989,7 +1995,10 @@ export default function AdminDashboard() {
                           const file = e.target.files?.[0];
                           if (file) {
                             const reader = new FileReader();
-                            reader.onloadend = () => setStoryBannerFile(reader.result as string);
+                            reader.onloadend = async () => {
+                              const compressed = await compressImage(reader.result as string);
+                              setStoryBannerFile(compressed);
+                            };
                             reader.readAsDataURL(file);
                           }
                         }} className="w-full text-xs font-tech text-black/40 file:mr-6 file:py-3 file:px-6 file:rounded-full file:border-black/5 file:bg-neutral-100 file:text-black file:text-[10px] file:font-black file:tracking-widest cursor-pointer hover:file:bg-black hover:file:text-white transition-all" />
@@ -2005,7 +2014,10 @@ export default function AdminDashboard() {
                           const file = e.target.files?.[0];
                           if (file) {
                             const reader = new FileReader();
-                            reader.onloadend = () => setStoryBannerMobileFile(reader.result as string);
+                            reader.onloadend = async () => {
+                              const compressed = await compressImage(reader.result as string);
+                              setStoryBannerMobileFile(compressed);
+                            };
                             reader.readAsDataURL(file);
                           }
                         }} className="w-full text-xs font-tech text-black/40 file:mr-6 file:py-3 file:px-6 file:rounded-full file:border-black/5 file:bg-neutral-100 file:text-black file:text-[10px] file:font-black file:tracking-widest cursor-pointer hover:file:bg-black hover:file:text-white transition-all" />

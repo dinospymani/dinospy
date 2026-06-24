@@ -13,9 +13,9 @@ service cloud.firestore {
         request.auth.token.email == 'admin@nexus.com' ||
         request.auth.token.email == 'admin@dinospy.nexus' ||
         request.auth.token.email == 'admin@vault.com' ||
-        exists(/databases/$(database)/documents/admins/$(request.auth.uid)) ||
         (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
-         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin')
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin') ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
       ); 
     }
 
@@ -25,6 +25,16 @@ service cloud.firestore {
         (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'support')
       );
+    }
+
+    match /admin_notifications/{id} {
+      allow read: if isStaff();
+      allow write: if isAdmin();
+    }
+
+    match /broadcasts/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
     }
     
     function isStaff() {
