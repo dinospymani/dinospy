@@ -37,10 +37,10 @@ export default function StoryGallery() {
         >
           {banner.link ? (
             <Link to={banner.link} className="block group">
-              <BannerImage imageUrl={banner.imageUrl} />
+              <BannerImage imageUrl={banner.imageUrl} mobileImageUrl={banner.mobileImageUrl} />
             </Link>
           ) : (
-            <BannerImage imageUrl={banner.imageUrl} />
+            <BannerImage imageUrl={banner.imageUrl} mobileImageUrl={banner.mobileImageUrl} />
           )}
         </motion.div>
       ))}
@@ -48,13 +48,16 @@ export default function StoryGallery() {
   );
 }
 
-const BannerImage = ({ imageUrl }: { imageUrl: string }) => (
+const BannerImage = ({ imageUrl, mobileImageUrl }: { imageUrl: string; mobileImageUrl?: string }) => (
   <div className="relative aspect-[4/5] md:aspect-[21/9] w-full rounded-[2.5rem] md:rounded-[5rem] overflow-hidden shadow-2xl border border-black/5 group">
-    <img 
-      src={imageUrl} 
-      alt="Story Visual" 
-      className="absolute inset-0 w-full h-full object-cover transition-transform duration-[3s] group-hover:scale-110" 
-    />
+    <picture>
+      {mobileImageUrl && <source media="(max-width: 768px)" srcSet={mobileImageUrl} />}
+      <img 
+        src={imageUrl} 
+        alt="Story Visual" 
+        className="absolute inset-0 w-full h-full object-cover transition-transform duration-[3s] group-hover:scale-110" 
+      />
+    </picture>
     <div className="absolute inset-0 bg-black/5 group-hover:opacity-0 transition-opacity duration-1000" />
     
     {/* Decorative element to ensure premium feel */}

@@ -316,6 +316,7 @@ export default function AdminDashboard() {
 
   // Story Banner States
   const [storyBannerFile, setStoryBannerFile] = useState<string | null>(null);
+  const [storyBannerMobileFile, setStoryBannerMobileFile] = useState<string | null>(null);
   const [storyBannerLink, setStoryBannerLink] = useState('');
 
   const [bannerExpiry, setBannerExpiry] = useState('');
@@ -571,21 +572,24 @@ export default function AdminDashboard() {
   const handleAddStoryBanner = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!storyBannerFile) {
-      toast.error('IMAGE_REQUIRED');
+      toast.error('DESKTOP_IMAGE_REQUIRED');
       return;
     }
     setIsSaving(true);
     try {
       await addDoc(collection(db, 'story_banners'), {
         imageUrl: storyBannerFile,
+        mobileImageUrl: storyBannerMobileFile || storyBannerFile,
         link: storyBannerLink,
         order: storyBanners.length,
         createdAt: serverTimestamp()
       });
       setStoryBannerFile(null);
+      setStoryBannerMobileFile(null);
       setStoryBannerLink('');
       toast.success('STORY_BANNER_DEPLOYED');
     } catch (err) {
+      console.error(err);
       toast.error('DEPLOYMENT_FAILURE');
     } finally {
       setIsSaving(false);
@@ -1978,9 +1982,9 @@ export default function AdminDashboard() {
                   </div>
                   
                   <form onSubmit={handleAddStoryBanner} className="space-y-12 p-12 rounded-[5rem] border border-black/5 bg-neutral-50 shadow-xl relative overflow-hidden group">
-                    <div className="grid grid-cols-1 gap-12 relative z-10">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-12 relative z-10">
                       <div className="space-y-6">
-                        <label className="font-tech text-black/30 text-[10px] tracking-[0.4em] font-black uppercase">IMMERSIVE_IMAGE</label>
+                        <label className="font-tech text-black/30 text-[10px] tracking-[0.4em] font-black uppercase">DESKTOP_IMMERSIVE (21:9)</label>
                         <input type="file" accept="image/*" onChange={(e) => {
                           const file = e.target.files?.[0];
                           if (file) {
@@ -1990,15 +1994,31 @@ export default function AdminDashboard() {
                           }
                         }} className="w-full text-xs font-tech text-black/40 file:mr-6 file:py-3 file:px-6 file:rounded-full file:border-black/5 file:bg-neutral-100 file:text-black file:text-[10px] file:font-black file:tracking-widest cursor-pointer hover:file:bg-black hover:file:text-white transition-all" />
                         {storyBannerFile && (
-                          <div className="mt-4 aspect-video rounded-3xl overflow-hidden border border-black/10">
+                          <div className="mt-4 aspect-video rounded-3xl overflow-hidden border border-black/10 bg-white">
                             <img src={storyBannerFile} alt="Preview" className="w-full h-full object-cover" />
                           </div>
                         )}
                       </div>
-                      <div className="space-y-4">
-                        <label className="font-tech text-black/30 text-[10px] tracking-[0.4em] font-black uppercase">DESTINATION_URL (OPTIONAL)</label>
-                        <input value={storyBannerLink} onChange={e => setStoryBannerLink(e.target.value)} className="w-full bg-transparent border-b border-black/10 py-5 italic text-sm focus:border-black outline-none transition-all text-black" placeholder="/explore" />
+                      <div className="space-y-6">
+                        <label className="font-tech text-black/30 text-[10px] tracking-[0.4em] font-black uppercase">MOBILE_IMMERSIVE (4:5)</label>
+                        <input type="file" accept="image/*" onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            const reader = new FileReader();
+                            reader.onloadend = () => setStoryBannerMobileFile(reader.result as string);
+                            reader.readAsDataURL(file);
+                          }
+                        }} className="w-full text-xs font-tech text-black/40 file:mr-6 file:py-3 file:px-6 file:rounded-full file:border-black/5 file:bg-neutral-100 file:text-black file:text-[10px] file:font-black file:tracking-widest cursor-pointer hover:file:bg-black hover:file:text-white transition-all" />
+                        {storyBannerMobileFile && (
+                          <div className="mt-4 aspect-[4/5] w-32 mx-auto rounded-3xl overflow-hidden border border-black/10 bg-white">
+                            <img src={storyBannerMobileFile} alt="Preview" className="w-full h-full object-cover" />
+                          </div>
+                        )}
                       </div>
+                    </div>
+                    <div className="space-y-4 relative z-10">
+                      <label className="font-tech text-black/30 text-[10px] tracking-[0.4em] font-black uppercase">DESTINATION_URL (OPTIONAL)</label>
+                      <input value={storyBannerLink} onChange={e => setStoryBannerLink(e.target.value)} className="w-full bg-transparent border-b border-black/10 py-5 italic text-sm focus:border-black outline-none transition-all text-black" placeholder="/explore" />
                     </div>
 
                     <button type="submit" disabled={isSaving} className="w-full py-8 bg-black text-white font-tech text-xs tracking-[0.5em] font-black rounded-full hover:shadow-[0_0_50px_rgba(0,0,0,0.1)] transition-all duration-1000 uppercase relative z-10">
