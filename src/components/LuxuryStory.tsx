@@ -20,7 +20,7 @@ export const LuxuryStory = () => {
                 <span className="font-mono text-xs tracking-widest uppercase text-black font-bold">THE_LEGACY // PHILOSOPHY</span>
              </div>
              
-             <div className="flex flex-wrap gap-x-[0.3em] gap-y-1 text-[clamp(1.5rem,8vw,7rem)] font-display font-medium leading-[1.1] tracking-tightest text-black break-words">
+             <div className="flex flex-wrap text-[clamp(1.5rem,7vw,6.5rem)] font-display font-medium leading-[1.1] tracking-tightest text-black break-words max-w-full">
                 {words.map((word, i) => {
                   const start = i / words.length;
                   const end = start + (1 / words.length);
@@ -50,7 +50,7 @@ export const LuxuryStory = () => {
 const Word = ({ children, range, progress }) => {
   const opacity = useTransform(progress, range, [0, 1]);
   return (
-    <span className="relative inline-block mr-[0.2em] mb-[0.2em]">
+    <span className="relative inline-block mr-[0.3em] my-[0.1em]">
        <span className="absolute opacity-10">{children}</span>
        <motion.span style={{ opacity }}>{children}</motion.span>
     </span>

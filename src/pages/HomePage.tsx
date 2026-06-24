@@ -2,16 +2,16 @@ import React, { useEffect, useState } from 'react';
 import { motion, useScroll, useTransform } from 'motion/react';
 import Navbar from '../components/Navbar';
 import Hero from '../components/Hero';
+import StoryGallery from '../components/StoryGallery';
 import WatchCard from '../components/WatchCard';
 import ProductSkeleton from '../components/ProductSkeleton';
 import Footer from '../components/Footer';
-import { LuxuryStory } from '../components/LuxuryStory';
 import { Marquee } from '../components/Marquee';
 import { MagneticButton } from '../components/MagneticButton';
 import { db } from '../context/AuthContext';
 import { collection, onSnapshot, query, limit } from 'firebase/firestore';
 import { handleFirestoreError, OperationType } from '../lib/utils';
-import { ArrowRight, ShieldCheck, Zap, Droplets, Clock, Truck, Star, Quote } from 'lucide-react';
+import { ArrowRight, ShieldCheck, Zap, Droplets, Truck, Star, Quote } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const WhyCard = ({ icon: Icon, title, desc, i }) => (
@@ -129,73 +129,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <LuxuryStory />
-
-        {/* The Heritage (About) Section */}
-        <section id="about" className="py-40 bg-neutral-50 overflow-hidden relative w-full">
-          <div className="absolute inset-0 opacity-[0.02] pointer-events-none" 
-               style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
-          
-          <div className="w-full max-w-7xl mx-auto px-6 md:px-12 relative z-10">
-            <div className="grid grid-cols-12 gap-16 md:gap-24 items-center">
-              <div className="col-span-12 lg:col-span-6 order-2 lg:order-1">
-                 <div className="space-y-12">
-                   <div className="flex items-center space-x-6">
-                      <div className="w-1.5 h-1.5 bg-black rounded-full" />
-                      <span className="font-mono text-xs tracking-widest uppercase text-black font-bold">THE_HERITAGE // ABOUT_US</span>
-                   </div>
-                   <h2 className="text-6xl md:text-8xl font-display font-medium text-black leading-tight">
-                     Architects of <br /><span className="opacity-10 text-black italic">Infinite Time.</span>
-                   </h2>
-                   <div className="space-y-8 text-black/60 text-lg md:text-xl font-light leading-relaxed max-w-xl">
-                      <p>
-                        Established in the nexus of advanced metallurgy and traditional horology, DINOSPY was born from a singular vision: to liberate the timepiece from the constraints of the past.
-                      </p>
-                      <p>
-                        Our laboratory doesn't just assemble watches; we engineer mechanical philosophies. By blending aerospace-grade materials with hand-finished complications, we create instruments that don't just measure time—they command it.
-                      </p>
-                   </div>
-                   <div className="flex flex-wrap gap-12 pt-8">
-                      <div className="space-y-4">
-                         <span className="text-4xl font-display font-medium text-black">2012</span>
-                         <p className="font-mono text-[9px] tracking-widest text-black/30 uppercase font-black">ESTABLISHED</p>
-                      </div>
-                      <div className="space-y-4">
-                         <span className="text-4xl font-display font-medium text-black">18k+</span>
-                         <p className="font-mono text-[9px] tracking-widest text-black/30 uppercase font-black">COLLECTORS</p>
-                      </div>
-                      <div className="space-y-4">
-                         <span className="text-4xl font-display font-medium text-black">42</span>
-                         <p className="font-mono text-[9px] tracking-widest text-black/30 uppercase font-black">PATENTS</p>
-                      </div>
-                   </div>
-                 </div>
-              </div>
-              <div className="col-span-12 lg:col-span-6 order-1 lg:order-2">
-                 <div className="relative">
-                    <div className="absolute -inset-4 border border-black/5 rounded-[4rem] -rotate-3" />
-                    <div className="relative rounded-[3.5rem] overflow-hidden aspect-[4/5] shadow-2xl group border border-black/5 bg-white flex flex-col items-center justify-center p-20">
-                       <div className="absolute inset-0 opacity-[0.01]" 
-                            style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
-                       <div className="relative z-10 text-center space-y-8">
-                          <Clock size={80} strokeWidth={0.5} className="mx-auto text-black/10 transition-transform duration-[3s] group-hover:rotate-[360deg]" />
-                          <div className="space-y-2">
-                             <p className="font-tech text-[10px] tracking-widest text-black/20 uppercase font-black">Engineering_Vault</p>
-                             <p className="text-2xl font-display italic text-black/10">Precision Core.</p>
-                          </div>
-                       </div>
-                       <div className="absolute bottom-12 left-12 right-12">
-                          <div className="flex justify-between items-end border-t border-black/5 pt-8">
-                            <p className="text-black font-mono text-[9px] tracking-widest uppercase font-bold">MANUFACTORY_CENTER // SWITZERLAND</p>
-                            <p className="text-black/20 text-[8px] font-mono font-black">REF_001</p>
-                          </div>
-                       </div>
-                    </div>
-                 </div>
-              </div>
-            </div>
-          </div>
-        </section>
+        <StoryGallery />
 
         {/* Why DINOSPY: Interactive Grid */}
         <section className="py-40 bg-white w-full">

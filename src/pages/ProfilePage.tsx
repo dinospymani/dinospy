@@ -240,22 +240,22 @@ export default function ProfilePage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 md:gap-24">
           
           {/* Identity Hub */}
-          <div className="lg:col-span-4 space-y-12 md:space-y-16">
+          <div className="lg:col-span-4 flex flex-col items-center lg:items-stretch space-y-12 md:space-y-16">
             <motion.div 
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-neutral-50 text-black p-8 md:p-10 rounded-[3rem] md:rounded-[4.5rem] aspect-auto md:aspect-square flex flex-col justify-between relative overflow-hidden shadow-xl border border-black/5 group min-h-[400px] md:min-h-0"
+              className="bg-neutral-50 text-black p-8 md:p-10 rounded-[3rem] md:rounded-[4.5rem] w-full aspect-auto md:aspect-square flex flex-col justify-between relative overflow-hidden shadow-xl border border-black/5 group min-h-[350px] md:min-h-0"
             >
               <div className="absolute top-0 right-0 p-8 md:p-12 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity duration-1000 rotate-12 scale-150 text-black">
                 <Shield size={180} md:size={240} strokeWidth={1} />
               </div>
               
-              <div className="relative z-10 w-full">
-                <div className="flex justify-between items-start mb-12 md:mb-20">
+              <div className="relative z-10 w-full text-center lg:text-left">
+                <div className="flex flex-col lg:flex-row justify-between items-center lg:items-start mb-12 md:mb-20 gap-6">
                   <div className="w-16 h-16 md:w-20 md:h-20 bg-black text-white rounded-full flex items-center justify-center shadow-2xl shrink-0">
                     <User size={24} md:size={32} strokeWidth={1} />
                   </div>
-                  <div className="text-right">
+                  <div className="text-center lg:text-right">
                     <span className="font-mono text-black/20 text-[8px] md:text-[9px] tracking-[0.4em] uppercase mb-2 block font-bold">Member_Auth_Status</span>
                     <div className="px-4 md:px-6 py-2 rounded-full border border-black/20 text-black text-[8px] md:text-[9px] font-mono font-bold tracking-[0.3em] uppercase inline-block">
                        {profile?.role === 'admin' ? 'SYSTEM_ROOT' : 'AUTHENTICATED_NODE'}
@@ -263,17 +263,17 @@ export default function ProfilePage() {
                   </div>
                 </div>
                 
-                <h2 className="text-4xl md:text-7xl font-display font-medium tracking-tightest mb-6 uppercase leading-none break-words">
-                  {profile?.displayName?.split(' ')[0] || 'Member'} <span className="opacity-10 text-black italic">{profile?.displayName?.split(' ')[1] || ''}</span>
+                <h2 className="text-[clamp(2.5rem,8vw,4.5rem)] md:text-7xl font-display font-medium tracking-tightest mb-6 uppercase leading-tight break-words">
+                  {profile?.displayName?.split(' ')[0] || 'Member'} <br className="md:hidden" /> <span className="opacity-10 text-black italic">{profile?.displayName?.split(' ')[1] || ''}</span>
                 </h2>
-                <div className="flex items-center space-x-4 md:space-x-6">
+                <div className="flex items-center justify-center lg:justify-start space-x-4 md:space-x-6">
                    <div className="w-2 h-2 md:w-2.5 md:h-2.5 bg-black rounded-full animate-pulse shrink-0" />
-                   <p className="font-mono text-[10px] md:text-xs text-black/40 tracking-[0.3em] font-bold break-all">{profile?.email?.toUpperCase()}</p>
+                   <p className="font-mono text-[9px] md:text-xs text-black/40 tracking-[0.3em] font-bold break-all max-w-[250px] md:max-w-none">{profile?.email?.toUpperCase()}</p>
                 </div>
               </div>
 
-              <div className="relative z-10 pt-8 md:pt-12 border-t border-black/5 flex justify-between items-end mt-8 md:mt-0">
-                <div className="space-y-2 md:space-y-3">
+              <div className="relative z-10 pt-8 md:pt-12 border-t border-black/5 flex flex-col sm:flex-row justify-between items-center lg:items-end mt-8 md:mt-0 gap-8">
+                <div className="space-y-2 md:space-y-3 text-center lg:text-left">
                   <p className="font-mono text-black/10 text-[8px] md:text-[9px] tracking-[0.5em] uppercase font-bold">Node_Identification</p>
                   <p className="font-mono text-[10px] md:text-sm font-bold tracking-tight text-black/30 break-all">{user?.uid.slice(0, 16).toUpperCase()}</p>
                 </div>

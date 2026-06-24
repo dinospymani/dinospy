@@ -252,7 +252,8 @@ export default function AdminDashboard() {
   const [banners, setBanners] = useState<any[]>([]);
   const [offers, setOffers] = useState<any[]>([]);
   const [galleryItems, setGalleryItems] = useState<any[]>([]);
-  const [view, setView] = useState<'products' | 'orders' | 'add' | 'banners' | 'offers' | 'gallery' | 'stats' | 'notifications' | 'broadcast' | 'coupons' | 'security' | 'support'>('stats');
+  const [storyBanners, setStoryBanners] = useState<any[]>([]);
+  const [view, setView] = useState<'products' | 'orders' | 'add' | 'banners' | 'offers' | 'gallery' | 'story_banners' | 'stats' | 'notifications' | 'broadcast' | 'coupons' | 'security' | 'support'>('stats');
   const [selectedOrder, setSelectedOrder] = useState<AdminOrder | null>(null);
   const [supportChats, setSupportChats] = useState<any[]>([]);
   const [activeSupportChat, setActiveSupportChat] = useState<string | null>(null);
@@ -312,6 +313,11 @@ export default function AdminDashboard() {
   const [bannerMobileImage, setBannerMobileImage] = useState('');
   const [bannerMobileImageFile, setBannerMobileImageFile] = useState<string | null>(null);
   const [bannerLink, setBannerLink] = useState('');
+
+  // Story Banner States
+  const [storyBannerFile, setStoryBannerFile] = useState<string | null>(null);
+  const [storyBannerLink, setStoryBannerLink] = useState('');
+
   const [bannerExpiry, setBannerExpiry] = useState('');
   const [bannerDisplayDesktop, setBannerDisplayDesktop] = useState(true);
   const [bannerDisplayMobile, setBannerDisplayMobile] = useState(true);
@@ -468,6 +474,13 @@ export default function AdminDashboard() {
       console.warn("Gallery isolation active:", error);
     });
 
+    // STORY BANNERS LISTENER
+    const unsubStoryBanners = onSnapshot(query(collection(db, 'story_banners'), orderBy('order', 'asc')), (snap) => {
+      setStoryBanners(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    }, (error) => {
+      console.warn("Story banners isolation active:", error);
+    });
+
     // Auto-redirect support role to support view
     if (profile?.role === 'support') {
       setView('support');
@@ -480,6 +493,7 @@ export default function AdminDashboard() {
       unsubSupport();
       unsubNotif();
       unsubGallery();
+      unsubStoryBanners();
     };
   }, []);
 
@@ -551,6 +565,56 @@ export default function AdminDashboard() {
       setActiveSupportChat(null);
     } catch (err) {
       toast.error('Termination handshake failed.');
+    }
+  };
+
+  const handleAddStoryBanner = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!storyBannerFile) {
+      toast.error('IMAGE_REQUIRED');
+      return;
+    }
+    setIsSaving(true);
+    try {
+      await addDoc(collection(db, 'story_banners'), {
+        imageUrl: storyBannerFile,
+        link: storyBannerLink,
+        order: storyBanners.length,
+        createdAt: serverTimestamp()
+      });
+      setStoryBannerFile(null);
+      setStoryBannerLink('');
+      toast.success('STORY_BANNER_DEPLOYED');
+    } catch (err) {
+      toast.error('DEPLOYMENT_FAILURE');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleDeleteStoryBanner = async (id: string) => {
+    if (!window.confirm('Delete this story banner?')) return;
+    try {
+      await deleteDoc(doc(db, 'story_banners', id));
+      toast.success('BANNER_PURGED');
+    } catch (err) {
+      toast.error('PURGE_FAILED');
+    }
+  };
+
+  const handleMoveStoryBanner = async (index: number, direction: 'up' | 'down') => {
+    const newBanners = [...storyBanners];
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= newBanners.length) return;
+
+    [newBanners[index], newBanners[targetIndex]] = [newBanners[targetIndex], newBanners[index]];
+
+    try {
+      await Promise.all(newBanners.map((b, i) => 
+        updateDoc(doc(db, 'story_banners', b.id), { order: i })
+      ));
+    } catch (err) {
+      toast.error('REORDER_FAILED');
     }
   };
 
@@ -1163,7 +1227,7 @@ export default function AdminDashboard() {
         discount: 0,
         isOffer: false,
         category: 'Avant-Garde',
-        images: ['https://images.unsplash.com/photo-1579586337278-3befd40fd17a?auto=format&fit=crop&q=80&w=2072'],
+        images: ['/src/assets/images/vanguard_carbon_watch_1782293507993.jpg'],
         description: 'The apex of wearable tech. OLED display with sapphire edge-to-edge protection. Syncs your digital life with luxury.',
         isTrending: true,
         isNewArrival: false,
@@ -1178,7 +1242,7 @@ export default function AdminDashboard() {
         discount: 0,
         isOffer: false,
         category: 'Deep Sea',
-        images: ['https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?auto=format&fit=crop&q=80&w=1974'],
+        images: ['/src/assets/images/hero_skeleton_movement_1782293477542.jpg'],
         description: 'Waterproof up to 1000m. Built like a tank, finished like a diamond.',
         isTrending: true,
         isNewArrival: false,
@@ -1486,6 +1550,7 @@ export default function AdminDashboard() {
                 { id: 'support', label: 'SUPPORT', icon: MessageSquare, urgent: supportChats.some(c => c.unreadByAdmin) },
                 { id: 'broadcast', label: 'SIGNAL', icon: Megaphone, adminOnly: true },
                 { id: 'banners', label: 'VISUALS', icon: Eye, adminOnly: true },
+                { id: 'story_banners', label: 'STORY_FEED', icon: ImageIcon, adminOnly: true },
                 { id: 'offers', label: 'PROMO_SCROLL', icon: Megaphone, adminOnly: true },
                 { id: 'gallery', label: 'GALLERY', icon: ImageIcon, adminOnly: true },
                 { id: 'coupons', label: 'PROTOCOLS', icon: Zap, adminOnly: true },
@@ -1897,6 +1962,68 @@ export default function AdminDashboard() {
                       </tbody>
                     </table>
                   </div>
+               </div>
+            </div>
+          )}
+
+          {view === 'story_banners' && (
+            <div className="space-y-20 animate-in fade-in duration-1000">
+               <div className="max-w-4xl space-y-12">
+                  <div className="space-y-6">
+                    <div className="flex items-center space-x-6">
+                       <div className="w-3 h-3 bg-black rounded-full shadow-[0_0_15px_rgba(0,0,0,0.2)]" />
+                       <span className="font-tech text-black/30 text-xs tracking-[0.5em] font-black uppercase">STORY_ASSETS // BRAND_IMMERSION</span>
+                    </div>
+                    <h2 className="text-6xl md:text-8xl font-display italic tracking-tightest leading-none text-black">Story <span className="opacity-10 text-black font-sans italic">Banners.</span></h2>
+                  </div>
+                  
+                  <form onSubmit={handleAddStoryBanner} className="space-y-12 p-12 rounded-[5rem] border border-black/5 bg-neutral-50 shadow-xl relative overflow-hidden group">
+                    <div className="grid grid-cols-1 gap-12 relative z-10">
+                      <div className="space-y-6">
+                        <label className="font-tech text-black/30 text-[10px] tracking-[0.4em] font-black uppercase">IMMERSIVE_IMAGE</label>
+                        <input type="file" accept="image/*" onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            const reader = new FileReader();
+                            reader.onloadend = () => setStoryBannerFile(reader.result as string);
+                            reader.readAsDataURL(file);
+                          }
+                        }} className="w-full text-xs font-tech text-black/40 file:mr-6 file:py-3 file:px-6 file:rounded-full file:border-black/5 file:bg-neutral-100 file:text-black file:text-[10px] file:font-black file:tracking-widest cursor-pointer hover:file:bg-black hover:file:text-white transition-all" />
+                        {storyBannerFile && (
+                          <div className="mt-4 aspect-video rounded-3xl overflow-hidden border border-black/10">
+                            <img src={storyBannerFile} alt="Preview" className="w-full h-full object-cover" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="space-y-4">
+                        <label className="font-tech text-black/30 text-[10px] tracking-[0.4em] font-black uppercase">DESTINATION_URL (OPTIONAL)</label>
+                        <input value={storyBannerLink} onChange={e => setStoryBannerLink(e.target.value)} className="w-full bg-transparent border-b border-black/10 py-5 italic text-sm focus:border-black outline-none transition-all text-black" placeholder="/explore" />
+                      </div>
+                    </div>
+
+                    <button type="submit" disabled={isSaving} className="w-full py-8 bg-black text-white font-tech text-xs tracking-[0.5em] font-black rounded-full hover:shadow-[0_0_50px_rgba(0,0,0,0.1)] transition-all duration-1000 uppercase relative z-10">
+                      {isSaving ? 'DEPLOYING_STORY...' : 'INJECT_STORY_ASSET'}
+                    </button>
+                  </form>
+               </div>
+
+               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {storyBanners.length === 0 && <p className="text-black/20 font-tech text-sm py-32 text-center col-span-full tracking-[0.5em]">NO_STORY_ASSETS_IN_FEED</p>}
+                  {storyBanners.map((b, index) => (
+                    <div key={b.id} className="group relative p-6 rounded-[3rem] border border-black/5 bg-white hover:border-black/10 transition-all duration-700 shadow-lg flex flex-col">
+                       <div className="aspect-[4/5] rounded-[2rem] overflow-hidden bg-neutral-100 mb-6 relative border border-black/5">
+                          <img src={b.imageUrl} className="w-full h-full object-cover transition-transform duration-[3s] group-hover:scale-110" alt="Story Asset" />
+                          <div className="absolute top-4 left-4 px-3 py-1 bg-black/80 rounded-full text-[8px] font-tech font-black text-white tracking-widest backdrop-blur-md">#{index + 1}</div>
+                       </div>
+                       <div className="flex items-center justify-between">
+                          <div className="flex space-x-2">
+                             <button onClick={() => handleMoveStoryBanner(index, 'up')} disabled={index === 0} className="w-10 h-10 rounded-xl border border-black/5 bg-neutral-50 flex items-center justify-center text-black/20 hover:text-black disabled:opacity-30 transition-all"><ChevronLeft size={16} className="rotate-90" /></button>
+                             <button onClick={() => handleMoveStoryBanner(index, 'down')} disabled={index === storyBanners.length - 1} className="w-10 h-10 rounded-xl border border-black/5 bg-neutral-50 flex items-center justify-center text-black/20 hover:text-black disabled:opacity-30 transition-all"><ChevronLeft size={16} className="-rotate-90" /></button>
+                          </div>
+                          <button onClick={() => handleDeleteStoryBanner(b.id)} className="w-10 h-10 rounded-xl bg-red-50 text-red-500 flex items-center justify-center transition-all hover:bg-red-500 hover:text-white"><Trash2 size={16} strokeWidth={1.5} /></button>
+                       </div>
+                    </div>
+                  ))}
                </div>
             </div>
           )}

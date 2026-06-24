@@ -132,23 +132,38 @@ export default function Navbar() {
               </button>
             </div>
 
-            <nav className="flex flex-col space-y-12">
+            <nav className="flex flex-col space-y-10">
                {navLinks.map((link, i) => (
                  <motion.div
                    key={link.label}
                    initial={{ opacity: 0, x: -20 }}
                    animate={{ opacity: 1, x: 0 }}
-                   transition={{ delay: 0.2 + i * 0.1 }}
+                   transition={{ delay: 0.1 + i * 0.05 }}
                  >
                    <Link 
                      to={link.to}
                      onClick={() => setIsMobileMenuOpen(false)}
-                     className="text-5xl font-display text-charcoal hover:text-luxury-gold transition-colors font-medium tracking-tightest uppercase"
+                     className="text-4xl sm:text-5xl font-display text-charcoal hover:text-luxury-gold transition-colors font-medium tracking-tightest uppercase"
                    >
                      {link.label}
                    </Link>
                  </motion.div>
                ))}
+               {user && (
+                 <motion.div
+                   initial={{ opacity: 0, x: -20 }}
+                   animate={{ opacity: 1, x: 0 }}
+                   transition={{ delay: 0.4 }}
+                 >
+                   <Link 
+                     to="/profile"
+                     onClick={() => setIsMobileMenuOpen(false)}
+                     className="text-4xl sm:text-5xl font-display text-charcoal hover:text-luxury-gold transition-colors font-medium tracking-tightest uppercase flex items-center"
+                   >
+                     MY_IDENTITY <User className="ml-4" size={32} strokeWidth={1} />
+                   </Link>
+                 </motion.div>
+               )}
             </nav>
 
             <div className="mt-auto grid grid-cols-2 gap-12 py-16 border-t border-charcoal/5">
