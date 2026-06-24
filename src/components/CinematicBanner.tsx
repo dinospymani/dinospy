@@ -74,7 +74,7 @@ export default function CinematicBanner({
               className={`inline-flex items-center group transition-all duration-1000 ${align === 'right' ? 'flex-row-reverse' : ''}`}
             >
               <div className="w-20 h-20 md:w-28 md:h-28 rounded-full border border-black/10 flex items-center justify-center group-hover:border-black group-hover:bg-black group-hover:text-white transition-all duration-1000 group-hover:scale-110 shrink-0">
-                <ArrowRight className="transition-transform duration-1000 group-hover:rotate-[-45deg]" size={24} md:size={36} />
+                <ArrowRight className="transition-transform duration-1000 group-hover:rotate-[-45deg]" size={36} />
               </div>
               <div className={`flex flex-col mx-6 md:mx-12 ${align === 'right' ? 'items-end text-right' : 'items-start text-left'}`}>
                  <span className="font-tech text-[8px] md:text-[9px] text-black/20 mb-3 font-bold uppercase tracking-[1em] md:tracking-[1.5em]">REFERENCE_PROTOCOL</span>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { User, Package, Settings, LogOut, Shield, ChevronRight, ArrowLeft, MessageSquare, ShieldAlert, Database, CreditCard, ShieldCheck } from 'lucide-react';
+import { User, Package, Settings, LogOut, Shield, ChevronRight, ArrowLeft, MessageSquare, ShieldAlert, Database, CreditCard, ShieldCheck, Activity } from 'lucide-react';
 import { useAuth, db } from '../context/AuthContext';
 import { collection, query, where, getDocs, doc, updateDoc } from 'firebase/firestore';
 import Navbar from '../components/Navbar';
@@ -247,13 +247,13 @@ export default function ProfilePage() {
               className="bg-neutral-50 text-black p-8 md:p-10 rounded-[3rem] md:rounded-[4.5rem] w-full aspect-auto md:aspect-square flex flex-col justify-between relative overflow-hidden shadow-xl border border-black/5 group min-h-[350px] md:min-h-0"
             >
               <div className="absolute top-0 right-0 p-8 md:p-12 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity duration-1000 rotate-12 scale-150 text-black">
-                <Shield size={180} md:size={240} strokeWidth={1} />
+                <Shield size={180} strokeWidth={1} />
               </div>
               
               <div className="relative z-10 w-full text-center lg:text-left">
                 <div className="flex flex-col lg:flex-row justify-between items-center lg:items-start mb-12 md:mb-20 gap-6">
                   <div className="w-16 h-16 md:w-20 md:h-20 bg-black text-white rounded-full flex items-center justify-center shadow-2xl shrink-0">
-                    <User size={24} md:size={32} strokeWidth={1} />
+                    <User size={24} strokeWidth={1} />
                   </div>
                   <div className="text-center lg:text-right">
                     <span className="font-mono text-black/20 text-[8px] md:text-[9px] tracking-[0.4em] uppercase mb-2 block font-bold">Member_Auth_Status</span>
@@ -278,7 +278,7 @@ export default function ProfilePage() {
                   <p className="font-mono text-[10px] md:text-sm font-bold tracking-tight text-black/30 break-all">{user?.uid.slice(0, 16).toUpperCase()}</p>
                 </div>
                 <div className="bg-white p-4 md:p-5 rounded-[2rem] md:rounded-[2.5rem] shadow-xl border border-black/5 group-hover:scale-110 transition-transform duration-700 shrink-0">
-                  <QRCodeSVG value={user?.uid || 'DINOSPY'} size={40} md:size={60} fgColor="#000" bgColor="transparent" />
+                  <QRCodeSVG value={user?.uid || 'DINOSPY'} size={40} fgColor="#000" bgColor="transparent" />
                 </div>
               </div>
             </motion.div>
@@ -293,14 +293,14 @@ export default function ProfilePage() {
                   <Link to="/admin" className="flex items-center justify-between p-6 md:p-10 bg-black text-white rounded-[2.5rem] md:rounded-[3.5rem] group/admin transition-all duration-700 hover:scale-[1.02] shadow-2xl">
                     <div className="flex items-center space-x-6 md:space-x-8">
                        <div className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-white/10 text-white flex items-center justify-center shrink-0">
-                          <Shield size={20} md:size={24} strokeWidth={1} />
+                          <Shield size={20} strokeWidth={1} />
                        </div>
                        <div className="space-y-1">
                           <p className="font-mono text-[9px] md:text-[10px] tracking-[0.4em] md:tracking-[0.5em] font-bold uppercase">Command_Core</p>
                           <p className="text-xs md:text-sm font-display italic opacity-60">Management & Support</p>
                        </div>
                     </div>
-                    <ChevronRight size={20} md:size={24} className="group-hover:translate-x-2 transition-transform" />
+                    <ChevronRight size={20} className="group-hover:translate-x-2 transition-transform" />
                   </Link>
                 )}
                 <Link 
@@ -309,14 +309,14 @@ export default function ProfilePage() {
                 >
                   <div className="flex items-center space-x-6 md:space-x-8 text-black transition-colors">
                      <div className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/5 flex items-center justify-center border border-black/5 transition-colors shrink-0">
-                        <MessageSquare size={20} md:size={24} strokeWidth={1} />
+                        <MessageSquare size={20} strokeWidth={1} />
                      </div>
                      <div className="space-y-1 text-left">
                         <p className="font-mono text-[9px] md:text-[10px] tracking-[0.4em] md:tracking-[0.5em] font-bold uppercase transition-colors">Support_Hub</p>
                         <p className="text-xs md:text-sm font-display italic opacity-40">Report Issues & Tickets</p>
                      </div>
                   </div>
-                  <ChevronRight size={20} md:size={24} strokeWidth={1} className="opacity-10 group-hover/support:opacity-100 group-hover/support:translate-x-2 transition-all" />
+                  <ChevronRight size={20} strokeWidth={1} className="opacity-10 group-hover/support:opacity-100 group-hover/support:translate-x-2 transition-all" />
                 </Link>
                 <button 
                   onClick={signOut}
@@ -324,14 +324,14 @@ export default function ProfilePage() {
                 >
                   <div className="flex items-center space-x-6 md:space-x-8 text-black group-hover/logout:text-black transition-colors">
                      <div className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-white flex items-center justify-center border border-black/5 transition-colors shrink-0">
-                        <LogOut size={20} md:size={24} strokeWidth={1} />
+                        <LogOut size={20} strokeWidth={1} />
                      </div>
                      <div className="space-y-1 text-left">
                         <p className="font-mono text-[9px] md:text-[10px] tracking-[0.4em] md:tracking-[0.5em] font-bold uppercase transition-colors">Terminate_Session</p>
                         <p className="text-xs md:text-sm font-display italic opacity-40">Secure Node De-auth</p>
                      </div>
                   </div>
-                  <ChevronRight size={20} md:size={24} strokeWidth={1} className="opacity-10 group-hover/logout:opacity-100 group-hover/logout:translate-x-2 transition-all" />
+                  <ChevronRight size={20} strokeWidth={1} className="opacity-10 group-hover/logout:opacity-100 group-hover/logout:translate-x-2 transition-all" />
                 </button>
               </div>
             </div>

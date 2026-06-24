@@ -27,7 +27,7 @@ const WhyCard = ({ icon: Icon, title, desc, i }) => (
     
     <div className="relative z-10">
       <div className="w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-black flex items-center justify-center mb-6 md:mb-8 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-700">
-        <Icon size={24} md:size={32} className="text-white" strokeWidth={1} />
+        <Icon size={32} className="text-white" strokeWidth={1} />
       </div>
       <h3 className="font-display text-xl md:text-2xl mb-4 text-black">{title}</h3>
       <p className="text-black/40 text-[13px] md:text-sm leading-relaxed font-light">{desc}</p>
@@ -37,10 +37,10 @@ const WhyCard = ({ icon: Icon, title, desc, i }) => (
 
 const TestimonialCard = ({ text, author, title }) => (
   <div className="bg-white p-8 md:p-12 rounded-[2.5rem] md:rounded-[3.5rem] w-[280px] sm:w-[400px] md:w-[500px] border border-black/5 luxury-shadow relative overflow-hidden group flex-shrink-0">
-    <Quote className="absolute top-4 right-4 md:top-8 md:right-8 opacity-5 text-black group-hover:opacity-10 transition-opacity duration-1000" size={60} md:size={120} />
+    <Quote className="absolute top-4 right-4 md:top-8 md:right-8 opacity-5 text-black group-hover:opacity-10 transition-opacity duration-1000" size={120} />
     <div className="relative z-10 space-y-6 md:space-y-8">
       <div className="flex space-x-1 opacity-20">
-        {[...Array(5)].map((_, i) => <Star key={i} size={12} md:size={14} className="text-black fill-black" />)}
+        {[...Array(5)].map((_, i) => <Star key={i} size={14} className="text-black fill-black" />)}
       </div>
       <p className="text-lg md:text-2xl font-display font-medium text-black/80 leading-relaxed max-w-sm">"{text}"</p>
       <div className="flex flex-col">

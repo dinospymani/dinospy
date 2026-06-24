@@ -8,6 +8,7 @@ import { MagneticButton } from './MagneticButton';
 
 export default function Navbar() {
   const { user, setIsAuthModalOpen } = useAuth();
+  const navigate = useNavigate();
   const { cartCount } = useCart();
   const { scrollY } = useScroll();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -76,20 +77,14 @@ export default function Navbar() {
           </div>
 
           <div className="flex items-center space-x-4 md:space-x-6">
-            {user ? (
-               <Link to="/profile">
-                  <MagneticButton className="w-10 h-10 rounded-full border border-current/5 flex items-center justify-center hover:bg-current hover:text-white transition-all">
-                    <User size={16} strokeWidth={1.5} />
-                  </MagneticButton>
-               </Link>
-            ) : (
-              <button 
-                onClick={() => setIsAuthModalOpen(true)}
-                className="hidden md:block font-mono text-[8px] tracking-[0.4em] font-black opacity-40 hover:opacity-100 transition-colors uppercase"
-              >
-                AUTHENTICATE
-              </button>
-            )}
+            <button 
+              onClick={() => user ? navigate('/profile') : setIsAuthModalOpen(true)}
+              className="flex items-center"
+            >
+              <MagneticButton className="w-10 h-10 rounded-full border border-current/5 flex items-center justify-center hover:bg-current hover:text-white transition-all">
+                <User size={16} strokeWidth={1.5} />
+              </MagneticButton>
+            </button>
 
             <Link to="/cart">
               <MagneticButton className="relative p-2 hover:text-luxury-gold transition-colors">
@@ -149,21 +144,21 @@ export default function Navbar() {
                    </Link>
                  </motion.div>
                ))}
-               {user && (
-                 <motion.div
-                   initial={{ opacity: 0, x: -20 }}
-                   animate={{ opacity: 1, x: 0 }}
-                   transition={{ delay: 0.4 }}
-                 >
-                   <Link 
-                     to="/profile"
-                     onClick={() => setIsMobileMenuOpen(false)}
-                     className="text-4xl sm:text-5xl font-display text-charcoal hover:text-luxury-gold transition-colors font-medium tracking-tightest uppercase flex items-center"
-                   >
-                     MY_IDENTITY <User className="ml-4" size={32} strokeWidth={1} />
-                   </Link>
-                 </motion.div>
-               )}
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.4 }}
+                >
+                  <button 
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                      user ? navigate('/profile') : setIsAuthModalOpen(true);
+                    }}
+                    className="text-4xl sm:text-5xl font-display text-charcoal hover:text-luxury-gold transition-colors font-medium tracking-tightest uppercase flex items-center text-left"
+                  >
+                    {user ? 'MY_IDENTITY' : 'AUTHENTICATE'} <User className="ml-4" size={32} strokeWidth={1} />
+                  </button>
+                </motion.div>
             </nav>
 
             <div className="mt-auto grid grid-cols-2 gap-12 py-16 border-t border-charcoal/5">

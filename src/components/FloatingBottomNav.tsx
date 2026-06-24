@@ -1,17 +1,20 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Home, Search, Heart, ShoppingCart, User, Menu } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 export const FloatingBottomNav = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, setIsAuthModalOpen } = useAuth();
   
   const navItems = [
     { icon: Home, path: '/', label: 'HOME' },
     { icon: Search, path: '/explore', label: 'EXPLORE' },
     { icon: Heart, path: '/wishlist', label: 'WISHES' },
     { icon: ShoppingCart, path: '/cart', label: 'VAULT' },
-    { icon: User, path: '/profile', label: 'IDENTITY' },
+    { icon: User, path: '/profile', label: 'IDENTITY', auth: true },
   ];
 
   return (
@@ -19,8 +22,21 @@ export const FloatingBottomNav = () => {
       <div className="bg-black py-4 sm:py-5 px-6 sm:px-8 rounded-full shadow-2xl flex items-center justify-between border border-white/10">
         {navItems.map((item) => {
           const isActive = location.pathname === item.path;
+          
+          const handleClick = (e: React.MouseEvent) => {
+            if (item.auth && !user) {
+              e.preventDefault();
+              setIsAuthModalOpen(true);
+            }
+          };
+
           return (
-            <Link key={item.path} to={item.path} className="relative group">
+            <Link 
+              key={item.path} 
+              to={item.path} 
+              onClick={handleClick}
+              className="relative group"
+            >
               <motion.div
                 animate={{ 
                   scale: isActive ? 1.2 : 1,
