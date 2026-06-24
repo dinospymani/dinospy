@@ -10,35 +10,55 @@ const Hero = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
 
+  const defaultBanners = [
+    {
+      title: "Mechanical Sovereignty.",
+      subtitle: "VAULT_SERIES_001",
+      imageUrl: "/src/assets/images/hero_skeleton_movement_1782293477542.jpg",
+      link: "/explore"
+    },
+    {
+      title: "Oceanic Mastery.",
+      subtitle: "DIVER_PROTOCOL_002",
+      imageUrl: "/src/assets/images/diver_watch_underwater_1782293493132.jpg",
+      link: "/explore?category=DIVER"
+    },
+    {
+      title: "Minimalist Legacy.",
+      subtitle: "MINIMAL_LEGACY_003",
+      imageUrl: "/src/assets/images/minimalist_marble_watch_1782293522898.jpg",
+      link: "/explore?category=CLASSIC"
+    }
+  ];
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         if (!db) {
-          console.error('Firestore db is not initialized');
+          setBanners(defaultBanners);
+          setLoading(false);
           return;
         }
 
-        // Fetch banners and offers in parallel with independent error handling
         const [bSnapResult, oSnapResult] = await Promise.allSettled([
           getDocs(collection(db, 'banners')),
           getDocs(collection(db, 'offers'))
         ]);
 
-        if (bSnapResult.status === 'fulfilled') {
+        if (bSnapResult.status === 'fulfilled' && !bSnapResult.value.empty) {
           const bannerList = bSnapResult.value.docs.map(doc => ({ id: doc.id, ...doc.data() }));
           setBanners(bannerList);
         } else {
-          console.error('Permission/Error fetching banners:', bSnapResult.reason);
+          setBanners(defaultBanners);
         }
 
         if (oSnapResult.status === 'fulfilled') {
           const offerList = oSnapResult.value.docs.map(doc => ({ id: doc.id, ...doc.data() }));
           setOffers(offerList);
-        } else {
-          console.error('Permission/Error fetching offers:', oSnapResult.reason);
         }
       } catch (error) {
         console.error('Hero generic fetch error:', error);
+        setBanners(defaultBanners);
       } finally {
         setLoading(false);
       }
@@ -109,7 +129,7 @@ const Hero = () => {
                   <p className="font-tech text-gold text-xs md:text-sm tracking-[0.5em] font-black uppercase mb-6 drop-shadow-2xl">
                     {banners[currentIndex].subtitle || 'COLLECTION_INDEX_001'}
                   </p>
-                  <h1 className="text-[clamp(2.5rem,10vw,8rem)] font-display italic tracking-tightest leading-none text-white drop-shadow-2xl mb-10">
+                  <h1 className="text-[clamp(2.2rem,11vw,9rem)] font-display italic tracking-tightest leading-[0.95] text-white drop-shadow-2xl mb-10 break-words overflow-hidden">
                     {banners[currentIndex].title}
                   </h1>
                   {banners[currentIndex].link && (

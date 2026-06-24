@@ -240,98 +240,98 @@ export default function ProfilePage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 md:gap-24">
           
           {/* Identity Hub */}
-          <div className="lg:col-span-4 space-y-16">
+          <div className="lg:col-span-4 space-y-12 md:space-y-16">
             <motion.div 
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-neutral-50 text-black p-10 rounded-[4.5rem] aspect-square flex flex-col justify-between relative overflow-hidden shadow-xl border border-black/5 group"
+              className="bg-neutral-50 text-black p-8 md:p-10 rounded-[3rem] md:rounded-[4.5rem] aspect-auto md:aspect-square flex flex-col justify-between relative overflow-hidden shadow-xl border border-black/5 group min-h-[400px] md:min-h-0"
             >
-              <div className="absolute top-0 right-0 p-12 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity duration-1000 rotate-12 scale-150 text-black">
-                <Shield size={240} strokeWidth={1} />
+              <div className="absolute top-0 right-0 p-8 md:p-12 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity duration-1000 rotate-12 scale-150 text-black">
+                <Shield size={180} md:size={240} strokeWidth={1} />
               </div>
               
               <div className="relative z-10 w-full">
-                <div className="flex justify-between items-start mb-20">
-                  <div className="w-20 h-20 bg-black text-white rounded-full flex items-center justify-center shadow-2xl">
-                    <User size={32} strokeWidth={1} />
+                <div className="flex justify-between items-start mb-12 md:mb-20">
+                  <div className="w-16 h-16 md:w-20 md:h-20 bg-black text-white rounded-full flex items-center justify-center shadow-2xl shrink-0">
+                    <User size={24} md:size={32} strokeWidth={1} />
                   </div>
                   <div className="text-right">
-                    <span className="font-mono text-black/20 text-[9px] tracking-[0.4em] uppercase mb-2 block font-bold">Member_Auth_Status</span>
-                    <div className="px-6 py-2 rounded-full border border-black/20 text-black text-[9px] font-mono font-bold tracking-[0.3em] uppercase inline-block">
+                    <span className="font-mono text-black/20 text-[8px] md:text-[9px] tracking-[0.4em] uppercase mb-2 block font-bold">Member_Auth_Status</span>
+                    <div className="px-4 md:px-6 py-2 rounded-full border border-black/20 text-black text-[8px] md:text-[9px] font-mono font-bold tracking-[0.3em] uppercase inline-block">
                        {profile?.role === 'admin' ? 'SYSTEM_ROOT' : 'AUTHENTICATED_NODE'}
                     </div>
                   </div>
                 </div>
                 
-                <h2 className="text-5xl md:text-7xl font-display font-medium tracking-tightest mb-6 uppercase leading-none">
+                <h2 className="text-4xl md:text-7xl font-display font-medium tracking-tightest mb-6 uppercase leading-none break-words">
                   {profile?.displayName?.split(' ')[0] || 'Member'} <span className="opacity-10 text-black italic">{profile?.displayName?.split(' ')[1] || ''}</span>
                 </h2>
-                <div className="flex items-center space-x-6">
-                   <div className="w-2.5 h-2.5 bg-black rounded-full animate-pulse" />
-                   <p className="font-mono text-xs text-black/40 tracking-[0.3em] font-bold">{profile?.email?.toUpperCase()}</p>
+                <div className="flex items-center space-x-4 md:space-x-6">
+                   <div className="w-2 h-2 md:w-2.5 md:h-2.5 bg-black rounded-full animate-pulse shrink-0" />
+                   <p className="font-mono text-[10px] md:text-xs text-black/40 tracking-[0.3em] font-bold break-all">{profile?.email?.toUpperCase()}</p>
                 </div>
               </div>
 
-              <div className="relative z-10 pt-12 border-t border-black/5 flex justify-between items-end">
-                <div className="space-y-3">
-                  <p className="font-mono text-black/10 text-[9px] tracking-[0.5em] uppercase font-bold">Node_Identification</p>
-                  <p className="font-mono text-sm font-bold tracking-tight text-black/30">{user?.uid.slice(0, 16).toUpperCase()}</p>
+              <div className="relative z-10 pt-8 md:pt-12 border-t border-black/5 flex justify-between items-end mt-8 md:mt-0">
+                <div className="space-y-2 md:space-y-3">
+                  <p className="font-mono text-black/10 text-[8px] md:text-[9px] tracking-[0.5em] uppercase font-bold">Node_Identification</p>
+                  <p className="font-mono text-[10px] md:text-sm font-bold tracking-tight text-black/30 break-all">{user?.uid.slice(0, 16).toUpperCase()}</p>
                 </div>
-                <div className="bg-white p-5 rounded-[2.5rem] shadow-xl border border-black/5 group-hover:scale-110 transition-transform duration-700">
-                  <QRCodeSVG value={user?.uid || 'DINOSPY'} size={60} fgColor="#000" bgColor="transparent" />
+                <div className="bg-white p-4 md:p-5 rounded-[2rem] md:rounded-[2.5rem] shadow-xl border border-black/5 group-hover:scale-110 transition-transform duration-700 shrink-0">
+                  <QRCodeSVG value={user?.uid || 'DINOSPY'} size={40} md:size={60} fgColor="#000" bgColor="transparent" />
                 </div>
               </div>
             </motion.div>
 
-            <div className="space-y-6">
-              <div className="flex items-center space-x-6 px-8">
-                 <div className="w-2 h-2 bg-black rounded-full" />
-                 <span className="font-mono text-black opacity-40 text-[10px] tracking-[0.5em] uppercase font-bold">Security_Interfaces</span>
+            <div className="space-y-4 md:space-y-6">
+              <div className="flex items-center space-x-6 px-6 md:px-8">
+                 <div className="w-1.5 h-1.5 md:w-2 md:h-2 bg-black rounded-full" />
+                 <span className="font-mono text-black opacity-40 text-[9px] md:text-[10px] tracking-[0.5em] uppercase font-bold">Security_Interfaces</span>
               </div>
-              <div className="grid grid-cols-1 gap-6">
+              <div className="grid grid-cols-1 gap-4 md:gap-6">
                 {(profile?.role === 'admin' || profile?.role === 'support' || user?.email === 'manikanta5sy@gmail.com') && (
-                  <Link to="/admin" className="flex items-center justify-between p-10 bg-black text-white rounded-[3.5rem] group/admin transition-all duration-700 hover:scale-[1.02] shadow-2xl">
-                    <div className="flex items-center space-x-8">
-                       <div className="w-14 h-14 rounded-full bg-white/10 text-white flex items-center justify-center">
-                          <Shield size={24} strokeWidth={1} />
+                  <Link to="/admin" className="flex items-center justify-between p-6 md:p-10 bg-black text-white rounded-[2.5rem] md:rounded-[3.5rem] group/admin transition-all duration-700 hover:scale-[1.02] shadow-2xl">
+                    <div className="flex items-center space-x-6 md:space-x-8">
+                       <div className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-white/10 text-white flex items-center justify-center shrink-0">
+                          <Shield size={20} md:size={24} strokeWidth={1} />
                        </div>
                        <div className="space-y-1">
-                          <p className="font-mono text-[10px] tracking-[0.5em] font-bold uppercase">Command_Core</p>
-                          <p className="text-sm font-display italic opacity-60">Management & Support Portals</p>
+                          <p className="font-mono text-[9px] md:text-[10px] tracking-[0.4em] md:tracking-[0.5em] font-bold uppercase">Command_Core</p>
+                          <p className="text-xs md:text-sm font-display italic opacity-60">Management & Support</p>
                        </div>
                     </div>
-                    <ChevronRight size={24} className="group-hover:translate-x-2 transition-transform" />
+                    <ChevronRight size={20} md:size={24} className="group-hover:translate-x-2 transition-transform" />
                   </Link>
                 )}
                 <Link 
                   to="/support"
-                  className="w-full flex items-center justify-between p-10 bg-white border border-black/5 rounded-[3.5rem] hover:bg-neutral-50 text-black transition-all duration-700 group/support shadow-xl"
+                  className="w-full flex items-center justify-between p-6 md:p-10 bg-white border border-black/5 rounded-[2.5rem] md:rounded-[3.5rem] hover:bg-neutral-50 text-black transition-all duration-700 group/support shadow-xl"
                 >
-                  <div className="flex items-center space-x-8 text-black transition-colors">
-                     <div className="w-14 h-14 rounded-full bg-black/5 flex items-center justify-center border border-black/5 transition-colors">
-                        <MessageSquare size={24} strokeWidth={1} />
+                  <div className="flex items-center space-x-6 md:space-x-8 text-black transition-colors">
+                     <div className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-black/5 flex items-center justify-center border border-black/5 transition-colors shrink-0">
+                        <MessageSquare size={20} md:size={24} strokeWidth={1} />
                      </div>
                      <div className="space-y-1 text-left">
-                        <p className="font-mono text-[10px] tracking-[0.5em] font-bold uppercase transition-colors">Support_Hub</p>
-                        <p className="text-sm font-display italic opacity-40">Report Issues & Tickets</p>
+                        <p className="font-mono text-[9px] md:text-[10px] tracking-[0.4em] md:tracking-[0.5em] font-bold uppercase transition-colors">Support_Hub</p>
+                        <p className="text-xs md:text-sm font-display italic opacity-40">Report Issues & Tickets</p>
                      </div>
                   </div>
-                  <ChevronRight size={24} strokeWidth={1} className="opacity-10 group-hover/support:opacity-100 group-hover/support:translate-x-2 transition-all" />
+                  <ChevronRight size={20} md:size={24} strokeWidth={1} className="opacity-10 group-hover/support:opacity-100 group-hover/support:translate-x-2 transition-all" />
                 </Link>
                 <button 
                   onClick={signOut}
-                  className="w-full flex items-center justify-between p-10 bg-neutral-50 border border-black/5 rounded-[3.5rem] hover:bg-neutral-100 text-black transition-all duration-700 group/logout"
+                  className="w-full flex items-center justify-between p-6 md:p-10 bg-neutral-50 border border-black/5 rounded-[2.5rem] md:rounded-[3.5rem] hover:bg-neutral-100 text-black transition-all duration-700 group/logout"
                 >
-                  <div className="flex items-center space-x-8 text-black group-hover/logout:text-black transition-colors">
-                     <div className="w-14 h-14 rounded-full bg-white flex items-center justify-center border border-black/5 transition-colors">
-                        <LogOut size={24} strokeWidth={1} />
+                  <div className="flex items-center space-x-6 md:space-x-8 text-black group-hover/logout:text-black transition-colors">
+                     <div className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-white flex items-center justify-center border border-black/5 transition-colors shrink-0">
+                        <LogOut size={20} md:size={24} strokeWidth={1} />
                      </div>
                      <div className="space-y-1 text-left">
-                        <p className="font-mono text-[10px] tracking-[0.5em] font-bold uppercase transition-colors">Terminate_Session</p>
-                        <p className="text-sm font-display italic opacity-40">Secure Node De-auth</p>
+                        <p className="font-mono text-[9px] md:text-[10px] tracking-[0.4em] md:tracking-[0.5em] font-bold uppercase transition-colors">Terminate_Session</p>
+                        <p className="text-xs md:text-sm font-display italic opacity-40">Secure Node De-auth</p>
                      </div>
                   </div>
-                  <ChevronRight size={24} strokeWidth={1} className="opacity-10 group-hover/logout:opacity-100 group-hover/logout:translate-x-2 transition-all" />
+                  <ChevronRight size={20} md:size={24} strokeWidth={1} className="opacity-10 group-hover/logout:opacity-100 group-hover/logout:translate-x-2 transition-all" />
                 </button>
               </div>
             </div>

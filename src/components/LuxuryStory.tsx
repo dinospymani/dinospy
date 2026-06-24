@@ -20,7 +20,7 @@ export const LuxuryStory = () => {
                 <span className="font-mono text-xs tracking-widest uppercase text-black font-bold">THE_LEGACY // PHILOSOPHY</span>
              </div>
              
-             <div className="flex flex-wrap gap-x-[0.3em] gap-y-0 text-[clamp(2rem,8vw,8rem)] font-display font-medium leading-[1.1] tracking-tightest text-black">
+             <div className="flex flex-wrap gap-x-[0.3em] gap-y-1 text-[clamp(1.5rem,8vw,7rem)] font-display font-medium leading-[1.1] tracking-tightest text-black break-words">
                 {words.map((word, i) => {
                   const start = i / words.length;
                   const end = start + (1 / words.length);

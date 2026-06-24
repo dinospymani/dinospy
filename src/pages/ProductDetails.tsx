@@ -147,9 +147,9 @@ export default function ProductDetails() {
           price: 125000,
           stock: 100,
           images: [
-              'https://images.unsplash.com/photo-1542496658-e33a6d0d50f6?auto=format&fit=crop&q=80&w=2070',
-              'https://images.unsplash.com/photo-1508685096489-7aac29a23fce?auto=format&fit=crop&q=80&w=1978',
-              'https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?auto=format&fit=crop&q=80&w=1974'
+              "/src/assets/images/vanguard_carbon_watch_1782293507993.jpg",
+              "/src/assets/images/minimalist_marble_watch_1782293522898.jpg",
+              "/src/assets/images/hero_skeleton_movement_1782293477542.jpg"
             ],
             category: 'Luxury',
             rating: 4.9,

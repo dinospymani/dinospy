@@ -194,7 +194,7 @@ export default function App() {
             <Preloader />
             <SmoothScroll>
               <MaintenanceGuard>
-                <div className="min-h-screen w-full bg-white text-black selection:bg-black selection:text-white relative flex flex-col">
+                <div className="min-h-screen w-full bg-white text-black selection:bg-black selection:text-white relative flex flex-col pb-24 md:pb-0">
                   <Toaster position="top-center" richColors />
                   <AuthModal />
                   <AnimatedRoutes />

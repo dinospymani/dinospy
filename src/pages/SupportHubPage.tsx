@@ -176,10 +176,10 @@ export default function SupportHubPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-12 gap-12">
+          <div className="grid grid-cols-12 gap-8 md:gap-12">
              {/* Sidebar: Navigation & Tickets */}
-             <div className="col-span-12 lg:col-span-4 space-y-8 md:space-y-12">
-                <div className="bg-neutral-50 rounded-[3rem] md:rounded-[4rem] border border-black/5 p-6 md:p-10 space-y-8 md:space-y-10 group shadow-lg">
+             <div className="col-span-12 lg:col-span-4 order-2 lg:order-1 space-y-8 md:space-y-12">
+                <div className="bg-neutral-50 rounded-[2.5rem] md:rounded-[4rem] border border-black/5 p-6 md:p-10 space-y-8 md:space-y-10 group shadow-lg">
                    <div className="flex items-center space-x-6 mb-6 md:mb-10">
                       <div className="w-10 h-10 md:w-12 md:h-12 bg-black text-white rounded-2xl flex items-center justify-center">
                          <Ticket size={20} md:size={24} strokeWidth={1} />
@@ -195,7 +195,7 @@ export default function SupportHubPage() {
                      <span>RAISE_NEW_TICKET</span>
                    </button>
 
-                   <div className="space-y-4 pt-6">
+                   <div className="space-y-4 pt-6 max-h-[400px] overflow-y-auto no-scrollbar">
                       {tickets.length === 0 ? (
                         <div className="p-12 text-center border border-dashed border-black/10 rounded-[3rem] opacity-30">
                            <p className="font-mono text-[10px] uppercase tracking-widest font-bold">No_Historical_Comms</p>
@@ -208,14 +208,14 @@ export default function SupportHubPage() {
                               setActiveTicket(ticket);
                               setView('chat');
                             }}
-                            className={`w-full p-8 text-left rounded-[2.5rem] border transition-all duration-700 group hover:scale-[1.02] ${activeTicket?.id === ticket.id ? 'bg-white border-black shadow-xl ring-8 ring-black/5' : 'bg-white/50 border-black/5 hover:bg-white'}`}
+                            className={`w-full p-6 md:p-8 text-left rounded-[2rem] md:rounded-[2.5rem] border transition-all duration-700 group hover:scale-[1.02] ${activeTicket?.id === ticket.id ? 'bg-white border-black shadow-xl ring-4 md:ring-8 ring-black/5' : 'bg-white/50 border-black/5 hover:bg-white'}`}
                           >
                              <div className="flex justify-between items-start mb-4">
                                 <span className={`text-[8px] px-3 py-1 rounded-full font-bold uppercase tracking-[0.2em] ${ticket.status === 'OPEN' ? 'bg-indigo-600 text-white shadow-lg' : 'bg-neutral-200 text-black/40'}`}>
                                    {ticket.status}
                                 </span>
                                 <span className="font-mono text-[8px] text-black/20 font-bold">
-                                   {ticket.createdAt?.toDate().toLocaleDateString('en-US', { day: '2-digit', month: 'short' }).toUpperCase()}
+                                   {ticket.createdAt?.toDate ? ticket.createdAt.toDate().toLocaleDateString('en-US', { day: '2-digit', month: 'short' }).toUpperCase() : 'NOW'}
                                 </span>
                              </div>
                              <h4 className="text-sm font-bold text-black mb-2 line-clamp-1 group-hover:text-indigo-600 transition-colors uppercase tracking-tight">{ticket.subject}</h4>
@@ -226,11 +226,11 @@ export default function SupportHubPage() {
                    </div>
                 </div>
 
-                <div className="bg-neutral-50 rounded-[4rem] border border-black/5 p-10 space-y-8 shadow-sm">
+                <div className="bg-neutral-50 rounded-[2.5rem] md:rounded-[4rem] border border-black/5 p-8 md:p-10 space-y-8 shadow-sm">
                    <div className="space-y-4">
                       <p className="font-mono text-black/20 text-[9px] tracking-[0.4em] uppercase font-bold">Information_Signals</p>
-                      <div className="flex items-center space-x-6 p-6 bg-white rounded-3xl border border-black/5">
-                         <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                      <div className="flex items-center space-x-6 p-4 md:p-6 bg-white rounded-3xl border border-black/5">
+                         <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
                             <ShieldCheck size={20} />
                          </div>
                          <div>
@@ -238,8 +238,8 @@ export default function SupportHubPage() {
                             <p className="text-[11px] text-black/40 font-medium">Avg_Latency: 2-4 Hours</p>
                          </div>
                       </div>
-                      <div className="flex items-center space-x-6 p-6 bg-white rounded-3xl border border-black/5">
-                         <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+                      <div className="flex items-center space-x-6 p-4 md:p-6 bg-white rounded-3xl border border-black/5">
+                         <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
                             <Clock size={20} />
                          </div>
                          <div>
@@ -252,29 +252,29 @@ export default function SupportHubPage() {
              </div>
 
              {/* Main Viewer Area */}
-             <div className="col-span-12 lg:col-span-8">
-                <div className="bg-neutral-50 rounded-[5rem] border border-black/5 min-h-[700px] flex flex-col overflow-hidden relative shadow-2xl">
+             <div className="col-span-12 lg:col-span-8 order-1 lg:order-2">
+                <div className="bg-neutral-50 rounded-[3rem] md:rounded-[5rem] border border-black/5 min-h-[400px] md:min-h-[700px] flex flex-col overflow-hidden relative shadow-2xl pb-12 lg:pb-0">
                    {/* Background Decorative */}
                    <div className="absolute inset-0 opacity-[0.02] pointer-events-none" 
                         style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
 
                    {view === 'list' && (
-                     <div className="flex-1 flex flex-col items-center justify-center p-8 md:p-12 text-center relative z-10">
+                     <div className="flex-1 flex flex-col items-center justify-center p-8 md:p-12 text-center relative z-10 py-20">
                         <motion.div 
                           initial={{ opacity: 0, scale: 0.8 }}
                           animate={{ opacity: 1, scale: 1 }}
-                          className="w-24 h-32 md:w-32 md:h-40 bg-white border border-black/5 rounded-[4rem] flex items-center justify-center mb-12 shadow-2xl group"
+                          className="w-20 h-28 md:w-32 md:h-40 bg-white border border-black/5 rounded-[3rem] md:rounded-[4rem] flex items-center justify-center mb-10 shadow-2xl group"
                         >
-                           <Database size={56} className="text-black/10 group-hover:text-indigo-600 transition-colors duration-700" strokeWidth={0.5} />
-                           <div className="absolute inset-0 border-4 border-black/5 rounded-[4rem] animate-pulse" />
+                           <Database size={40} md:size={56} className="text-black/10 group-hover:text-indigo-600 transition-colors duration-700" strokeWidth={0.5} />
+                           <div className="absolute inset-0 border-4 border-black/5 rounded-[3rem] md:rounded-[4rem] animate-pulse" />
                         </motion.div>
-                        <h3 className="text-2xl md:text-5xl font-display tracking-tightest uppercase mb-8">Central Intelligence Terminal</h3>
-                        <p className="text-black/40 text-xs md:text-sm max-w-sm font-mono uppercase tracking-[0.3em] font-bold leading-relaxed mb-16">Select a comms historical record or initialize a new discovery protocol for dedicated logistics assistance.</p>
+                        <h3 className="text-xl md:text-5xl font-display tracking-tightest uppercase mb-6 md:mb-8">Central Intelligence Terminal</h3>
+                        <p className="text-black/40 text-[10px] md:text-sm max-w-xs font-mono uppercase tracking-[0.3em] font-bold leading-relaxed mb-12 md:mb-16 px-4">Select a comms historical record or initialize a new discovery protocol for dedicated logistics assistance.</p>
                         <motion.button 
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
                           onClick={() => setView('create')}
-                          className="px-16 py-7 bg-black text-white text-[10px] font-bold tracking-[0.5em] uppercase rounded-full hover:shadow-[0_20px_40px_rgba(0,0,0,0.2)] transition-all duration-700"
+                          className="px-10 py-5 md:px-16 md:py-7 bg-black text-white text-[9px] md:text-[10px] font-bold tracking-[0.4em] uppercase rounded-full hover:shadow-[0_20px_40px_rgba(0,0,0,0.2)] transition-all duration-700"
                         >
                           Initialize_Manifest_Report
                         </motion.button>
