@@ -2073,6 +2073,11 @@ export default function AdminDashboard() {
                     <div className="space-y-4 relative z-10">
                       <label className="font-tech text-black/30 text-[10px] tracking-[0.4em] font-black uppercase">VIDEO_URL (CINEMATIC_OVERRIDE)</label>
                       <input value={bannerVideoUrl} onChange={e => setBannerVideoUrl(e.target.value)} className="w-full bg-transparent border-b border-black/10 py-5 italic text-sm focus:border-black outline-none transition-all text-black" placeholder="https://example.com/video.mp4" />
+                      {bannerVideoUrl && (
+                        <div className="mt-4 aspect-video rounded-2xl overflow-hidden border border-black/10 bg-black">
+                          <video src={bannerVideoUrl} controls muted className="w-full h-full object-contain" />
+                        </div>
+                      )}
                     </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-12 relative z-10">

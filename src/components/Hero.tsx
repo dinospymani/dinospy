@@ -106,27 +106,31 @@ const Hero = () => {
               transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
               className="absolute inset-0"
             >
-              <picture>
-                <source media="(max-width: 768px)" srcSet={banners[currentIndex].mobileImageUrl || banners[currentIndex].imageUrl} />
-                {banners[currentIndex].videoUrl ? (
+              {banners[currentIndex].videoUrl ? (
+                <div className="w-full h-full relative overflow-hidden">
                   <video 
+                    key={banners[currentIndex].videoUrl}
                     autoPlay 
                     muted 
                     loop 
                     playsInline
-                    className="w-full h-full object-cover transition-all duration-[5000ms] scale-110"
+                    className="w-full h-full object-cover scale-110"
+                    poster={banners[currentIndex].imageUrl}
                   >
                     <source src={banners[currentIndex].videoUrl} type="video/mp4" />
                   </video>
-                ) : (
+                </div>
+              ) : (
+                <picture>
+                  <source media="(max-width: 768px)" srcSet={banners[currentIndex].mobileImageUrl || banners[currentIndex].imageUrl} />
                   <img 
                     src={banners[currentIndex].imageUrl} 
                     alt={banners[currentIndex].title}
                     className="w-full h-full object-cover transition-all duration-[5000ms] scale-110 hover:scale-100"
                     style={{ filter: 'contrast(1.1) brightness(0.95)' }} // Subtle pop for high-quality feel
                   />
-                )}
-              </picture>
+                </picture>
+              )}
               
               {/* Overlays for Readability - Minimal to preserve image quality */}
               <div className="absolute inset-0 bg-gradient-to-t from-charcoal/90 via-transparent to-charcoal/20 opacity-70" />
@@ -193,19 +197,19 @@ const Hero = () => {
 
       {/* Ticker / Scrolling Offers - Displayed BELOW the hero carousel in Cream/Ivory */}
       {offers.length > 0 && (
-        <div className="w-full bg-[#fffff0] py-4 md:py-6 overflow-hidden border-b border-black/5 z-30">
+        <div className="w-full bg-[#fffff0] py-4 md:py-8 overflow-hidden border-b border-black/5 z-30">
           <div className="flex whitespace-nowrap animate-marquee">
             {[...offers, ...offers, ...offers, ...offers].map((offer, idx) => (
-              <div key={`${offer.id}-${idx}`} className="flex items-center space-x-6 md:space-x-12 px-6 md:px-12">
+              <div key={`${offer.id}-${idx}`} className="flex items-center space-x-4 md:space-x-12 px-4 md:px-12">
                 {offer.imageUrl && (
-                  <div className="w-6 h-6 md:w-8 md:h-8 rounded-full overflow-hidden border border-black/5 flex-shrink-0">
+                  <div className="w-6 h-6 md:w-10 md:h-10 rounded-full overflow-hidden border border-black/5 flex-shrink-0">
                     <img src={offer.imageUrl} className="w-full h-full object-cover" alt="" />
                   </div>
                 )}
-                <span className="font-tech text-[10px] md:text-sm text-black tracking-[0.2em] md:tracking-[0.4em] font-black uppercase whitespace-nowrap">
+                <span className="font-tech text-[11px] md:text-sm text-black tracking-[0.1em] md:tracking-[0.4em] font-black uppercase whitespace-nowrap">
                   {offer.text}
                 </span>
-                <div className="w-1.5 h-1.5 md:w-2 md:h-2 bg-gold rounded-full shadow-[0_0_10px_#c5a059]" />
+                <div className="w-1 h-1 md:w-2 md:h-2 bg-gold rounded-full shadow-[0_0_10px_#c5a059]" />
               </div>
             ))}
           </div>
