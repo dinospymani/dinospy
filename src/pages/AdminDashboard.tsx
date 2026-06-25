@@ -67,82 +67,92 @@ export default function AdminDashboard() {
 
     try {
       const doc = new jsPDF();
-      const indigoColor = [79, 70, 229]; // #4f46e5
-      const blackColor = [0, 0, 0]; // #000000
-      const neutralGray = [150, 150, 150];
-      const accentGray = [240, 240, 240];
+      const blackColor = [15, 15, 15]; 
+      const ivoryColor = [252, 251, 247];
+      const goldColor = [184, 134, 11]; // Dark Goldenrod
 
-      // Title & Branding Header
+      // Page Setup: Premium Background
+      doc.setFillColor(ivoryColor[0], ivoryColor[1], ivoryColor[2]);
+      doc.rect(0, 0, 210, 297, 'F');
+      
+      // Border frame
+      doc.setDrawColor(blackColor[0], blackColor[1], blackColor[2]);
+      doc.setLineWidth(0.2);
+      doc.rect(10, 10, 190, 277);
+
+      // Header Banner
       doc.setFillColor(blackColor[0], blackColor[1], blackColor[2]);
-      doc.rect(0, 0, 210, 55, 'F');
+      doc.rect(10, 10, 190, 45, 'F');
       
       doc.setTextColor(255, 255, 255);
-      doc.setFontSize(32);
-      doc.setFont('helvetica', 'bold');
-      doc.text('DINOSPY', 105, 38, { align: 'center', charSpace: 3 });
+      doc.setFontSize(36);
+      doc.setFont('times', 'bold');
+      doc.text('DINOSPY', 105, 35, { align: 'center', charSpace: 8 });
       
       doc.setFontSize(8);
       doc.setFont('helvetica', 'normal');
-      doc.text('PREMIUM_COLLECTOR_SERVICES // VAULT_LOGISTICS_TERMINAL', 105, 48, { align: 'center', charSpace: 1.5 });
+      doc.text('OFFICIAL_CERTIFICATE_OF_ACQUISITION // MECHANICAL_ELITE_VAULT', 105, 45, { align: 'center', charSpace: 2 });
       
-      doc.setDrawColor(indigoColor[0], indigoColor[1], indigoColor[2]);
-      doc.setLineWidth(1);
-      doc.line(60, 52, 150, 52);
+      // Order ID and Date (Top Right Corner inside header)
+      doc.setFontSize(7);
+      doc.setTextColor(180, 180, 180);
+      doc.text(`MANIFEST_ID: ${order.id.toUpperCase()}`, 195, 20, { align: 'right' });
+      doc.text(`TIMESTAMP: ${new Date(order.createdAt).toLocaleString().toUpperCase()}`, 195, 25, { align: 'right' });
 
-      // Section: Shipping Label / Box Header (Industrial look)
+      // Main Content Area
+      doc.setTextColor(blackColor[0], blackColor[1], blackColor[2]);
+      
+      // Customer Details Section
+      doc.setFontSize(10);
+      doc.setFont('times', 'bold');
+      doc.text('CONSIGNEE_INFORMATION', 25, 75);
       doc.setDrawColor(blackColor[0], blackColor[1], blackColor[2]);
       doc.setLineWidth(0.5);
-      doc.rect(140, 65, 55, 35); // Order ID Box
-      doc.setFontSize(7);
-      doc.setTextColor(neutralGray[0], neutralGray[1], neutralGray[2]);
-      doc.text('MANIFEST_ID_TRACKER', 145, 70);
-      doc.setFontSize(10);
-      doc.setTextColor(blackColor[0], blackColor[1], blackColor[2]);
-      doc.setFont('helvetica', 'bold');
-      doc.text(`#${order.id.toUpperCase()}`, 145, 80);
-      doc.setFontSize(8);
-      doc.text(`DATE: ${new Date(order.createdAt).toLocaleDateString()}`, 145, 87);
-      doc.text(`STATUS: ${order.status.toUpperCase()}`, 145, 93);
+      doc.line(25, 78, 100, 78);
 
-      // SHIP TO / CONSIGNEE Information
-      doc.setFontSize(10);
-      doc.setFont('helvetica', 'bold');
-      doc.text('CONSIGNEE_SHIPPING_MANIFEST', 20, 70);
-      doc.setDrawColor(blackColor[0], blackColor[1], blackColor[2]);
-      doc.setLineWidth(0.3);
-      doc.line(20, 73, 120, 73);
-
-      doc.setFontSize(12);
-      doc.text(order.customerName?.toUpperCase() || 'ANONYMOUS_COLLECTOR', 20, 83);
+      doc.setFontSize(14);
+      doc.text(order.customerName?.toUpperCase() || 'ANONYMOUS_COLLECTOR', 25, 88);
       
       doc.setFontSize(9);
       doc.setFont('helvetica', 'normal');
       const address = order.shippingAddress;
       if (address) {
-        doc.text(`${address.address || ''}`, 20, 90);
-        doc.text(`${address.city || ''}, ${address.state || ''} - ${address.zip || ''}`, 20, 96);
-        doc.text(`COUNTRY: ${address.country?.toUpperCase() || 'INDIA'}`, 20, 102);
-        doc.setFont('helvetica', 'bold');
-        doc.text(`CONTACT_ID: +91 ${order.customerPhone || address.phone || 'NOT_FOUND'}`, 20, 110);
+        doc.text(`${address.address || ''}`, 25, 96);
+        doc.text(`${address.city || ''}, ${address.state || ''} - ${address.zip || ''}`, 25, 102);
+        doc.text(`COUNTRY: ${address.country?.toUpperCase() || 'INDIA'}`, 25, 108);
       }
       
-      doc.setFont('helvetica', 'normal');
-      doc.text(`AUTH_EMAIL: ${order.customerEmail || 'UNTRACKED'}`, 20, 116);
       doc.setFont('helvetica', 'bold');
-      doc.text(`SECURE_DELIVERY_PIN: ${order.deliveryPin || 'PENDING_SYNC'}`, 20, 123);
+      doc.text(`SECURE_CONTACT: +91 ${order.customerPhone || address?.phone || 'NOT_FOUND'}`, 25, 116);
+      doc.text(`AUTH_EMAIL: ${order.customerEmail || 'UNTRACKED'}`, 25, 122);
 
-      // Logistics Warning Box
-      doc.setFillColor(accentGray[0], accentGray[1], accentGray[2]);
-      doc.rect(140, 110, 55, 20, 'F');
-      doc.setFontSize(7);
+      // QR / Verification Box (Right Side)
+      doc.setDrawColor(230, 230, 230);
+      doc.setLineWidth(0.1);
+      doc.rect(140, 70, 45, 60);
+      doc.setFontSize(6);
+      doc.setTextColor(200, 200, 200);
+      doc.text('SCAN_FOR_AUTHENTICITY', 162.5, 75, { align: 'center' });
+      
+      // Mock QR Graphic
+      doc.setFillColor(blackColor[0], blackColor[1], blackColor[2]);
+      doc.rect(148, 80, 29, 29);
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(8);
+      doc.text('DSX', 162.5, 96, { align: 'center' });
+      
       doc.setTextColor(blackColor[0], blackColor[1], blackColor[2]);
-      doc.text('FRAGILE // HIGH_VALUE_ASSET', 167.5, 117, { align: 'center' });
-      doc.text('DO_NOT_BEND // SEALED_VAULT', 167.5, 122, { align: 'center' });
+      doc.setFontSize(8);
+      doc.setFont('courier', 'bold');
+      doc.text(`PIN: ${order.deliveryPin || 'PENDING'}`, 162.5, 118, { align: 'center' });
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(7);
+      doc.text(`STATUS: ${order.status.toUpperCase()}`, 162.5, 125, { align: 'center' });
 
-      // Asset Table
+      // Asset Manifest Table
       const tableData = order.items.map((item: any) => [
         item.name.toUpperCase(),
-        item.brand?.toUpperCase() || 'DINOSPY_ARCHIVE',
+        item.brand?.toUpperCase() || 'DINOSPY_GENEVA',
         `X${item.quantity}`,
         `INR ${(item.price || 0).toLocaleString()}`,
         `INR ${((item.price || 0) * (item.quantity || 1)).toLocaleString()}`
@@ -150,97 +160,67 @@ export default function AdminDashboard() {
 
       autoTable(doc, {
         startY: 140,
-        head: [['ASSET_CLASS', 'BRAND_ORIGIN', 'QTY', 'UNIT_VAL', 'AGGREGATE']],
+        head: [['ASSET_NOMENCLATURE', 'BRAND_ORIGIN', 'QTY', 'UNIT_VALUATION', 'AGGREGATE']],
         body: tableData,
         headStyles: { 
           fillColor: blackColor as any, 
           textColor: [255, 255, 255],
           fontStyle: 'bold',
           fontSize: 8,
-          halign: 'center'
+          halign: 'center',
+          cellPadding: 5
         },
         columnStyles: {
-          0: { cellWidth: 55 },
+          0: { cellWidth: 65 },
           1: { cellWidth: 40 },
           2: { halign: 'center' },
           3: { halign: 'right' },
           4: { halign: 'right' }
         },
-        alternateRowStyles: { fillColor: [252, 252, 252] },
-        styles: { fontSize: 8, font: 'helvetica', cellPadding: 5 },
-        margin: { left: 20, right: 20 }
+        alternateRowStyles: { fillColor: [254, 253, 250] },
+        styles: { fontSize: 8, font: 'times', cellPadding: 6, textColor: [40, 40, 40] },
+        margin: { left: 20, right: 20 },
+        theme: 'striped'
       });
 
-      // Financial Breakdown
+      // Totals and Financials
       const lastTable = (doc as any).lastAutoTable;
-      let finalY = lastTable ? lastTable.finalY + 15 : 200;
-
-      // Ensure footer doesn't overlap
-      if (finalY > 240) {
-        doc.addPage();
-        finalY = 30;
-      }
+      let finalY = lastTable ? lastTable.finalY + 15 : 220;
 
       const subtotal = order.items.reduce((acc: number, item: any) => acc + ((item.price || 0) * (item.quantity || 1)), 0);
-      const discount = subtotal - (order.total || subtotal);
+      const totalAmount = order.total || subtotal;
+
+      doc.setDrawColor(0, 0, 0);
+      doc.setLineWidth(0.1);
+      doc.line(130, finalY - 5, 195, finalY - 5);
 
       doc.setFontSize(9);
       doc.setFont('helvetica', 'normal');
-      doc.setTextColor(neutralGray[0], neutralGray[1], neutralGray[2]);
-      doc.text('SUBTOTAL_ACQUISITION:', 140, finalY);
-      doc.setTextColor(blackColor[0], blackColor[1], blackColor[2]);
-      doc.text(`INR ${subtotal.toLocaleString()}`, 190, finalY, { align: 'right' });
+      doc.setTextColor(120, 120, 120);
+      doc.text('SUBTOTAL_ACQUISITION_VALUE:', 130, finalY);
+      doc.setTextColor(0, 0, 0);
+      doc.text(`INR ${subtotal.toLocaleString()}`, 195, finalY, { align: 'right' });
 
-      if (discount > 0) {
-        doc.setTextColor(neutralGray[0], neutralGray[1], neutralGray[2]);
-        doc.text(`PROMO_KEY_ADJUSTMENT (${order.couponUsed || 'NA'}):`, 140, finalY + 6);
-        doc.setTextColor(blackColor[0], blackColor[1], blackColor[2]);
-        doc.text(`- INR ${discount.toLocaleString()}`, 190, finalY + 6, { align: 'right' });
-        finalY += 6;
-      }
+      doc.setFontSize(14);
+      doc.setFont('times', 'bold');
+      doc.text('FINAL_CERTIFIED_TOTAL:', 130, finalY + 15);
+      doc.text(`INR ${totalAmount.toLocaleString()}`, 195, finalY + 15, { align: 'right' });
 
-      doc.setTextColor(neutralGray[0], neutralGray[1], neutralGray[2]);
-      doc.text('LOGISTICS_TRANSIT_FEE:', 140, finalY + 6);
-      doc.setTextColor(blackColor[0], blackColor[1], blackColor[2]);
-      doc.text('INR 0 (WAIVED)', 190, finalY + 6, { align: 'right' });
-
-      doc.setDrawColor(blackColor[0], blackColor[1], blackColor[2]);
-      doc.setLineWidth(0.5);
-      doc.line(140, finalY + 10, 190, finalY + 10);
-
-      doc.setFontSize(11);
-      doc.setFont('helvetica', 'bold');
-      doc.text('GRAND_TOTAL_VALUE:', 140, finalY + 20);
-      doc.text(`INR ${(order.total || 0).toLocaleString()}`, 190, finalY + 20, { align: 'right' });
-
-      // Verification Barcode Mock
+      // Security Footer
       doc.setDrawColor(200, 200, 200);
-      doc.rect(20, finalY + 5, 80, 25);
-      doc.setFontSize(6);
-      doc.setTextColor(180, 180, 180);
-      doc.text('INTERNAL_SECURITY_BARCODE_PLACEHOLDER', 40, finalY + 15);
-      doc.setFontSize(9);
-      doc.setTextColor(blackColor[0], blackColor[1], blackColor[2]);
-      doc.text(`* DNX-${order.id.slice(0, 10).toUpperCase()} *`, 40, finalY + 22);
-
-      // Signature Section
-      doc.setFontSize(8);
-      doc.text('ADMIN_LOGISTICS_STAMP:', 20, 250);
-      doc.line(20, 265, 80, 265);
-      doc.text('AUTHORIZED_OFFICER', 20, 270);
-
-      doc.text('CONSIGNEE_SIGNATURE:', 130, 250);
-      doc.line(130, 265, 190, 265);
-      doc.text('DATE_OF_ACCEPTANCE', 130, 270);
-
-      // Footer
-      doc.setTextColor(neutralGray[0], neutralGray[1], neutralGray[2]);
+      doc.setLineWidth(0.1);
+      doc.line(20, 260, 190, 260);
+      
       doc.setFontSize(7);
+      doc.setTextColor(150, 150, 150);
       doc.setFont('helvetica', 'italic');
-      doc.text('THIS_DOCUMENT_SERVES_AS_A_LEGAL_MANIFEST_AND_AUTHENTICITY_WARRANTY.', 105, 285, { align: 'center' });
-      doc.text('DINOSPY VAULT // GENEVA // MUMBAI // GLOBAL_DISTRIBUTION_NODE', 105, 290, { align: 'center' });
+      doc.text('THIS_DOCUMENT_SERVES_AS_A_LEGALLY_BINDING_MANIFEST_AND_AUTHENTICITY_WARRANTY.', 105, 270, { align: 'center' });
+      doc.text('DINOSPY GLOBAL VAULT // GENEVA // MUMBAI // SINGAPORE', 105, 275, { align: 'center' });
+      
+      doc.setFont('helvetica', 'bold');
+      doc.text('VERIFIED_BY_VAULT_AI', 105, 282, { align: 'center', charSpace: 2 });
 
-      doc.save(`DINOSPY-MANIFEST-${order.id.slice(-8).toUpperCase()}.pdf`);
+      doc.save(`DINOSPY_MANIFEST_${order.id.slice(-8).toUpperCase()}.pdf`);
       toast.success('Professional Manifest Generated.');
     } catch (err) {
       console.error(err);

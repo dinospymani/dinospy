@@ -110,119 +110,128 @@ export default function ProfilePage() {
 
     try {
       const doc = new jsPDF();
-      const blackColor = [10, 10, 10]; // #0A0A0A
-      const ivory = [252, 251, 247];
+      const blackColor = [15, 15, 15]; 
+      const ivoryColor = [252, 251, 247];
 
-      // Ultra-Minimalist Master Certificate Layout
-      doc.setFillColor(ivory[0], ivory[1], ivory[2]);
+      // Page Setup: Premium Background
+      doc.setFillColor(ivoryColor[0], ivoryColor[1], ivoryColor[2]);
       doc.rect(0, 0, 210, 297, 'F');
       
-      doc.setFillColor(blackColor[0], blackColor[1], blackColor[2]);
-      doc.rect(20, 15, 170, 0.5, 'F');
+      // Border frame
+      doc.setDrawColor(blackColor[0], blackColor[1], blackColor[2]);
+      doc.setLineWidth(0.2);
+      doc.rect(10, 10, 190, 277);
 
-      doc.setTextColor(blackColor[0], blackColor[1], blackColor[2]);
-      doc.setFontSize(32);
-      doc.setFont('times', 'normal');
-      doc.text('DINOSPY', 105, 45, { align: 'center', charSpace: 6 });
+      // Header Banner
+      doc.setFillColor(blackColor[0], blackColor[1], blackColor[2]);
+      doc.rect(10, 10, 190, 45, 'F');
+      
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(36);
+      doc.setFont('times', 'bold');
+      doc.text('DINOSPY', 105, 35, { align: 'center', charSpace: 8 });
       
       doc.setFontSize(8);
       doc.setFont('helvetica', 'normal');
-      doc.text('AUTHENTIC_VAULT_ACQUISITION_MANIFEST', 105, 55, { align: 'center', charSpace: 3 });
+      doc.text('AUTHENTIC_VAULT_ACQUISITION_MANIFEST // HERITAGE_CERTIFICATE', 105, 45, { align: 'center', charSpace: 2 });
       
-      doc.setDrawColor(200, 200, 200);
-      doc.setLineWidth(0.1);
-      doc.line(80, 60, 130, 60);
-
       doc.setFontSize(7);
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(150, 150, 150);
-      
-      doc.text('MANIFEST_IDENTIFIER', 25, 80);
-      doc.text('ACQUISITION_TIMESTAMP', 25, 100);
-      doc.text('SETTLEMENT_METHOD', 25, 120);
+      doc.setTextColor(180, 180, 180);
+      doc.text(`CERTIFICATE_ID: ${order.id.toUpperCase()}`, 195, 20, { align: 'right' });
+      doc.text(`ISSUED_ON: ${new Date(order.createdAt).toLocaleString().toUpperCase()}`, 195, 25, { align: 'right' });
 
+      // Consignee Details
       doc.setTextColor(blackColor[0], blackColor[1], blackColor[2]);
       doc.setFontSize(10);
-      doc.setFont('courier', 'bold');
-      doc.text(`DNX_${order.id.toUpperCase().slice(0, 16)}`, 25, 88);
-      
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(9);
-      doc.text(`${new Date(order.createdAt).toLocaleString().toUpperCase()}`, 25, 108);
-      doc.text(`${(order.paymentMethod || 'SECURE_TRANSIT').toUpperCase()}`, 25, 128);
-
-      doc.setTextColor(150, 150, 150);
-      doc.setFontSize(7);
-      doc.setFont('helvetica', 'bold');
-      doc.text('CONSIGNEE_IDENTITY', 115, 80);
-      doc.text('TRANSIT_DESTINATION', 115, 100);
-
-      doc.setTextColor(blackColor[0], blackColor[1], blackColor[2]);
-      doc.setFontSize(11);
       doc.setFont('times', 'bold');
-      doc.text(profile?.displayName?.toUpperCase() || 'ANONYMOUS_COLLECTOR', 115, 88);
-      
-      doc.setFontSize(8);
-      doc.setFont('helvetica', 'normal');
-      doc.text(profile?.email || '', 115, 93);
+      doc.text('COLLECTOR_INFORMATION', 25, 75);
+      doc.setDrawColor(blackColor[0], blackColor[1], blackColor[2]);
+      doc.setLineWidth(0.5);
+      doc.line(25, 78, 100, 78);
 
+      doc.setFontSize(14);
+      doc.text(profile?.displayName?.toUpperCase() || 'ANONYMOUS_COLLECTOR', 25, 88);
+      
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
       const address = order.shippingAddress;
       if (address) {
-        doc.text(`${address.address || ''}`, 115, 108);
-        doc.text(`${address.city || ''}, ${address.state || ''} ${address.zip || ''}`, 115, 114);
-        doc.setFont('helvetica', 'bold');
-        doc.text(`PHONE: +91 ${order.customerPhone || address.phone || 'NA'}`, 115, 120);
-      } else {
-        doc.text('INTERNAL_VAULT_DEPOSITORY', 115, 108);
+        doc.text(`${address.address || ''}`, 25, 96);
+        doc.text(`${address.city || ''}, ${address.state || ''} ${address.zip || ''}`, 25, 102);
       }
+      
+      doc.setFont('helvetica', 'bold');
+      doc.text(`EMAIL: ${profile?.email?.toUpperCase() || 'UNTRACKED'}`, 25, 110);
+      doc.text(`AUTH_PIN: ${order.deliveryPin || 'PENDING'}`, 25, 116);
 
+      // Asset Manifest Table
       const tableData = order.items.map((item: any) => [
-        item.name?.toUpperCase() || 'UNKNOWN_MASTERPIECE',
-        item.brand?.toUpperCase() || 'SWITZERLAND',
+        item.name.toUpperCase(),
+        item.brand?.toUpperCase() || 'DINOSPY_GENEVA',
         `X${item.quantity || 1}`,
         `INR ${(item.price || 0).toLocaleString()}`,
         `INR ${((item.price || 0) * (item.quantity || 1)).toLocaleString()}`
       ]);
 
       autoTable(doc, {
-        startY: 145,
-        head: [['NOMENCLATURE', 'ORIGIN', 'QTY', 'VALUATION', 'TOTAL']],
+        startY: 140,
+        head: [['ASSET_NOMENCLATURE', 'BRAND_ORIGIN', 'QTY', 'UNIT_VALUATION', 'TOTAL']],
         body: tableData,
-        theme: 'plain',
-        headStyles: { textColor: [100, 100, 100], fontSize: 7, font: 'helvetica', fontStyle: 'bold', cellPadding: 4 },
-        bodyStyles: { textColor: [0, 0, 0], fontSize: 9, font: 'times', cellPadding: 6  },
-        columnStyles: { 4: { fontStyle: 'bold', halign: 'right' }, 3: { halign: 'right' }, 2: { halign: 'center' } },
-        margin: { left: 20, right: 20 }
+        headStyles: { 
+          fillColor: blackColor as any, 
+          textColor: [255, 255, 255],
+          fontStyle: 'bold',
+          fontSize: 8,
+          halign: 'center',
+          cellPadding: 5
+        },
+        columnStyles: {
+          4: { fontStyle: 'bold', halign: 'right' },
+          3: { halign: 'right' },
+          2: { halign: 'center' }
+        },
+        alternateRowStyles: { fillColor: [254, 253, 250] },
+        styles: { fontSize: 8, font: 'times', cellPadding: 6, textColor: [40, 40, 40] },
+        margin: { left: 20, right: 20 },
+        theme: 'striped'
       });
 
-      const finalY = (doc as any).lastAutoTable.finalY + 15;
-      doc.setDrawColor(230, 230, 230);
-      doc.line(110, finalY, 190, finalY);
+      // Financials
+      const lastTable = (doc as any).lastAutoTable;
+      let finalY = lastTable ? lastTable.finalY + 15 : 220;
 
       const subtotal = order.items.reduce((acc: number, item: any) => acc + ((item.price || 0) * (item.quantity || 1)), 0);
-      const finalAmount = order.totalAmount || order.total || subtotal;
-
-      doc.setFontSize(8);
-      doc.setTextColor(150, 150, 150);
-      doc.text('SUBTOTAL_VALUATION:', 140, finalY + 10, { align: 'right' });
-      doc.text(`INR ${subtotal.toLocaleString()}`, 190, finalY + 10, { align: 'right' });
-
-      doc.setFontSize(12);
-      doc.setFont('times', 'bold');
-      doc.setTextColor(0, 0, 0);
-      doc.text('FINAL_ARCHIVE_VALUE:', 140, finalY + 25, { align: 'right' });
-      doc.text(`INR ${finalAmount.toLocaleString()}`, 190, finalY + 25, { align: 'right' });
+      const totalAmount = order.totalAmount || order.total || subtotal;
 
       doc.setDrawColor(0, 0, 0);
-      doc.setLineWidth(0.5);
+      doc.setLineWidth(0.1);
+      doc.line(130, finalY - 5, 195, finalY - 5);
+
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(120, 120, 120);
+      doc.text('SUBTOTAL_VALUATION:', 130, finalY);
+      doc.setTextColor(0, 0, 0);
+      doc.text(`INR ${subtotal.toLocaleString()}`, 195, finalY, { align: 'right' });
+
+      doc.setFontSize(14);
+      doc.setFont('times', 'bold');
+      doc.text('CERTIFIED_TOTAL_VALUE:', 130, finalY + 15);
+      doc.text(`INR ${totalAmount.toLocaleString()}`, 195, finalY + 15, { align: 'right' });
+
+      // Signature / Verification
+      doc.setDrawColor(200, 200, 200);
+      doc.setLineWidth(0.1);
       doc.line(20, 260, 190, 260);
       
       doc.setFontSize(7);
-      doc.setFont('helvetica', 'normal');
-      doc.setTextColor(180, 180, 180);
-      doc.text('DINOSPY MASTER ARCHIVE', 20, 268);
-      doc.text(`DOCUMENT_PIN: ${order.deliveryPin || 'N/A'}`, 190, 268, { align: 'right' });
-      doc.text('THIS MANIFEST CERTIFIES THE SECURE ACQUISITION OF HOROLOGICAL ASSETS. EVERY PIECE IS GUARANTEED AUTHENTIC.', 105, 275, { align: 'center' });
+      doc.setTextColor(150, 150, 150);
+      doc.setFont('helvetica', 'italic');
+      doc.text('THIS MANIFEST CERTIFIES THE SECURE ACQUISITION OF HOROLOGICAL ASSETS. EVERY PIECE IS GUARANTEED AUTHENTIC.', 105, 270, { align: 'center' });
+      doc.text('DINOSPY GLOBAL VAULT // GENEVA // MUMBAI // SECURE_DISTRIBUTION', 105, 275, { align: 'center' });
+      
+      doc.setFont('helvetica', 'bold');
+      doc.text('DIGITALLY_SIGNED_BY_THE_VAULT', 105, 282, { align: 'center', charSpace: 2 });
 
       doc.save(`DINOSPY_MANIFEST_${order.id.slice(0, 8)}.pdf`);
       toast.success('Manifest exported.');

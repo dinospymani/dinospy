@@ -35,22 +35,6 @@ const WhyCard = ({ icon: Icon, title, desc, i }) => (
   </motion.div>
 );
 
-const TestimonialCard = ({ text, author, title }) => (
-  <div className="bg-white p-8 md:p-12 rounded-[2.5rem] md:rounded-[3.5rem] w-[280px] sm:w-[400px] md:w-[500px] border border-black/5 luxury-shadow relative overflow-hidden group flex-shrink-0">
-    <Quote className="absolute top-4 right-4 md:top-8 md:right-8 opacity-5 text-black group-hover:opacity-10 transition-opacity duration-1000" size={120} />
-    <div className="relative z-10 space-y-6 md:space-y-8">
-      <div className="flex space-x-1 opacity-20">
-        {[...Array(5)].map((_, i) => <Star key={i} size={14} className="text-black fill-black" />)}
-      </div>
-      <p className="text-lg md:text-2xl font-display font-medium text-black/80 leading-relaxed max-w-sm">"{text}"</p>
-      <div className="flex flex-col">
-        <span className="font-mono text-[10px] md:text-xs tracking-widest text-black font-bold uppercase">{author}</span>
-        <span className="font-mono text-[8px] md:text-[9px] tracking-widest text-black/30 uppercase mt-1">{title}</span>
-      </div>
-    </div>
-  </div>
-);
-
 export default function HomePage() {
   const [featured, setFeatured] = useState<any[]>([]);
   const [galleryItems, setGalleryItems] = useState<any[]>([]);
@@ -153,38 +137,65 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Testimonials: Infinite Marquee */}
-        <section className="py-40 bg-white overflow-hidden border-y border-black/5">
-           <div className="container mx-auto px-6 md:px-12 mb-24">
-              <div className="flex items-center space-x-6 mb-8 opacity-40">
-                <div className="w-1.5 h-1.5 bg-black rounded-full" />
-                <span className="font-tech text-xs tracking-widest uppercase text-black">COMMUNITY_PULSE</span>
-              </div>
-              <h2 className="text-5xl md:text-7xl font-display font-medium text-black">Voices of the vault.</h2>
-           </div>
+        {/* Precision Engineering: Technical Excellence */}
+        <section className="py-40 md:py-64 bg-black text-white overflow-hidden">
+           <div className="container mx-auto px-6 md:px-12">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
+                 <div className="space-y-12">
+                    <div className="flex items-center space-x-6 opacity-40">
+                      <div className="w-1.5 h-1.5 bg-white rounded-full" />
+                      <span className="font-tech text-xs tracking-widest uppercase text-white">ENGINEERING_LOG_01</span>
+                    </div>
+                    <h2 className="text-6xl md:text-8xl font-display font-medium leading-[0.9]">Mastery of <br /> <span className="opacity-20">Matter.</span></h2>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-12 pt-12 border-t border-white/10">
+                       <div className="space-y-4">
+                          <span className="font-tech text-[10px] tracking-widest text-white/30 uppercase">MATERIAL_INDEX</span>
+                          <h4 className="text-xl font-display">Grade 5 Titanium</h4>
+                          <p className="text-white/40 text-sm leading-relaxed font-light">Forged in extreme heat, our titanium alloy provides an unparalleled strength-to-weight ratio for the elite wearer.</p>
+                       </div>
+                       <div className="space-y-4">
+                          <span className="font-tech text-[10px] tracking-widest text-white/30 uppercase">CALIBER_SPECS</span>
+                          <h4 className="text-xl font-display">DS-01 Movement</h4>
+                          <p className="text-white/40 text-sm leading-relaxed font-light">A skeletonized masterpiece with 42 hours of power reserve and 28,800 vibrations per hour of pure mechanical precision.</p>
+                       </div>
+                       <div className="space-y-4">
+                          <span className="font-tech text-[10px] tracking-widest text-white/30 uppercase">VISUAL_FIELD</span>
+                          <h4 className="text-xl font-display">Double Sapphire</h4>
+                          <p className="text-white/40 text-sm leading-relaxed font-light">Scratch-resistant sapphire crystal with triple-layer anti-reflective coating on both the dial and the exhibition caseback.</p>
+                       </div>
+                       <div className="space-y-4">
+                          <span className="font-tech text-[10px] tracking-widest text-white/30 uppercase">RESISTANCE_LEVEL</span>
+                          <h4 className="text-xl font-display">30 ATM Integrity</h4>
+                          <p className="text-white/40 text-sm leading-relaxed font-light">Engineered to withstand pressures up to 300 meters, ensuring structural stability in the most demanding aquatic environments.</p>
+                       </div>
+                    </div>
 
-           <Marquee speed={60}>
-              <TestimonialCard 
-                text="The Archetype 01 is more than a watch; it's a technical marvel on my wrist." 
-                author="Alexander Vaughn" 
-                title="Horology Enthusiast" 
-              />
-              <TestimonialCard 
-                text="Never seen titanium finished with such clinical precision. Absolutely masterful." 
-                author="Marcus Chen" 
-                title="Industrial Designer" 
-              />
-              <TestimonialCard 
-                text="A radical departure from tradition that I didn't know I needed." 
-                author="Elena Petrov" 
-                title="Creative Director" 
-              />
-              <TestimonialCard 
-                text="The movement is silent, yet its presence is unmistakable." 
-                author="James Stirling" 
-                title="Swiss Collector" 
-              />
-           </Marquee>
+                    <button className="flex items-center space-x-6 group pt-12">
+                       <span className="font-tech text-[10px] tracking-[0.6em] text-white/40 group-hover:text-white transition-colors uppercase">DOWNLOAD BLUEPRINTS</span>
+                       <div className="w-16 h-16 rounded-full border border-white/10 flex items-center justify-center group-hover:bg-white group-hover:text-black transition-all duration-700">
+                          <ArrowRight size={20} />
+                       </div>
+                    </button>
+                 </div>
+
+                 <div className="relative aspect-[4/5] rounded-[4rem] overflow-hidden group">
+                    <img 
+                      src="/src/assets/images/watch_movement_macro_1782377142964.jpg" 
+                      className="w-full h-full object-cover grayscale brightness-75 group-hover:scale-110 group-hover:grayscale-0 group-hover:brightness-100 transition-all duration-[3s] ease-out" 
+                      alt="Precision Movement" 
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60" />
+                    <div className="absolute bottom-12 left-12 right-12 flex justify-between items-end">
+                       <div>
+                          <div className="font-tech text-[10px] tracking-[0.4em] text-white/40 mb-2 uppercase">X-RAY_SCAN</div>
+                          <div className="font-display text-2xl">CORE_ASSEMBLY</div>
+                       </div>
+                       <div className="font-mono text-[10px] text-white/20 uppercase tracking-tighter">TIMESTAMP_2026_06_25</div>
+                    </div>
+                 </div>
+              </div>
+           </div>
         </section>
 
         {/* Instagram Gallery Masonry */}
