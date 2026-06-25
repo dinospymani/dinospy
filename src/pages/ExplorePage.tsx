@@ -3,7 +3,6 @@ import { motion } from 'motion/react';
 import { ArrowLeft } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import MobileNav from '../components/MobileNav';
 import WatchCard from '../components/WatchCard';
 import ProductSkeleton from '../components/ProductSkeleton';
 import { collection, onSnapshot, query } from 'firebase/firestore';
@@ -152,7 +151,6 @@ export default function ExplorePage() {
       </main>
 
       <Footer />
-      <MobileNav />
     </div>
   );
 }

@@ -127,10 +127,10 @@ export default function WatchCard({ product }: WatchCardProps) {
             <span className="font-mono text-charcoal/30 text-[8px] mb-2 tracking-[0.4em] uppercase font-black">VALUATION</span>
             <div className="flex items-baseline space-x-3">
               <span className="text-3xl font-display font-medium tracking-tight text-charcoal">
-                ₹{discountPrice.toLocaleString()}
+                Rs. {discountPrice.toLocaleString()}
               </span>
               {product.discount && (
-                <span className="text-sm font-mono text-charcoal/20 line-through">₹{product.price.toLocaleString()}</span>
+                <span className="text-sm font-mono text-charcoal/20 line-through">Rs. {product.price.toLocaleString()}</span>
               )}
             </div>
           </div>

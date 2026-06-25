@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from 'motion/react';
 import { ShoppingBag, Heart, Star, Shield, Truck, RotateCcw, ArrowLeft, ChevronRight, Play, Share2, ThumbsUp, CheckCircle2, X, ChevronLeft, Watch } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import MobileNav from '../components/MobileNav';
 import { CountdownTimer } from '../components/CountdownTimer';
 import { db } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
@@ -397,7 +396,7 @@ export default function ProductDetails() {
                 <div className="flex flex-col sm:flex-row sm:items-center gap-6 md:space-x-8 mb-10 md:mb-16 pb-10 md:pb-12 border-b border-black/5">
                    <div className="flex flex-col">
                       <div className="text-4xl md:text-6xl font-mono tracking-tighter text-black break-all">
-                        <span className="text-[10px] text-black/30 mr-2 md:mr-4 font-bold">₹</span>
+                        <span className="text-[10px] text-black/30 mr-2 md:mr-4 font-bold">Rs. </span>
                         {Math.round(product.discount ? product.price * (1 - product.discount / 100) : product.price).toLocaleString()}
                       </div>
                       {product.discount > 0 && (
@@ -697,7 +696,6 @@ export default function ProductDetails() {
       </main>
 
       <Footer />
-      <MobileNav />
 
       {/* Immersive Lightbox Modal */}
       <AnimatePresence>

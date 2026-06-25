@@ -392,7 +392,7 @@ export default function ProfilePage() {
                           </div>
 
                           <div className="flex flex-col md:flex-row xl:flex-col items-start md:items-center xl:items-end justify-between gap-10">
-                            <span className="text-6xl md:text-8xl font-display font-medium tracking-tightest leading-none text-black">₹{order.total.toLocaleString()}</span>
+                            <span className="text-6xl md:text-8xl font-display font-medium tracking-tightest leading-none text-black">Rs. {order.total.toLocaleString()}</span>
                             <div className="flex flex-wrap items-center justify-end gap-4 md:gap-6">
                                <Link
                                  to="/support"

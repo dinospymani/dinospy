@@ -6,7 +6,6 @@ import { db } from '../context/AuthContext';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import MobileNav from '../components/MobileNav';
 import WatchCard from '../components/WatchCard';
 import { Link } from 'react-router-dom';
 
@@ -106,7 +105,6 @@ export default function WishlistPage() {
       </main>
 
       <Footer />
-      <MobileNav />
     </div>
   );
 }

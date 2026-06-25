@@ -5,7 +5,6 @@ import { useCart } from '../context/CartContext';
 import { useAuth, db } from '../context/AuthContext';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import MobileNav from '../components/MobileNav';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { X, AlertCircle } from 'lucide-react';
@@ -40,7 +39,7 @@ export default function CartPage() {
       }
 
       if (couponData.minAmount && subtotal < couponData.minAmount) {
-        toast.error(`Min purchase ₹${couponData.minAmount.toLocaleString()} required`);
+        toast.error(`Min purchase Rs. ${couponData.minAmount.toLocaleString()} required`);
         return;
       }
 
@@ -146,12 +145,12 @@ export default function CartPage() {
                         <div className="flex items-center justify-center md:justify-start gap-4">
                            {item.discount && (!item.offerExpiry || new Date(item.offerExpiry) > new Date()) ? (
                              <div className="flex items-center space-x-3">
-                               <span className="text-black/20 line-through text-xs font-light italic">₹{item.price.toLocaleString()}</span>
-                               <span className="text-black font-display font-medium text-2xl">₹{Math.round(item.price * (1 - item.discount / 100)).toLocaleString()}</span>
+                               <span className="text-black/20 line-through text-xs font-light italic">Rs. {item.price.toLocaleString()}</span>
+                               <span className="text-black font-display font-medium text-2xl">Rs. {Math.round(item.price * (1 - item.discount / 100)).toLocaleString()}</span>
                                <span className="text-[8px] bg-black text-white px-2 py-0.5 rounded font-bold tracking-widest">-{item.discount}%</span>
                              </div>
                            ) : (
-                             <div className="text-black font-display font-medium text-2xl">₹{item.price.toLocaleString()}</div>
+                             <div className="text-black font-display font-medium text-2xl">Rs. {item.price.toLocaleString()}</div>
                            )}
                         </div>
 
@@ -199,12 +198,12 @@ export default function CartPage() {
                    <div className="space-y-6 pt-10 border-t border-black/5">
                       <div className="flex justify-between items-center opacity-40">
                          <span className="font-mono text-[10px] tracking-widest uppercase font-bold">Base_Subtotal</span>
-                         <span className="font-display font-medium text-xl">₹{subtotal.toLocaleString()}</span>
+                         <span className="font-display font-medium text-xl">Rs. {subtotal.toLocaleString()}</span>
                       </div>
                       {savings > 0 && (
                         <div className="flex justify-between items-center text-black">
                            <span className="font-mono text-[10px] tracking-widest uppercase font-bold">Vault_Savings</span>
-                           <span className="font-display font-medium text-xl">-₹{savings.toLocaleString()}</span>
+                           <span className="font-display font-medium text-xl">-Rs. {savings.toLocaleString()}</span>
                         </div>
                       )}
                       <div className="flex justify-between items-center opacity-40">
@@ -215,7 +214,7 @@ export default function CartPage() {
                       <div className="pt-10 border-t border-black/10 space-y-8">
                          <div className="flex justify-between items-end">
                             <span className="font-mono text-[10px] tracking-[0.4em] uppercase font-bold">TOTAL_CARGO_VALUE</span>
-                            <span className="text-4xl font-display text-black font-medium leading-none tracking-tightest">₹{cartTotal.toLocaleString()}</span>
+                            <span className="text-4xl font-display text-black font-medium leading-none tracking-tightest">Rs. {cartTotal.toLocaleString()}</span>
                          </div>
 
                          <Link to={hasOutOfStock ? "#" : "/checkout"} className="block">
@@ -237,7 +236,6 @@ export default function CartPage() {
       </main>
 
       <Footer />
-      <MobileNav />
 
       {/* Out of Stock Popup */}
       <AnimatePresence>

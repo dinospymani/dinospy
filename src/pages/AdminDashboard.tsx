@@ -3,7 +3,6 @@ import { db, useAuth } from '../context/AuthContext';
 import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc, onSnapshot, query, orderBy, setDoc, serverTimestamp } from 'firebase/firestore';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import MobileNav from '../components/MobileNav';
 import { Plus, Trash2, Edit, Save, Package, QrCode, Printer, X, Truck, Loader2, ChevronLeft, TrendingUp, DollarSign, ShoppingBag, AlertCircle, BarChart2, Bell, ArrowLeft, Megaphone, Check, Zap, Clock, Shield, Lock, Eye, EyeOff, Database, ArrowRight, ShieldAlert, AlertTriangle, ShieldCheck, Cpu, Activity, Wifi, Image as ImageIcon, MessageSquare, Send, User, Mail, Phone, Upload } from 'lucide-react';
 import { motion } from 'motion/react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -867,8 +866,8 @@ export default function AdminDashboard() {
     }
 
     const totalSize = (finalImage?.length || 0) + (finalMobileImage?.length || 0) + (bannerVideoFile?.length || 0);
-    if (totalSize > 1000000) {
-      toast.error('Manifest too heavy: Total asset size exceeds Firestore 1MB limit. Please compress assets or use URL references.');
+    if (totalSize > 2048000) {
+      toast.error('Manifest too heavy: Total asset size exceeds upgraded 2MB protocol limit. Please compress assets or use URL references.');
       return;
     }
 
@@ -1536,7 +1535,7 @@ export default function AdminDashboard() {
                {/* High Density Stats */}
                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
                  {[
-                   { label: 'NET_REVENUE_STREAM', value: `₹${stats.revenue.toLocaleString()}`, icon: DollarSign, trend: '+14.2%', detail: 'CYCLE_STATUS: OPTIMAL' },
+                   { label: 'NET_REVENUE_STREAM', value: `Rs. ${stats.revenue.toLocaleString()}`, icon: DollarSign, trend: '+14.2%', detail: 'CYCLE_STATUS: OPTIMAL' },
                    { label: 'ARCHIVE_MANIFESTS', value: stats.ordersCount, icon: ShoppingBag, trend: '+5', detail: 'QUEUED: 12' },
                    { label: 'VAULT_INDEX_RATE', value: `${stats.conversionRate}%`, icon: TrendingUp, trend: 'SYNCHRONIZED', detail: 'NETWORK_STABLE' },
                    { label: 'INVENTORY_RESERVE', value: `${products.length - stats.lowStock}/${products.length}`, icon: Database, alert: stats.lowStock > 0, detail: `${stats.lowStock} CRITICAL_NODES` },
@@ -1606,7 +1605,7 @@ export default function AdminDashboard() {
                             fontSize={11} 
                             tickLine={false}
                             axisLine={false}
-                            tickFormatter={(value) => `₹${value >= 1000 ? (value/1000).toFixed(0) + 'k' : value}`}
+                            tickFormatter={(value) => `Rs. ${value >= 1000 ? (value/1000).toFixed(0) + 'k' : value}`}
                             tick={{ dx: -15, fontStyle: 'italic', fontWeight: 'bold', fill: '#00000020' }}
                           />
                           <Tooltip 
@@ -1616,7 +1615,7 @@ export default function AdminDashboard() {
                                 return (
                                   <div className="bg-white text-black p-10 rounded-[3rem] shadow-[0_40px_80px_-20px_rgba(0,0,0,0.1)] border border-black/5 backdrop-blur-3xl space-y-3">
                                     <p className="font-tech text-[10px] text-indigo-600 tracking-[0.5em] mb-3 uppercase font-black">{payload[0].payload.name}</p>
-                                    <p className="text-4xl font-display italic tracking-tightest leading-none">₹{payload[0].value?.toLocaleString()}</p>
+                                    <p className="text-4xl font-display italic tracking-tightest leading-none">Rs. {payload[0].value?.toLocaleString()}</p>
                                   </div>
                                 );
                               }
@@ -1752,7 +1751,7 @@ export default function AdminDashboard() {
                           </div>
                           <h4 className="text-4xl font-display italic tracking-tightest leading-tight group-hover:tracking-tight transition-all duration-1000 text-text/80 group-hover:text-gold">{p.name}</h4>
                           <div className="flex items-baseline space-x-4">
-                             <p className="font-display text-5xl italic tracking-tightest leading-none text-gold">₹{p.price.toLocaleString()}</p>
+                             <p className="font-display text-5xl italic tracking-tightest leading-none text-gold">Rs. {p.price.toLocaleString()}</p>
                              <p className="font-tech text-[9px] text-text/10 font-black tracking-[0.4em] uppercase">VALUATION</p>
                           </div>
                        </div>
@@ -1876,7 +1875,7 @@ export default function AdminDashboard() {
                                  </div>
                               </td>
                               <td className="py-16">
-                                 <p className="font-display text-4xl italic tracking-tightest leading-none text-black">₹{o.total.toLocaleString()}</p>
+                                 <p className="font-display text-4xl italic tracking-tightest leading-none text-black">Rs. {o.total.toLocaleString()}</p>
                                  <p className="font-tech text-[9px] text-black/10 mt-3 uppercase font-black tracking-widest">INR_CURRENCY_NODE</p>
                               </td>
                               <td className="py-16">
@@ -2046,8 +2045,8 @@ export default function AdminDashboard() {
                             onChange={async (e) => {
                               const file = e.target.files?.[0];
                               if (file) {
-                                if (file.size > 700 * 1024) {
-                                  toast.error('Video too large for direct sync. Max 700KB (approx. 1MB base64). Use a URL for larger videos.');
+                                if (file.size > 2000 * 1024) {
+                                  toast.error('Video too large for direct sync. Max 2MB (approx. 2.7MB base64). Use a URL for larger videos.');
                                   return;
                                 }
                                 const reader = new FileReader();
@@ -2711,7 +2710,7 @@ export default function AdminDashboard() {
                                  <span className="font-tech text-text/20 text-[9px] tracking-[0.2em]">{new Date(n.timestamp).toLocaleTimeString()}</span>
                               </div>
                               <h4 className="text-xl font-bold text-text tracking-tight">{n.message}</h4>
-                              {n.total && <p className="font-tech text-[10px] text-gold/60 mt-2 tracking-[0.2em] font-black uppercase">LOGGED_VALUE: ₹{n.total.toLocaleString()}</p>}
+                              {n.total && <p className="font-tech text-[10px] text-gold/60 mt-2 tracking-[0.2em] font-black uppercase">LOGGED_VALUE: Rs. {n.total.toLocaleString()}</p>}
                            </div>
                         </div>
                         <div className="flex items-center space-x-4 ml-auto">
@@ -2827,7 +2826,7 @@ export default function AdminDashboard() {
                                <div className="flex justify-between items-end">
                                   <div className="space-y-2">
                                      <p className="text-[10px] text-black/30 tracking-[0.4em] font-black uppercase">NET_VALUATION</p>
-                                     <p className="text-5xl font-black italic tracking-tightest">₹{selectedOrder.total?.toLocaleString()}</p>
+                                     <p className="text-5xl font-black italic tracking-tightest">Rs. {selectedOrder.total?.toLocaleString()}</p>
                                   </div>
                                   <div className="text-right">
                                      <p className="text-[10px] text-black/30 tracking-[0.4em] font-black uppercase mb-2">SECURE_PIN</p>
@@ -2942,7 +2941,7 @@ export default function AdminDashboard() {
                             className="w-full bg-white border border-black/5 rounded-2xl px-6 py-4 font-tech text-[10px] tracking-widest font-black focus:border-black outline-none cursor-pointer shadow-inner uppercase"
                           >
                             <option value="percentage">% UNIT</option>
-                            <option value="fixed">INR ₹</option>
+                            <option value="fixed">INR Rs. </option>
                           </select>
                         </div>
                         <div className="space-y-3">
@@ -3012,11 +3011,11 @@ export default function AdminDashboard() {
                            <div className="grid grid-cols-2 gap-4">
                               <div className="p-5 bg-neutral-50 rounded-[1.8rem] border border-black/5">
                                  <p className="font-tech text-[8px] text-black/30 mb-2 tracking-widest uppercase">VALUATION</p>
-                                 <p className="font-display italic text-3xl text-indigo-600">{c.type === 'percentage' ? `${c.discount}%` : `₹${c.discount}`}</p>
+                                 <p className="font-display italic text-3xl text-indigo-600">{c.type === 'percentage' ? `${c.discount}%` : `Rs. ${c.discount}`}</p>
                               </div>
                               <div className="p-5 bg-neutral-50 rounded-[1.8rem] border border-black/5">
                                  <p className="font-tech text-[8px] text-black/30 mb-2 tracking-widest uppercase">THRESHOLD</p>
-                                 <p className="font-mono text-xl text-black/60">₹{c.minAmount || 0}</p>
+                                 <p className="font-mono text-xl text-black/60">Rs. {c.minAmount || 0}</p>
                               </div>
                            </div>
 
@@ -3318,7 +3317,6 @@ export default function AdminDashboard() {
         </div>
       </main>
       <Footer />
-      <MobileNav />
     </div>
   );
 }
