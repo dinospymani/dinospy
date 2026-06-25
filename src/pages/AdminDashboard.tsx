@@ -293,6 +293,7 @@ export default function AdminDashboard() {
   const [bannerMobileImage, setBannerMobileImage] = useState('');
   const [bannerMobileImageFile, setBannerMobileImageFile] = useState<string | null>(null);
   const [bannerLink, setBannerLink] = useState('');
+  const [bannerVideoUrl, setBannerVideoUrl] = useState('');
 
   // Story Banner States
   const [storyBannerFile, setStoryBannerFile] = useState<string | null>(null);
@@ -889,16 +890,16 @@ export default function AdminDashboard() {
 
   const handleAddBanner = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!bannerImage && !bannerImageFile) {
-      toast.warning('Vision required: Please provide at least one image for the banner.');
+    if (!bannerImage && !bannerImageFile && !bannerVideoUrl) {
+      toast.warning('Vision required: Please provide at least one image or video URL for the banner.');
       return;
     }
     
     const finalImage = bannerImageFile || bannerImage;
     const finalMobileImage = bannerMobileImageFile || bannerMobileImage;
 
-    if (!finalImage && !finalMobileImage) {
-      toast.warning('Vision required: Please provide at least one image for the banner.');
+    if (!finalImage && !finalMobileImage && !bannerVideoUrl) {
+      toast.warning('Vision required: Please provide at least one image or video URL for the banner.');
       return;
     }
 
@@ -916,6 +917,7 @@ export default function AdminDashboard() {
           imageUrl: finalImage || null,
           mobileImageUrl: finalMobileImage || null,
           link: bannerLink,
+          videoUrl: bannerVideoUrl || null,
           expiryDate: bannerExpiry || null,
           active: true,
           displayDesktop: bannerDisplayDesktop,
@@ -933,6 +935,7 @@ export default function AdminDashboard() {
         setBannerMobileImage('');
         setBannerMobileImageFile(null);
         setBannerLink('');
+        setBannerVideoUrl('');
         setBannerExpiry('');
         setBannerDisplayDesktop(true);
         setBannerDisplayMobile(true);
@@ -2065,6 +2068,11 @@ export default function AdminDashboard() {
                         <label className="font-tech text-black/30 text-[10px] tracking-[0.4em] font-black uppercase">SUBHEAD_TXT</label>
                         <input value={bannerSubtitle} onChange={e => setBannerSubtitle(e.target.value)} className="w-full bg-transparent border-b border-black/10 py-5 italic text-sm focus:border-black outline-none transition-all text-black" placeholder="ARCHIVAL_RELEASE_2026" />
                       </div>
+                    </div>
+
+                    <div className="space-y-4 relative z-10">
+                      <label className="font-tech text-black/30 text-[10px] tracking-[0.4em] font-black uppercase">VIDEO_URL (CINEMATIC_OVERRIDE)</label>
+                      <input value={bannerVideoUrl} onChange={e => setBannerVideoUrl(e.target.value)} className="w-full bg-transparent border-b border-black/10 py-5 italic text-sm focus:border-black outline-none transition-all text-black" placeholder="https://example.com/video.mp4" />
                     </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-12 relative z-10">

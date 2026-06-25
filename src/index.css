@@ -5,6 +5,7 @@
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Outfit", sans-serif;
   --font-mono: "Space Grotesk", monospace;
+  --font-tech: "Space Grotesk", monospace;
   
   --color-ivory: #FFFFF0;
   --color-champagne: #F7E7CE;
@@ -20,7 +21,7 @@
   --color-text-primary: var(--color-charcoal);
   --color-text-secondary: var(--color-silver);
   
-  --tracking-tightest: -0.06em;
+  --tracking-tightest: -0.02em;
   
   --animate-float: float 6s ease-in-out infinite;
 }

@@ -108,12 +108,24 @@ const Hero = () => {
             >
               <picture>
                 <source media="(max-width: 768px)" srcSet={banners[currentIndex].mobileImageUrl || banners[currentIndex].imageUrl} />
-                <img 
-                  src={banners[currentIndex].imageUrl} 
-                  alt={banners[currentIndex].title}
-                  className="w-full h-full object-cover transition-all duration-[5000ms] scale-110 hover:scale-100"
-                  style={{ filter: 'contrast(1.1) brightness(0.95)' }} // Subtle pop for high-quality feel
-                />
+                {banners[currentIndex].videoUrl ? (
+                  <video 
+                    autoPlay 
+                    muted 
+                    loop 
+                    playsInline
+                    className="w-full h-full object-cover transition-all duration-[5000ms] scale-110"
+                  >
+                    <source src={banners[currentIndex].videoUrl} type="video/mp4" />
+                  </video>
+                ) : (
+                  <img 
+                    src={banners[currentIndex].imageUrl} 
+                    alt={banners[currentIndex].title}
+                    className="w-full h-full object-cover transition-all duration-[5000ms] scale-110 hover:scale-100"
+                    style={{ filter: 'contrast(1.1) brightness(0.95)' }} // Subtle pop for high-quality feel
+                  />
+                )}
               </picture>
               
               {/* Overlays for Readability - Minimal to preserve image quality */}
@@ -126,7 +138,7 @@ const Hero = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3, duration: 1 }}
                 >
-                  <p className="font-tech text-gold text-xs md:text-sm tracking-[0.5em] font-black uppercase mb-6 drop-shadow-2xl">
+                  <p className="font-tech text-gold text-xs md:text-sm tracking-[0.3em] md:tracking-[0.5em] font-black uppercase mb-6 drop-shadow-2xl">
                     {banners[currentIndex].subtitle || 'COLLECTION_INDEX_001'}
                   </p>
                   <h1 className="text-[clamp(2.2rem,11vw,9rem)] font-display italic tracking-tightest leading-[0.95] text-white drop-shadow-2xl mb-10 break-words overflow-hidden">
@@ -140,7 +152,7 @@ const Hero = () => {
                       <div className="w-16 h-16 rounded-full border border-white/20 flex items-center justify-center group-hover:bg-ivory group-hover:text-black transition-all duration-700">
                         <ChevronRight size={20} />
                       </div>
-                      <span className="font-tech text-[10px] text-white tracking-[0.5em] font-black uppercase group-hover:translate-x-2 transition-transform duration-700">
+                      <span className="font-tech text-[10px] text-white tracking-[0.4em] md:tracking-[0.5em] font-black uppercase group-hover:translate-x-2 transition-transform duration-700">
                         EXPLORE_ARCHIVE
                       </span>
                     </a>
@@ -181,19 +193,19 @@ const Hero = () => {
 
       {/* Ticker / Scrolling Offers - Displayed BELOW the hero carousel in Cream/Ivory */}
       {offers.length > 0 && (
-        <div className="w-full bg-[#fffff0] py-6 overflow-hidden border-b border-black/5 z-30">
+        <div className="w-full bg-[#fffff0] py-4 md:py-6 overflow-hidden border-b border-black/5 z-30">
           <div className="flex whitespace-nowrap animate-marquee">
-            {[...offers, ...offers, ...offers].map((offer, idx) => (
-              <div key={`${offer.id}-${idx}`} className="flex items-center space-x-8 px-12">
+            {[...offers, ...offers, ...offers, ...offers].map((offer, idx) => (
+              <div key={`${offer.id}-${idx}`} className="flex items-center space-x-6 md:space-x-12 px-6 md:px-12">
                 {offer.imageUrl && (
-                  <div className="w-8 h-8 rounded-full overflow-hidden border border-black/5 flex-shrink-0">
+                  <div className="w-6 h-6 md:w-8 md:h-8 rounded-full overflow-hidden border border-black/5 flex-shrink-0">
                     <img src={offer.imageUrl} className="w-full h-full object-cover" alt="" />
                   </div>
                 )}
-                <span className="font-tech text-xs md:text-sm text-black tracking-[0.4em] font-black uppercase">
+                <span className="font-tech text-[10px] md:text-sm text-black tracking-[0.2em] md:tracking-[0.4em] font-black uppercase whitespace-nowrap">
                   {offer.text}
                 </span>
-                <div className="w-2 h-2 bg-gold rounded-full shadow-[0_0_10px_#c5a059]" />
+                <div className="w-1.5 h-1.5 md:w-2 md:h-2 bg-gold rounded-full shadow-[0_0_10px_#c5a059]" />
               </div>
             ))}
           </div>
