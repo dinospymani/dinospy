@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import watchBackground from '../assets/images/watch_movement_macro_1782377142964.jpg';
 
 export const Preloader = () => {
   const [progress, setProgress] = useState(0);
@@ -42,13 +43,14 @@ export const Preloader = () => {
           {/* Cinematic Background Overlay */}
           <motion.div 
             initial={{ opacity: 0, scale: 1.2 }}
-            animate={{ opacity: 0.15, scale: 1 }}
+            animate={{ opacity: 0.35, scale: 1 }}
             transition={{ duration: 4, ease: "easeOut" }}
             className="absolute inset-0 z-0 pointer-events-none"
             style={{
-               backgroundImage: `url('/src/assets/images/watch_movement_macro_1782377142964.jpg')`,
+               backgroundImage: `url(${watchBackground})`,
                backgroundSize: 'cover',
                backgroundPosition: 'center',
+               filter: 'brightness(0.6) contrast(1.2)'
             }}
           />
           

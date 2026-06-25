@@ -866,8 +866,9 @@ export default function AdminDashboard() {
       return;
     }
 
-    if ((finalImage && finalImage.length > 800000) || (finalMobileImage && finalMobileImage.length > 800000) || (bannerVideoFile && bannerVideoFile.length > 1500000)) {
-      toast.error('Manifest too heavy: Assets exceed protocol limits. Please try smaller files or URL references.');
+    const totalSize = (finalImage?.length || 0) + (finalMobileImage?.length || 0) + (bannerVideoFile?.length || 0);
+    if (totalSize > 1000000) {
+      toast.error('Manifest too heavy: Total asset size exceeds Firestore 1MB limit. Please compress assets or use URL references.');
       return;
     }
 
@@ -2045,8 +2046,8 @@ export default function AdminDashboard() {
                             onChange={async (e) => {
                               const file = e.target.files?.[0];
                               if (file) {
-                                if (file.size > 2 * 1024 * 1024) {
-                                  toast.error('Video file too large. Max 2MB for direct upload.');
+                                if (file.size > 700 * 1024) {
+                                  toast.error('Video too large for direct sync. Max 700KB (approx. 1MB base64). Use a URL for larger videos.');
                                   return;
                                 }
                                 const reader = new FileReader();
