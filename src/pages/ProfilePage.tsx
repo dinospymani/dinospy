@@ -110,130 +110,122 @@ export default function ProfilePage() {
 
     try {
       const doc = new jsPDF();
-      const blackColor = [15, 15, 15]; 
-      const ivoryColor = [252, 251, 247];
+      const black = [0, 0, 0];
+      const gray = [100, 100, 100];
 
-      // Page Setup: Premium Background
-      doc.setFillColor(ivoryColor[0], ivoryColor[1], ivoryColor[2]);
-      doc.rect(0, 0, 210, 297, 'F');
+      // 1. Header Section
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(20);
+      doc.setTextColor(black[0], black[1], black[2]);
+      doc.text('DINOSPY', 20, 25);
       
-      // Border frame
-      doc.setDrawColor(blackColor[0], blackColor[1], blackColor[2]);
-      doc.setLineWidth(0.2);
-      doc.rect(10, 10, 190, 277);
-
-      // Header Banner
-      doc.setFillColor(blackColor[0], blackColor[1], blackColor[2]);
-      doc.rect(10, 10, 190, 45, 'F');
-      
-      doc.setTextColor(255, 255, 255);
-      doc.setFontSize(36);
-      doc.setFont('times', 'bold');
-      doc.text('DINOSPY', 105, 35, { align: 'center', charSpace: 8 });
-      
-      doc.setFontSize(8);
-      doc.setFont('helvetica', 'normal');
-      doc.text('AUTHENTIC_VAULT_ACQUISITION_MANIFEST // HERITAGE_CERTIFICATE', 105, 45, { align: 'center', charSpace: 2 });
-      
-      doc.setFontSize(7);
-      doc.setTextColor(180, 180, 180);
-      doc.text(`CERTIFICATE_ID: ${order.id.toUpperCase()}`, 195, 20, { align: 'right' });
-      doc.text(`ISSUED_ON: ${new Date(order.createdAt).toLocaleString().toUpperCase()}`, 195, 25, { align: 'right' });
-
-      // Consignee Details
-      doc.setTextColor(blackColor[0], blackColor[1], blackColor[2]);
-      doc.setFontSize(10);
-      doc.setFont('times', 'bold');
-      doc.text('COLLECTOR_INFORMATION', 25, 75);
-      doc.setDrawColor(blackColor[0], blackColor[1], blackColor[2]);
-      doc.setLineWidth(0.5);
-      doc.line(25, 78, 100, 78);
-
-      doc.setFontSize(14);
-      doc.text(profile?.displayName?.toUpperCase() || 'ANONYMOUS_COLLECTOR', 25, 88);
+      doc.setFontSize(32);
+      doc.text('Invoice', 190, 30, { align: 'right' });
       
       doc.setFontSize(9);
       doc.setFont('helvetica', 'normal');
-      const address = order.shippingAddress;
-      if (address) {
-        doc.text(`${address.address || ''}`, 25, 96);
-        doc.text(`${address.city || ''}, ${address.state || ''} ${address.zip || ''}`, 25, 102);
-      }
-      
-      doc.setFont('helvetica', 'bold');
-      doc.text(`EMAIL: ${profile?.email?.toUpperCase() || 'UNTRACKED'}`, 25, 110);
-      doc.text(`AUTH_PIN: ${order.deliveryPin || 'PENDING'}`, 25, 116);
+      doc.setTextColor(gray[0], gray[1], gray[2]);
+      doc.text('+91 98765 43210', 20, 32);
+      doc.text('vault@dinospy.in', 20, 37);
+      doc.text('Manufactured in Karnataka, India', 20, 42);
 
-      // Asset Manifest Table
+      doc.setFontSize(16);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(black[0], black[1], black[2]);
+      doc.text(`#${order.id.slice(-5).toUpperCase()}`, 190, 40, { align: 'right' });
+
+      doc.setDrawColor(0, 0, 0);
+      doc.setLineWidth(0.5);
+      doc.line(20, 50, 190, 50);
+
+      // 2. Billing Section
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Billing To:', 20, 65);
+
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+      // Left Column
+      doc.text(`Client's name: ${profile?.displayName || 'Anonymous'}`, 20, 75);
+      doc.text(`Address: ${order.shippingAddress?.address || 'N/A'}`, 20, 81);
+      doc.text(`Payment Method: ${order.paymentMethod?.toUpperCase() || 'CARD'}`, 20, 87);
+
+      // Right Column
+      doc.text(`Phone: +91 ${order.customerPhone || order.shippingAddress?.phone || 'N/A'}`, 120, 75);
+      doc.text(`Email: ${profile?.email || order.customerEmail || 'N/A'}`, 120, 81);
+      doc.text(`Bank Name: Dinospy Global Vault`, 120, 87);
+
+      // 3. Table Header & Items
       const tableData = order.items.map((item: any) => [
         item.name.toUpperCase(),
-        item.brand?.toUpperCase() || 'DINOSPY_GENEVA',
-        `X${item.quantity || 1}`,
-        `INR ${(item.price || 0).toLocaleString()}`,
-        `INR ${((item.price || 0) * (item.quantity || 1)).toLocaleString()}`
+        `Rs. ${item.price.toLocaleString()}`,
+        item.quantity.toString(),
+        `Rs. ${(item.price * item.quantity).toLocaleString()}`
       ]);
 
       autoTable(doc, {
-        startY: 140,
-        head: [['ASSET_NOMENCLATURE', 'BRAND_ORIGIN', 'QTY', 'UNIT_VALUATION', 'TOTAL']],
+        startY: 100,
+        head: [['Description', 'Price (Rs)', 'QTY', 'Total (Rs)']],
         body: tableData,
+        theme: 'plain',
         headStyles: { 
-          fillColor: blackColor as any, 
+          fillColor: black as any, 
           textColor: [255, 255, 255],
+          fontSize: 10,
           fontStyle: 'bold',
-          fontSize: 8,
-          halign: 'center',
-          cellPadding: 5
+          halign: 'left'
         },
+        styles: { fontSize: 9, cellPadding: 5, textColor: black as any },
         columnStyles: {
-          4: { fontStyle: 'bold', halign: 'right' },
-          3: { halign: 'right' },
-          2: { halign: 'center' }
+          0: { cellWidth: 90 },
+          1: { halign: 'right' },
+          2: { halign: 'center' },
+          3: { halign: 'right' }
         },
-        alternateRowStyles: { fillColor: [254, 253, 250] },
-        styles: { fontSize: 8, font: 'times', cellPadding: 6, textColor: [40, 40, 40] },
         margin: { left: 20, right: 20 },
-        theme: 'striped'
+        didDrawCell: (data) => {
+          if (data.section === 'body' && data.column.index === data.table.columns.length - 1) {
+            doc.setDrawColor(200, 200, 200);
+            doc.line(data.settings.margin.left, data.cell.y + data.cell.height, 190, data.cell.y + data.cell.height);
+          }
+        }
       });
 
-      // Financials
-      const lastTable = (doc as any).lastAutoTable;
-      let finalY = lastTable ? lastTable.finalY + 15 : 220;
+      const finalY = (doc as any).lastAutoTable.finalY + 15;
 
-      const subtotal = order.items.reduce((acc: number, item: any) => acc + ((item.price || 0) * (item.quantity || 1)), 0);
-      const totalAmount = order.totalAmount || order.total || subtotal;
-
-      doc.setDrawColor(0, 0, 0);
-      doc.setLineWidth(0.1);
-      doc.line(130, finalY - 5, 195, finalY - 5);
-
-      doc.setFontSize(9);
+      // 4. Summary
+      const orderTotal = order.totalAmount || order.total || 0;
+      doc.setFontSize(10);
       doc.setFont('helvetica', 'normal');
-      doc.setTextColor(120, 120, 120);
-      doc.text('SUBTOTAL_VALUATION:', 130, finalY);
-      doc.setTextColor(0, 0, 0);
-      doc.text(`INR ${subtotal.toLocaleString()}`, 195, finalY, { align: 'right' });
-
-      doc.setFontSize(14);
-      doc.setFont('times', 'bold');
-      doc.text('CERTIFIED_TOTAL_VALUE:', 130, finalY + 15);
-      doc.text(`INR ${totalAmount.toLocaleString()}`, 195, finalY + 15, { align: 'right' });
-
-      // Signature / Verification
-      doc.setDrawColor(200, 200, 200);
-      doc.setLineWidth(0.1);
-      doc.line(20, 260, 190, 260);
+      doc.text('SUBTOTAL', 140, finalY);
+      doc.text(`Rs. ${orderTotal.toLocaleString()}`, 190, finalY, { align: 'right' });
       
-      doc.setFontSize(7);
-      doc.setTextColor(150, 150, 150);
-      doc.setFont('helvetica', 'italic');
-      doc.text('THIS MANIFEST CERTIFIES THE SECURE ACQUISITION OF HOROLOGICAL ASSETS. EVERY PIECE IS GUARANTEED AUTHENTIC.', 105, 270, { align: 'center' });
-      doc.text('DINOSPY GLOBAL VAULT // GENEVA // MUMBAI // SECURE_DISTRIBUTION', 105, 275, { align: 'center' });
-      
+      doc.text('TAX', 140, finalY + 8);
+      doc.text('Rs. 0.00', 190, finalY + 8, { align: 'right' });
+
       doc.setFont('helvetica', 'bold');
-      doc.text('DIGITALLY_SIGNED_BY_THE_VAULT', 105, 282, { align: 'center', charSpace: 2 });
+      doc.setFontSize(11);
+      doc.text('TOTAL', 140, finalY + 18);
+      doc.text(`Rs. ${orderTotal.toLocaleString()}`, 190, finalY + 18, { align: 'right' });
 
-      doc.save(`DINOSPY_MANIFEST_${order.id.slice(0, 8)}.pdf`);
+      // 5. Terms & Conditions
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      doc.text('TERMS & CONDITIONS:', 20, finalY + 40);
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'normal');
+      const terms = 'This manifest certifies the secure acquisition of horological assets. Every piece is guaranteed authentic. All sales are final under vault protocol. Heritage certificates provided upon request.';
+      doc.text(doc.splitTextToSize(terms, 120), 20, finalY + 47);
+
+      // 6. Footer
+      doc.setDrawColor(0, 0, 0);
+      doc.line(20, 280, 190, 280);
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'bold');
+      doc.text('f  x  @dinospy', 20, 287);
+      doc.text('dinospy.in', 190, 287, { align: 'right' });
+
+      doc.save(`DINOSPY_INVOICE_${order.id.slice(0, 8)}.pdf`);
       toast.success('Manifest exported.');
     } catch (err: any) {
       console.error('Archive Generation Error:', err);

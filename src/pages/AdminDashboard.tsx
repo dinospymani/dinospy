@@ -67,160 +67,121 @@ export default function AdminDashboard() {
 
     try {
       const doc = new jsPDF();
-      const blackColor = [15, 15, 15]; 
-      const ivoryColor = [252, 251, 247];
-      const goldColor = [184, 134, 11]; // Dark Goldenrod
+      const black = [0, 0, 0];
+      const gray = [100, 100, 100];
 
-      // Page Setup: Premium Background
-      doc.setFillColor(ivoryColor[0], ivoryColor[1], ivoryColor[2]);
-      doc.rect(0, 0, 210, 297, 'F');
+      // 1. Header Section
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(20);
+      doc.setTextColor(black[0], black[1], black[2]);
+      doc.text('DINOSPY', 20, 25);
       
-      // Border frame
-      doc.setDrawColor(blackColor[0], blackColor[1], blackColor[2]);
-      doc.setLineWidth(0.2);
-      doc.rect(10, 10, 190, 277);
-
-      // Header Banner
-      doc.setFillColor(blackColor[0], blackColor[1], blackColor[2]);
-      doc.rect(10, 10, 190, 45, 'F');
-      
-      doc.setTextColor(255, 255, 255);
-      doc.setFontSize(36);
-      doc.setFont('times', 'bold');
-      doc.text('DINOSPY', 105, 35, { align: 'center', charSpace: 8 });
-      
-      doc.setFontSize(8);
-      doc.setFont('helvetica', 'normal');
-      doc.text('OFFICIAL_CERTIFICATE_OF_ACQUISITION // MECHANICAL_ELITE_VAULT', 105, 45, { align: 'center', charSpace: 2 });
-      
-      // Order ID and Date (Top Right Corner inside header)
-      doc.setFontSize(7);
-      doc.setTextColor(180, 180, 180);
-      doc.text(`MANIFEST_ID: ${order.id.toUpperCase()}`, 195, 20, { align: 'right' });
-      doc.text(`TIMESTAMP: ${new Date(order.createdAt).toLocaleString().toUpperCase()}`, 195, 25, { align: 'right' });
-
-      // Main Content Area
-      doc.setTextColor(blackColor[0], blackColor[1], blackColor[2]);
-      
-      // Customer Details Section
-      doc.setFontSize(10);
-      doc.setFont('times', 'bold');
-      doc.text('CONSIGNEE_INFORMATION', 25, 75);
-      doc.setDrawColor(blackColor[0], blackColor[1], blackColor[2]);
-      doc.setLineWidth(0.5);
-      doc.line(25, 78, 100, 78);
-
-      doc.setFontSize(14);
-      doc.text(order.customerName?.toUpperCase() || 'ANONYMOUS_COLLECTOR', 25, 88);
+      doc.setFontSize(32);
+      doc.text('Invoice', 190, 30, { align: 'right' });
       
       doc.setFontSize(9);
       doc.setFont('helvetica', 'normal');
-      const address = order.shippingAddress;
-      if (address) {
-        doc.text(`${address.address || ''}`, 25, 96);
-        doc.text(`${address.city || ''}, ${address.state || ''} - ${address.zip || ''}`, 25, 102);
-        doc.text(`COUNTRY: ${address.country?.toUpperCase() || 'INDIA'}`, 25, 108);
-      }
-      
+      doc.setTextColor(gray[0], gray[1], gray[2]);
+      doc.text('+91 98765 43210', 20, 32);
+      doc.text('vault@dinospy.in', 20, 37);
+      doc.text('Manufactured in Karnataka, India', 20, 42);
+
+      doc.setFontSize(16);
       doc.setFont('helvetica', 'bold');
-      doc.text(`SECURE_CONTACT: +91 ${order.customerPhone || address?.phone || 'NOT_FOUND'}`, 25, 116);
-      doc.text(`AUTH_EMAIL: ${order.customerEmail || 'UNTRACKED'}`, 25, 122);
+      doc.setTextColor(black[0], black[1], black[2]);
+      doc.text(`#${order.id.slice(-5).toUpperCase()}`, 190, 40, { align: 'right' });
 
-      // QR / Verification Box (Right Side)
-      doc.setDrawColor(230, 230, 230);
-      doc.setLineWidth(0.1);
-      doc.rect(140, 70, 45, 60);
-      doc.setFontSize(6);
-      doc.setTextColor(200, 200, 200);
-      doc.text('SCAN_FOR_AUTHENTICITY', 162.5, 75, { align: 'center' });
-      
-      // Mock QR Graphic
-      doc.setFillColor(blackColor[0], blackColor[1], blackColor[2]);
-      doc.rect(148, 80, 29, 29);
-      doc.setTextColor(255, 255, 255);
-      doc.setFontSize(8);
-      doc.text('DSX', 162.5, 96, { align: 'center' });
-      
-      doc.setTextColor(blackColor[0], blackColor[1], blackColor[2]);
-      doc.setFontSize(8);
-      doc.setFont('courier', 'bold');
-      doc.text(`PIN: ${order.deliveryPin || 'PENDING'}`, 162.5, 118, { align: 'center' });
+      doc.setDrawColor(0, 0, 0);
+      doc.setLineWidth(0.5);
+      doc.line(20, 50, 190, 50);
+
+      // 2. Billing Section
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Billing To:', 20, 65);
+
+      doc.setFontSize(9);
       doc.setFont('helvetica', 'normal');
-      doc.setFontSize(7);
-      doc.text(`STATUS: ${order.status.toUpperCase()}`, 162.5, 125, { align: 'center' });
+      // Left Column
+      doc.text(`Client's name: ${order.customerName || 'Anonymous'}`, 20, 75);
+      doc.text(`Address: ${order.shippingAddress?.address || 'N/A'}`, 20, 81);
+      doc.text(`Payment Method: ${order.paymentMethod?.toUpperCase() || 'CARD'}`, 20, 87);
 
-      // Asset Manifest Table
+      // Right Column
+      doc.text(`Phone: +91 ${order.customerPhone || 'N/A'}`, 120, 75);
+      doc.text(`Email: ${order.customerEmail || 'N/A'}`, 120, 81);
+      doc.text(`Bank Name: Dinospy Global Vault`, 120, 87);
+
+      // 3. Table Header & Items
       const tableData = order.items.map((item: any) => [
         item.name.toUpperCase(),
-        item.brand?.toUpperCase() || 'DINOSPY_GENEVA',
-        `X${item.quantity}`,
-        `INR ${(item.price || 0).toLocaleString()}`,
-        `INR ${((item.price || 0) * (item.quantity || 1)).toLocaleString()}`
+        `Rs. ${(item.price || 0).toLocaleString()}`,
+        (item.quantity || 1).toString(),
+        `Rs. ${((item.price || 0) * (item.quantity || 1)).toLocaleString()}`
       ]);
 
       autoTable(doc, {
-        startY: 140,
-        head: [['ASSET_NOMENCLATURE', 'BRAND_ORIGIN', 'QTY', 'UNIT_VALUATION', 'AGGREGATE']],
+        startY: 100,
+        head: [['Description', 'Price (Rs)', 'QTY', 'Total (Rs)']],
         body: tableData,
+        theme: 'plain',
         headStyles: { 
-          fillColor: blackColor as any, 
+          fillColor: black as any, 
           textColor: [255, 255, 255],
+          fontSize: 10,
           fontStyle: 'bold',
-          fontSize: 8,
-          halign: 'center',
-          cellPadding: 5
+          halign: 'left'
         },
+        styles: { fontSize: 9, cellPadding: 5, textColor: black as any },
         columnStyles: {
-          0: { cellWidth: 65 },
-          1: { cellWidth: 40 },
+          0: { cellWidth: 90 },
+          1: { halign: 'right' },
           2: { halign: 'center' },
-          3: { halign: 'right' },
-          4: { halign: 'right' }
+          3: { halign: 'right' }
         },
-        alternateRowStyles: { fillColor: [254, 253, 250] },
-        styles: { fontSize: 8, font: 'times', cellPadding: 6, textColor: [40, 40, 40] },
         margin: { left: 20, right: 20 },
-        theme: 'striped'
+        didDrawCell: (data) => {
+          if (data.section === 'body' && data.column.index === data.table.columns.length - 1) {
+            doc.setDrawColor(200, 200, 200);
+            doc.line(data.settings.margin.left, data.cell.y + data.cell.height, 190, data.cell.y + data.cell.height);
+          }
+        }
       });
 
-      // Totals and Financials
-      const lastTable = (doc as any).lastAutoTable;
-      let finalY = lastTable ? lastTable.finalY + 15 : 220;
+      const finalY = (doc as any).lastAutoTable.finalY + 15;
 
-      const subtotal = order.items.reduce((acc: number, item: any) => acc + ((item.price || 0) * (item.quantity || 1)), 0);
-      const totalAmount = order.total || subtotal;
-
-      doc.setDrawColor(0, 0, 0);
-      doc.setLineWidth(0.1);
-      doc.line(130, finalY - 5, 195, finalY - 5);
-
-      doc.setFontSize(9);
+      // 4. Summary
+      doc.setFontSize(10);
       doc.setFont('helvetica', 'normal');
-      doc.setTextColor(120, 120, 120);
-      doc.text('SUBTOTAL_ACQUISITION_VALUE:', 130, finalY);
-      doc.setTextColor(0, 0, 0);
-      doc.text(`INR ${subtotal.toLocaleString()}`, 195, finalY, { align: 'right' });
-
-      doc.setFontSize(14);
-      doc.setFont('times', 'bold');
-      doc.text('FINAL_CERTIFIED_TOTAL:', 130, finalY + 15);
-      doc.text(`INR ${totalAmount.toLocaleString()}`, 195, finalY + 15, { align: 'right' });
-
-      // Security Footer
-      doc.setDrawColor(200, 200, 200);
-      doc.setLineWidth(0.1);
-      doc.line(20, 260, 190, 260);
+      doc.text('SUBTOTAL', 140, finalY);
+      doc.text(`Rs. ${order.total.toLocaleString()}`, 190, finalY, { align: 'right' });
       
-      doc.setFontSize(7);
-      doc.setTextColor(150, 150, 150);
-      doc.setFont('helvetica', 'italic');
-      doc.text('THIS_DOCUMENT_SERVES_AS_A_LEGALLY_BINDING_MANIFEST_AND_AUTHENTICITY_WARRANTY.', 105, 270, { align: 'center' });
-      doc.text('DINOSPY GLOBAL VAULT // GENEVA // MUMBAI // SINGAPORE', 105, 275, { align: 'center' });
-      
+      doc.text('TAX', 140, finalY + 8);
+      doc.text('Rs. 0.00', 190, finalY + 8, { align: 'right' });
+
       doc.setFont('helvetica', 'bold');
-      doc.text('VERIFIED_BY_VAULT_AI', 105, 282, { align: 'center', charSpace: 2 });
+      doc.setFontSize(11);
+      doc.text('TOTAL', 140, finalY + 18);
+      doc.text(`Rs. ${order.total.toLocaleString()}`, 190, finalY + 18, { align: 'right' });
 
-      doc.save(`DINOSPY_MANIFEST_${order.id.slice(-8).toUpperCase()}.pdf`);
+      // 5. Terms & Conditions
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      doc.text('TERMS & CONDITIONS:', 20, finalY + 40);
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'normal');
+      const terms = 'This manifest serves as a certified record of acquisition. All luxury mechanical assets are guaranteed authentic by Dinospy Geneva. Terms and conditions of the vault apply to all global distributions.';
+      doc.text(doc.splitTextToSize(terms, 120), 20, finalY + 47);
+
+      // 6. Footer
+      doc.setDrawColor(0, 0, 0);
+      doc.line(20, 280, 190, 280);
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'bold');
+      doc.text('f  x  @dinospy', 20, 287);
+      doc.text('dinospy.in', 190, 287, { align: 'right' });
+
+      doc.save(`DINOSPY_INVOICE_${order.id.slice(-5).toUpperCase()}.pdf`);
       toast.success('Professional Manifest Generated.');
     } catch (err) {
       console.error(err);
@@ -294,6 +255,7 @@ export default function AdminDashboard() {
   const [bannerMobileImageFile, setBannerMobileImageFile] = useState<string | null>(null);
   const [bannerLink, setBannerLink] = useState('');
   const [bannerVideoUrl, setBannerVideoUrl] = useState('');
+  const [bannerVideoFile, setBannerVideoFile] = useState<string | null>(null);
 
   // Story Banner States
   const [storyBannerFile, setStoryBannerFile] = useState<string | null>(null);
@@ -890,21 +852,22 @@ export default function AdminDashboard() {
 
   const handleAddBanner = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!bannerImage && !bannerImageFile && !bannerVideoUrl) {
-      toast.warning('Vision required: Please provide at least one image or video URL for the banner.');
+    if (!bannerImage && !bannerImageFile && !bannerVideoUrl && !bannerVideoFile) {
+      toast.warning('Vision required: Please provide at least one image or video for the banner.');
       return;
     }
     
     const finalImage = bannerImageFile || bannerImage;
     const finalMobileImage = bannerMobileImageFile || bannerMobileImage;
+    const finalVideo = bannerVideoFile || bannerVideoUrl;
 
-    if (!finalImage && !finalMobileImage && !bannerVideoUrl) {
-      toast.warning('Vision required: Please provide at least one image or video URL for the banner.');
+    if (!finalImage && !finalMobileImage && !finalVideo) {
+      toast.warning('Vision required: Please provide at least one image or video for the banner.');
       return;
     }
 
-    if ((finalImage && finalImage.length > 800000) || (finalMobileImage && finalMobileImage.length > 800000)) {
-      toast.error('Manifest too heavy: High-resolution assets detected. Please compress or use URL references.');
+    if ((finalImage && finalImage.length > 800000) || (finalMobileImage && finalMobileImage.length > 800000) || (bannerVideoFile && bannerVideoFile.length > 1500000)) {
+      toast.error('Manifest too heavy: Assets exceed protocol limits. Please try smaller files or URL references.');
       return;
     }
 
@@ -917,7 +880,7 @@ export default function AdminDashboard() {
           imageUrl: finalImage || null,
           mobileImageUrl: finalMobileImage || null,
           link: bannerLink,
-          videoUrl: bannerVideoUrl || null,
+          videoUrl: finalVideo || null,
           expiryDate: bannerExpiry || null,
           active: true,
           displayDesktop: bannerDisplayDesktop,
@@ -936,6 +899,7 @@ export default function AdminDashboard() {
         setBannerMobileImageFile(null);
         setBannerLink('');
         setBannerVideoUrl('');
+        setBannerVideoFile(null);
         setBannerExpiry('');
         setBannerDisplayDesktop(true);
         setBannerDisplayMobile(true);
@@ -2071,11 +2035,44 @@ export default function AdminDashboard() {
                     </div>
 
                     <div className="space-y-4 relative z-10">
-                      <label className="font-tech text-black/30 text-[10px] tracking-[0.4em] font-black uppercase">VIDEO_URL (CINEMATIC_OVERRIDE)</label>
-                      <input value={bannerVideoUrl} onChange={e => setBannerVideoUrl(e.target.value)} className="w-full bg-transparent border-b border-black/10 py-5 italic text-sm focus:border-black outline-none transition-all text-black" placeholder="https://example.com/video.mp4" />
-                      {bannerVideoUrl && (
-                        <div className="mt-4 aspect-video rounded-2xl overflow-hidden border border-black/10 bg-black">
-                          <video src={bannerVideoUrl} controls muted className="w-full h-full object-contain" />
+                      <label className="font-tech text-black/30 text-[10px] tracking-[0.4em] font-black uppercase">VIDEO_CONTENT (CINEMATIC_OVERRIDE)</label>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <input value={bannerVideoUrl} onChange={e => setBannerVideoUrl(e.target.value)} className="w-full bg-transparent border-b border-black/10 py-5 italic text-sm focus:border-black outline-none transition-all text-black" placeholder="VIDEO_URL (e.g. .mp4)" />
+                        <div className="relative h-16 border-2 border-dashed border-black/10 rounded-xl hover:border-black/30 transition-all flex items-center justify-center group overflow-hidden">
+                          <input 
+                            type="file" 
+                            accept="video/*" 
+                            onChange={async (e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                if (file.size > 2 * 1024 * 1024) {
+                                  toast.error('Video file too large. Max 2MB for direct upload.');
+                                  return;
+                                }
+                                const reader = new FileReader();
+                                reader.onload = () => setBannerVideoFile(reader.result as string);
+                                reader.readAsDataURL(file);
+                              }
+                            }}
+                            className="absolute inset-0 opacity-0 cursor-pointer z-20" 
+                          />
+                          <div className="flex items-center space-x-3 text-black/20 group-hover:text-black transition-colors">
+                            <Upload size={16} />
+                            <span className="font-tech text-[8px] uppercase tracking-widest font-bold">{bannerVideoFile ? 'VIDEO_ATTACHED' : 'UPLOAD_VIDEO'}</span>
+                          </div>
+                        </div>
+                      </div>
+                      {(bannerVideoUrl || bannerVideoFile) && (
+                        <div className="mt-4 aspect-video rounded-2xl overflow-hidden border border-black/10 bg-black group relative">
+                          <video src={bannerVideoFile || bannerVideoUrl} controls muted className="w-full h-full object-contain" />
+                          {bannerVideoFile && (
+                            <button 
+                              onClick={() => setBannerVideoFile(null)}
+                              className="absolute top-4 right-4 bg-white/20 backdrop-blur-md text-white p-2 rounded-full hover:bg-white/40 transition-all"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          )}
                         </div>
                       )}
                     </div>
