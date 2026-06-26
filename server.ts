@@ -1,5 +1,6 @@
 import express from "express";
 import path from "path";
+import fs from "fs";
 import { createServer as createViteServer } from "vite";
 import dotenv from "dotenv";
 import { Resend } from "resend";
@@ -354,16 +355,33 @@ async function startServer() {
     });
     app.use(vite.middlewares);
   } else {
-    const distPath = path.join(process.cwd(), 'dist', 'client');
+    const distPath = path.resolve(process.cwd(), 'dist', 'client');
+    const indexPath = path.resolve(distPath, 'index.html');
+    
+    console.log(`>>> [PRODUCTION] Root directory: ${process.cwd()}`);
+    console.log(`>>> [PRODUCTION] Dist path: ${distPath}`);
+    console.log(`>>> [PRODUCTION] Index path: ${indexPath}`);
+    console.log(`>>> [PRODUCTION] Index exists: ${fs.existsSync(indexPath)}`);
+    
     app.use(express.static(distPath));
     app.get('*', (req, res) => {
-      res.sendFile(path.join(distPath, 'index.html'));
+      if (req.path.startsWith('/api')) {
+        return res.status(404).json({ error: "API endpoint not found" });
+      }
+      
+      res.sendFile(indexPath, (err) => {
+        if (err) {
+          console.error(`>>> [SERVER_ERROR] Failed to serve index.html:`, err);
+          res.status(404).send("Application shell not found. Please verify the build artifacts.");
+        }
+      });
     });
   }
 
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`>>> DINOSPY Server active at http://0.0.0.0:${PORT}`);
     console.log(`>>> MODE: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`>>> CWD: ${process.cwd()}`);
   });
 
   // Global Error Handler for API routes
@@ -379,4 +397,7 @@ async function startServer() {
   });
 }
 
-startServer();
+startServer().catch(err => {
+  console.error(">>> [FATAL] Server failed to initialize:", err);
+  process.exit(1);
+});
