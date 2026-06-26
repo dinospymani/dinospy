@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, Link } f
 import { FirebaseProvider, useAuth } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import { ThemeProvider } from './context/ThemeContext';
+import { GlobalErrorBoundary } from './components/GlobalErrorBoundary';
 import { AnimatePresence, motion } from 'motion/react';
 
 import HomePage from './pages/HomePage';
@@ -218,27 +219,29 @@ const AuthGate = ({ children }: { children: React.ReactNode }) => {
 
 export default function App() {
   return (
-    <ThemeProvider>
-      <FirebaseProvider>
-        <CartProvider>
-          <Router>
-            <ScrollToTop />
-            <Preloader />
-            <SmoothScroll>
-              <MaintenanceGuard>
-                <AuthGate>
-                  <div className="min-h-screen w-full bg-white text-black selection:bg-black selection:text-white relative flex flex-col pb-24 md:pb-0">
-                    <Toaster position="top-center" richColors />
-                    <AuthModal />
-                    <AnimatedRoutes />
-                    <FloatingBottomNav />
-                  </div>
-                </AuthGate>
-              </MaintenanceGuard>
-            </SmoothScroll>
-          </Router>
-        </CartProvider>
-      </FirebaseProvider>
-    </ThemeProvider>
+    <GlobalErrorBoundary>
+      <ThemeProvider>
+        <FirebaseProvider>
+          <CartProvider>
+            <Router>
+              <ScrollToTop />
+              <Preloader />
+              <SmoothScroll>
+                <MaintenanceGuard>
+                  <AuthGate>
+                    <div className="min-h-screen w-full bg-white text-black selection:bg-black selection:text-white relative flex flex-col pb-24 md:pb-0">
+                      <Toaster position="top-center" richColors />
+                      <AuthModal />
+                      <AnimatedRoutes />
+                      <FloatingBottomNav />
+                    </div>
+                  </AuthGate>
+                </MaintenanceGuard>
+              </SmoothScroll>
+            </Router>
+          </CartProvider>
+        </FirebaseProvider>
+      </ThemeProvider>
+    </GlobalErrorBoundary>
   );
 }

@@ -57,10 +57,10 @@ export default function AuthModal() {
             initial={{ opacity: 0, scale: 0.95, y: 30 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 30 }}
-            className="relative w-full max-w-md bg-white rounded-[3rem] border border-black/5 overflow-hidden shadow-[0_80px_160px_-40px_rgba(0,0,0,0.15)] my-auto"
+            className="relative w-full max-w-lg bg-white rounded-[3rem] border border-black/5 overflow-hidden shadow-[0_80px_160px_-40px_rgba(0,0,0,0.15)] my-auto max-h-[90vh] flex flex-col"
           >
             {/* Terminal Top Bar */}
-            <div className="h-1.5 w-full bg-black flex space-x-1 px-8 items-center justify-end">
+            <div className="h-1.5 w-full bg-black flex space-x-1 px-8 items-center justify-end shrink-0">
                <div className="w-1 h-1 rounded-full bg-white/20" />
                <div className="w-1 h-1 rounded-full bg-white/20" />
                <div className="w-1 h-1 rounded-full bg-white/20" />
@@ -73,7 +73,7 @@ export default function AuthModal() {
               <X size={20} strokeWidth={1} />
             </button>
 
-            <div className="p-6 sm:p-10">
+            <div className="p-6 sm:p-10 overflow-y-auto custom-scrollbar">
               <div className="flex flex-col items-center text-center mb-6">
                 <div className="w-12 h-12 bg-black text-white rounded-full flex items-center justify-center mb-6 shadow-xl">
                   <ShieldCheck size={24} strokeWidth={1} />

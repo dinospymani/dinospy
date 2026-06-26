@@ -256,31 +256,21 @@ async function setupApp() {
       console.error(">>> [DEV_ERROR] Failed to load Vite:", err);
     }
   } else {
-    // In production or on Vercel, serve static files
-    // Use several possible paths to find the dist folder
-    const possibleDistPaths = [
-      path.resolve(_dirname, 'dist'),
-      path.resolve(process.cwd(), 'dist'),
-      path.resolve(_dirname, '..', 'dist'), // Relative to server.ts if compiled
-      path.resolve('/var/task', 'dist'),      // Vercel specific
-      path.resolve(_dirname, 'client'), 
-      path.resolve(process.cwd(), 'public')
-    ];
-
-    let distPath = possibleDistPaths[0];
-    for (const p of possibleDistPaths) {
-      if (fs.existsSync(p)) {
-        distPath = p;
-        break;
-      }
-    }
-
+    // In production, serve static files from the dist folder
+    const distPath = path.resolve(_dirname, 'dist');
     const indexPath = path.resolve(distPath, 'index.html');
     
-    console.log(`>>> [PRODUCTION] Serving from: ${distPath}`);
-    console.log(`>>> [PRODUCTION] Index exists: ${fs.existsSync(indexPath)}`);
+    if (!fs.existsSync(distPath)) {
+      console.warn(`>>> [WARN] dist folder not found at ${distPath}. Falling back to process.cwd()/dist`);
+    }
 
-    app.use(express.static(distPath));
+    const finalDistPath = fs.existsSync(distPath) ? distPath : path.resolve(process.cwd(), 'dist');
+    const finalIndexPath = path.resolve(finalDistPath, 'index.html');
+
+    console.log(`>>> [PRODUCTION] Serving from: ${finalDistPath}`);
+    console.log(`>>> [PRODUCTION] Index exists: ${fs.existsSync(finalIndexPath)}`);
+
+    app.use(express.static(finalDistPath));
     
     app.get('*', (req, res) => {
       // Don't serve index for API calls that fall through
@@ -289,10 +279,10 @@ async function setupApp() {
       }
       
       // Serve the SPA index.html
-      if (fs.existsSync(indexPath)) {
-        res.sendFile(indexPath);
+      if (fs.existsSync(finalIndexPath)) {
+        res.sendFile(finalIndexPath);
       } else {
-        console.error(`>>> [ERROR] index.html not found at ${indexPath}`);
+        console.error(`>>> [ERROR] index.html not found at ${finalIndexPath}`);
         res.status(404).send("Application Shell Missing. Please verify build deployment.");
       }
     });
