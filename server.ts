@@ -355,7 +355,7 @@ async function startServer() {
     });
     app.use(vite.middlewares);
   } else {
-    const distPath = path.resolve(process.cwd(), 'dist', 'client');
+    const distPath = path.resolve(process.cwd(), 'dist');
     const indexPath = path.resolve(distPath, 'index.html');
     
     console.log(`>>> [PRODUCTION] Root directory: ${process.cwd()}`);
