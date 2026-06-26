@@ -181,7 +181,7 @@ export default function HomePage() {
 
                  <div className="relative aspect-[4/5] rounded-[4rem] overflow-hidden group">
                     <img 
-                      src="/src/assets/images/watch_movement_macro_1782377142964.jpg" 
+                      src="/images/watch_movement_macro_1782377142964.jpg" 
                       className="w-full h-full object-cover grayscale brightness-75 group-hover:scale-110 group-hover:grayscale-0 group-hover:brightness-100 transition-all duration-[3s] ease-out" 
                       alt="Precision Movement" 
                     />

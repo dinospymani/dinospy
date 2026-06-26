@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import watchBackground from '../assets/images/watch_movement_macro_1782377142964.jpg';
+const watchBackground = '/images/watch_movement_macro_1782377142964.jpg';
 
 export const Preloader = () => {
   const [progress, setProgress] = useState(0);

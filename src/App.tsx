@@ -1,11 +1,13 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, Link } from 'react-router-dom';
 import { FirebaseProvider, useAuth } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { AnimatePresence, motion } from 'motion/react';
 
 import HomePage from './pages/HomePage';
+import LoginPage from './pages/LoginPage';
+import SignupPage from './pages/SignupPage';
 import ProductDetailsPage from './pages/ProductDetails';
 import AdminDashboard from './pages/AdminDashboard';
 import CartPage from './pages/CartPage';
@@ -58,7 +60,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode; adminOnly?: boolean 
   const { user, profile, loading } = useAuth();
   
   if (loading) return <GlobalLoader />;
-  if (!user) return <Navigate to="/" />;
+  if (!user) return <Navigate to="/login" />;
   if (adminOnly && profile?.role !== 'admin' && profile?.role !== 'support' && user?.email !== 'manikanta5sy@gmail.com') {
     if (process.env.NODE_ENV === "production") return <Navigate to="/" />;
   }
@@ -72,6 +74,8 @@ function AnimatedRoutes() {
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<PageTransition><HomePage /></PageTransition>} />
+        <Route path="/login" element={<PageTransition><LoginPage /></PageTransition>} />
+        <Route path="/signup" element={<PageTransition><SignupPage /></PageTransition>} />
         <Route path="/product/:id" element={<PageTransition><ProductDetailsPage /></PageTransition>} />
         <Route path="/explore" element={<PageTransition><ExplorePage /></PageTransition>} />
         <Route path="/cart" element={<PageTransition><CartPage /></PageTransition>} />
@@ -127,12 +131,12 @@ const MaintenanceScreen = ({ isAdmin, onBypass }: { isAdmin: boolean; onBypass: 
                 BYPASS_VAULT_LOCK
               </button>
             ) : (
-              <button 
-                onClick={() => setIsAuthModalOpen(true)}
+              <Link 
+                to="/login"
                 className="font-mono text-[9px] tracking-[0.4em] text-black/40 hover:text-black transition-colors font-bold"
               >
                 SECURE_IDENTITY_VERIFICATION
-              </button>
+              </Link>
             )}
           </div>
         </motion.div>

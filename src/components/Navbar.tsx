@@ -78,7 +78,7 @@ export default function Navbar() {
 
           <div className="flex items-center space-x-4 md:space-x-6">
             <button 
-              onClick={() => user ? navigate('/profile') : setIsAuthModalOpen(true)}
+              onClick={() => user ? navigate('/profile') : navigate('/login')}
               className="flex items-center"
             >
               <MagneticButton className="w-10 h-10 rounded-full border border-current/5 flex items-center justify-center hover:bg-current hover:text-white transition-all">
@@ -152,7 +152,7 @@ export default function Navbar() {
                   <button 
                     onClick={() => {
                       setIsMobileMenuOpen(false);
-                      user ? navigate('/profile') : setIsAuthModalOpen(true);
+                      user ? navigate('/profile') : navigate('/login');
                     }}
                     className="text-4xl sm:text-5xl font-display text-charcoal hover:text-luxury-gold transition-colors font-medium tracking-tightest uppercase flex items-center text-left"
                   >

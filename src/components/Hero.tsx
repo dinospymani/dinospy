@@ -14,19 +14,19 @@ const Hero = () => {
     {
       title: "Mechanical Sovereignty.",
       subtitle: "VAULT_SERIES_001",
-      imageUrl: "/src/assets/images/hero_skeleton_movement_1782293477542.jpg",
+      imageUrl: "/images/hero_skeleton_movement_1782293477542.jpg",
       link: "/explore"
     },
     {
       title: "Oceanic Mastery.",
       subtitle: "DIVER_PROTOCOL_002",
-      imageUrl: "/src/assets/images/diver_watch_underwater_1782293493132.jpg",
+      imageUrl: "/images/diver_watch_underwater_1782293493132.jpg",
       link: "/explore?category=DIVER"
     },
     {
       title: "Minimalist Legacy.",
       subtitle: "MINIMAL_LEGACY_003",
-      imageUrl: "/src/assets/images/minimalist_marble_watch_1782293522898.jpg",
+      imageUrl: "/images/minimalist_marble_watch_1782293522898.jpg",
       link: "/explore?category=CLASSIC"
     }
   ];

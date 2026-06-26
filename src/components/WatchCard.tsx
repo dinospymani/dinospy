@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { motion, useMotionValue, useSpring, useTransform } from 'motion/react';
-import { Heart, ShoppingBag, Star, Share2, Plus, ArrowUpRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Heart, ShoppingBag, Star, Share2, Plus, ArrowUpRight, Bell } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'sonner';
@@ -25,7 +25,8 @@ interface WatchCardProps {
 export default function WatchCard({ product }: WatchCardProps) {
   const { addToCart, wishlist } = useCart();
   const { user, setIsAuthModalOpen } = useAuth();
-  const isWishlisted = wishlist.includes(product.id);
+  const navigate = useNavigate();
+  const isOutOfStock = product.stock !== undefined && product.stock <= 0;
   const discountPrice = Math.round(product.discount ? product.price * (1 - product.discount / 100) : product.price);
   
   // 3D Tilt Effect
@@ -80,7 +81,7 @@ export default function WatchCard({ product }: WatchCardProps) {
           to={`/product/${product.id}`} 
           className="relative aspect-square mb-12 rounded-[2rem] overflow-hidden group/img block transition-transform duration-700 translate-z-[60px] bg-soft-silver border border-charcoal/5"
         >
-          <div className="w-full h-full flex flex-col items-center justify-center transition-colors duration-1000">
+          <div className={`w-full h-full flex flex-col items-center justify-center transition-all duration-1000 ${isOutOfStock ? 'grayscale opacity-60' : ''}`}>
             {product.images && product.images.length > 0 ? (
               <img 
                 src={product.images[0]} 
@@ -104,8 +105,15 @@ export default function WatchCard({ product }: WatchCardProps) {
           </div>
           
           {product.isLimited && (
-            <div className="absolute bottom-8 left-8 bg-luxury-gold px-6 py-2 rounded-full shadow-lg">
+            <div className="absolute bottom-8 left-8 bg-luxury-gold px-6 py-2 rounded-full shadow-lg z-20">
                <span className="font-mono text-[8px] tracking-[0.2em] font-black text-charcoal uppercase text-xs">LIMITED_EDITION</span>
+            </div>
+          )}
+
+          {isOutOfStock && (
+            <div className="absolute top-8 left-8 bg-black/80 backdrop-blur-md px-6 py-2 rounded-full shadow-lg z-20 border border-white/10 flex items-center space-x-2">
+               <Bell size={12} className="text-luxury-gold" />
+               <span className="font-mono text-[8px] tracking-[0.2em] font-black text-white uppercase text-xs">SOLD_OUT</span>
             </div>
           )}
         </Link>
@@ -137,13 +145,17 @@ export default function WatchCard({ product }: WatchCardProps) {
 
           <MagneticButton 
             onClick={() => {
-              if (!user) { setIsAuthModalOpen(true); return; }
+              if (!user) { navigate('/login'); return; }
+              if (isOutOfStock) {
+                toast.success(`Priority Alert: We will notify you when ${product.name} returns to the vault.`);
+                return;
+              }
               addToCart(product);
               toast.success(`${product.name} Added to Vault`);
             }}
-            className="w-16 h-16 bg-luxury-gold text-charcoal rounded-full flex items-center justify-center shadow-xl hover:shadow-2xl transition-all active:scale-90"
+            className={`w-16 h-16 ${isOutOfStock ? 'bg-black text-white' : 'bg-luxury-gold text-charcoal'} rounded-full flex items-center justify-center shadow-xl hover:shadow-2xl transition-all active:scale-90`}
           >
-            <Plus size={28} strokeWidth={1.5} />
+            {isOutOfStock ? <Bell size={28} strokeWidth={1.5} /> : <Plus size={28} strokeWidth={1.5} />}
           </MagneticButton>
         </div>
         

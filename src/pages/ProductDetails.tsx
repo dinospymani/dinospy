@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
-import { ShoppingBag, Heart, Star, Shield, Truck, RotateCcw, ArrowLeft, ChevronRight, Play, Share2, ThumbsUp, CheckCircle2, X, ChevronLeft, Watch } from 'lucide-react';
+import { ShoppingBag, Heart, Star, Shield, Truck, RotateCcw, ArrowLeft, ChevronRight, Play, Share2, ThumbsUp, CheckCircle2, X, ChevronLeft, Watch, Bell } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { CountdownTimer } from '../components/CountdownTimer';
@@ -20,6 +20,7 @@ export default function ProductDetails() {
   const [quantity, setQuantity] = useState(1);
   const { user, profile, setIsAuthModalOpen } = useAuth();
   const { addToCart, toggleWishlist, wishlist } = useCart();
+  const navigate = useNavigate();
   const [reviews, setReviews] = useState<any[]>([]);
   const [reviewComment, setReviewComment] = useState('');
   const [reviewRating, setReviewRating] = useState(5);
@@ -114,9 +115,21 @@ export default function ProductDetails() {
 
   const isWishlisted = wishlist.includes(id || '');
 
+  const handleNotifyMe = () => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    toast.success(`Priority Alert: We will notify you when ${product.name} is back in the vault.`);
+  };
+
   const handleAddToCart = () => {
     if (!user) {
-      setIsAuthModalOpen(true);
+      navigate('/login');
+      return;
+    }
+    if (product.stock <= 0) {
+      handleNotifyMe();
       return;
     }
     if (product.stock < quantity) {
@@ -144,11 +157,11 @@ export default function ProductDetails() {
           name: 'Ouroboros Gold',
           brand: 'DINOSPY',
           price: 125000,
-          stock: 100,
+          stock: 0,
           images: [
-              "/src/assets/images/vanguard_carbon_watch_1782293507993.jpg",
-              "/src/assets/images/minimalist_marble_watch_1782293522898.jpg",
-              "/src/assets/images/hero_skeleton_movement_1782293477542.jpg"
+              "https://images.unsplash.com/photo-1547996160-81dfa63595aa?q=80&w=2574&auto=format&fit=crop",
+              "https://images.unsplash.com/photo-1524592094714-0f0654e20314?q=80&w=2598&auto=format&fit=crop",
+              "https://images.unsplash.com/photo-1522338242992-e1a54906a8da?q=80&w=2574&auto=format&fit=crop"
             ],
             category: 'Luxury',
             rating: 4.9,
@@ -300,7 +313,7 @@ export default function ProductDetails() {
                      opacity: { duration: 1.5, ease: [0.19, 1, 0.22, 1] },
                      scale: { duration: 0.6, ease: [0.19, 1, 0.22, 1] }
                    }}
-                   className="w-full h-full flex flex-col items-center justify-center bg-white p-0 relative"
+                   className={`w-full h-full flex flex-col items-center justify-center bg-white p-0 relative ${product.stock <= 0 ? 'grayscale opacity-60' : ''}`}
                 >
                   {product.images && product.images.length > 0 ? (
                     <img 
@@ -409,9 +422,9 @@ export default function ProductDetails() {
                    <div className="flex flex-col">
                       <span className="font-mono text-center md:text-left text-[9px] md:text-[10px] text-black/20 mb-1 font-bold uppercase tracking-widest">REGISTRY_STATUS</span>
                       <div className="flex items-center justify-center md:justify-start space-x-3">
-                         <div className={`w-2 h-2 rounded-full ${product.stock > 0 ? 'bg-black animate-pulse' : 'bg-red-500'}`} />
+                         <div className={`w-2 h-2 rounded-full ${product.stock > 0 ? 'bg-black animate-pulse' : 'bg-luxury-gold'}`} />
                          <span className="font-mono text-[9px] md:text-[10px] font-bold text-black/60 uppercase tracking-widest">
-                            {product.stock > 0 ? 'VAULT_LOCKED' : 'NULL_STATE'}
+                            {product.stock > 0 ? 'VAULT_LOCKED' : 'OUT_OF_STOCK'}
                          </span>
                       </div>
                    </div>
@@ -452,14 +465,20 @@ export default function ProductDetails() {
                    <span className="text-[10px] uppercase tracking-[0.3em] text-black/20 font-bold">Units of Acquisition</span>
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-6">
-                  <button 
-                    onClick={handleAddToCart}
-                    disabled={product.stock <= 0}
-                    className={`flex-grow py-6 bg-black text-white hover:bg-neutral-800 transition-all duration-700 text-[11px] uppercase tracking-[0.5em] font-bold shadow-2xl ${product.stock <= 0 ? 'opacity-20 cursor-not-allowed' : ''}`}
-                  >
-                    Acquire Piece
-                  </button>
+                 <div className="flex flex-col sm:flex-row gap-6">
+                   <button 
+                     onClick={handleAddToCart}
+                     className={`flex-grow py-6 bg-black text-white hover:bg-neutral-800 transition-all duration-700 text-[11px] uppercase tracking-[0.5em] font-bold shadow-2xl flex items-center justify-center space-x-4`}
+                   >
+                     {product.stock <= 0 ? (
+                       <>
+                         <Bell size={14} className="text-luxury-gold" />
+                         <span>Notify Me</span>
+                       </>
+                     ) : (
+                       <span>Acquire Piece</span>
+                     )}
+                   </button>
                   <motion.button 
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}

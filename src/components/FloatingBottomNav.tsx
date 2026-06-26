@@ -26,7 +26,7 @@ export const FloatingBottomNav = () => {
           const handleClick = (e: React.MouseEvent) => {
             if (item.auth && !user) {
               e.preventDefault();
-              setIsAuthModalOpen(true);
+              navigate('/login');
             }
           };
 
