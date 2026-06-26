@@ -384,9 +384,8 @@ export default function AdminDashboard() {
     const qSupport = query(collection(db, 'support_tickets'), orderBy('lastActive', 'desc'));
     const unsubSupport = onSnapshot(qSupport, (snap) => {
       const fetchedChats = snap.docs.map(doc => ({ id: doc.id, ...doc.data({ serverTimestamps: 'estimate' }) }));
-      setSupportChats(fetchedChats);
       
-      // Live activity for new signals
+      // Live activity for new signals and state update
       setSupportChats(prev => {
         if (prev.length > 0 && fetchedChats.length > prev.length) {
            setLiveActivity(la => [{

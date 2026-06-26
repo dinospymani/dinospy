@@ -83,7 +83,7 @@ app.use(helmet({
 // Generic Rate Limiter
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
+  max: 1000, // Increased to 1000 to avoid "Rate exceeded" for active users
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: "Too many requests from this IP, please try again after 15 minutes" }
@@ -257,20 +257,17 @@ async function setupApp() {
     }
   } else {
     // In production, serve static files from the dist folder
-    const distPath = path.resolve(_dirname, 'dist');
+    // When bundled, server.cjs is often inside dist/
+    // We check if we are already in dist or if dist is a subdirectory
+    const isInsideDist = _dirname.endsWith('dist') || _dirname.endsWith('dist/');
+    const distPath = isInsideDist ? _dirname : path.resolve(_dirname, 'dist');
     const indexPath = path.resolve(distPath, 'index.html');
     
-    if (!fs.existsSync(distPath)) {
-      console.warn(`>>> [WARN] dist folder not found at ${distPath}. Falling back to process.cwd()/dist`);
-    }
+    console.log(`>>> [PRODUCTION] _dirname: ${_dirname}`);
+    console.log(`>>> [PRODUCTION] distPath: ${distPath}`);
+    console.log(`>>> [PRODUCTION] Index exists: ${fs.existsSync(indexPath)}`);
 
-    const finalDistPath = fs.existsSync(distPath) ? distPath : path.resolve(process.cwd(), 'dist');
-    const finalIndexPath = path.resolve(finalDistPath, 'index.html');
-
-    console.log(`>>> [PRODUCTION] Serving from: ${finalDistPath}`);
-    console.log(`>>> [PRODUCTION] Index exists: ${fs.existsSync(finalIndexPath)}`);
-
-    app.use(express.static(finalDistPath));
+    app.use(express.static(distPath));
     
     app.get('*', (req, res) => {
       // Don't serve index for API calls that fall through
@@ -279,11 +276,17 @@ async function setupApp() {
       }
       
       // Serve the SPA index.html
-      if (fs.existsSync(finalIndexPath)) {
-        res.sendFile(finalIndexPath);
+      if (fs.existsSync(indexPath)) {
+        res.sendFile(indexPath);
       } else {
-        console.error(`>>> [ERROR] index.html not found at ${finalIndexPath}`);
-        res.status(404).send("Application Shell Missing. Please verify build deployment.");
+        // Final fallback to process.cwd()/dist if needed
+        const fallbackPath = path.resolve(process.cwd(), 'dist', 'index.html');
+        if (fs.existsSync(fallbackPath)) {
+          res.sendFile(fallbackPath);
+        } else {
+          console.error(`>>> [ERROR] index.html not found at ${indexPath} or ${fallbackPath}`);
+          res.status(404).send("Application Shell Missing. Please verify build deployment.");
+        }
       }
     });
   }
