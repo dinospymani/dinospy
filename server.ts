@@ -18,9 +18,10 @@ const PORT = Number(process.env.PORT) || 3000;
 const isProd = process.env.NODE_ENV === "production";
 const isVercel = process.env.VERCEL === "1" || !!process.env.VERCEL;
 
-// Derive __dirname in ESM
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// Derive __dirname safely for both ESM (dev) and CJS (bundled production)
+const _dirname = typeof __dirname !== 'undefined'
+  ? __dirname
+  : (import.meta && import.meta.url ? path.dirname(fileURLToPath(import.meta.url)) : process.cwd());
 
 // Export app for Vercel Serverless Functions
 export default app;
@@ -258,11 +259,11 @@ async function setupApp() {
     // In production or on Vercel, serve static files
     // Use several possible paths to find the dist folder
     const possibleDistPaths = [
-      path.resolve(__dirname, 'dist'),
+      path.resolve(_dirname, 'dist'),
       path.resolve(process.cwd(), 'dist'),
-      path.resolve(__dirname, '..', 'dist'), // Relative to server.ts if compiled
+      path.resolve(_dirname, '..', 'dist'), // Relative to server.ts if compiled
       path.resolve('/var/task', 'dist'),      // Vercel specific
-      path.resolve(__dirname, 'client'), 
+      path.resolve(_dirname, 'client'), 
       path.resolve(process.cwd(), 'public')
     ];
 
@@ -321,6 +322,19 @@ async function setupApp() {
     });
   }
 }
+
+// --- PROCESS-LEVEL ERROR HANDLERS ---
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  // Application specific logging, throwing an error, or other logic here
+});
+
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception thrown:', err);
+  // Optional: graceful shutdown
+  // process.exit(1);
+});
 
 // Initialize the app
 setupApp().catch(err => {
