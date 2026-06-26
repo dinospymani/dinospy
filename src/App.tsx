@@ -19,6 +19,8 @@ import PartnerPortal from './pages/PartnerPortal';
 import FAQPage from './pages/FAQPage';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import RefundPolicy from './pages/RefundPolicy';
+import TermsOfService from './pages/TermsOfService';
+import ContactUs from './pages/ContactUs';
 
 import { SmoothScroll } from './components/SmoothScroll';
 import { Preloader } from './components/Preloader';
@@ -87,6 +89,8 @@ function AnimatedRoutes() {
         <Route path="/track" element={<PageTransition><OrderTrackingPage /></PageTransition>} />
         <Route path="/privacy" element={<PageTransition><PrivacyPolicy /></PageTransition>} />
         <Route path="/refund" element={<PageTransition><RefundPolicy /></PageTransition>} />
+        <Route path="/terms" element={<PageTransition><TermsOfService /></PageTransition>} />
+        <Route path="/contact" element={<PageTransition><ContactUs /></PageTransition>} />
         <Route path="/partner/:orderId" element={<PageTransition><PartnerPortal /></PageTransition>} />
         <Route path="/admin" element={<ProtectedRoute adminOnly><PageTransition><AdminDashboard /></PageTransition></ProtectedRoute>} />
       </Routes>
@@ -188,6 +192,30 @@ const MaintenanceGuard: React.FC<{ children: React.ReactNode }> = ({ children })
   return <>{children}</>;
 };
 
+const AuthGate = ({ children }: { children: React.ReactNode }) => {
+  const { user, loading, setIsAuthModalOpen } = useAuth();
+  const location = useLocation();
+
+  React.useEffect(() => {
+    // Only prompt for login if:
+    // 1. User is not logged in
+    // 2. Auth state has finished loading
+    // 3. We are NOT on login, signup, or legal pages (to avoid infinite loops or blocking public info)
+    const publicPaths = ['/login', '/signup', '/privacy', '/refund', '/terms', '/contact', '/faq'];
+    const isPublicPath = publicPaths.includes(location.pathname);
+
+    if (!loading && !user && !isPublicPath) {
+      // Delay slightly to allow page load
+      const timer = setTimeout(() => {
+        setIsAuthModalOpen(true);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [user, loading, location.pathname, setIsAuthModalOpen]);
+
+  return <>{children}</>;
+};
+
 export default function App() {
   return (
     <ThemeProvider>
@@ -198,12 +226,14 @@ export default function App() {
             <Preloader />
             <SmoothScroll>
               <MaintenanceGuard>
-                <div className="min-h-screen w-full bg-white text-black selection:bg-black selection:text-white relative flex flex-col pb-24 md:pb-0">
-                  <Toaster position="top-center" richColors />
-                  <AuthModal />
-                  <AnimatedRoutes />
-                  <FloatingBottomNav />
-                </div>
+                <AuthGate>
+                  <div className="min-h-screen w-full bg-white text-black selection:bg-black selection:text-white relative flex flex-col pb-24 md:pb-0">
+                    <Toaster position="top-center" richColors />
+                    <AuthModal />
+                    <AnimatedRoutes />
+                    <FloatingBottomNav />
+                  </div>
+                </AuthGate>
               </MaintenanceGuard>
             </SmoothScroll>
           </Router>

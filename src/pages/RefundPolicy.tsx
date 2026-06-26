@@ -26,6 +26,11 @@ export default function RefundPolicy() {
     },
     {
       icon: FileText,
+      title: "Cancellation Protocol",
+      content: "Acquisition requests can be cancelled within 2 hours of authorization without penalty. Once the piece has been extracted from the vault and prepared for armored transport, a 5% archival restocking fee will apply to all cancellations."
+    },
+    {
+      icon: FileText,
       title: "Exemptions",
       content: "Grand Complications, Bespoke Commissions, and items marked as 'Final Acquisition' are ineligible for returns due to their custom-crafted nature and unique heritage value. These pieces are protected by our 24-month mechanical warranty instead."
     }

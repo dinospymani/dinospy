@@ -84,9 +84,11 @@ export default function Footer() {
               <span className="font-mono text-[9px] text-charcoal/40 tracking-[0.4em] uppercase font-black">CRAFTED_IN_INDIA</span>
            </div>
            
-           <div className="flex space-x-12">
+           <div className="flex flex-wrap justify-center md:justify-end gap-x-12 gap-y-4">
               <Link to="/privacy" className="font-mono text-[9px] text-charcoal/40 tracking-[0.4em] hover:text-charcoal transition-colors uppercase font-black">PRIVACY</Link>
+              <Link to="/terms" className="font-mono text-[9px] text-charcoal/40 tracking-[0.4em] hover:text-charcoal transition-colors uppercase font-black">TERMS</Link>
               <Link to="/refund" className="font-mono text-[9px] text-charcoal/40 tracking-[0.4em] hover:text-charcoal transition-colors uppercase font-black">REFUND</Link>
+              <Link to="/contact" className="font-mono text-[9px] text-charcoal/40 tracking-[0.4em] hover:text-charcoal transition-colors uppercase font-black">CONTACT</Link>
               <Link to="/faq" className="font-mono text-[9px] text-charcoal/40 tracking-[0.4em] hover:text-charcoal transition-colors uppercase font-black">PROTOCOLS</Link>
            </div>
         </div>
