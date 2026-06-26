@@ -9,9 +9,13 @@ import rateLimit from "express-rate-limit";
 
 dotenv.config();
 
+const app = express();
+const PORT = Number(process.env.PORT) || 3000;
+
+// Export app for Vercel Serverless Functions
+export default app;
+
 async function startServer() {
-  const app = express();
-  const PORT = 3000;
 
   // Trust proxy for rate limiting behind Cloud Run/Nginx
   app.set('trust proxy', 1);
@@ -378,11 +382,13 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`>>> DINOSPY Server active at http://0.0.0.0:${PORT}`);
-    console.log(`>>> MODE: ${process.env.NODE_ENV || 'development'}`);
-    console.log(`>>> CWD: ${process.cwd()}`);
-  });
+  if (process.env.NODE_ENV !== "production" || !process.env.VERCEL) {
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log(`>>> DINOSPY Server active at http://0.0.0.0:${PORT}`);
+      console.log(`>>> MODE: ${process.env.NODE_ENV || 'development'}`);
+      console.log(`>>> CWD: ${process.cwd()}`);
+    });
+  }
 
   // Global Error Handler for API routes
   app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
