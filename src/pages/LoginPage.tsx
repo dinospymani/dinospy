@@ -45,10 +45,10 @@ export default function LoginPage() {
         <motion.img 
           initial={{ scale: 1.1 }}
           animate={{ scale: 1 }}
-          transition={{ duration: 10, ease: "linear", repeat: Infinity, repeatType: "reverse" }}
-          src="https://images.unsplash.com/photo-1547996160-81dfa63595aa?q=80&w=2574&auto=format&fit=crop"
-          className="w-full h-full object-cover grayscale opacity-50"
-          alt="Luxury Watch Background"
+          transition={{ duration: 20, ease: "linear", repeat: Infinity, repeatType: "reverse" }}
+          src="/images/watch_movement_macro_1782377142964.jpg"
+          className="w-full h-full object-cover grayscale opacity-40 brightness-50"
+          alt="Precision Movement Background"
         />
       </div>
 
@@ -124,7 +124,7 @@ export default function LoginPage() {
               <button 
                 type="submit"
                 disabled={loading}
-                className="w-full py-8 bg-luxury-gold text-charcoal font-mono font-bold uppercase tracking-[0.8em] rounded-[2.5rem] text-[10px] flex items-center justify-center shadow-2xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-700 disabled:opacity-50 relative overflow-hidden group/btn"
+                className="w-full py-8 bg-white text-charcoal font-mono font-bold uppercase tracking-[0.8em] rounded-[2.5rem] text-[10px] flex items-center justify-center shadow-2xl hover:bg-luxury-gold hover:scale-[1.02] active:scale-[0.98] transition-all duration-700 disabled:opacity-50 relative overflow-hidden group/btn"
               >
                 <div className="absolute inset-0 bg-white/20 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-700" />
                 <span className="relative z-10 flex items-center">
