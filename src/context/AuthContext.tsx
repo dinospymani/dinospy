@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { initializeApp } from 'firebase/app';
+import { auth, db } from '../lib/firebase';
 import { 
-  getAuth, 
   onAuthStateChanged, 
   User, 
   signInWithEmailAndPassword,
@@ -11,16 +10,9 @@ import {
   browserLocalPersistence,
   setPersistence 
 } from 'firebase/auth';
-import { getFirestore, doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
-import config from '../../firebase-applet-config.json';
+import { doc, setDoc, onSnapshot } from 'firebase/firestore';
 import { toast } from 'sonner';
 import { handleFirestoreError, OperationType } from '../lib/utils';
-
-const app = initializeApp(config || {});
-export const auth = getAuth(app);
-auth.useDeviceLanguage();
-// @ts-ignore
-export const db = getFirestore(app, config?.firestoreDatabaseId || '(default)');
 
 interface AuthContextType {
   user: User | null;

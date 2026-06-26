@@ -6,7 +6,7 @@ import Footer from '../components/Footer';
 import WatchCard from '../components/WatchCard';
 import ProductSkeleton from '../components/ProductSkeleton';
 import { collection, onSnapshot, query } from 'firebase/firestore';
-import { db } from '../context/AuthContext';
+import { db } from '../lib/firebase';
 import { handleFirestoreError, OperationType } from '../lib/utils';
 
 export default function ExplorePage() {

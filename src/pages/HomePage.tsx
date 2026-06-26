@@ -8,7 +8,7 @@ import ProductSkeleton from '../components/ProductSkeleton';
 import Footer from '../components/Footer';
 import { Marquee } from '../components/Marquee';
 import { MagneticButton } from '../components/MagneticButton';
-import { db } from '../context/AuthContext';
+import { db } from '../lib/firebase';
 import { collection, onSnapshot, query, limit } from 'firebase/firestore';
 import { handleFirestoreError, OperationType } from '../lib/utils';
 import { ArrowRight, ShieldCheck, Zap, Droplets, Truck, Star, Quote } from 'lucide-react';

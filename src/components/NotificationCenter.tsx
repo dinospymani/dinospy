@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Bell, X, Tag, Zap, Sparkles, Megaphone, Check, Shield, ShoppingBag } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { collection, query, orderBy, limit, onSnapshot, doc, updateDoc } from 'firebase/firestore';
-import { db } from '../context/AuthContext';
+import { db } from '../lib/firebase';
 import { useAuth } from '../context/AuthContext';
 import { AppNotification } from '../types';
 import { Link } from 'react-router-dom';

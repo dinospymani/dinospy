@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { Shield, CheckCircle2, Truck, AlertCircle, ChevronRight, MapPin, ArrowLeft } from 'lucide-react';
-import { db } from '../context/AuthContext';
+import { db } from '../lib/firebase';
 import { doc, getDoc, updateDoc, arrayUnion } from 'firebase/firestore';
 import { toast } from 'sonner';
 import Navbar from '../components/Navbar';

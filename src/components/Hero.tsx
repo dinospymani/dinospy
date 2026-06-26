@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import { collection, getDocs } from 'firebase/firestore';
-import { db } from '../context/AuthContext';
+import { db } from '../lib/firebase';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
 
 const Hero = () => {

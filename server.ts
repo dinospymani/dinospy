@@ -80,13 +80,13 @@ app.use(helmet({
   frameguard: false,
 }));
 
-// Generic Rate Limiter
+// Generic Rate Limiter - Disabled for maximum availability in dev/shared preview
 const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 1000, // Increased to 1000 to avoid "Rate exceeded" for active users
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 1000000, // Effectively disabled
   standardHeaders: true,
   legacyHeaders: false,
-  message: { error: "Too many requests from this IP, please try again after 15 minutes" }
+  message: { error: "Too many requests" }
 });
 
 app.use("/api/", apiLimiter);
@@ -100,6 +100,21 @@ app.get("/api/health", (req, res) => {
     env: process.env.NODE_ENV,
     vercel: isVercel
   });
+});
+
+app.post("/api/notifications/order-status", async (req, res) => {
+  try {
+    const { orderId, status, phone, customerName, trackingId, carrier } = req.body;
+    console.log(`[NOTIFICATION] Order ${orderId} status changed to ${status} for ${customerName} (${phone})`);
+    
+    // Logic for SMS/Email notifications would go here
+    // For this build, we rely on the client-side notifications and just log server-side
+    
+    res.json({ success: true, message: "Notification logged on server" });
+  } catch (err) {
+    console.error("[NOTIFICATION_ERROR] Failed to log notification:", err);
+    res.status(500).json({ error: "Notification tracking failed" });
+  }
 });
 
 app.post("/api/payment/create-order", async (req, res, next) => {

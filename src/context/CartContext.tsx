@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { toast } from 'sonner';
-import { useAuth, db } from './AuthContext';
+import { useAuth } from './AuthContext';
+import { db } from '../lib/firebase';
 import { doc, updateDoc, arrayUnion, arrayRemove, onSnapshot } from 'firebase/firestore';
 
 interface Product {
@@ -39,18 +40,30 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, profile } = useAuth();
   const [cart, setCart] = useState<CartItem[]>(() => {
-    const saved = localStorage.getItem('dinospy_cart');
-    return saved ? JSON.parse(saved) : [];
+    try {
+      const saved = localStorage.getItem('dinospy_cart');
+      return (saved && saved !== 'undefined') ? JSON.parse(saved) : [];
+    } catch (e) {
+      return [];
+    }
   });
 
   const [wishlist, setWishlist] = useState<string[]>(() => {
-    const saved = localStorage.getItem('dinospy_wishlist');
-    return saved ? JSON.parse(saved) : [];
+    try {
+      const saved = localStorage.getItem('dinospy_wishlist');
+      return (saved && saved !== 'undefined') ? JSON.parse(saved) : [];
+    } catch (e) {
+      return [];
+    }
   });
 
   const [coupon, setCoupon] = useState<any | null>(() => {
-    const saved = localStorage.getItem('dinospy_coupon');
-    return saved ? JSON.parse(saved) : null;
+    try {
+      const saved = localStorage.getItem('dinospy_coupon');
+      return (saved && saved !== 'undefined') ? JSON.parse(saved) : null;
+    } catch (e) {
+      return null;
+    }
   });
 
   // Sync wishlist from profile when user logs in

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { db, useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext';
+import { db } from '../lib/firebase';
 import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc, onSnapshot, query, orderBy, setDoc, serverTimestamp } from 'firebase/firestore';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -88,7 +89,7 @@ export default function AdminDashboard() {
       doc.setFontSize(16);
       doc.setFont('helvetica', 'bold');
       doc.setTextColor(black[0], black[1], black[2]);
-      doc.text(`#${order.id.slice(-5).toUpperCase()}`, 190, 40, { align: 'right' });
+      doc.text(`#${order.id?.slice(-5).toUpperCase() || 'N/A'}`, 190, 40, { align: 'right' });
 
       doc.setDrawColor(0, 0, 0);
       doc.setLineWidth(0.5);
@@ -180,7 +181,7 @@ export default function AdminDashboard() {
       doc.text('f  x  @dinospy', 20, 287);
       doc.text('dinospy.in', 190, 287, { align: 'right' });
 
-      doc.save(`DINOSPY_INVOICE_${order.id.slice(-5).toUpperCase()}.pdf`);
+      doc.save(`DINOSPY_INVOICE_${order.id?.slice(-5).toUpperCase() || 'UNKNOWN'}.pdf`);
       toast.success('Professional Manifest Generated.');
     } catch (err) {
       console.error(err);
@@ -199,8 +200,6 @@ export default function AdminDashboard() {
   const [activeSupportChat, setActiveSupportChat] = useState<string | null>(null);
   const [supportMessages, setSupportMessages] = useState<any[]>([]);
   const [replyText, setReplyText] = useState('');
-  const [productSearch, setProductSearch] = useState('');
-  const [orderSearch, setOrderSearch] = useState('');
   const [orderStatusFilter, setOrderStatusFilter] = useState<string>('all');
   const [liveActivity, setLiveActivity] = useState<any[]>([]);
   const adminScrollRef = React.useRef<HTMLDivElement>(null);
@@ -517,8 +516,8 @@ export default function AdminDashboard() {
       return;
     }
 
-    if (storyBannerFile.length > 800000 || (storyBannerMobileFile && storyBannerMobileFile.length > 800000)) {
-      toast.error('Manifest too heavy: Assets exceed protocol limits. Please try a different image.');
+    if (storyBannerFile.length > 1000000 || (storyBannerMobileFile && storyBannerMobileFile.length > 1000000)) {
+      toast.error('Manifest too heavy: Assets exceed the 1MB Firestore limit. Please compress or use smaller images.');
       return;
     }
 
@@ -865,8 +864,8 @@ export default function AdminDashboard() {
     }
 
     const totalSize = (finalImage?.length || 0) + (finalMobileImage?.length || 0) + (bannerVideoFile?.length || 0);
-    if (totalSize > 2048000) {
-      toast.error('Manifest too heavy: Total asset size exceeds upgraded 2MB protocol limit. Please compress assets or use URL references.');
+    if (totalSize > 1000000) {
+      toast.error('Manifest too heavy: Total asset size exceeds the 1MB Firestore limit. Please compress assets or use URL references.');
       return;
     }
 
@@ -975,7 +974,7 @@ export default function AdminDashboard() {
     setIsSavingGallery(true);
     try {
       if (galleryImageUrl.length > 1000000) {
-        toast.error('Asset too large for the vault. Please use a smaller capture.');
+        toast.error('Asset too large for the vault (Max 1MB for Firestore). Please use a smaller capture.');
         setIsSavingGallery(false);
         return;
       }
@@ -1650,7 +1649,7 @@ export default function AdminDashboard() {
                         <span className="font-tech text-indigo-600/20 text-[10px] font-bold tracking-widest">SECURE_SYNC</span>
                       </div>
                       <div className="space-y-8 max-h-[400px] overflow-y-auto no-scrollbar relative z-10 pr-4">
-                         {(liveActivity.length > 0 ? liveActivity : notifications.slice(0, 8)).map((n, i) => (
+                        {(liveActivity.length > 0 ? liveActivity : (notifications?.slice(0, 8) || [])).map((n, i) => (
                            <div key={i} className="flex gap-6 group border-l-2 border-black/5 pl-8 hover:border-indigo-600 transition-all duration-700">
                              <div className="flex-shrink-0 space-y-3">
                                <p className="font-tech text-black/10 text-[9px] uppercase tracking-widest">{new Date(n.timestamp).toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit' })}</p>
@@ -1692,28 +1691,19 @@ export default function AdminDashboard() {
                     <h2 className="text-6xl md:text-8xl font-display italic tracking-tightest leading-none text-black">Collection <span className="opacity-10 text-black font-sans italic">Manifest.</span></h2>
                   </div>
                   <div className="flex gap-6 w-full md:w-auto items-center">
-                    <div className="relative flex-grow md:w-80">
-                      <input 
-                        type="text" 
-                        placeholder="SEARCH_MANIFEST..." 
-                        value={productSearch}
-                        onChange={(e) => setProductSearch(e.target.value)}
-                        className="w-full bg-neutral-50 border border-black/5 rounded-full py-5 px-10 text-xs font-tech tracking-widest text-black outline-none focus:border-black/20 transition-all placeholder:text-black/10 uppercase"
-                      />
-                    </div>
                     <button onClick={handleSeed} className="px-10 py-5 border border-black/10 rounded-full font-tech text-xs font-black tracking-widest text-black/40 hover:bg-black hover:text-white transition-all duration-1000 active:scale-90 uppercase">GENERATE_SAMPLE_DATA</button>
                   </div>
                </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-12">
-                  {products.filter(p => !productSearch || p.name.toLowerCase().includes(productSearch.toLowerCase()) || p.category.toLowerCase().includes(productSearch.toLowerCase())).map((p) => (
+                  {products.map((p) => (
                     <motion.div 
                       layout
                       key={p.id} 
                       className="group p-10 rounded-[4.5rem] border border-black/5 bg-white hover:bg-neutral-50 transition-all duration-1000 flex flex-col h-full relative overflow-hidden shadow-xl"
                     >
                        <div className="absolute top-0 right-0 p-12 opacity-[0.02] group-hover:opacity-[0.08] transition-all duration-1000 rotate-12 scale-150 pointer-events-none">
-                          <span className="font-display italic text-[12rem] leading-none text-black">{p.name.slice(0, 1)}</span>
+                          <span className="font-display italic text-[12rem] leading-none text-black">{p.name?.slice(0, 1) || ''}</span>
                        </div>
                        
                        <div className="aspect-[4/5] rounded-[3rem] overflow-hidden bg-neutral-100 mb-10 relative border border-black/5">
@@ -1806,15 +1796,6 @@ export default function AdminDashboard() {
                     <h2 className="text-6xl md:text-8xl font-display italic tracking-tightest leading-none text-black">Global <span className="opacity-10 text-black font-sans italic">Acquisitions.</span></h2>
                   </div>
                   <div className="flex flex-col xl:flex-row gap-6 w-full xl:w-auto items-center">
-                     <div className="relative w-full xl:w-80">
-                        <input 
-                          type="text"
-                          placeholder="SEARCH_ACQUISITIONS..."
-                          value={orderSearch}
-                          onChange={(e) => setOrderSearch(e.target.value)}
-                          className="w-full bg-neutral-100 border border-black/5 rounded-full py-5 px-10 text-xs font-tech tracking-widest text-black outline-none focus:border-black/20 transition-all placeholder:text-black/10 uppercase"
-                        />
-                     </div>
                      <div className="flex bg-neutral-100 rounded-full border border-black/5 p-1.5 h-full overflow-x-auto no-scrollbar">
                         {['all', 'pending', 'confirmed', 'shipped', 'delivered', 'cancelled'].map((status) => (
                           <button
@@ -1851,18 +1832,14 @@ export default function AdminDashboard() {
                           </tr>
                         ) : (
                           orders
-                           .filter(o => {
-                             const matchesSearch = !orderSearch || o.customerName?.toLowerCase().includes(orderSearch.toLowerCase()) || o.id?.toLowerCase().includes(orderSearch.toLowerCase());
-                             const matchesStatus = orderStatusFilter === 'all' || o.status === orderStatusFilter;
-                             return matchesSearch && matchesStatus;
-                           })
-                           .map((o) => (
+                            .filter(o => orderStatusFilter === 'all' || o.status === orderStatusFilter)
+                            .map((o) => (
                             <tr key={o.id} className="group hover:bg-neutral-50 transition-all duration-700">
                               <td className="py-16 pl-12">
                                  <div className="flex items-center space-x-6">
                                     <div className="w-2.5 h-2.5 bg-black/10 rounded-full group-hover:bg-black group-hover:shadow-xl transition-all duration-1000" />
                                     <div>
-                                       <p className="font-mono text-sm font-black text-black/40 tracking-tighter uppercase group-hover:text-black transition-colors">#{o.id.slice(-12).toUpperCase()}</p>
+                                       <p className="font-mono text-sm font-black text-black/40 tracking-tighter uppercase group-hover:text-black transition-colors">#{o.id?.slice(-12).toUpperCase()}</p>
                                        <p className="font-tech text-[10px] text-black/20 mt-2 uppercase font-black tracking-widest">{new Date(o.createdAt).toLocaleDateString([], { day: '2-digit', month: 'short', year: 'numeric' })}</p>
                                     </div>
                                  </div>
@@ -2111,14 +2088,14 @@ export default function AdminDashboard() {
                           <div className="w-full h-full flex items-center justify-center bg-noir/20 p-8 border border-white/5 relative overflow-hidden group-hover:bg-noir/40 transition-colors">
                              <div className="text-center relative z-10">
                                 <p className="font-mono text-gold text-[9px] tracking-widest uppercase font-bold mb-2">BANNER_ASSET</p>
-                                <p className="font-display text-white/10 text-4xl italic font-bold">{b.title?.slice(0, 3).toUpperCase()}</p>
+                                <p className="font-display text-white/10 text-4xl italic font-bold">{b.title?.slice(0, 3)?.toUpperCase() || 'OFFER'}</p>
                              </div>
                              <div className="absolute inset-0 opacity-[0.05]" 
                                   style={{ backgroundImage: 'radial-gradient(#c5a059 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
                           </div>
                           <div className="absolute inset-0 bg-gradient-to-t from-noir via-noir/20 to-transparent opacity-60" />
                           <div className="absolute bottom-6 left-8 space-y-2">
-                             <p className="font-tech text-gold/40 text-[9px] tracking-[0.3em] font-black">PROMO_ID_{b.id.slice(-6).toUpperCase()}</p>
+                             <p className="font-tech text-gold/40 text-[9px] tracking-[0.3em] font-black">PROMO_ID_{b.id?.slice(-6).toUpperCase() || 'N/A'}</p>
                              <h4 className="text-white text-3xl font-display italic tracking-tightest">{b.title}</h4>
                           </div>
                           <div className="absolute top-6 left-6 px-4 py-2 bg-noir/80 border border-white/10 rounded-full text-[8px] font-tech font-black text-gold tracking-widest backdrop-blur-xl">INDEX: {index + 1}</div>
@@ -2743,7 +2720,7 @@ export default function AdminDashboard() {
                    <div className="space-y-4">
                      <div className="flex items-center space-x-6">
                         <div className="w-3 h-3 bg-indigo-600 rounded-full animate-pulse shadow-[0_0_15px_rgba(79,70,229,0.5)]" />
-                        <p className="font-tech text-black/40 text-xs tracking-[0.4em] font-black uppercase">LOGISTICS_MANIFEST // ID_{selectedOrder.id.slice(-12).toUpperCase()}</p>
+                        <p className="font-tech text-black/40 text-xs tracking-[0.4em] font-black uppercase">LOGISTICS_MANIFEST // ID_{selectedOrder.id?.slice(-12).toUpperCase() || 'N/A'}</p>
                      </div>
                      <h2 className="text-5xl md:text-7xl font-display italic tracking-tightest leading-none text-black">Fulfillment <span className="opacity-10 font-sans italic text-black">Center.</span></h2>
                    </div>
@@ -2842,7 +2819,7 @@ export default function AdminDashboard() {
                                <ShieldCheck size={12} />
                                <span>AUTHENTICATION_TAG</span>
                             </p>
-                            <p className="text-6xl md:text-7xl font-black italic tracking-widest text-black">VAULT-{selectedOrder.id.slice(-10).toUpperCase()}</p>
+                            <p className="text-6xl md:text-7xl font-black italic tracking-widest text-black">VAULT-{selectedOrder.id?.slice(-10).toUpperCase() || 'N/A'}</p>
                          </div>
                          <div className="text-right">
                             <p className="text-[8px] text-black/10 font-bold uppercase tracking-[0.6em] mb-4">LEGAL_RESERVE_RIGHTS</p>
@@ -3112,7 +3089,7 @@ export default function AdminDashboard() {
                                   </div>
                                   <div>
                                      <p className="font-mono text-xs text-black font-black uppercase tracking-tight">{supportChats.find(c => c.id === activeSupportChat)?.userName}</p>
-                                     <p className="font-tech text-[9px] text-black/40 tracking-widest uppercase">TICKET_ID: {activeSupportChat.slice(0, 12).toUpperCase()}</p>
+                                     <p className="font-tech text-[9px] text-black/40 tracking-widest uppercase">TICKET_ID: {activeSupportChat?.slice(0, 12).toUpperCase() || 'N/A'}</p>
                                   </div>
                                </div>
                                <div className="flex flex-wrap gap-4">

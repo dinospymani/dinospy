@@ -13,6 +13,8 @@
   --color-silver: #C0C0C0;
   --color-soft-silver: #F5F5F5;
   --color-luxury-gold: #D4AF37;
+  --color-gold: #D4AF37;
+  --color-luxury-black: #0c0c0c;
   --color-matte-gold: #C5A059;
   --color-ruby: #E0115F;
   --color-emerald: #50C878;
@@ -132,6 +134,25 @@
 
   .silver-gradient {
     background: linear-gradient(135deg, #18181b 0%, #a1a1aa 50%, #18181b 100%);
+  }
+
+  .gold-gradient {
+    background: linear-gradient(135deg, #D4AF37 0%, #F4D03F 50%, #D4AF37 100%);
+  }
+
+  .gold-text {
+    @apply text-gold bg-clip-text;
+    background-image: linear-gradient(135deg, #D4AF37 0%, #F4D03F 50%, #D4AF37 100%);
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .glass {
+    @apply bg-white/5 backdrop-blur-xl border border-white/10;
+  }
+  
+  .glass-dark {
+    @apply bg-black/40 backdrop-blur-xl border border-white/5;
   }
 }
 

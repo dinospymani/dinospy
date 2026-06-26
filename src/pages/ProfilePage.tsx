@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { User, Package, Settings, LogOut, Shield, ChevronRight, ArrowLeft, MessageSquare, ShieldAlert, Database, CreditCard, ShieldCheck, Activity } from 'lucide-react';
-import { useAuth, db } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext';
+import { db } from '../lib/firebase';
 import { collection, query, where, getDocs, doc, updateDoc } from 'firebase/firestore';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';

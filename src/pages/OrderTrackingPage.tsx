@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Search, Package, MapPin, Truck, CheckCircle2, ShieldCheck, ArrowRight, AlertCircle, Clock, Info } from 'lucide-react';
-import { db } from '../context/AuthContext';
+import { db } from '../lib/firebase';
 import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';

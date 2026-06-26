@@ -28,7 +28,7 @@ import { Preloader } from './components/Preloader';
 import { FloatingBottomNav } from './components/FloatingBottomNav';
 import GlobalLoader from './components/GlobalLoader';
 import { doc, onSnapshot } from 'firebase/firestore';
-import { db } from './context/AuthContext';
+import { auth, db } from './lib/firebase';
 import { Toaster, toast } from 'sonner';
 import AuthModal from './components/AuthModal';
 import { Shield, Lock, Activity, Wifi } from 'lucide-react';
@@ -65,7 +65,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode; adminOnly?: boolean 
   if (loading) return <GlobalLoader />;
   if (!user) return <Navigate to="/login" />;
   if (adminOnly && profile?.role !== 'admin' && profile?.role !== 'support' && user?.email !== 'manikanta5sy@gmail.com') {
-    if (process.env.NODE_ENV === "production") return <Navigate to="/" />;
+    if (import.meta.env.PROD) return <Navigate to="/" />;
   }
   
   return <>{children}</>;

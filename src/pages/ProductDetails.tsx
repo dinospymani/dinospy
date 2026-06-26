@@ -5,7 +5,7 @@ import { ShoppingBag, Heart, Star, Shield, Truck, RotateCcw, ArrowLeft, ChevronR
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { CountdownTimer } from '../components/CountdownTimer';
-import { db } from '../context/AuthContext';
+import { db } from '../lib/firebase';
 import { useCart } from '../context/CartContext';
 import { doc, onSnapshot, collection, query, where, orderBy, addDoc, serverTimestamp, updateDoc, getDocs } from 'firebase/firestore';
 import { useAuth } from '../context/AuthContext';
@@ -47,9 +47,10 @@ export default function ProductDetails() {
         where('status', '==', 'delivered')
       );
       const snap = await getDocs(q);
-      const purchasedProduct = snap.docs.some(doc => 
-        doc.data().items.some((item: any) => item.id === id)
-      );
+      const purchasedProduct = snap.docs.some(doc => {
+        const data = doc.data();
+        return data.items?.some((item: any) => item.id === id) || false;
+      });
       setHasPurchased(purchasedProduct);
     };
     checkPurchase();
@@ -95,8 +96,8 @@ export default function ProductDetails() {
 
   const handleShare = async () => {
     const shareData = {
-      title: `DINOSPY - ${product.name}`,
-      text: `Witness the peak of horological engineering: ${product.name}.`,
+      title: `DINOSPY - ${product?.name || 'Vault Asset'}`,
+      text: `Witness the peak of horological engineering: ${product?.name || 'This timepiece'}.`,
       url: window.location.href,
     };
 
@@ -120,7 +121,7 @@ export default function ProductDetails() {
       navigate('/login');
       return;
     }
-    toast.success(`Priority Alert: We will notify you when ${product.name} is back in the vault.`);
+    toast.success(`Priority Alert: We will notify you when ${product?.name || 'this asset'} is back in the vault.`);
   };
 
   const handleAddToCart = () => {
@@ -128,11 +129,11 @@ export default function ProductDetails() {
       navigate('/login');
       return;
     }
-    if (product.stock <= 0) {
+    if (product?.stock <= 0) {
       handleNotifyMe();
       return;
     }
-    if (product.stock < quantity) {
+    if (product?.stock < quantity) {
       toast.error(`Limit exceeded. Only ${product.stock} units available.`);
       return;
     }

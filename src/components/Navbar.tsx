@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence, useScroll, useTransform } from 'motion/react';
-import { ShoppingBag, Search, Heart, User, Menu, X, Plus } from 'lucide-react';
+import { ShoppingBag, Heart, User, Menu, X, Plus } from 'lucide-react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
@@ -38,11 +38,8 @@ export default function Navbar() {
     >
       <div className="w-full max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-between">
         
-        {/* Left: Search & Wishlist */}
+        {/* Left: Wishlist */}
         <div className="hidden lg:flex items-center space-x-8">
-          <MagneticButton className="p-2 hover:text-luxury-gold transition-colors">
-            <Search size={18} strokeWidth={1.5} />
-          </MagneticButton>
           <Link to="/wishlist">
             <MagneticButton className="p-2 hover:text-luxury-gold transition-colors">
               <Heart size={18} strokeWidth={1.5} />

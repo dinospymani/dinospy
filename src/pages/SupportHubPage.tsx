@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { MessageSquare, Send, X, ShieldCheck, Ticket, ChevronRight, Plus, ArrowLeft, ChevronLeft, ShieldAlert, Clock, Activity, Database, LifeBuoy } from 'lucide-react';
-import { useAuth, db } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext';
+import { db } from '../lib/firebase';
 import { collection, query, where, onSnapshot, addDoc, serverTimestamp, doc, updateDoc, orderBy } from 'firebase/firestore';
 import { toast } from 'sonner';
 import Navbar from '../components/Navbar';
