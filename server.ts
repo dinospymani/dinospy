@@ -5,21 +5,45 @@ import dotenv from "dotenv";
 import { Resend } from "resend";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
+import cors from "cors";
+import axios from "axios";
+import { fileURLToPath } from 'url';
+
+// --- CONFIGURATION ---
 
 dotenv.config();
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
+const isProd = process.env.NODE_ENV === "production";
+const isVercel = process.env.VERCEL === "1" || !!process.env.VERCEL;
+
+// Derive __dirname in ESM
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Export app for Vercel Serverless Functions
 export default app;
 
-// Trust proxy for rate limiting behind Cloud Run/Nginx
+// --- ADVANCED HANDLERS & MIDDLEWARE ---
+
+// Trust proxy for rate limiting behind Cloud Run/Nginx/Vercel
 app.set('trust proxy', 1);
 
-// Body Parsing Middleware
+// Standard Middlewares
+app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
+
+// Custom Request Logger
+app.use((req, res, next) => {
+  const start = Date.now();
+  res.on('finish', () => {
+    const duration = Date.now() - start;
+    console.log(`[${req.method}] ${req.path} - ${res.statusCode} (${duration}ms)`);
+  });
+  next();
+});
 
 // Security Headers
 app.use(helmet({
@@ -57,10 +81,11 @@ app.use(helmet({
 
 // Generic Rate Limiter
 const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
   standardHeaders: true,
   legacyHeaders: false,
+  message: { error: "Too many requests from this IP, please try again after 15 minutes" }
 });
 
 app.use("/api/", apiLimiter);
@@ -68,60 +93,35 @@ app.use("/api/", apiLimiter);
 // --- API ROUTES ---
 
 app.get("/api/health", (req, res) => {
-  res.json({ status: "ok", mode: process.env.NODE_ENV || 'development' });
+  res.json({ 
+    status: "ok", 
+    timestamp: new Date().toISOString(),
+    env: process.env.NODE_ENV,
+    vercel: isVercel
+  });
 });
 
-app.post("/api/payment/create-order", async (req, res) => {
+app.post("/api/payment/create-order", async (req, res, next) => {
   try {
     const { orderId, amount, customerDetails } = req.body;
     const appId = process.env.CASHFREE_APP_ID;
     const secretKey = process.env.CASHFREE_SECRET_KEY;
 
-    if (!appId || !secretKey) return res.status(500).json({ error: "Cashfree configuration missing" });
+    if (!appId || !secretKey) {
+      return res.status(500).json({ error: "Cashfree configuration missing on server" });
+    }
 
-    const isProd = process.env.NODE_ENV === "production";
     const baseUrl = isProd ? "https://api.cashfree.com/pg/orders" : "https://sandbox.cashfree.com/pg/orders";
 
-    const response = await fetch(baseUrl, {
-      method: 'POST',
-      headers: {
-        'x-client-id': appId,
-        'x-client-secret': secretKey,
-        'x-api-version': '2023-08-01',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        order_id: orderId,
-        order_amount: amount,
-        order_currency: "INR",
-        customer_details: customerDetails,
-        order_meta: {
-          return_url: `${process.env.APP_URL || 'http://localhost:3000'}/profile?order_id={order_id}`
-        }
-      })
-    });
-
-    const data = await response.json();
-    if (!response.ok) throw new Error((data as any).message || "Failed to create Cashfree order");
-    res.json(data);
-  } catch (error: any) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-app.get("/api/payment/verify-order/:orderId", async (req, res) => {
-  try {
-    const { orderId } = req.params;
-    const appId = process.env.CASHFREE_APP_ID;
-    const secretKey = process.env.CASHFREE_SECRET_KEY;
-
-    if (!appId || !secretKey) return res.status(500).json({ error: "Cashfree configuration missing" });
-
-    const isProd = process.env.NODE_ENV === "production";
-    const baseUrl = isProd ? "https://api.cashfree.com/pg/orders" : "https://sandbox.cashfree.com/pg/orders";
-
-    const response = await fetch(`${baseUrl}/${orderId}`, {
-      method: 'GET',
+    const response = await axios.post(baseUrl, {
+      order_id: orderId,
+      order_amount: amount,
+      order_currency: "INR",
+      customer_details: customerDetails,
+      order_meta: {
+        return_url: `${process.env.APP_URL || 'http://localhost:3000'}/profile?order_id={order_id}`
+      }
+    }, {
       headers: {
         'x-client-id': appId,
         'x-client-secret': secretKey,
@@ -130,27 +130,59 @@ app.get("/api/payment/verify-order/:orderId", async (req, res) => {
       }
     });
 
-    const data = await response.json();
-    if (!response.ok) throw new Error((data as any).message || "Failed to verify Cashfree order");
-    res.json(data);
+    res.json(response.data);
   } catch (error: any) {
-    res.status(500).json({ error: error.message });
+    console.error("[PAYMENT_ERROR] Order creation failed:", error.response?.data || error.message);
+    next(error);
+  }
+});
+
+app.get("/api/payment/verify-order/:orderId", async (req, res, next) => {
+  try {
+    const { orderId } = req.params;
+    const appId = process.env.CASHFREE_APP_ID;
+    const secretKey = process.env.CASHFREE_SECRET_KEY;
+
+    if (!appId || !secretKey) {
+      return res.status(500).json({ error: "Cashfree configuration missing" });
+    }
+
+    const baseUrl = isProd ? "https://api.cashfree.com/pg/orders" : "https://sandbox.cashfree.com/pg/orders";
+
+    const response = await axios.get(`${baseUrl}/${orderId}`, {
+      headers: {
+        'x-client-id': appId,
+        'x-client-secret': secretKey,
+        'x-api-version': '2023-08-01'
+      }
+    });
+
+    res.json(response.data);
+  } catch (error: any) {
+    console.error("[PAYMENT_ERROR] Order verification failed:", error.response?.data || error.message);
+    next(error);
   }
 });
 
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
-const otpStore = new Map<string, string>();
+const otpStore = new Map<string, { otp: string, expires: number }>();
 
 app.post("/api/auth/send-otp", async (req, res) => {
   try {
     const { phone } = req.body;
     if (!phone) return res.status(400).json({ error: "Phone number is required" });
+    
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    otpStore.set(phone, otp);
+    otpStore.set(phone, { 
+      otp, 
+      expires: Date.now() + 5 * 60 * 1000 // 5 minutes expiry
+    });
+    
     console.log(`[AUTH] OTP for ${phone}: ${otp}`);
-    res.json({ success: true });
+    res.json({ success: true, message: "Verification code sent" });
   } catch (err) {
+    console.error("[AUTH_ERROR] OTP send failed:", err);
     res.status(500).json({ error: "Verification dispatch failed" });
   }
 });
@@ -158,11 +190,19 @@ app.post("/api/auth/send-otp", async (req, res) => {
 app.post("/api/auth/verify-otp", async (req, res) => {
   try {
     const { phone, otp } = req.body;
-    const storedOtp = otpStore.get(phone);
-    if (otp === "123456" || otp === storedOtp) {
+    const entry = otpStore.get(phone);
+    
+    if (!entry) return res.status(400).json({ error: "No verification code found for this number" });
+    if (Date.now() > entry.expires) {
+      otpStore.delete(phone);
+      return res.status(400).json({ error: "Verification code expired" });
+    }
+
+    if (otp === "123456" || otp === entry.otp) {
       otpStore.delete(phone);
       return res.json({ success: true });
     }
+    
     res.status(400).json({ error: "Invalid verification code" });
   } catch (err) {
     res.status(500).json({ error: "Verification failed" });
@@ -172,52 +212,118 @@ app.post("/api/auth/verify-otp", async (req, res) => {
 app.post("/api/send-confirmation", async (req, res) => {
   try {
     const { email, orderDetails } = req.body;
-    if (!resend || !email) return res.json({ success: true, message: "Email skipped" });
+    if (!resend || !email) {
+      console.log("[EMAIL] Skipping email send (missing API key or recipient)");
+      return res.json({ success: true, message: "Email skipped" });
+    }
     
     await resend.emails.send({
       from: `DINOSPY <${FROM_EMAIL}>`,
       to: email,
-      subject: `[CONFIDENTIAL] Acquisition Authorized`,
-      html: `<h1>Order Confirmed</h1><p>Delivery PIN: ${orderDetails.deliveryPin}</p>`,
+      subject: `[CONFIDENTIAL] Acquisition Authorized - Order ${orderDetails.id}`,
+      html: `
+        <div style="font-family: monospace; padding: 20px; background: #000; color: #fff;">
+          <h1 style="color: #c5a059;">ACQUISITION CONFIRMED</h1>
+          <p>The mission has been authorized.</p>
+          <hr style="border: 1px solid #333;" />
+          <p><strong>Delivery PIN:</strong> <span style="font-size: 24px; letter-spacing: 4px;">${orderDetails.deliveryPin}</span></p>
+          <p>Secure this code. It will be required upon delivery.</p>
+        </div>
+      `,
     });
     res.json({ success: true });
   } catch (error: any) {
-    res.status(500).json({ error: "Email failed" });
+    console.error("[EMAIL_ERROR] Confirmation email failed:", error);
+    res.status(500).json({ error: "Failed to send confirmation email" });
   }
 });
 
 // --- VITE / STATIC SERVING ---
 
-async function setupVite() {
-  if (process.env.NODE_ENV !== "production" && !process.env.VERCEL) {
-    const { createServer: createViteServer } = await import('vite');
-    const vite = await createViteServer({
-      server: { middlewareMode: true },
-      appType: "spa",
-    });
-    app.use(vite.middlewares);
+async function setupApp() {
+  // If not on Vercel and in dev mode, use Vite middleware
+  if (!isProd && !isVercel) {
+    try {
+      const { createServer: createViteServer } = await import('vite');
+      const vite = await createViteServer({
+        server: { middlewareMode: true },
+        appType: "spa",
+      });
+      app.use(vite.middlewares);
+      console.log(">>> [DEV] Vite middleware integrated");
+    } catch (err) {
+      console.error(">>> [DEV_ERROR] Failed to load Vite:", err);
+    }
   } else {
-    const distPath = path.resolve(process.cwd(), 'dist');
+    // In production or on Vercel, serve static files
+    // Use several possible paths to find the dist folder
+    const possibleDistPaths = [
+      path.resolve(__dirname, 'dist'),
+      path.resolve(process.cwd(), 'dist'),
+      path.resolve(__dirname, '..', 'dist'), // Relative to server.ts if compiled
+      path.resolve('/var/task', 'dist'),      // Vercel specific
+      path.resolve(__dirname, 'client'), 
+      path.resolve(process.cwd(), 'public')
+    ];
+
+    let distPath = possibleDistPaths[0];
+    for (const p of possibleDistPaths) {
+      if (fs.existsSync(p)) {
+        distPath = p;
+        break;
+      }
+    }
+
     const indexPath = path.resolve(distPath, 'index.html');
     
+    console.log(`>>> [PRODUCTION] Serving from: ${distPath}`);
+    console.log(`>>> [PRODUCTION] Index exists: ${fs.existsSync(indexPath)}`);
+
     app.use(express.static(distPath));
+    
     app.get('*', (req, res) => {
-      if (req.path.startsWith('/api')) return res.status(404).json({ error: "Not found" });
-      res.sendFile(indexPath);
+      // Don't serve index for API calls that fall through
+      if (req.path.startsWith('/api')) {
+        return res.status(404).json({ error: "API endpoint not found" });
+      }
+      
+      // Serve the SPA index.html
+      if (fs.existsSync(indexPath)) {
+        res.sendFile(indexPath);
+      } else {
+        console.error(`>>> [ERROR] index.html not found at ${indexPath}`);
+        res.status(404).send("Application Shell Missing. Please verify build deployment.");
+      }
     });
   }
 
-  // Final catch-all for errors
+  // --- ADVANCED ERROR HANDLING ---
+
+  // Global Error Handler
   app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-    console.error(err);
-    res.status(500).json({ error: "Internal Server Error" });
+    console.error("[GLOBAL_ERROR]", err);
+    
+    const statusCode = err.status || err.statusCode || 500;
+    const message = isProd ? "Internal Server Error" : err.message;
+    
+    res.status(statusCode).json({
+      error: message,
+      code: err.code || 'UNKNOWN_ERROR',
+      ...(isProd ? {} : { stack: err.stack })
+    });
   });
 
-  if (process.env.NODE_ENV !== "production" || !process.env.VERCEL) {
+  // Start the server only if not on Vercel
+  if (!isVercel) {
     app.listen(PORT, "0.0.0.0", () => {
-      console.log(`>>> Server running on http://0.0.0.0:${PORT}`);
+      console.log(`>>> DINOSPY Server active at http://0.0.0.0:${PORT}`);
+      console.log(`>>> MODE: ${process.env.NODE_ENV || 'development'}`);
     });
   }
 }
 
-setupVite();
+// Initialize the app
+setupApp().catch(err => {
+  console.error(">>> [FATAL] Critical failure during startup:", err);
+  process.exit(1);
+});
