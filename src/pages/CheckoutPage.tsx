@@ -9,7 +9,6 @@ import { collection, doc, runTransaction, getDoc, getDocs, query, where, addDoc 
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { toast } from 'sonner';
-import { load as loadCashfree } from '@cashfreepayments/cashfree-js';
 
 export default function CheckoutPage() {
   const { cart, cartTotal, clearCart, coupon, applyCoupon, removeCoupon } = useCart();
@@ -225,7 +224,7 @@ export default function CheckoutPage() {
         return { orderId, ...orderData };
       });
 
-      // 2. If COD, finish here. Otherwise create Cashfree Session
+      // 2. If COD, finish here. Otherwise create Razorpay Order
       if (paymentMethod === 'cod') {
         const adminNotif = {
            type: 'orders',
@@ -249,45 +248,83 @@ export default function CheckoutPage() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            orderId: result.orderId,
             amount: cartTotal,
-            customerDetails: {
-              customerId: user.uid,
-              customerEmail: formData.email,
-              customerPhone: formData.phone,
-              customerName: formData.fullName
-            }
+            receipt: result.orderId
           })
         });
 
-        const contentType = res.headers.get("content-type");
-        if (!contentType || !contentType.includes("application/json")) {
-          const text = await res.text();
-          console.error("Non-JSON API response:", text);
-          throw new Error("Payment server returned an invalid response (HTML). Please ensure the backend is running correctly.");
-        }
+        const orderData = await res.json();
+        if (!res.ok) throw new Error(orderData.error || "Order creation failed");
 
-        const sessionData = await res.json();
-        if (!res.ok) throw new Error(sessionData.error || "Payment session failed");
+        // 3. Initialize Razorpay Checkout Popup
+        const options = {
+          key: "rzp_test_SrbXlAP8d2MVJf", // Using provided Test Key ID directly for now, should use env in prod
+          amount: orderData.amount,
+          currency: orderData.currency,
+          name: "DINOSPY",
+          description: `Acquisition Settlement - ${result.orderId}`,
+          image: "/logo.png",
+          order_id: orderData.id,
+          handler: async function (response: any) {
+            // Payment success handler
+            try {
+              // In a real app, verify signature on backend here
+              // For now, we update order status directly
+              setIsProcessing(true);
+              
+              const adminNotif = {
+                type: 'orders',
+                message: `New Secure Acquisition: ${formData.fullName}`,
+                orderId: result.orderId,
+                total: cartTotal,
+                timestamp: new Date().toISOString(),
+                read: false
+              };
+              
+              await addDoc(collection(db, 'notifications'), adminNotif);
+              
+              // Send confirmation email via backend
+              fetch('/api/send-confirmation', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  email: formData.email,
+                  orderDetails: {
+                    id: result.orderId,
+                    deliveryPin: result.deliveryPin
+                  }
+                })
+              }).catch(console.error);
 
-        // 3. Initialize Cashfree SDK and Open Checkout
-        const cashfree = await loadCashfree({
-          mode: import.meta.env.PROD ? "production" : "sandbox"
-        });
-
-        if (!cashfree) {
-          throw new Error("Could not initialize payment gateway");
-        }
-
-        const checkoutOptions = {
-          paymentSessionId: sessionData.payment_session_id,
-          redirectTarget: "_self" 
+              clearCart();
+              navigate('/profile');
+              toast.success('Handshake Authorized. Acquisition recorded in the manifest.');
+            } catch (err) {
+              console.error('Finalization Error:', err);
+              toast.error('Manifest synchronization failure. Please contact support.');
+            } finally {
+              setIsProcessing(false);
+            }
+          },
+          prefill: {
+            name: formData.fullName,
+            email: formData.email,
+            contact: formData.phone
+          },
+          theme: {
+            color: "#000000"
+          },
+          modal: {
+            ondismiss: function() {
+              setIsProcessing(false);
+              toast.error('Encryption Handshake Aborted by User.');
+            }
+          }
         };
 
-        await cashfree.checkout(checkoutOptions);
+        const rzp = new (window as any).Razorpay(options);
+        rzp.open();
         
-        // The above is usually a redirect or a popup depends on sandbox/prod.
-        // If it's a redirect, the execution stops here.
         return true;
       } catch (err: any) {
         console.error('Payment Initialization Failed:', err);

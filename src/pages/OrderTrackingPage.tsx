@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Search, Package, MapPin, Truck, CheckCircle2, ShieldCheck, ArrowRight, AlertCircle, Clock, Info } from 'lucide-react';
+import { Search, Package, MapPin, Truck, CheckCircle2, ShieldCheck, ArrowRight, AlertCircle, Clock, Info, Zap } from 'lucide-react';
 import { db } from '../lib/firebase';
-import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import { doc, getDoc, collection, query, where, getDocs, onSnapshot } from 'firebase/firestore';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
@@ -20,6 +20,24 @@ export default function OrderTrackingPage() {
   const [order, setOrder] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [isLive, setIsLive] = useState(false);
+
+  // Real-time listener for order updates
+  useEffect(() => {
+    if (!order?.id) return;
+
+    setIsLive(true);
+    const unsub = onSnapshot(doc(db, 'orders', order.id), (doc) => {
+      if (doc.exists()) {
+        setOrder({ id: doc.id, ...doc.data() });
+      }
+    });
+
+    return () => {
+      unsub();
+      setIsLive(false);
+    };
+  }, [order?.id]);
 
   const handleTrack = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -168,7 +186,13 @@ export default function OrderTrackingPage() {
                      >
                         {/* Order Status Cards */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                           <div className="bg-white border border-charcoal/5 rounded-[3.5rem] p-10 luxury-shadow">
+                           <div className="bg-white border border-charcoal/5 rounded-[3.5rem] p-10 luxury-shadow relative overflow-hidden">
+                              {isLive && (
+                                <div className="absolute top-4 right-6 flex items-center space-x-2">
+                                   <div className="w-1.5 h-1.5 bg-emerald rounded-full animate-pulse" />
+                                   <span className="font-mono text-[7px] text-emerald tracking-widest font-black uppercase">LIVE_SYNC</span>
+                                </div>
+                              )}
                               <div className="flex justify-between items-start mb-8">
                                  <span className="font-mono text-[9px] text-charcoal/20 tracking-[0.4em] font-black uppercase">Current_Phasing</span>
                                  <div className="px-5 py-2 bg-charcoal text-ivory rounded-full text-[9px] font-mono font-black tracking-widest uppercase">
@@ -206,7 +230,20 @@ export default function OrderTrackingPage() {
                         </div>
 
                         {/* Tracker Timeline */}
-                        <div className="bg-white border border-charcoal/5 rounded-[4rem] p-12 lg:p-20 luxury-shadow relative">
+                        <motion.div 
+                           initial={{ opacity: 0, y: 30 }}
+                           animate={{ opacity: 1, y: 0 }}
+                           transition={{ delay: 0.2 }}
+                           className="bg-white border border-charcoal/5 rounded-[4rem] p-12 lg:p-20 luxury-shadow relative overflow-hidden"
+                        >
+                           <div className="absolute top-0 left-0 w-1 h-full bg-charcoal/5" />
+                           <motion.div 
+                              initial={{ height: 0 }}
+                              animate={{ height: `${(getStatusIndex(order.status) / (STATUS_STEPS.length - 1)) * 100}%` }}
+                              transition={{ duration: 2, ease: "easeInOut" }}
+                              className="absolute top-0 left-0 w-1 bg-charcoal shadow-[0_0_20px_rgba(0,0,0,0.2)]"
+                           />
+                           
                            <div className="flex flex-col space-y-16">
                               {STATUS_STEPS.map((step, idx) => {
                                  const currentIdx = getStatusIndex(order.status);
@@ -215,11 +252,19 @@ export default function OrderTrackingPage() {
                                  const Icon = step.icon;
 
                                  return (
-                                   <div key={step.id} className="flex items-start space-x-10 relative">
-                                      {/* Connector */}
-                                      {idx !== STATUS_STEPS.length - 1 && (
-                                        <div className={`absolute left-7 top-14 bottom-[-64px] w-0.5 ${isCompleted ? 'bg-charcoal' : 'bg-charcoal/5'} transition-all duration-1000`} />
-                                      )}
+                                   <motion.div 
+                                     key={step.id} 
+                                     initial={{ opacity: 0, x: -20 }}
+                                     animate={{ opacity: 1, x: 0 }}
+                                     transition={{ delay: 0.3 + (idx * 0.1) }}
+                                     className="flex items-start space-x-10 relative"
+                                   >
+                                      {/* Connector dot (replaces old connector) */}
+                                      <div className={`absolute left-[-52px] lg:left-[-84px] top-5 w-3 h-3 rounded-full border-2 transition-all duration-1000 ${
+                                         isCompleted ? 'bg-charcoal border-charcoal scale-125' : 'bg-ivory border-charcoal/20'
+                                      }`}>
+                                         {isActive && <div className="absolute inset-0 bg-charcoal rounded-full animate-ping opacity-50" />}
+                                      </div>
 
                                       <div className={`relative z-10 w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-1000 ${
                                          isActive ? 'bg-charcoal text-ivory scale-125 shadow-2xl rotate-3' : 
@@ -242,11 +287,11 @@ export default function OrderTrackingPage() {
                                          </div>
                                          <p className="text-charcoal/40 text-sm max-w-md font-light leading-relaxed">{step.desc}</p>
                                       </div>
-                                   </div>
+                                   </motion.div>
                                  );
                               })}
                            </div>
-                        </div>
+                        </motion.div>
                      </motion.div>
                    ) : (
                      <motion.div

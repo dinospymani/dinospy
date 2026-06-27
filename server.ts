@@ -6,8 +6,8 @@ import { Resend } from "resend";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import cors from "cors";
-import axios from "axios";
 import { fileURLToPath } from 'url';
+import Razorpay from "razorpay";
 
 // --- CONFIGURATION ---
 
@@ -59,7 +59,8 @@ app.use(helmet({
         "wss://*.firebaseio.com",
         "https://*.firebase.google.com",
         "https://*.firebaseapp.com",
-        "https://*.cashfree.com"
+        "https://api.razorpay.com",
+        "https://lumberjack.razorpay.com"
       ],
       "script-src": [
         "'self'", 
@@ -67,11 +68,11 @@ app.use(helmet({
         "'unsafe-eval'", 
         "https://apis.google.com", 
         "https://www.gstatic.com",
-        "https://*.cashfree.com"
+        "https://checkout.razorpay.com"
       ],
       "frame-src": [
         "'self'",
-        "https://*.cashfree.com"
+        "https://api.razorpay.com"
       ],
       "frame-ancestors": ["'self'", "https://*.google.com", "https://*.studio.google", "https://ai.studio"],
     },
@@ -80,14 +81,8 @@ app.use(helmet({
   frameguard: false,
 }));
 
-// Generic Rate Limiter - Disabled for maximum availability in dev/shared preview
-const apiLimiter = rateLimit({
-  windowMs: 1 * 60 * 1000, // 1 minute
-  max: 1000000, // Effectively disabled
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: { error: "Too many requests" }
-});
+// Rate limiting disabled for maximum availability
+const apiLimiter = (req: any, res: any, next: any) => next();
 
 app.use("/api/", apiLimiter);
 
@@ -117,72 +112,64 @@ app.post("/api/notifications/order-status", async (req, res) => {
   }
 });
 
-app.post("/api/payment/create-order", async (req, res, next) => {
-  try {
-    const { orderId, amount, customerDetails } = req.body;
-    const appId = process.env.CASHFREE_APP_ID;
-    const secretKey = process.env.CASHFREE_SECRET_KEY;
-
-    if (!appId || !secretKey) {
-      return res.status(500).json({ error: "Cashfree configuration missing on server" });
-    }
-
-    const baseUrl = isProd ? "https://api.cashfree.com/pg/orders" : "https://sandbox.cashfree.com/pg/orders";
-
-    const response = await axios.post(baseUrl, {
-      order_id: orderId,
-      order_amount: amount,
-      order_currency: "INR",
-      customer_details: customerDetails,
-      order_meta: {
-        return_url: `${process.env.APP_URL || 'http://localhost:3000'}/profile?order_id={order_id}`
-      }
-    }, {
-      headers: {
-        'x-client-id': appId,
-        'x-client-secret': secretKey,
-        'x-api-version': '2023-08-01',
-        'Content-Type': 'application/json'
-      }
-    });
-
-    res.json(response.data);
-  } catch (error: any) {
-    console.error("[PAYMENT_ERROR] Order creation failed:", error.response?.data || error.message);
-    next(error);
-  }
-});
-
-app.get("/api/payment/verify-order/:orderId", async (req, res, next) => {
-  try {
-    const { orderId } = req.params;
-    const appId = process.env.CASHFREE_APP_ID;
-    const secretKey = process.env.CASHFREE_SECRET_KEY;
-
-    if (!appId || !secretKey) {
-      return res.status(500).json({ error: "Cashfree configuration missing" });
-    }
-
-    const baseUrl = isProd ? "https://api.cashfree.com/pg/orders" : "https://sandbox.cashfree.com/pg/orders";
-
-    const response = await axios.get(`${baseUrl}/${orderId}`, {
-      headers: {
-        'x-client-id': appId,
-        'x-client-secret': secretKey,
-        'x-api-version': '2023-08-01'
-      }
-    });
-
-    res.json(response.data);
-  } catch (error: any) {
-    console.error("[PAYMENT_ERROR] Order verification failed:", error.response?.data || error.message);
-    next(error);
-  }
-});
-
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
 const otpStore = new Map<string, { otp: string, expires: number }>();
+
+// --- RAZORPAY INITIALIZATION ---
+let razorpayInstance: any = null;
+
+const getRazorpay = () => {
+  if (!razorpayInstance) {
+    // Robustly fetch keys, ignoring "undefined" string or empty spaces
+    const cleanEnvVar = (val: string | undefined) => {
+      if (!val) return null;
+      const trimmed = val.trim();
+      if (trimmed === "" || trimmed === "undefined" || trimmed === "null") return null;
+      return trimmed;
+    };
+
+    const key_id = cleanEnvVar(process.env.RAZORPAY_KEY_ID) || 'rzp_test_SrbXlAP8d2MVJf';
+    const key_secret = cleanEnvVar(process.env.RAZORPAY_KEY_SECRET) || 'Vrpkxo8wYmoujAihsIDvUMc7';
+    
+    console.log(`[RAZORPAY] Initializing with ID: ${key_id.substring(0, 10)}... (Secret length: ${key_secret.length})`);
+    
+    razorpayInstance = new Razorpay({ 
+      key_id, 
+      key_secret 
+    });
+  }
+  return razorpayInstance;
+};
+
+app.post("/api/payment/create-order", async (req, res) => {
+  try {
+    const { amount, currency, receipt } = req.body;
+    
+    if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
+      return res.status(400).json({ error: "A valid numeric amount greater than 0 is required" });
+    }
+
+    const options = {
+      amount: Math.round(Number(amount) * 100), // Razorpay expects amount in paise
+      currency: currency || "INR",
+      receipt: receipt || `receipt_${Date.now()}`,
+    };
+
+    const razorpay = getRazorpay();
+    const order = await razorpay.orders.create(options);
+    res.json(order);
+  } catch (error: any) {
+    console.error("[RAZORPAY_ERROR]", error);
+    // Return the specific razorpay error if available
+    const razorpayError = error.error || error;
+    res.status(400).json({ 
+      error: razorpayError.description || "Failed to create Razorpay order",
+      details: razorpayError
+    });
+  }
+});
+
 
 app.post("/api/auth/send-otp", async (req, res) => {
   try {

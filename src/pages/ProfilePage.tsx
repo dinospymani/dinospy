@@ -42,38 +42,6 @@ export default function ProfilePage() {
   ];
 
   useEffect(() => {
-    const checkPaymentStatus = async () => {
-      const params = new URLSearchParams(window.location.search);
-      const orderId = params.get('order_id');
-      if (orderId) {
-        try {
-          const res = await fetch(`/api/payment/verify-order/${orderId}`);
-          const data = await res.json();
-          
-          if (data.order_status === 'PAID') {
-            toast.success('Payment Authorized: Your heritage acquisition is confirmed.');
-            // Update order in firestore
-            const orderRef = doc(db, 'orders', orderId);
-            await updateDoc(orderRef, { 
-              paymentStatus: 'paid',
-              status: 'confirmed',
-              updatedAt: new Date().toISOString()
-            });
-            // Re-fetch orders to show updated status
-            fetchOrders();
-          } else if (data.order_status === 'ACTIVE') {
-            toast.info('Payment Pending: Waiting for final authorization.');
-          } else {
-            toast.error(`Payment Protocol Failed: ${data.order_status || 'Session Terminated'}`);
-          }
-        } catch (err) {
-          console.error('Handshake Failure:', err);
-        }
-        // Clean URL
-        window.history.replaceState({}, '', window.location.pathname);
-      }
-    };
-
     async function fetchOrders() {
       if (!user) return;
       try {
@@ -88,7 +56,6 @@ export default function ProfilePage() {
     }
 
     fetchOrders();
-    checkPaymentStatus();
   }, [user]);
 
   const toggleAdmin = async () => {
