@@ -368,7 +368,7 @@ export default function SupportHubPage() {
                                     </span>
                                  </div>
                                  <div className="flex items-center space-x-4">
-                                    <span className="text-[9px] text-black/20 font-mono tracking-[0.2em] font-bold uppercase">MANIFEST: {activeTicket.id.slice(0, 12).toUpperCase()}</span>
+                                    <span className="text-[9px] text-black/20 font-mono tracking-[0.2em] font-bold uppercase">MANIFEST: {activeTicket.id?.slice(0, 12).toUpperCase() || 'N/A'}</span>
                                     <div className="w-1.5 h-1.5 bg-indigo-600 rounded-full animate-pulse" />
                                     <span className="text-[9px] text-indigo-600/60 font-mono font-black uppercase tracking-widest">Live_Secure_Stream</span>
                                  </div>

@@ -69,7 +69,7 @@ export default function WatchCard({ product }: WatchCardProps) {
         </div>
 
         <div className="flex items-center justify-between mb-10 relative z-10 transition-transform duration-700 translate-z-[40px]">
-          <span className="font-mono text-charcoal/40 tracking-[0.4em] text-[9px] font-black uppercase">CALIBER_{product.id.slice(-6).toUpperCase()}</span>
+          <span className="font-mono text-charcoal/40 tracking-[0.4em] text-[9px] font-black uppercase">CALIBER_{product.id?.slice(-6).toUpperCase() || 'N/A'}</span>
           <div className="flex items-center space-x-1 opacity-20">
             {[...Array(5)].map((_, i) => (
               <Star key={i} size={10} className={`${i < Math.floor(product.rating) ? 'text-charcoal fill-charcoal' : 'text-charcoal/10'}`} />

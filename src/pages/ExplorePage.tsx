@@ -12,8 +12,12 @@ import { handleFirestoreError, OperationType } from '../lib/utils';
 export default function ExplorePage() {
   const [products, setProducts] = useState<any[]>(() => {
     // Immediate pre-hydration from local cache for instant appearance
-    const cached = localStorage.getItem('dinospy_products_all');
-    return cached ? JSON.parse(cached) : [];
+    try {
+      const cached = localStorage.getItem('dinospy_products_all');
+      return (cached && cached !== 'undefined') ? JSON.parse(cached) : [];
+    } catch (e) {
+      return [];
+    }
   });
   const [loading, setLoading] = useState(!products.length);
   const [filter, setFilter] = useState('All');

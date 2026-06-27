@@ -102,7 +102,7 @@ export default function PartnerPortal() {
               Logistics Peer Verification
             </div>
             <h1 className="text-4xl font-display mb-2">Asset Release</h1>
-            <p className="text-white/40 uppercase tracking-widest text-[10px]">Logistics ID: DNX-{order.id.slice(0, 8).toUpperCase()}</p>
+            <p className="text-white/40 uppercase tracking-widest text-[10px]">Logistics ID: DNX-{order.id?.slice(0, 8).toUpperCase() || 'UNKNOWN'}</p>
           </div>
 
           <div className="glass p-8 rounded-[2.5rem] border border-white/5 space-y-8">

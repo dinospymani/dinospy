@@ -4,7 +4,7 @@ import { db } from '../lib/firebase';
 import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc, onSnapshot, query, orderBy, setDoc, serverTimestamp } from 'firebase/firestore';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import { Plus, Trash2, Edit, Save, Package, QrCode, Printer, X, Truck, Loader2, ChevronLeft, TrendingUp, DollarSign, ShoppingBag, AlertCircle, BarChart2, Bell, ArrowLeft, Megaphone, Check, Zap, Clock, Shield, Lock, Eye, EyeOff, Database, ArrowRight, ShieldAlert, AlertTriangle, ShieldCheck, Cpu, Activity, Wifi, Image as ImageIcon, MessageSquare, Send, User, Mail, Phone, Upload } from 'lucide-react';
+import { Plus, Trash2, Edit, Save, Package, QrCode, Printer, X, Truck, Loader2, ChevronLeft, TrendingUp, DollarSign, ShoppingBag, AlertCircle, BarChart2, Bell, ArrowLeft, Megaphone, Check, Zap, Clock, Shield, Lock, Eye, EyeOff, Database, ArrowRight, ShieldAlert, AlertTriangle, ShieldCheck, Cpu, Activity, Wifi, Image as ImageIcon, MessageSquare, Send, User, Mail, Phone, Upload, Search, Download } from 'lucide-react';
 import { motion } from 'motion/react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { QRCodeSVG } from 'qrcode.react';
@@ -113,8 +113,8 @@ export default function AdminDashboard() {
       doc.text(`Bank Name: Dinospy Global Vault`, 120, 87);
 
       // 3. Table Header & Items
-      const tableData = order.items.map((item: any) => [
-        item.name.toUpperCase(),
+      const tableData = (order.items || []).map((item: any) => [
+        (item.name || 'UNKNOWN').toUpperCase(),
         `Rs. ${(item.price || 0).toLocaleString()}`,
         (item.quantity || 1).toString(),
         `Rs. ${((item.price || 0) * (item.quantity || 1)).toLocaleString()}`
@@ -211,6 +211,9 @@ export default function AdminDashboard() {
   }, [supportMessages]);
 
   const [notificationFilter, setNotificationFilter] = useState<'all' | 'orders' | 'inventory'>('all');
+  const [productSearch, setProductSearch] = useState('');
+  const [productCategoryFilter, setProductCategoryFilter] = useState('All');
+  const [orderSearch, setOrderSearch] = useState('');
   const [maintenanceStatus, setMaintenanceStatus] = useState(false);
   const [testMode, setTestMode] = useState(false);
   const [isTogglingMaintenance, setIsTogglingMaintenance] = useState(false);
@@ -329,7 +332,7 @@ export default function AdminDashboard() {
              setLiveActivity(prev => [{
                id: Date.now(),
                type: 'order',
-               message: `New acquisition protocol for DNX-${no.id.slice(-6).toUpperCase()} initiated by ${no.customerName}`,
+               message: `New acquisition protocol for DNX-${no.id?.slice(-6).toUpperCase() || 'UNKNOWN'} initiated by ${no.customerName}`,
                timestamp: new Date().toISOString()
              }, ...prev].slice(0, 20));
           });
@@ -1676,9 +1679,151 @@ export default function AdminDashboard() {
                          SYNCHRONIZE_FULL_METRICS
                       </button>
                     </div>
-                  </div>
-               </div>
-            </div>
+                   </div>
+                </div>
+
+                {/* Global Command Center */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 mt-20">
+                   <div className="p-14 rounded-[5rem] border border-black/5 bg-neutral-50 luxury-shadow relative overflow-hidden group">
+                      <div className="absolute top-0 right-0 p-16 opacity-[0.02] pointer-events-none group-hover:opacity-[0.05] transition-all duration-1000">
+                         <Cpu size={500} strokeWidth={1} className="text-black" />
+                      </div>
+                      <div className="relative z-10 space-y-12">
+                         <div className="space-y-6">
+                            <div className="flex items-center space-x-6">
+                               <div className="w-3 h-3 bg-black rounded-full animate-pulse shadow-[0_0_15px_rgba(0,0,0,0.1)]" />
+                               <span className="font-tech text-black/30 text-xs tracking-[0.5em] font-black uppercase">SYSTEM_OVERRIDE // COMMAND_CENTER</span>
+                            </div>
+                            <h3 className="text-6xl md:text-8xl font-display italic tracking-tightest leading-none text-black">Global <span className="opacity-10 text-black font-sans italic">Protocols.</span></h3>
+                         </div>
+
+                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <button 
+                              onClick={() => {
+                                setIsTogglingMaintenance(true);
+                                setTimeout(() => {
+                                  setMaintenanceStatus(!maintenanceStatus);
+                                  setIsTogglingMaintenance(false);
+                                  toast.success(`MAINTENANCE_MODE: ${!maintenanceStatus ? 'ACTIVE' : 'OFFLINE'}`);
+                                }, 1500);
+                              }}
+                              className={`p-8 rounded-[3rem] border transition-all duration-1000 group/btn flex flex-col justify-between h-56 ${maintenanceStatus ? 'bg-red-500 text-white border-red-500' : 'bg-white border-black/5 hover:bg-black hover:text-white'}`}
+                            >
+                               <div className="flex justify-between items-start">
+                                  <div className={`p-4 rounded-2xl ${maintenanceStatus ? 'bg-white/20' : 'bg-black/5 group-hover/btn:bg-white/10'} transition-all`}>
+                                     <ShieldAlert size={20} />
+                                  </div>
+                                  <div className={`w-2 h-2 rounded-full animate-pulse ${maintenanceStatus ? 'bg-white shadow-[0_0_10px_#fff]' : 'bg-black/10 group-hover/btn:bg-white/40'}`} />
+                               </div>
+                               <div className="space-y-2">
+                                  <p className="font-tech text-[10px] tracking-[0.3em] font-black uppercase">{maintenanceStatus ? 'PROTOCOL_ACTIVE' : 'SYSTEM_NOMINAL'}</p>
+                                  <p className="font-display italic text-3xl tracking-tightest leading-none">{maintenanceStatus ? 'RESTRICTED_MODE' : 'GATEWAY_OPEN'}</p>
+                               </div>
+                            </button>
+
+                            <button 
+                              onClick={() => {
+                                toast.success('ORDER_MANIFEST_EXPORT_INITIATED');
+                                const headers = 'Order_ID,Customer,Total,Status,Date\n';
+                                const rows = orders.map(o => `${o.id},${o.customerName},${o.total},${o.status},${o.createdAt}`).join('\n');
+                                const blob = new Blob([headers + rows], { type: 'text/csv' });
+                                const url = window.URL.createObjectURL(blob);
+                                const a = document.createElement('a');
+                                a.setAttribute('hidden', '');
+                                a.setAttribute('href', url);
+                                a.setAttribute('download', `DINOSPY_SALES_MANIFEST_${new Date().toISOString().split('T')[0]}.csv`);
+                                document.body.appendChild(a);
+                                a.click();
+                                document.body.removeChild(a);
+                              }}
+                              className="p-8 rounded-[3rem] border border-black/5 bg-white hover:bg-black hover:text-white transition-all duration-1000 group/btn flex flex-col justify-between h-56"
+                            >
+                               <div className="flex justify-between items-start">
+                                  <div className="p-4 rounded-2xl bg-black/5 group-hover/btn:bg-white/10 transition-all">
+                                     <Download size={20} />
+                                  </div>
+                               </div>
+                               <div className="space-y-2">
+                                  <p className="font-tech text-[10px] tracking-[0.3em] font-black uppercase">DATA_EXTRACTION</p>
+                                  <p className="font-display italic text-3xl tracking-tightest leading-none">EXPORT_MANIFEST</p>
+                               </div>
+                            </button>
+
+                            <button 
+                              onClick={() => {
+                                setNotifications([]);
+                                toast.success('ACTIVITY_CACHE_PURGED');
+                              }}
+                              className="p-8 rounded-[3rem] border border-black/5 bg-white hover:bg-black hover:text-white transition-all duration-1000 group/btn flex flex-col justify-between h-56"
+                            >
+                               <div className="flex justify-between items-start">
+                                  <div className="p-4 rounded-2xl bg-black/5 group-hover/btn:bg-white/10 transition-all">
+                                     <Activity size={20} />
+                                  </div>
+                               </div>
+                               <div className="space-y-2">
+                                  <p className="font-tech text-[10px] tracking-[0.3em] font-black uppercase">BUFFER_CLEARANCE</p>
+                                  <p className="font-display italic text-3xl tracking-tightest leading-none">PURGE_ACTIVITY</p>
+                               </div>
+                            </button>
+
+                            <button 
+                              onClick={() => setView('broadcast')}
+                              className="p-8 rounded-[3rem] border border-black/5 bg-white hover:bg-black hover:text-white transition-all duration-1000 group/btn flex flex-col justify-between h-56"
+                            >
+                               <div className="flex justify-between items-start">
+                                  <div className="p-4 rounded-2xl bg-black/5 group-hover/btn:bg-white/10 transition-all">
+                                     <Wifi size={20} />
+                                  </div>
+                               </div>
+                               <div className="space-y-2">
+                                  <p className="font-tech text-[10px] tracking-[0.3em] font-black uppercase">GLOBAL_SIGNAL</p>
+                                  <p className="font-display italic text-3xl tracking-tightest leading-none">INITIATE_BROADCAST</p>
+                               </div>
+                            </button>
+                         </div>
+                      </div>
+                   </div>
+
+                   <div className="p-14 rounded-[5rem] border border-black/5 bg-white luxury-shadow relative overflow-hidden group">
+                      <div className="absolute top-0 right-0 p-16 opacity-[0.02] pointer-events-none group-hover:opacity-[0.05] transition-all duration-1000">
+                         <Activity size={500} strokeWidth={1} className="text-black" />
+                      </div>
+                      <div className="relative z-10 space-y-12">
+                         <div className="space-y-6">
+                            <div className="flex items-center space-x-6">
+                               <div className="w-3 h-3 bg-indigo-600 rounded-full animate-pulse shadow-[0_0_15px_rgba(79,70,229,0.1)]" />
+                               <span className="font-tech text-black/30 text-xs tracking-[0.5em] font-black uppercase">NETWORK_TOPOLOGY // LIVE_NODES</span>
+                            </div>
+                            <h3 className="text-6xl md:text-8xl font-display italic tracking-tightest leading-none text-black">Infrastructure <span className="opacity-10 text-black font-sans italic">Status.</span></h3>
+                         </div>
+
+                         <div className="space-y-8">
+                            {[
+                              { label: 'DATABASE_CLUSTER', status: 'SYNCHRONIZED', latency: '0.12ms', health: '100%' },
+                              { label: 'AUTHENTICATION_VAULT', status: 'ENCRYPTED', latency: '0.05ms', health: '100%' },
+                              { label: 'ASSET_CDN_MIRROR', status: 'PROPAGATED', latency: '1.2ms', health: '99.9%' },
+                              { label: 'LOGISTICS_GATEWAY', status: 'ACTIVE', latency: '4ms', health: '100%' },
+                            ].map((node, idx) => (
+                               <div key={idx} className="flex justify-between items-center p-8 bg-neutral-50 rounded-[2.5rem] border border-black/[0.03] group/node hover:bg-black hover:text-white transition-all duration-700">
+                                  <div className="space-y-2">
+                                     <p className="font-tech text-[10px] text-black/20 group-hover/node:text-white/40 tracking-widest font-black uppercase">{node.label}</p>
+                                     <div className="flex items-center space-x-4">
+                                        <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+                                        <p className="font-display italic text-2xl tracking-tighter">{node.status}</p>
+                                     </div>
+                                  </div>
+                                  <div className="text-right space-y-2">
+                                     <p className="font-tech text-[10px] text-black/40 group-hover/node:text-white/60 tracking-widest font-black uppercase">LAT: {node.latency}</p>
+                                     <p className="font-tech text-indigo-600 text-[10px] group-hover/node:text-white tracking-widest font-black uppercase">STABILITY: {node.health}</p>
+                                  </div>
+                               </div>
+                            ))}
+                         </div>
+                      </div>
+                   </div>
+                </div>
+             </div>
            )}
            {view === 'products' && (
             <div className="space-y-20 animate-in fade-in slide-in-from-bottom-10 duration-1000">
@@ -1690,13 +1835,39 @@ export default function AdminDashboard() {
                     </div>
                     <h2 className="text-6xl md:text-8xl font-display italic tracking-tightest leading-none text-black">Collection <span className="opacity-10 text-black font-sans italic">Manifest.</span></h2>
                   </div>
-                  <div className="flex gap-6 w-full md:w-auto items-center">
-                    <button onClick={handleSeed} className="px-10 py-5 border border-black/10 rounded-full font-tech text-xs font-black tracking-widest text-black/40 hover:bg-black hover:text-white transition-all duration-1000 active:scale-90 uppercase">GENERATE_SAMPLE_DATA</button>
-                  </div>
-               </div>
+                  <div className="flex flex-col md:flex-row gap-6 w-full md:w-auto items-center">
+                     <div className="relative w-full md:w-80 group">
+                        <div className="absolute inset-y-0 left-6 flex items-center pointer-events-none text-black/20 group-focus-within:text-black transition-colors">
+                           <ShoppingBag size={16} />
+                        </div>
+                        <input 
+                          type="text"
+                          placeholder="SEARCH_MANIFEST..."
+                          value={productSearch}
+                          onChange={(e) => setProductSearch(e.target.value)}
+                          className="w-full bg-neutral-100 border border-black/5 rounded-full py-5 pl-16 pr-8 font-tech text-[10px] tracking-widest uppercase focus:bg-white focus:ring-4 focus:ring-black/5 outline-none transition-all"
+                        />
+                     </div>
+                     <div className="flex bg-neutral-100 p-1.5 rounded-full border border-black/5 overflow-x-auto no-scrollbar w-full md:w-auto">
+                        {['All', 'Grand Complications', 'Heritage', 'Avant-Garde', 'Deep Sea'].map((cat) => (
+                          <button 
+                            key={cat}
+                            onClick={() => setProductCategoryFilter(cat)}
+                            className={`px-8 py-3.5 rounded-full font-tech text-[9px] font-black tracking-[0.2em] transition-all whitespace-nowrap ${productCategoryFilter === cat ? 'bg-black text-white' : 'text-black/30 hover:text-black hover:bg-black/5'}`}
+                          >
+                            {cat === 'All' ? 'ALL_ASSETS' : cat.toUpperCase()}
+                          </button>
+                        ))}
+                     </div>
+                     <button onClick={handleSeed} className="px-10 py-5 border border-black/10 rounded-full font-tech text-xs font-black tracking-widest text-black/40 hover:bg-black hover:text-white transition-all duration-1000 active:scale-90 uppercase whitespace-nowrap">GENERATE_SAMPLE_DATA</button>
+                   </div>
+                </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-12">
-                  {products.map((p) => (
+                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-12">
+                   {products
+                    .filter(p => (productCategoryFilter === 'All' || p.category === productCategoryFilter) && 
+                                (p.name?.toLowerCase().includes(productSearch.toLowerCase()) || p.brand?.toLowerCase().includes(productSearch.toLowerCase())))
+                    .map((p) => (
                     <motion.div 
                       layout
                       key={p.id} 
@@ -1796,6 +1967,18 @@ export default function AdminDashboard() {
                     <h2 className="text-6xl md:text-8xl font-display italic tracking-tightest leading-none text-black">Global <span className="opacity-10 text-black font-sans italic">Acquisitions.</span></h2>
                   </div>
                   <div className="flex flex-col xl:flex-row gap-6 w-full xl:w-auto items-center">
+                     <div className="relative w-full xl:w-80 group">
+                        <div className="absolute inset-y-0 left-6 flex items-center pointer-events-none text-black/20 group-focus-within:text-black transition-colors">
+                           <Search size={16} />
+                        </div>
+                        <input 
+                          type="text"
+                          placeholder="SEARCH_MANIFESTS..."
+                          value={orderSearch}
+                          onChange={(e) => setOrderSearch(e.target.value)}
+                          className="w-full bg-neutral-100 border border-black/5 rounded-full py-5 pl-16 pr-8 font-tech text-[10px] tracking-widest uppercase focus:bg-white focus:ring-4 focus:ring-black/5 outline-none transition-all"
+                        />
+                     </div>
                      <div className="flex bg-neutral-100 rounded-full border border-black/5 p-1.5 h-full overflow-x-auto no-scrollbar">
                         {['all', 'pending', 'confirmed', 'shipped', 'delivered', 'cancelled'].map((status) => (
                           <button
@@ -1832,7 +2015,10 @@ export default function AdminDashboard() {
                           </tr>
                         ) : (
                           orders
-                            .filter(o => orderStatusFilter === 'all' || o.status === orderStatusFilter)
+                            .filter(o => (orderStatusFilter === 'all' || o.status === orderStatusFilter) && 
+                                         (o.id?.toLowerCase().includes(orderSearch.toLowerCase()) || 
+                                          o.customerName?.toLowerCase().includes(orderSearch.toLowerCase()) || 
+                                          o.customerEmail?.toLowerCase().includes(orderSearch.toLowerCase())))
                             .map((o) => (
                             <tr key={o.id} className="group hover:bg-neutral-50 transition-all duration-700">
                               <td className="py-16 pl-12">
@@ -2767,8 +2953,8 @@ export default function AdminDashboard() {
                                   <span>CONSIGNEE_DATA</span>
                                </p>
                                <div className="space-y-2">
-                                  <h3 className="text-5xl font-black italic uppercase tracking-tighter text-black">{selectedOrder.customerName}</h3>
-                                  <p className="font-tech text-xs tracking-widest text-black/40 font-black">{selectedOrder.customerEmail?.toUpperCase()}</p>
+                                  <h3 className="text-5xl font-black italic uppercase tracking-tighter text-black">{selectedOrder.customerName || 'ANONYMOUS'}</h3>
+                                  <p className="font-tech text-xs tracking-widest text-black/40 font-black">{selectedOrder.customerEmail?.toUpperCase() || 'NO_EMAIL'}</p>
                                </div>
                             </div>
                             <div>
@@ -2777,8 +2963,8 @@ export default function AdminDashboard() {
                                   <span>DELIVERY_TERMINUS</span>
                                </p>
                                <div className="space-y-4 text-2xl font-bold tracking-tighter text-black/80 leading-relaxed max-w-md">
-                                  <p className="truncate underline decoration-black/5 decoration-2 underline-offset-8">{selectedOrder.shippingAddress.address}</p>
-                                  <p className="font-black text-indigo-600 tracking-widest text-3xl">{selectedOrder.shippingAddress.city}_IND // {selectedOrder.shippingAddress.zip}</p>
+                                  <p className="truncate underline decoration-black/5 decoration-2 underline-offset-8">{selectedOrder.shippingAddress?.address || 'NO_ADDRESS'}</p>
+                                  <p className="font-black text-indigo-600 tracking-widest text-3xl">{selectedOrder.shippingAddress?.city || 'UNKNOWN'}_IND // {selectedOrder.shippingAddress?.zip || '000000'}</p>
                                </div>
                             </div>
                          </div>
@@ -2787,7 +2973,7 @@ export default function AdminDashboard() {
                             <div>
                                <p className="text-[10px] text-black/30 tracking-[0.4em] font-black uppercase mb-8">ASSET_MANIFEST</p>
                                <div className="space-y-6 font-tech">
-                                  {selectedOrder.items.map((it: any, idx: number) => (
+                                  {(selectedOrder.items || []).map((it: any, idx: number) => (
                                      <div key={idx} className="flex justify-between items-center group/item border-b border-black/[0.03] pb-4">
                                         <div className="flex items-center space-x-6">
                                            <span className="w-8 h-8 rounded-lg bg-black text-white text-[10px] flex items-center justify-center font-black">0{it.quantity}X</span>

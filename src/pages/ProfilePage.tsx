@@ -133,7 +133,7 @@ export default function ProfilePage() {
       doc.setFontSize(16);
       doc.setFont('helvetica', 'bold');
       doc.setTextColor(black[0], black[1], black[2]);
-      doc.text(`#${order.id.slice(-5).toUpperCase()}`, 190, 40, { align: 'right' });
+      doc.text(`#${order.id?.slice(-5).toUpperCase() || 'N/A'}`, 190, 40, { align: 'right' });
 
       doc.setDrawColor(0, 0, 0);
       doc.setLineWidth(0.5);
@@ -226,7 +226,7 @@ export default function ProfilePage() {
       doc.text('f  x  @dinospy', 20, 287);
       doc.text('dinospy.in', 190, 287, { align: 'right' });
 
-      doc.save(`DINOSPY_INVOICE_${order.id.slice(0, 8)}.pdf`);
+      doc.save(`DINOSPY_INVOICE_${order.id?.slice(0, 8) || 'ARCHIVE'}.pdf`);
       toast.success('Manifest exported.');
     } catch (err: any) {
       console.error('Archive Generation Error:', err);
@@ -277,7 +277,7 @@ export default function ProfilePage() {
               <div className="relative z-10 pt-8 md:pt-12 border-t border-black/5 flex flex-col sm:flex-row justify-between items-center lg:items-end mt-8 md:mt-0 gap-8">
                 <div className="space-y-2 md:space-y-3 text-center lg:text-left">
                   <p className="font-mono text-black/10 text-[8px] md:text-[9px] tracking-[0.5em] uppercase font-bold">Node_Identification</p>
-                  <p className="font-mono text-[10px] md:text-sm font-bold tracking-tight text-black/30 break-all">{user?.uid.slice(0, 16).toUpperCase()}</p>
+                  <p className="font-mono text-[10px] md:text-sm font-bold tracking-tight text-black/30 break-all">{user?.uid?.slice(0, 16).toUpperCase() || 'ANONYMOUS_NODE'}</p>
                 </div>
                 <div className="bg-white p-4 md:p-5 rounded-[2rem] md:rounded-[2.5rem] shadow-xl border border-black/5 group-hover:scale-110 transition-transform duration-700 shrink-0">
                   <QRCodeSVG value={user?.uid || 'DINOSPY'} size={40} fgColor="#000" bgColor="transparent" />
@@ -382,7 +382,7 @@ export default function ProfilePage() {
                         
                         <div className="flex flex-col xl:flex-row justify-between gap-12 mb-20 relative z-10">
                           <div className="space-y-8">
-                            <p className="font-mono text-black opacity-40 text-xs tracking-[0.5em] font-bold uppercase">MANIFEST_ID // DNX_{order.id.slice(-10).toUpperCase()}</p>
+                            <p className="font-mono text-black opacity-40 text-xs tracking-[0.5em] font-bold uppercase">MANIFEST_ID // DNX_{order.id?.slice(-10).toUpperCase() || 'UNKNOWN'}</p>
                             <h4 className="text-6xl md:text-8xl font-display font-medium tracking-tightest leading-none text-black">Record <span className="opacity-10 text-black italic">Item.</span></h4>
                             <div className="flex flex-wrap items-center gap-6">
                                <div className={`px-8 py-3 rounded-full text-xs font-mono font-bold tracking-widest uppercase border transition-all duration-1000 ${order.status === 'delivered' ? 'bg-black text-white border-black' : 'bg-neutral-50 text-black/60 border-black/10'}`}>
@@ -449,7 +449,7 @@ export default function ProfilePage() {
 
                         <div className="flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-12 pt-12 border-t border-black/5 mt-auto relative z-10">
                              <div className="flex flex-wrap gap-6">
-                                {order.items.slice(0, 3).map((item: any, idx: number) => (
+                                {(order.items || []).slice(0, 3).map((item: any, idx: number) => (
                                   <div key={idx} className="flex items-center space-x-6 bg-neutral-50 p-6 rounded-[2.5rem] border border-black/5 shadow-sm hover:shadow-xl transition-all duration-1000 group/item">
                                     <div className="w-16 h-20 rounded-[1.5rem] overflow-hidden bg-white relative flex items-center justify-center border border-black/5">
                                        <span className="font-display text-2xl opacity-10 group-hover/item:opacity-30 transition-opacity font-bold uppercase">{item.name?.[0] || 'D'}</span>
@@ -483,7 +483,7 @@ export default function ProfilePage() {
                                <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 bg-neutral-50 p-10 md:p-16 rounded-[5rem] border border-black/5 relative">
                                   <div className="lg:col-span-2 space-y-12">
                                     <h5 className="font-mono text-[10px] text-black opacity-20 tracking-[0.4em] font-bold uppercase mb-12">LOGISTICS_TIMELINE</h5>
-                                    {order.timeline?.slice().reverse().map((event: any, i: number) => (
+                                    {(order.timeline || []).slice().reverse().map((event: any, i: number) => (
                                       <div key={i} className="flex space-x-10 relative">
                                         <div className={`w-[14px] h-[14px] rounded-full flex-shrink-0 z-10 ${i === 0 ? 'bg-black' : 'bg-black/10'}`} />
                                         <div className="pb-10">

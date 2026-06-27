@@ -187,7 +187,7 @@ export default function OrderTrackingPage() {
                               <div className="space-y-6">
                                  <div>
                                     <p className="text-[9px] font-mono text-ivory/40 uppercase mb-1">Acquisitor_Reference</p>
-                                    <p className="text-xl font-display font-medium text-ivory uppercase tracking-widest">{order.id.toUpperCase()}</p>
+                                    <p className="text-xl font-display font-medium text-ivory uppercase tracking-widest">{order.id?.toUpperCase() || 'N/A'}</p>
                                  </div>
                                  <div className="flex justify-between">
                                     <div>

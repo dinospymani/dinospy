@@ -133,7 +133,7 @@ export default function CartPage() {
                       
                       <div className="flex-grow space-y-4 text-center md:text-left">
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
-                           <span className="font-mono text-black tracking-widest text-[9px] font-bold uppercase opacity-40">{item.brand} // REF_{item.id.slice(-8).toUpperCase()}</span>
+                           <span className="font-mono text-black tracking-widest text-[9px] font-bold uppercase opacity-40">{item.brand} // REF_{item.id?.slice(-8).toUpperCase() || 'N/A'}</span>
                            <button 
                              onClick={() => removeFromCart(item.id)}
                              className="text-black/20 hover:text-red-500 transition-colors self-center md:self-auto"

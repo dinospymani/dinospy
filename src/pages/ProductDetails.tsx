@@ -326,7 +326,7 @@ export default function ProductDetails() {
                   ) : (
                     <>
                       <div className="font-display text-[15rem] opacity-[0.02] select-none pointer-events-none">
-                        {product.name.split(' ').map((n: string) => n[0]).join('')}
+                        {product.name?.split(' ').map((n: string) => n[0]).join('') || 'DS'}
                       </div>
                       <div className="absolute inset-0 flex flex-col items-center justify-center p-20 text-center pointer-events-none">
                         <div className="w-1/3 h-[1px] bg-black/10 mb-12" />
@@ -380,7 +380,7 @@ export default function ProductDetails() {
               </motion.div>
               
               <div className="flex justify-center space-x-8 px-4">
-                {product.images.map((img: string, i: number) => (
+                {product.images?.map((img: string, i: number) => (
                   <button 
                     key={i}
                     onClick={() => setActiveImage(i)}
@@ -774,7 +774,7 @@ export default function ProductDetails() {
               ) : (
                 <>
                   <div className="font-display text-[20rem] opacity-[0.03] select-none pointer-events-none">
-                    {product.name.split(' ').map((n: string) => n[0]).join('')}
+                    {product.name?.split(' ').map((n: string) => n[0]).join('') || 'DS'}
                   </div>
                   <div className="w-1/2 h-[1px] bg-black/10 my-12" />
                   <div className="font-mono text-xs tracking-[1em] text-black/20 uppercase font-black">Macro_Analysis_Core</div>
@@ -784,7 +784,7 @@ export default function ProductDetails() {
 
             {/* Thumbnail Strip */}
             <div className="absolute bottom-10 flex space-x-6">
-               {product.images.map((img: string, i: number) => (
+               {product.images?.map((img: string, i: number) => (
                  <button 
                    key={i}
                    onClick={() => setActiveImage(i)}
