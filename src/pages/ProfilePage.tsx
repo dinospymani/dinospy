@@ -157,11 +157,11 @@ export default function ProfilePage() {
       doc.text(`Bank Name: Dinospy Global Vault`, 120, 87);
 
       // 3. Table Header & Items
-      const tableData = order.items.map((item: any) => [
-        item.name.toUpperCase(),
-        `Rs. ${item.price.toLocaleString()}`,
-        item.quantity.toString(),
-        `Rs. ${(item.price * item.quantity).toLocaleString()}`
+      const tableData = (order.items || []).map((item: any) => [
+        (item.name || 'UNKNOWN').toUpperCase(),
+        `Rs. ${(item.price || 0).toLocaleString()}`,
+        (item.quantity || 1).toString(),
+        `Rs. ${((item.price || 0) * (item.quantity || 1)).toLocaleString()}`
       ]);
 
       autoTable(doc, {

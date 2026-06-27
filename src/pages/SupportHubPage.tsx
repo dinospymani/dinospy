@@ -57,7 +57,7 @@ export default function SupportHubPage() {
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const messageList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setMessages(messageList);
+      setMessages(messageList.sort((a: any, b: any) => (a.timestamp?.seconds || 0) - (b.timestamp?.seconds || 0)));
     }, (err) => {
       console.warn("Message sequence isolated:", err);
     });

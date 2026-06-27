@@ -1612,11 +1612,11 @@ export default function AdminDashboard() {
                           <Tooltip 
                             cursor={{ stroke: '#4f46e5', strokeWidth: 1.5, strokeDasharray: '12 12' }}
                             content={({ active, payload }) => {
-                              if (active && payload && payload.length) {
+                              if (active && payload && payload.length > 0) {
                                 return (
                                   <div className="bg-white text-black p-10 rounded-[3rem] shadow-[0_40px_80px_-20px_rgba(0,0,0,0.1)] border border-black/5 backdrop-blur-3xl space-y-3">
-                                    <p className="font-tech text-[10px] text-indigo-600 tracking-[0.5em] mb-3 uppercase font-black">{payload[0].payload.name}</p>
-                                    <p className="text-4xl font-display italic tracking-tightest leading-none">Rs. {payload[0].value?.toLocaleString()}</p>
+                                    <p className="font-tech text-[10px] text-indigo-600 tracking-[0.5em] mb-3 uppercase font-black">{payload[0]?.payload?.name || 'UNKNOWN'}</p>
+                                    <p className="text-4xl font-display italic tracking-tightest leading-none">Rs. {payload[0]?.value?.toLocaleString() || '0'}</p>
                                   </div>
                                 );
                               }
@@ -1725,7 +1725,7 @@ export default function AdminDashboard() {
                               onClick={() => {
                                 toast.success('ORDER_MANIFEST_EXPORT_INITIATED');
                                 const headers = 'Order_ID,Customer,Total,Status,Date\n';
-                                const rows = orders.map(o => `${o.id},${o.customerName},${o.total},${o.status},${o.createdAt}`).join('\n');
+                                const rows = orders.map(o => `${o.id || 'N/A'},${(o.customerName || 'N/A').replace(/,/g, ' ')},${o.total || 0},${o.status || 'N/A'},${o.createdAt || 'N/A'}`).join('\n');
                                 const blob = new Blob([headers + rows], { type: 'text/csv' });
                                 const url = window.URL.createObjectURL(blob);
                                 const a = document.createElement('a');
@@ -1866,7 +1866,7 @@ export default function AdminDashboard() {
                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-12">
                    {products
                     .filter(p => (productCategoryFilter === 'All' || p.category === productCategoryFilter) && 
-                                (p.name?.toLowerCase().includes(productSearch.toLowerCase()) || p.brand?.toLowerCase().includes(productSearch.toLowerCase())))
+                                ((p.name || '').toLowerCase().includes(productSearch.toLowerCase()) || (p.brand || '').toLowerCase().includes(productSearch.toLowerCase())))
                     .map((p) => (
                     <motion.div 
                       layout
@@ -2016,9 +2016,9 @@ export default function AdminDashboard() {
                         ) : (
                           orders
                             .filter(o => (orderStatusFilter === 'all' || o.status === orderStatusFilter) && 
-                                         (o.id?.toLowerCase().includes(orderSearch.toLowerCase()) || 
-                                          o.customerName?.toLowerCase().includes(orderSearch.toLowerCase()) || 
-                                          o.customerEmail?.toLowerCase().includes(orderSearch.toLowerCase())))
+                                         ((o.id || '').toLowerCase().includes(orderSearch.toLowerCase()) || 
+                                          (o.customerName || '').toLowerCase().includes(orderSearch.toLowerCase()) || 
+                                          (o.customerEmail || '').toLowerCase().includes(orderSearch.toLowerCase())))
                             .map((o) => (
                             <tr key={o.id} className="group hover:bg-neutral-50 transition-all duration-700">
                               <td className="py-16 pl-12">

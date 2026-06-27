@@ -92,7 +92,7 @@ export default function WatchCard({ product }: WatchCardProps) {
             ) : (
               <>
                 <div className="font-display text-9xl opacity-[0.03] select-none group-hover/img:opacity-[0.08] transition-opacity duration-1000 pointer-events-none">
-                  {product.name.split(' ').map(n => n[0]).join('')}
+                  {(product.name || 'DINOSPY').split(' ').map(n => n[0]).join('')}
                 </div>
               </>
             )}

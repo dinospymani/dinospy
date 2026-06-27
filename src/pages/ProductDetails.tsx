@@ -77,6 +77,7 @@ export default function ProductDetails() {
     try {
       const reviewRef = doc(db, 'reviews', reviewId);
       const review = reviews.find(r => r.id === reviewId);
+      if (!review) return;
       const helpfulBy = review.helpfulBy || [];
       
       if (helpfulBy.includes(user.uid)) {

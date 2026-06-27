@@ -177,17 +177,17 @@ export default function CheckoutPage() {
       // 1. Validate Stock and Pre-create Order using a Transaction
       const result = await runTransaction(db, async (transaction) => {
         const productSnaps = await Promise.all(
-          cart.map(item => transaction.get(doc(db, 'products', item.id)))
+          cart.map(item => transaction.get(doc(db, 'products', item.id || 'void')))
         );
 
         for (let i = 0; i < cart.length; i++) {
           const snap = productSnaps[i];
           const cartItem = cart[i];
-          if (!snap.exists()) throw new Error(`Product ${cartItem.name} not found.`);
+          if (!snap.exists()) throw new Error(`Product ${cartItem.name || 'Unknown'} not found.`);
           
-          const currentStock = snap.data().stock || 0;
-          if (currentStock < cartItem.quantity) {
-            throw new Error(`Insufficient stock for ${cartItem.name}.`);
+          const currentStock = snap.data()?.stock || 0;
+          if (currentStock < (cartItem.quantity || 1)) {
+            throw new Error(`Insufficient stock for ${cartItem.name || 'Unknown'}.`);
           }
         }
 

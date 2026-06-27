@@ -202,8 +202,8 @@ const AuthGate = ({ children }: { children: React.ReactNode }) => {
     // 1. User is not logged in
     // 2. Auth state has finished loading
     // 3. We are NOT on login, signup, or legal pages (to avoid infinite loops or blocking public info)
-    const publicPaths = ['/login', '/signup', '/privacy', '/refund', '/terms', '/contact', '/faq'];
-    const isPublicPath = publicPaths.includes(location.pathname);
+    const publicPaths = ['/', '/login', '/signup', '/privacy', '/refund', '/terms', '/contact', '/faq', '/explore'];
+    const isPublicPath = publicPaths.includes(location.pathname) || location.pathname.startsWith('/product/');
 
     if (!loading && !user && !isPublicPath) {
       // Delay slightly to allow page load

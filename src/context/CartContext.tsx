@@ -97,7 +97,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const unsubscribes: (() => void)[] = [];
 
     cart.forEach((item) => {
-      if (unsubscribedIds.has(item.id)) return;
+      if (!item.id || unsubscribedIds.has(item.id)) return;
       unsubscribedIds.add(item.id);
 
       const itemRef = doc(db, 'products', item.id);

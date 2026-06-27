@@ -31,3 +31,24 @@ document.addEventListener('copy', (e) => {
   }
 });
 
+// Prevent Right Click
+document.addEventListener('contextmenu', (e) => {
+  const target = e.target as HTMLElement;
+  if (['INPUT', 'TEXTAREA'].includes(target.tagName)) return;
+  e.preventDefault();
+});
+
+// Prevent common Inspect/Copy shortcuts
+document.addEventListener('keydown', (e) => {
+  // Ctrl+C, Ctrl+U, Ctrl+S, Ctrl+Shift+I, F12
+  if (
+    (e.ctrlKey && (e.key === 'c' || e.key === 'u' || e.key === 's')) ||
+    (e.ctrlKey && e.shiftKey && e.key === 'I') ||
+    e.key === 'F12'
+  ) {
+    const target = e.target as HTMLElement;
+    if (['INPUT', 'TEXTAREA'].includes(target.tagName) && e.key === 'c') return;
+    e.preventDefault();
+  }
+});
+
