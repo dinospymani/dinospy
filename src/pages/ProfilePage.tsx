@@ -419,7 +419,16 @@ export default function ProfilePage() {
                                 {(order.items || []).slice(0, 3).map((item: any, idx: number) => (
                                   <div key={idx} className="flex items-center space-x-6 bg-neutral-50 p-6 rounded-[2.5rem] border border-black/5 shadow-sm hover:shadow-xl transition-all duration-1000 group/item">
                                     <div className="w-16 h-20 rounded-[1.5rem] overflow-hidden bg-white relative flex items-center justify-center border border-black/5">
-                                       <span className="font-display text-2xl opacity-10 group-hover/item:opacity-30 transition-opacity font-bold uppercase">{item.name?.[0] || 'D'}</span>
+                                       {item.images && item.images.length > 0 ? (
+                                         <img 
+                                           src={item.images[0]} 
+                                           alt={item.name}
+                                           className="w-full h-full object-contain p-2 group-hover/item:scale-110 transition-transform duration-1000"
+                                           referrerPolicy="no-referrer"
+                                         />
+                                       ) : (
+                                         <span className="font-display text-2xl opacity-10 group-hover/item:opacity-30 transition-opacity font-bold uppercase">{item.name?.[0] || 'D'}</span>
+                                       )}
                                        <div className="absolute inset-0 opacity-[0.02]" 
                                             style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '10px 10px' }} />
                                     </div>

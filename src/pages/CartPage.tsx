@@ -126,7 +126,16 @@ export default function CartPage() {
                       </div>
 
                       <div className="w-32 h-40 md:w-40 md:h-52 shrink-0 bg-neutral-50 rounded-[2rem] flex items-center justify-center relative overflow-hidden border border-black/5">
-                        <span className="font-display text-4xl opacity-[0.05] group-hover:opacity-[0.1] transition-opacity font-bold uppercase">{item.name?.[0] || 'D'}</span>
+                        {item.images && item.images.length > 0 ? (
+                          <img 
+                            src={item.images[0]} 
+                            alt={item.name}
+                            className="w-full h-full object-contain p-4 group-hover:scale-110 transition-transform duration-1000"
+                            referrerPolicy="no-referrer"
+                          />
+                        ) : (
+                          <span className="font-display text-4xl opacity-[0.05] group-hover:opacity-[0.1] transition-opacity font-bold uppercase">{item.name?.[0] || 'D'}</span>
+                        )}
                         <div className="absolute inset-0 opacity-[0.01]" 
                              style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
                       </div>

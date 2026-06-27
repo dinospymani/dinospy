@@ -229,6 +229,44 @@ export default function OrderTrackingPage() {
                            </div>
                         </div>
 
+                        {/* Itemized Manifest */}
+                        <motion.div 
+                           initial={{ opacity: 0, y: 20 }}
+                           animate={{ opacity: 1, y: 0 }}
+                           transition={{ delay: 0.1 }}
+                           className="bg-white border border-charcoal/5 rounded-[3.5rem] p-10 luxury-shadow"
+                        >
+                           <h3 className="font-tech text-[10px] text-charcoal/30 tracking-[0.4em] font-black uppercase mb-8 flex items-center">
+                              <Package size={14} className="mr-3" />
+                              Itemized_Manifest
+                           </h3>
+                           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                              {(order.items || []).map((item: any, idx: number) => (
+                                 <div key={idx} className="flex items-center space-x-6 bg-charcoal/[0.02] p-6 rounded-[2.5rem] border border-charcoal/5 group/item hover:bg-charcoal/5 transition-all duration-700">
+                                    <div className="w-16 h-20 rounded-[1.5rem] overflow-hidden bg-white border border-charcoal/5 flex items-center justify-center p-2 flex-shrink-0">
+                                       {item.images && item.images.length > 0 ? (
+                                          <img 
+                                             src={item.images[0]} 
+                                             alt={item.name} 
+                                             className="w-full h-full object-contain group-hover/item:scale-110 transition-transform duration-1000"
+                                             referrerPolicy="no-referrer"
+                                          />
+                                       ) : (
+                                          <span className="font-display text-2xl opacity-10 font-bold uppercase">{item.name?.[0] || 'D'}</span>
+                                       )}
+                                    </div>
+                                    <div className="flex-grow">
+                                       <h4 className="font-display font-bold text-lg leading-tight uppercase italic">{item.name}</h4>
+                                       <div className="flex items-center justify-between mt-2">
+                                          <span className="font-mono text-[10px] text-charcoal/40 font-black uppercase">Qty: {item.quantity || 1}</span>
+                                          <span className="font-mono text-xs font-bold text-charcoal/60">₹{(item.price || 0).toLocaleString()}</span>
+                                       </div>
+                                    </div>
+                                 </div>
+                              ))}
+                           </div>
+                        </motion.div>
+
                         {/* Tracker Timeline */}
                         <motion.div 
                            initial={{ opacity: 0, y: 30 }}

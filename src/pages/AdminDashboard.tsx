@@ -2976,8 +2976,20 @@ export default function AdminDashboard() {
                                   {(selectedOrder.items || []).map((it: any, idx: number) => (
                                      <div key={idx} className="flex justify-between items-center group/item border-b border-black/[0.03] pb-4">
                                         <div className="flex items-center space-x-6">
-                                           <span className="w-8 h-8 rounded-lg bg-black text-white text-[10px] flex items-center justify-center font-black">0{it.quantity}X</span>
-                                           <span className="font-black italic tracking-[0.1em] group-hover:text-indigo-600 transition-colors uppercase text-xl">{it.name}</span>
+                                           <div className="w-12 h-16 rounded-xl overflow-hidden bg-neutral-50 border border-black/5 flex items-center justify-center p-1">
+                                              {it.images && it.images.length > 0 ? (
+                                                 <img src={it.images[0]} className="w-full h-full object-contain" alt="" referrerPolicy="no-referrer" />
+                                              ) : (
+                                                 <ImageIcon size={16} className="text-black/10" />
+                                              )}
+                                           </div>
+                                           <div className="flex flex-col">
+                                              <div className="flex items-center space-x-3">
+                                                 <span className="w-6 h-6 rounded-md bg-black text-white text-[8px] flex items-center justify-center font-black">0{it.quantity}X</span>
+                                                 <span className="font-black italic tracking-[0.1em] group-hover:text-indigo-600 transition-colors uppercase text-lg">{it.name}</span>
+                                              </div>
+                                              <span className="text-[8px] font-mono text-black/20 mt-1 uppercase">VALUATION: Rs. {(it.price || 0).toLocaleString()}</span>
+                                            </div>
                                         </div>
                                         <span className="text-xs font-black text-black/20">ITEM_STAGED</span>
                                      </div>

@@ -640,8 +640,12 @@ export default function CheckoutPage() {
                 <div className="space-y-10 mb-16 overflow-y-auto max-h-[35vh] pr-4 custom-scrollbar">
                   {cart.map((item) => (
                     <div key={item.id} className="flex space-x-6 items-center">
-                      <div className="w-20 aspect-square overflow-hidden rounded-[1.5rem] bg-neutral-50 border border-black/5 p-2 flex-shrink-0">
-                         <img src={item.images[0]} className="w-full h-full object-contain rounded-xl" alt={item.name} />
+                      <div className="w-20 aspect-square overflow-hidden rounded-[1.5rem] bg-neutral-50 border border-black/5 p-2 flex-shrink-0 flex items-center justify-center">
+                         {item.images && item.images.length > 0 ? (
+                           <img src={item.images[0]} className="w-full h-full object-contain rounded-xl" alt={item.name} referrerPolicy="no-referrer" />
+                         ) : (
+                           <span className="font-display text-2xl opacity-10 font-bold uppercase">{item.name?.[0] || 'D'}</span>
+                         )}
                       </div>
                       <div className="flex-grow space-y-2">
                         <h4 className="text-lg font-display font-medium tracking-tight truncate w-40">{item.name}</h4>
